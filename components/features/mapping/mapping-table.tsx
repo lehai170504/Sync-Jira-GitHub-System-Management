@@ -13,13 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -33,13 +27,13 @@ import {
   Loader2,
   Save,
   Search,
-  AlertCircle,
   Filter,
   Wand2,
-  X,
+  Lock, // Icon khóa cho chế độ Read-only
 } from "lucide-react";
 import { UserSelect } from "./user-select";
 
+// --- Types ---
 type Student = { id: string; name: string; email: string; avatar?: string };
 type JiraUser = { accountId: string; displayName: string; avatarUrl?: string };
 type GithubUser = { login: string; avatarUrl?: string };
@@ -49,6 +43,7 @@ interface MappingTableProps {
   jiraUsers: JiraUser[];
   githubUsers: GithubUser[];
   initialMappings: Record<string, { jira?: string; github?: string }>;
+  readOnly?: boolean; // ✅ Prop quy định quyền sửa đổi
 }
 
 export function MappingTable({
@@ -56,15 +51,18 @@ export function MappingTable({
   jiraUsers,
   githubUsers,
   initialMappings,
+  readOnly = false, // Mặc định là false (cho phép sửa)
 }: MappingTableProps) {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<
     "all" | "missing" | "completed"
   >("all");
+
+  // State lưu trữ mapping cục bộ
   const [mappings, setMappings] = useState(initialMappings);
 
-  // Logic lọc dữ liệu
+  // --- Logic Lọc ---
   const filteredStudents = students.filter((s) => {
     const matchesSearch =
       s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -78,18 +76,23 @@ export function MappingTable({
     return matchesSearch;
   });
 
+  // --- Xử lý thay đổi (Chỉ chạy khi không Read-only) ---
   const handleChange = (
     studentId: string,
     type: "jira" | "github",
     value: string
   ) => {
+    if (readOnly) return; // Chặn logic nếu đang xem
     setMappings((prev) => ({
       ...prev,
       [studentId]: { ...prev[studentId], [type]: value },
     }));
   };
 
+  // --- Lưu dữ liệu ---
   const handleSave = async () => {
+    if (readOnly) return;
+
     setLoading(true);
     const payload = {
       mappings: Object.entries(mappings).map(([studentId, data]) => ({
@@ -100,6 +103,7 @@ export function MappingTable({
     };
     const res = await saveUserMappings(payload);
     setLoading(false);
+
     if (res.error) {
       toast.error("Lưu thất bại", { description: res.error });
     } else {
@@ -107,18 +111,22 @@ export function MappingTable({
     }
   };
 
+  // --- Tự động ghép nối (Giả lập) ---
   const handleAutoMap = () => {
-    // Giả lập tính năng tự động map (Logic thực tế sẽ so sánh string similarity)
+    if (readOnly) return;
+
     toast.info("Đang quét dữ liệu...", { duration: 1000 });
     setTimeout(() => {
       toast.success("Đã tự động ghép nối 3 sinh viên dựa trên Email!", {
         icon: <Wand2 className="w-4 h-4 text-purple-500" />,
       });
+      // Ở đây bạn sẽ update state `mappings` dựa trên thuật toán match string
     }, 1200);
   };
 
   return (
     <Card className="border shadow-sm bg-white">
+      {/* HEADER TOOLBAR */}
       <CardHeader className="border-b bg-muted/20 px-6 py-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* SEARCH & FILTER GROUP */}
@@ -149,32 +157,35 @@ export function MappingTable({
             </Select>
           </div>
 
-          {/* ACTION GROUP */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={handleAutoMap}
-              className="hidden md:flex hover:bg-purple-50 hover:text-purple-600 border-dashed"
-            >
-              <Wand2 className="mr-2 h-4 w-4" />
-              Tự động ghép
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={loading}
-              className="min-w-[100px] bg-primary hover:bg-primary/90 text-white shadow-sm"
-            >
-              {loading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="mr-2 h-4 w-4" />
-              )}
-              Lưu thay đổi
-            </Button>
-          </div>
+          {/* ACTION GROUP: Ẩn nút chức năng nếu là Admin (Read-only) */}
+          {!readOnly && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={handleAutoMap}
+                className="hidden md:flex hover:bg-purple-50 hover:text-purple-600 border-dashed"
+              >
+                <Wand2 className="mr-2 h-4 w-4" />
+                Tự động ghép
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={loading}
+                className="min-w-[100px] bg-primary hover:bg-primary/90 text-white shadow-sm"
+              >
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Lưu thay đổi
+              </Button>
+            </div>
+          )}
         </div>
       </CardHeader>
 
+      {/* TABLE CONTENT */}
       <CardContent className="p-0">
         <div className="relative w-full overflow-auto">
           <Table>
@@ -200,6 +211,7 @@ export function MappingTable({
                     key={student.id}
                     className="hover:bg-slate-50/60 transition-colors"
                   >
+                    {/* CỘT 1: THÔNG TIN SINH VIÊN */}
                     <TableCell className="pl-6 py-4">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10 border shadow-sm">
@@ -219,45 +231,110 @@ export function MappingTable({
                       </div>
                     </TableCell>
 
+                    {/* CỘT 2: JIRA ACCOUNT */}
                     <TableCell>
-                      <UserSelect
-                        value={currentMap.jira}
-                        onChange={(val) =>
-                          handleChange(student.id, "jira", val)
-                        }
-                        placeholder="Chọn Jira User"
-                        options={jiraUsers.map((u) => ({
-                          id: u.accountId,
-                          label: u.displayName,
-                          subLabel: "Member",
-                          avatarUrl: u.avatarUrl,
-                        }))}
-                      />
+                      {readOnly ? (
+                        /* CHẾ ĐỘ XEM: Chỉ hiện text */
+                        <div className="flex items-center gap-2 text-sm pl-1">
+                          {currentMap.jira ? (
+                            <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-blue-50/50 border border-blue-100/50">
+                              <Avatar className="h-5 w-5">
+                                <AvatarImage
+                                  src={
+                                    jiraUsers.find(
+                                      (u) => u.accountId === currentMap.jira
+                                    )?.avatarUrl
+                                  }
+                                />
+                                <AvatarFallback className="text-[9px]">
+                                  J
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="font-medium text-blue-900">
+                                {jiraUsers.find(
+                                  (u) => u.accountId === currentMap.jira
+                                )?.displayName || "Unknown User"}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground italic text-xs pl-2">
+                              Chưa liên kết
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        /* CHẾ ĐỘ SỬA: Hiện Dropdown */
+                        <UserSelect
+                          value={currentMap.jira}
+                          onChange={(val) =>
+                            handleChange(student.id, "jira", val)
+                          }
+                          placeholder="Chọn Jira User"
+                          options={jiraUsers.map((u) => ({
+                            id: u.accountId,
+                            label: u.displayName,
+                            subLabel: "Member",
+                            avatarUrl: u.avatarUrl,
+                          }))}
+                        />
+                      )}
                     </TableCell>
 
+                    {/* CỘT 3: GITHUB ACCOUNT */}
                     <TableCell>
-                      <UserSelect
-                        value={currentMap.github}
-                        onChange={(val) =>
-                          handleChange(student.id, "github", val)
-                        }
-                        placeholder="Chọn GitHub User"
-                        options={githubUsers.map((u) => ({
-                          id: u.login,
-                          label: u.login,
-                          subLabel: "Contributor",
-                          avatarUrl: u.avatarUrl,
-                        }))}
-                      />
+                      {readOnly ? (
+                        /* CHẾ ĐỘ XEM */
+                        <div className="flex items-center gap-2 text-sm pl-1">
+                          {currentMap.github ? (
+                            <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-gray-100 border border-gray-200">
+                              <Avatar className="h-5 w-5">
+                                <AvatarImage
+                                  src={
+                                    githubUsers.find(
+                                      (u) => u.login === currentMap.github
+                                    )?.avatarUrl
+                                  }
+                                />
+                                <AvatarFallback className="text-[9px]">
+                                  G
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="font-mono text-gray-700">
+                                @{currentMap.github}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground italic text-xs pl-2">
+                              Chưa liên kết
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        /* CHẾ ĐỘ SỬA */
+                        <UserSelect
+                          value={currentMap.github}
+                          onChange={(val) =>
+                            handleChange(student.id, "github", val)
+                          }
+                          placeholder="Chọn GitHub User"
+                          options={githubUsers.map((u) => ({
+                            id: u.login,
+                            label: u.login,
+                            subLabel: "Contributor",
+                            avatarUrl: u.avatarUrl,
+                          }))}
+                        />
+                      )}
                     </TableCell>
 
+                    {/* CỘT 4: TRẠNG THÁI */}
                     <TableCell className="text-right pr-6">
                       {isFullyMapped ? (
                         <Badge
                           variant="outline"
                           className="bg-green-50 text-green-700 border-green-200 px-2 py-1 gap-1"
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-600" />{" "}
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-600" />
                           Done
                         </Badge>
                       ) : (
@@ -265,7 +342,7 @@ export function MappingTable({
                           variant="outline"
                           className="bg-orange-50 text-orange-700 border-orange-200 px-2 py-1 gap-1"
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse" />{" "}
+                          <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse" />
                           Missing
                         </Badge>
                       )}
@@ -283,9 +360,6 @@ export function MappingTable({
                       </div>
                       <p className="font-medium">
                         Không tìm thấy sinh viên nào
-                      </p>
-                      <p className="text-sm">
-                        Hãy thử thay đổi từ khóa hoặc bộ lọc trạng thái.
                       </p>
                       <Button
                         variant="link"

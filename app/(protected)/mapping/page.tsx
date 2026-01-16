@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import { MappingTable } from "@/components/features/mapping/mapping-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info, Users, Link2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Info, Users, AlertTriangle, CheckCircle2, Lock } from "lucide-react";
+import { UserRole } from "@/components/layouts/sidebar"; // Import type
 
 // --- MOCK DATA ---
 const mockStudents = [
@@ -60,9 +63,19 @@ const initialMappings = {
 };
 
 export default function MappingPage() {
-  // Tính toán nhanh số liệu
+  const [role, setRole] = useState<UserRole>("ADMIN");
+
+  useEffect(() => {
+    const savedRole = Cookies.get("user_role") as UserRole;
+    if (savedRole) setRole(savedRole);
+  }, []);
+
+  // Chỉ LEADER mới được sửa, còn lại (Admin/Lecturer) chỉ xem
+  const isReadOnly = role !== "LEADER";
+
+  // Stats
   const totalStudents = mockStudents.length;
-  const fullyMapped = 1; // Giả lập từ initialMappings
+  const fullyMapped = 1;
   const missing = totalStudents - fullyMapped;
 
   return (
@@ -70,9 +83,16 @@ export default function MappingPage() {
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">
-            Ánh xạ tài khoản
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+              Ánh xạ tài khoản
+            </h2>
+            {isReadOnly && (
+              <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                <Lock className="mr-1 h-3 w-3" /> Chế độ xem (Read-only)
+              </span>
+            )}
+          </div>
           <p className="text-muted-foreground mt-1">
             Định danh sinh viên với các tài khoản Jira & GitHub để tính điểm tự
             động.
@@ -126,25 +146,36 @@ export default function MappingPage() {
         </Card>
       </div>
 
-      {/* INFO ALERT */}
-      <Alert className="bg-blue-50 border-blue-200 text-blue-800">
-        <Info className="h-4 w-4 text-blue-600" />
-        <AlertTitle className="text-blue-900 font-semibold">
-          Gợi ý từ hệ thống
-        </AlertTitle>
-        <AlertDescription className="text-sm mt-1 opacity-90">
-          Sử dụng nút <b>"Tự động ghép"</b> để hệ thống tự động điền các tài
-          khoản có Email hoặc Tên hiển thị giống nhau. Việc này giúp tiết kiệm
-          80% thời gian thao tác.
-        </AlertDescription>
-      </Alert>
+      {/* INFO ALERT - NỘI DUNG THAY ĐỔI THEO ROLE */}
+      {isReadOnly ? (
+        <Alert className="bg-gray-50 border-gray-200 text-gray-800">
+          <Lock className="h-4 w-4 text-gray-600" />
+          <AlertTitle className="font-semibold">Quyền hạn hạn chế</AlertTitle>
+          <AlertDescription className="text-sm mt-1 opacity-90">
+            Bạn đang xem với quyền <b>{role}</b>. Chỉ có <b>Leader</b> của nhóm
+            mới có thể chỉnh sửa thông tin ánh xạ này.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Alert className="bg-blue-50 border-blue-200 text-blue-800">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertTitle className="text-blue-900 font-semibold">
+            Gợi ý từ hệ thống
+          </AlertTitle>
+          <AlertDescription className="text-sm mt-1 opacity-90">
+            Sử dụng nút <b>"Tự động ghép"</b> để hệ thống tự động điền các tài
+            khoản có Email hoặc Tên hiển thị giống nhau.
+          </AlertDescription>
+        </Alert>
+      )}
 
-      {/* MAIN TABLE */}
+      {/* MAIN TABLE - TRUYỀN PROP READONLY */}
       <MappingTable
         students={mockStudents}
         jiraUsers={mockJiraUsers}
         githubUsers={mockGithubUsers}
         initialMappings={initialMappings}
+        readOnly={isReadOnly} // Prop mới
       />
     </div>
   );

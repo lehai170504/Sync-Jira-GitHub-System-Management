@@ -65,7 +65,7 @@ export function GithubForm() {
   }
 
   return (
-    <Card className="border-none shadow-lg overflow-hidden">
+    <Card className="border-none shadow-lg overflow-hidden -mt-5">
       {/* BRAND HEADER */}
       <div className="bg-[#181717] p-6 text-white flex justify-between items-start">
         <div className="flex items-center gap-3">

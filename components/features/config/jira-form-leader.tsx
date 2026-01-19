@@ -18,6 +18,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import {
   Card,
@@ -26,16 +27,30 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Loader2, Eye, EyeOff, ExternalLink, CheckCircle2 } from "lucide-react";
+import {
+  Loader2,
+  Eye,
+  EyeOff,
+  ExternalLink,
+  CheckCircle2,
+  XCircle,
+  Plug,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export function JiraForm() {
+export function JiraFormLeader() {
   const [loading, setLoading] = useState(false);
+  const [testing, setTesting] = useState(false);
   const [showToken, setShowToken] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<{
+    status: "idle" | "success" | "error";
+    message?: string;
+  }>({ status: "idle" });
 
   // Mock state: Giả sử đã kết nối (Logic này bạn lấy từ DB thật)
-  const isConnected = false;
+  const isConnected = connectionStatus.status === "success";
 
   const form = useForm<JiraConfigValues>({
     resolver: zodResolver(jiraConfigSchema),
@@ -46,9 +61,83 @@ export function JiraForm() {
     },
   });
 
+  // Helper: Normalize domain URL (thêm https:// nếu chưa có)
+  function normalizeDomainUrl(domain: string): string {
+    if (!domain) return "";
+    const trimmed = domain.trim();
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      return trimmed;
+    }
+    return `https://${trimmed}`;
+  }
+
+  // Hàm Test Connection riêng
+  async function handleTestConnection() {
+    const values = form.getValues();
+    
+    // Validate form trước khi test
+    const isValid = await form.trigger();
+    if (!isValid) {
+      toast.error("Vui lòng điền đầy đủ thông tin trước khi test kết nối");
+      return;
+    }
+
+    setTesting(true);
+    setConnectionStatus({ status: "idle" });
+
+    try {
+      // Normalize domain URL
+      const normalizedDomain = normalizeDomainUrl(values.domainUrl);
+      
+      // Giả lập test connection (delay 2 giây)
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Mock: Random success/error để demo
+      const mockSuccess = Math.random() > 0.3; // 70% success rate
+
+      if (mockSuccess) {
+        setConnectionStatus({
+          status: "success",
+          message: "Kết nối thành công! Thông tin xác thực hợp lệ.",
+        });
+        toast.success("Kết nối Jira thành công!");
+      } else {
+        setConnectionStatus({
+          status: "error",
+          message: "Không thể kết nối. Vui lòng kiểm tra lại Domain, Email hoặc API Token.",
+        });
+        toast.error("Kết nối thất bại. Vui lòng kiểm tra lại thông tin.");
+      }
+    } catch (error) {
+      setConnectionStatus({
+        status: "error",
+        message: "Lỗi kết nối. Vui lòng thử lại sau.",
+      });
+      toast.error("Có lỗi xảy ra khi test kết nối");
+    } finally {
+      setTesting(false);
+    }
+  }
+
+  // Hàm Submit để lưu cấu hình
   async function onSubmit(values: JiraConfigValues) {
+    // Nếu chưa test connection, yêu cầu test trước
+    if (connectionStatus.status !== "success") {
+      toast.info("Vui lòng test kết nối trước khi lưu cấu hình", {
+        description: "Nhấn nút 'Test Connection' để kiểm tra thông tin đăng nhập.",
+      });
+      return;
+    }
+
     setLoading(true);
-    const result = await updateJiraConfig(values);
+    
+    // Normalize domain URL trước khi submit
+    const normalizedValues = {
+      ...values,
+      domainUrl: normalizeDomainUrl(values.domainUrl),
+    };
+    
+    const result = await updateJiraConfig(normalizedValues);
     setLoading(false);
 
     if (result.error) {
@@ -73,7 +162,7 @@ export function JiraForm() {
           <div>
             <CardTitle className="text-lg text-white">Jira Software</CardTitle>
             <CardDescription className="text-blue-100 mt-1">
-              Đồng bộ User Stories & Story Points
+              Cấu hình kết nối Jira để đồng bộ User Stories & Story Points
             </CardDescription>
           </div>
         </div>
@@ -94,12 +183,36 @@ export function JiraForm() {
       <CardContent className="p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* ALERT: Connection Status */}
+            {connectionStatus.status !== "idle" && (
+              <Alert
+                className={
+                  connectionStatus.status === "success"
+                    ? "bg-green-50 border-green-200 text-green-900"
+                    : "bg-red-50 border-red-200 text-red-900"
+                }
+              >
+                {connectionStatus.status === "success" ? (
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                ) : (
+                  <XCircle className="h-4 w-4 text-red-600" />
+                )}
+                <AlertDescription className="mt-1">
+                  {connectionStatus.message}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Domain URL Field */}
             <FormField
               control={form.control}
               name="domainUrl"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Domain URL</FormLabel>
+                  <FormDescription className="text-xs">
+                    Nhập domain Jira của bạn (không cần https://)
+                  </FormDescription>
                   <FormControl>
                     <div className="relative">
                       <span className="absolute left-3 top-2.5 text-muted-foreground text-sm">
@@ -117,6 +230,7 @@ export function JiraForm() {
               )}
             />
 
+            {/* Email & API Token Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -124,6 +238,9 @@ export function JiraForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email Admin</FormLabel>
+                    <FormDescription className="text-xs">
+                      Email tài khoản Jira của bạn
+                    </FormDescription>
                     <FormControl>
                       <Input placeholder="admin@example.com" {...field} />
                     </FormControl>
@@ -142,11 +259,15 @@ export function JiraForm() {
                       <a
                         href="https://id.atlassian.com/manage-profile/security/api-tokens"
                         target="_blank"
+                        rel="noopener noreferrer"
                         className="text-xs text-[#0052CC] hover:underline flex items-center gap-1"
                       >
                         Lấy token ở đâu? <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
+                    <FormDescription className="text-xs">
+                      Token để xác thực API requests
+                    </FormDescription>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -176,25 +297,53 @@ export function JiraForm() {
               />
             </div>
 
-            <div className="flex justify-end pt-4 border-t">
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleTestConnection}
+                disabled={testing || loading}
+                className="w-full sm:w-auto"
+              >
+                {testing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang kiểm tra...
+                  </>
+                ) : (
+                  <>
+                    <Plug className="mr-2 h-4 w-4" />
+                    Test Connection
+                  </>
+                )}
+              </Button>
               <Button
                 type="submit"
-                disabled={loading}
-                className="w-full md:w-auto bg-[#0052CC] hover:bg-[#0747A6] min-w-[140px]"
+                disabled={loading || testing || connectionStatus.status !== "success"}
+                className="w-full sm:w-auto bg-[#0052CC] hover:bg-[#0747A6] min-w-[140px]"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                    Checking...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang lưu...
                   </>
                 ) : (
                   "Lưu cấu hình"
                 )}
               </Button>
             </div>
+
+            {/* Helper Text */}
+            {connectionStatus.status !== "success" && (
+              <p className="text-xs text-muted-foreground text-center pt-2">
+                💡 <strong>Lưu ý:</strong> Vui lòng test kết nối trước khi lưu cấu hình.
+              </p>
+            )}
           </form>
         </Form>
       </CardContent>
     </Card>
   );
 }
+

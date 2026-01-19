@@ -30,8 +30,21 @@ import {
   Filter,
   Wand2,
   Lock, // Icon khóa cho chế độ Read-only
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { UserSelect } from "./user-select";
+import { FieldError } from "@/components/ui/field";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // --- Types ---
 type Student = { id: string; name: string; email: string; avatar?: string };
@@ -58,9 +71,69 @@ export function MappingTable({
   const [filterStatus, setFilterStatus] = useState<
     "all" | "missing" | "completed"
   >("all");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // State lưu trữ mapping cục bộ
   const [mappings, setMappings] = useState(initialMappings);
+
+  // --- Validation: Kiểm tra trùng account ---
+  const getValidationErrors = () => {
+    const errors: Record<string, { jira?: string; github?: string }> = {};
+    
+    // Lấy tất cả các giá trị đã được map
+    const jiraAccounts = Object.entries(mappings)
+      .map(([id, map]) => ({ studentId: id, accountId: map?.jira }))
+      .filter((item) => item.accountId);
+    
+    const githubAccounts = Object.entries(mappings)
+      .map(([id, map]) => ({ studentId: id, username: map?.github }))
+      .filter((item) => item.username);
+
+    // Kiểm tra trùng Jira account
+    const jiraCounts: Record<string, string[]> = {};
+    jiraAccounts.forEach(({ studentId, accountId }) => {
+      if (accountId) {
+        if (!jiraCounts[accountId]) {
+          jiraCounts[accountId] = [];
+        }
+        jiraCounts[accountId].push(studentId);
+      }
+    });
+
+    Object.entries(jiraCounts).forEach(([accountId, studentIds]) => {
+      if (studentIds.length > 1) {
+        studentIds.forEach((studentId) => {
+          if (!errors[studentId]) errors[studentId] = {};
+          errors[studentId].jira = `Tài khoản Jira này đã được sử dụng bởi ${studentIds.length - 1} sinh viên khác`;
+        });
+      }
+    });
+
+    // Kiểm tra trùng GitHub account
+    const githubCounts: Record<string, string[]> = {};
+    githubAccounts.forEach(({ studentId, username }) => {
+      if (username) {
+        if (!githubCounts[username]) {
+          githubCounts[username] = [];
+        }
+        githubCounts[username].push(studentId);
+      }
+    });
+
+    Object.entries(githubCounts).forEach(([username, studentIds]) => {
+      if (studentIds.length > 1) {
+        studentIds.forEach((studentId) => {
+          if (!errors[studentId]) errors[studentId] = {};
+          errors[studentId].github = `Tài khoản GitHub này đã được sử dụng bởi ${studentIds.length - 1} sinh viên khác`;
+        });
+      }
+    });
+
+    return errors;
+  };
+
+  const validationErrors = getValidationErrors();
+  const hasValidationErrors = Object.keys(validationErrors).length > 0;
 
   // --- Logic Lọc ---
   const filteredStudents = students.filter((s) => {
@@ -89,11 +162,39 @@ export function MappingTable({
     }));
   };
 
-  // --- Lưu dữ liệu ---
-  const handleSave = async () => {
-    if (readOnly) return;
+  // --- Tính toán số lượng thay đổi ---
+  const getSaveSummary = () => {
+    const totalMappings = Object.keys(mappings).length;
+    const jiraMapped = Object.values(mappings).filter((m) => m?.jira).length;
+    const githubMapped = Object.values(mappings).filter(
+      (m) => m && "github" in m && m.github
+    ).length;
+    const fullyMapped = Object.values(mappings).filter(
+      (m) => m?.jira && m && "github" in m && m.github
+    ).length;
 
+    // So sánh với initial để tính số thay đổi
+    const changes = Object.entries(mappings).filter(([id, map]) => {
+      const initial = initialMappings[id] || {};
+      return (
+        map?.jira !== initial?.jira || map?.github !== initial?.github
+      );
+    }).length;
+
+    return {
+      totalMappings,
+      jiraMapped,
+      githubMapped,
+      fullyMapped,
+      changes,
+    };
+  };
+
+  // --- Lưu dữ liệu (sau khi confirm) ---
+  const handleSaveConfirmed = async () => {
+    setShowConfirmDialog(false);
     setLoading(true);
+
     const payload = {
       mappings: Object.entries(mappings).map(([studentId, data]) => ({
         studentId,
@@ -109,6 +210,22 @@ export function MappingTable({
     } else {
       toast.success("Đã lưu thành công", { description: res.message });
     }
+  };
+
+  // --- Mở dialog xác nhận ---
+  const handleSave = () => {
+    if (readOnly) return;
+
+    // Kiểm tra validation trước khi lưu
+    if (hasValidationErrors) {
+      toast.error("Không thể lưu", {
+        description: "Vui lòng sửa các lỗi trùng lặp tài khoản trước khi lưu.",
+      });
+      return;
+    }
+
+    // Mở dialog xác nhận
+    setShowConfirmDialog(true);
   };
 
   // --- Tự động ghép nối (Giả lập) ---
@@ -170,8 +287,8 @@ export function MappingTable({
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={loading}
-                className="min-w-[100px] bg-primary hover:bg-primary/90 text-white shadow-sm"
+                disabled={loading || hasValidationErrors}
+                className="min-w-[100px] bg-primary hover:bg-primary/90 text-white shadow-sm disabled:opacity-50"
               >
                 {loading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -180,10 +297,113 @@ export function MappingTable({
                 )}
                 Lưu thay đổi
               </Button>
+              {hasValidationErrors && (
+                <div className="flex items-center gap-1 text-xs text-red-600">
+                  <AlertCircle className="h-3 w-3" />
+                  <span>Có lỗi validation</span>
+                </div>
+              )}
             </div>
           )}
         </div>
       </CardHeader>
+
+      {/* CONFIRMATION DIALOG */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Save className="h-5 w-5 text-primary" />
+              </div>
+              <AlertDialogTitle>Xác nhận lưu ánh xạ tài khoản</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription asChild>
+              <div className="text-left space-y-3 pt-2">
+                <div className="text-sm font-medium text-foreground">
+                  Bạn có chắc chắn muốn lưu các thay đổi ánh xạ tài khoản?
+                </div>
+                
+                {/* Summary Stats */}
+                {(() => {
+                  const summary = getSaveSummary();
+                  return (
+                    <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Tổng số ánh xạ:</span>
+                        <span className="font-semibold">{summary.totalMappings}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Đã map Jira:</span>
+                        <span className="font-semibold text-blue-600">{summary.jiraMapped}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Đã map GitHub:</span>
+                        <span className="font-semibold text-gray-700">{summary.githubMapped}</span>
+                      </div>
+                      <div className="flex items-center justify-between border-t pt-2 mt-2">
+                        <span className="text-muted-foreground">Hoàn thành:</span>
+                        <span className="font-semibold text-green-600 flex items-center gap-1">
+                          <CheckCircle2 className="h-4 w-4" />
+                          {summary.fullyMapped}
+                        </span>
+                      </div>
+                      {summary.changes > 0 && (
+                        <div className="flex items-center justify-between border-t pt-2 mt-2">
+                          <span className="text-muted-foreground">Số thay đổi:</span>
+                          <span className="font-semibold text-orange-600">{summary.changes}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                <div className="text-xs text-muted-foreground pt-2">
+                  Hành động này sẽ cập nhật thông tin ánh xạ cho tất cả sinh viên đã chọn.
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSaveConfirmed}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Save className="mr-2 h-4 w-4" />
+              Xác nhận lưu
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* VALIDATION ALERT */}
+      {!readOnly && hasValidationErrors && (
+        <CardContent className="px-6 py-4 border-b bg-red-50/50">
+          <div className="flex items-start gap-3 text-sm text-red-800">
+            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="font-semibold mb-1">Có lỗi validation phát hiện:</p>
+              <ul className="list-disc list-inside space-y-1 text-xs">
+                {Object.entries(validationErrors).map(([studentId, errors]) => {
+                  const student = students.find((s) => s.id === studentId);
+                  return (
+                    <li key={studentId}>
+                      <span className="font-medium">{student?.name}</span>:{" "}
+                      {errors.jira && <span className="text-red-700">{errors.jira}</span>}
+                      {errors.jira && errors.github && " | "}
+                      {errors.github && <span className="text-red-700">{errors.github}</span>}
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="text-xs mt-2 text-red-700">
+                Vui lòng sửa các lỗi trên trước khi lưu thay đổi.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      )}
 
       {/* TABLE CONTENT */}
       <CardContent className="p-0">
@@ -206,16 +426,21 @@ export function MappingTable({
                 const currentMap = mappings[student.id] || {};
                 const isFullyMapped = currentMap.jira && currentMap.github;
 
+                const studentErrors = validationErrors[student.id] || {};
+                const hasError = Object.keys(studentErrors).length > 0;
+
                 return (
                   <TableRow
                     key={student.id}
-                    className="hover:bg-slate-50/60 transition-colors"
+                    className={`hover:bg-slate-50/60 transition-colors ${
+                      hasError ? "bg-red-50/30 border-l-2 border-l-red-500" : ""
+                    }`}
                   >
                     {/* CỘT 1: THÔNG TIN SINH VIÊN */}
                     <TableCell className="pl-6 py-4">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10 border shadow-sm">
-                          <AvatarImage src={student.avatar} />
+                          {student.avatar && <AvatarImage src={student.avatar} />}
                           <AvatarFallback className="bg-primary/10 text-primary font-bold">
                             {student.name.charAt(0)}
                           </AvatarFallback>
@@ -239,13 +464,14 @@ export function MappingTable({
                           {currentMap.jira ? (
                             <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-blue-50/50 border border-blue-100/50">
                               <Avatar className="h-5 w-5">
-                                <AvatarImage
-                                  src={
-                                    jiraUsers.find(
-                                      (u) => u.accountId === currentMap.jira
-                                    )?.avatarUrl
-                                  }
-                                />
+                                {(() => {
+                                  const jiraUser = jiraUsers.find(
+                                    (u) => u.accountId === currentMap.jira
+                                  );
+                                  return jiraUser?.avatarUrl ? (
+                                    <AvatarImage src={jiraUser.avatarUrl} />
+                                  ) : null;
+                                })()}
                                 <AvatarFallback className="text-[9px]">
                                   J
                                 </AvatarFallback>
@@ -264,19 +490,28 @@ export function MappingTable({
                         </div>
                       ) : (
                         /* CHẾ ĐỘ SỬA: Hiện Dropdown */
-                        <UserSelect
-                          value={currentMap.jira}
-                          onChange={(val) =>
-                            handleChange(student.id, "jira", val)
-                          }
-                          placeholder="Chọn Jira User"
-                          options={jiraUsers.map((u) => ({
-                            id: u.accountId,
-                            label: u.displayName,
-                            subLabel: "Member",
-                            avatarUrl: u.avatarUrl,
-                          }))}
-                        />
+                        <div className="space-y-1">
+                          <UserSelect
+                            value={currentMap.jira}
+                            onChange={(val) =>
+                              handleChange(student.id, "jira", val)
+                            }
+                            placeholder="Chọn Jira User"
+                            error={!!studentErrors.jira}
+                            options={jiraUsers.map((u) => ({
+                              id: u.accountId,
+                              label: u.displayName,
+                              subLabel: "Member",
+                              avatarUrl: u.avatarUrl,
+                            }))}
+                          />
+                          {studentErrors.jira && (
+                            <FieldError className="text-xs flex items-center gap-1">
+                              <AlertCircle className="h-3 w-3" />
+                              {studentErrors.jira}
+                            </FieldError>
+                          )}
+                        </div>
                       )}
                     </TableCell>
 
@@ -288,13 +523,14 @@ export function MappingTable({
                           {currentMap.github ? (
                             <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-gray-100 border border-gray-200">
                               <Avatar className="h-5 w-5">
-                                <AvatarImage
-                                  src={
-                                    githubUsers.find(
-                                      (u) => u.login === currentMap.github
-                                    )?.avatarUrl
-                                  }
-                                />
+                                {(() => {
+                                  const githubUser = githubUsers.find(
+                                    (u) => u.login === currentMap.github
+                                  );
+                                  return githubUser?.avatarUrl ? (
+                                    <AvatarImage src={githubUser.avatarUrl} />
+                                  ) : null;
+                                })()}
                                 <AvatarFallback className="text-[9px]">
                                   G
                                 </AvatarFallback>
@@ -311,19 +547,28 @@ export function MappingTable({
                         </div>
                       ) : (
                         /* CHẾ ĐỘ SỬA */
-                        <UserSelect
-                          value={currentMap.github}
-                          onChange={(val) =>
-                            handleChange(student.id, "github", val)
-                          }
-                          placeholder="Chọn GitHub User"
-                          options={githubUsers.map((u) => ({
-                            id: u.login,
-                            label: u.login,
-                            subLabel: "Contributor",
-                            avatarUrl: u.avatarUrl,
-                          }))}
-                        />
+                        <div className="space-y-1">
+                          <UserSelect
+                            value={currentMap.github}
+                            onChange={(val) =>
+                              handleChange(student.id, "github", val)
+                            }
+                            placeholder="Chọn GitHub User"
+                            error={!!studentErrors.github}
+                            options={githubUsers.map((u) => ({
+                              id: u.login,
+                              label: u.login,
+                              subLabel: "Contributor",
+                              avatarUrl: u.avatarUrl,
+                            }))}
+                          />
+                          {studentErrors.github && (
+                            <FieldError className="text-xs flex items-center gap-1">
+                              <AlertCircle className="h-3 w-3" />
+                              {studentErrors.github}
+                            </FieldError>
+                          )}
+                        </div>
                       )}
                     </TableCell>
 

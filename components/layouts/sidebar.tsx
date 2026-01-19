@@ -142,6 +142,12 @@ const routeGroups = [
         color: "text-rose-500",
       },
       {
+        label: "Ánh xạ tài khoản",
+        icon: Users,
+        href: "/mapping",
+        color: "text-pink-700",
+      },
+      {
         label: "Cấu hình",
         icon: Settings,
         href: "/config",

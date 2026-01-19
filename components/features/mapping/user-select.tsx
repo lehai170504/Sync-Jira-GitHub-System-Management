@@ -33,6 +33,7 @@ interface UserSelectProps {
   onChange: (value: string) => void;
   placeholder?: string;
   emptyText?: string;
+  error?: boolean; // Prop để highlight khi có lỗi
 }
 
 export function UserSelect({
@@ -41,6 +42,7 @@ export function UserSelect({
   onChange,
   placeholder = "Chọn tài khoản...",
   emptyText = "Không tìm thấy dữ liệu.",
+  error = false,
 }: UserSelectProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -55,13 +57,16 @@ export function UserSelect({
           aria-expanded={open}
           className={cn(
             "w-full justify-between h-10 px-3 bg-white hover:bg-slate-50 border-dashed hover:border-solid",
-            !selectedOption && "text-muted-foreground"
+            !selectedOption && "text-muted-foreground",
+            error && "border-red-500 bg-red-50/50 hover:bg-red-50"
           )}
         >
           {selectedOption ? (
             <div className="flex items-center gap-2 overflow-hidden">
               <Avatar className="h-5 w-5 border border-slate-200">
-                <AvatarImage src={selectedOption.avatarUrl} />
+                {selectedOption.avatarUrl && (
+                  <AvatarImage src={selectedOption.avatarUrl} />
+                )}
                 <AvatarFallback className="text-[9px] bg-primary/10 text-primary">
                   {selectedOption.label.charAt(0)}
                 </AvatarFallback>
@@ -99,7 +104,9 @@ export function UserSelect({
                 >
                   <div className="flex items-center gap-3 flex-1">
                     <Avatar className="h-7 w-7 border">
-                      <AvatarImage src={option.avatarUrl} />
+                      {option.avatarUrl && (
+                        <AvatarImage src={option.avatarUrl} />
+                      )}
                       <AvatarFallback className="text-[10px]">
                         {option.label.charAt(0)}
                       </AvatarFallback>

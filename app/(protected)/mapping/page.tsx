@@ -71,11 +71,13 @@ export default function MappingPage() {
   }, []);
 
   // Chỉ LEADER mới được sửa, còn lại (Admin/Lecturer) chỉ xem
-  const isReadOnly = role !== "LEADER";
+  const isReadOnly = role !== "ADMIN";
 
-  // Stats
+  // Stats - Tính toán dựa trên mappings thực tế
   const totalStudents = mockStudents.length;
-  const fullyMapped = 1;
+  const fullyMapped = Object.values(initialMappings).filter(
+    (m) => m && m.jira && "github" in m && m.github
+  ).length;
   const missing = totalStudents - fullyMapped;
 
   return (

@@ -22,6 +22,9 @@ import {
   ChevronLeft,
   ChevronRight,
   UserCircle,
+  LayoutList,
+  Clock,
+  Activity,
 } from "lucide-react";
 import {
   Tooltip,
@@ -140,6 +143,36 @@ const routeGroups = [
         icon: FileText,
         href: "/leader/tasks",
         color: "text-rose-500",
+      },
+      {
+        label: "Tiến độ nhóm",
+        icon: Activity,
+        href: "/leader/progress",
+        color: "text-emerald-400",
+      },
+      {
+        label: "Tỷ lệ đóng góp",
+        icon: Layers,
+        href: "/leader/contribution",
+        color: "text-yellow-500",
+      },
+      {
+        label: "Đồng bộ Jira",
+        icon: LayoutList,
+        href: "/leader/jira",
+        color: "text-sky-500",
+      },
+      {
+        label: "Đồng bộ GitHub",
+        icon: GitCommit,
+        href: "/leader/sync/github",
+        color: "text-slate-300",
+      },
+      {
+        label: "Trạng thái Sync",
+        icon: Clock,
+        href: "/leader/sync-status",
+        color: "text-emerald-400",
       },
       {
         label: "Ánh xạ tài khoản",

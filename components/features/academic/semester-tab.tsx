@@ -3,14 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import {
   Card,
   CardContent,
@@ -21,13 +14,16 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Save,
-  AlertCircle,
   Clock,
   CalendarDays,
   GraduationCap,
+  History,
+  Info,
+  CheckCircle2,
+  CalendarRange,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,175 +34,270 @@ export function SemesterTab() {
     endDate: "2026-04-30",
   });
 
-  const handleSaveConfig = () => {
-    toast.success("Đã cập nhật cấu hình Học kỳ thành công!");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSaveConfig = async () => {
+    try {
+      setIsLoading(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      toast.success("Đã lưu thành công!");
+    } catch (error) {
+      toast.error("Lỗi khi lưu.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  const progress = 35;
+
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
-      {/* LEFT: ACTIVE SEMESTER CONFIG */}
-      <Card className="lg:col-span-2 border-none shadow-lg bg-white ring-1 ring-gray-100 rounded-2xl overflow-hidden">
-        <CardHeader className="pb-4 border-b bg-gray-50/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl flex items-center gap-3 text-gray-800">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-[#F27124]">
-                  <Clock className="h-6 w-6" />
+    <div className="min-h-screen bg-slate-50/50 p-6 md:p-8 font-sans">
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Quản lý Học kỳ
+            </h1>
+            <p className="text-slate-500 mt-1">
+              Thiết lập thời gian và theo dõi lịch sử các kỳ học.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-12 items-start">
+          {/* LEFT: ACTIVE SEMESTER CONFIG (Chiếm 8 phần) */}
+          <Card className="lg:col-span-8 border-none shadow-sm bg-white rounded-3xl overflow-hidden transition-all hover:shadow-md">
+            <CardHeader className="pb-6 border-b border-slate-100 px-8 pt-8">
+              <div className="flex items-start justify-between">
+                <div className="flex gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-[#F27124] ring-4 ring-orange-50/50">
+                    <CalendarRange className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-bold text-slate-800">
+                      Cấu hình hiện tại
+                    </CardTitle>
+                    <CardDescription className="mt-1.5 text-slate-500 text-sm max-w-md leading-relaxed">
+                      Thiết lập thời gian cho học kỳ đang diễn ra. Hệ thống sẽ
+                      dựa vào mốc này để tính toán deadline.
+                    </CardDescription>
+                  </div>
                 </div>
-                Thiết lập thời gian
-              </CardTitle>
-              <CardDescription className="mt-2 text-gray-500">
-                Học kỳ đang hoạt động sẽ được dùng để tính deadline hệ thống.
-              </CardDescription>
-            </div>
-            <Badge
-              variant="outline"
-              className="bg-green-50 text-green-700 border-green-200 px-3 py-1.5 rounded-full font-medium"
-            >
-              Active Semester
-            </Badge>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-6 pt-8 px-8">
-          <div className="grid gap-3">
-            <Label className="text-base font-medium text-gray-700">
-              Tên Học kỳ
-            </Label>
-            <div className="relative group">
-              <GraduationCap className="absolute left-3.5 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-[#F27124] transition-colors" />
-              <Input
-                className="pl-11 h-12 text-lg font-medium border-gray-200 focus:border-[#F27124] focus:ring-[#F27124]/20 rounded-xl transition-all"
-                value={config.semesterName}
-                onChange={(e) =>
-                  setConfig({ ...config, semesterName: e.target.value })
-                }
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="grid gap-3">
-              <Label className="text-gray-700">Ngày Bắt đầu</Label>
-              <div className="relative group">
-                <CalendarDays className="absolute left-3.5 top-3 h-5 w-5 text-gray-400 group-focus-within:text-[#F27124] transition-colors" />
-                <Input
-                  type="date"
-                  className="pl-11 h-11 border-gray-200 focus:border-[#F27124] focus:ring-[#F27124]/20 rounded-xl transition-all"
-                  value={config.startDate}
-                  onChange={(e) =>
-                    setConfig({ ...config, startDate: e.target.value })
-                  }
-                />
+                <div className="hidden sm:flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full border border-green-100">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                  </span>
+                  <span className="text-sm font-semibold">Active</span>
+                </div>
               </div>
-            </div>
-            <div className="grid gap-3">
-              <Label className="text-gray-700">Ngày Kết thúc</Label>
-              <div className="relative group">
-                <CalendarDays className="absolute left-3.5 top-3 h-5 w-5 text-gray-400 group-focus-within:text-[#F27124] transition-colors" />
-                <Input
-                  type="date"
-                  className="pl-11 h-11 border-gray-200 focus:border-[#F27124] focus:ring-[#F27124]/20 rounded-xl transition-all"
-                  value={config.endDate}
-                  onChange={(e) =>
-                    setConfig({ ...config, endDate: e.target.value })
-                  }
-                />
+            </CardHeader>
+
+            <CardContent className="space-y-8 px-8 py-8">
+              {/* Semester Name Input */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-slate-700">
+                  Tên Học kỳ
+                </Label>
+                <div className="relative group">
+                  <div className="absolute left-4 top-3.5 text-slate-400 group-focus-within:text-[#F27124] transition-colors">
+                    <GraduationCap className="h-5 w-5" />
+                  </div>
+                  <Input
+                    className="pl-12 h-12 text-lg font-medium bg-slate-50 border-slate-200 focus:bg-white focus:border-[#F27124] focus:ring-4 focus:ring-[#F27124]/10 rounded-2xl transition-all placeholder:text-slate-400"
+                    placeholder="Ví dụ: Spring 2026"
+                    value={config.semesterName}
+                    onChange={(e) =>
+                      setConfig({ ...config, semesterName: e.target.value })
+                    }
+                  />
+                </div>
               </div>
-            </div>
+
+              {/* Date Range Inputs */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold text-slate-700">
+                    Ngày bắt đầu
+                  </Label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-3.5 text-slate-400 group-focus-within:text-[#F27124] transition-colors">
+                      <CalendarDays className="h-5 w-5" />
+                    </div>
+                    <Input
+                      type="date"
+                      className="pl-12 h-12 bg-slate-50 border-slate-200 focus:bg-white focus:border-[#F27124] focus:ring-4 focus:ring-[#F27124]/10 rounded-2xl transition-all cursor-pointer"
+                      value={config.startDate}
+                      onChange={(e) =>
+                        setConfig({ ...config, startDate: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold text-slate-700">
+                    Ngày kết thúc
+                  </Label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-3.5 text-slate-400 group-focus-within:text-[#F27124] transition-colors">
+                      <Clock className="h-5 w-5" />
+                    </div>
+                    <Input
+                      type="date"
+                      className="pl-12 h-12 bg-slate-50 border-slate-200 focus:bg-white focus:border-[#F27124] focus:ring-4 focus:ring-[#F27124]/10 rounded-2xl transition-all cursor-pointer"
+                      value={config.endDate}
+                      onChange={(e) =>
+                        setConfig({ ...config, endDate: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Visual Progress Indicator (Optional but nice) */}
+              <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 flex flex-col gap-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600 font-medium">
+                    Tiến độ học kỳ
+                  </span>
+                  <span className="text-[#F27124] font-bold">{progress}%</span>
+                </div>
+                <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-orange-400 to-[#F27124] rounded-full"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-slate-400 text-center mt-1">
+                  Học kỳ đang diễn ra đúng tiến độ
+                </p>
+              </div>
+
+              {/* Info Box */}
+              <div className="flex items-start gap-4 p-4 rounded-2xl bg-blue-50/50 border border-blue-100 text-blue-900">
+                <Info className="h-5 w-5 shrink-0 text-blue-500 mt-0.5" />
+                <div className="text-sm leading-relaxed">
+                  <span className="font-semibold block mb-1">
+                    Lưu ý quan trọng
+                  </span>
+                  Hệ thống sẽ tự động khóa các bài nộp sau{" "}
+                  <strong>23:59</strong> ngày <strong>{config.endDate}</strong>.
+                  Sinh viên sẽ không thể nộp bài sau thời gian này trừ khi được
+                  cấp quyền đặc biệt.
+                </div>
+              </div>
+            </CardContent>
+
+            <CardFooter className="bg-slate-50/50 border-t border-slate-100 p-6 flex justify-end">
+              <Button
+                size="lg"
+                disabled={isLoading}
+                onClick={handleSaveConfig}
+                className="bg-[#F27124] hover:bg-[#d65d1b] text-white shadow-lg shadow-orange-500/20 rounded-xl px-8 font-semibold transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed min-w-[150px]"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <span>Đang lưu...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    <span>Lưu thay đổi</span>
+                  </>
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
+
+          {/* RIGHT: HISTORY (Chiếm 4 phần) */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            <Card className="border-none shadow-sm bg-white rounded-3xl h-fit overflow-hidden">
+              <CardHeader className="pb-4 pt-6 px-6 border-b border-slate-100 bg-white sticky top-0 z-10">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-slate-100 rounded-lg text-slate-600">
+                    <History className="h-5 w-5" />
+                  </div>
+                  <CardTitle className="text-lg font-bold text-slate-800">
+                    Lịch sử
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0 max-h-[500px] overflow-y-auto custom-scrollbar">
+                <Table>
+                  <TableBody>
+                    {/* Active Row */}
+                    <TableRow className="border-l-4 border-l-[#F27124] bg-orange-50/30 hover:bg-orange-50/50 transition-colors">
+                      <TableCell className="pl-6 py-4">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-bold text-slate-900">
+                            Spring 2026
+                          </span>
+                          <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-0 shadow-none text-[10px] px-2 h-5">
+                            Active
+                          </Badge>
+                        </div>
+                        <div className="flex items-center text-xs font-medium text-slate-500 gap-1.5">
+                          <CalendarDays className="h-3 w-3" />
+                          05/01 - 30/04/2026
+                        </div>
+                      </TableCell>
+                    </TableRow>
+
+                    {/* Past Row 1 */}
+                    <TableRow className="border-l-4 border-l-transparent hover:bg-slate-50 transition-colors group">
+                      <TableCell className="pl-6 py-4">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
+                            Fall 2025
+                          </span>
+                          <CheckCircle2 className="h-4 w-4 text-slate-300" />
+                        </div>
+                        <div className="text-xs text-slate-400 group-hover:text-slate-500">
+                          05/09 - 30/12/2025
+                        </div>
+                      </TableCell>
+                    </TableRow>
+
+                    {/* Past Row 2 */}
+                    <TableRow className="border-l-4 border-l-transparent hover:bg-slate-50 transition-colors group">
+                      <TableCell className="pl-6 py-4">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
+                            Summer 2025
+                          </span>
+                          <CheckCircle2 className="h-4 w-4 text-slate-300" />
+                        </div>
+                        <div className="text-xs text-slate-400 group-hover:text-slate-500">
+                          05/05 - 30/08/2025
+                        </div>
+                      </TableCell>
+                    </TableRow>
+
+                    {/* Past Row 3 */}
+                    <TableRow className="border-l-4 border-l-transparent hover:bg-slate-50 transition-colors group">
+                      <TableCell className="pl-6 py-4">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
+                            Spring 2025
+                          </span>
+                          <CheckCircle2 className="h-4 w-4 text-slate-300" />
+                        </div>
+                        <div className="text-xs text-slate-400 group-hover:text-slate-500">
+                          05/01 - 30/04/2025
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </div>
-
-          <Alert className="bg-amber-50 border-amber-200 rounded-xl">
-            <AlertCircle className="h-5 w-5 text-amber-600" />
-            <AlertTitle className="text-amber-800 font-semibold ml-2">
-              Quy tắc hệ thống
-            </AlertTitle>
-            <AlertDescription className="text-amber-700 text-sm mt-1 ml-2 leading-relaxed">
-              Hệ thống sẽ tự động khóa các bài nộp (submissions) sau 23:59 của
-              ngày <span className="font-bold">{config.endDate}</span>. Sinh
-              viên không thể nộp bài sau thời gian này trừ khi được Admin mở
-              quyền riêng.
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-        <CardFooter className="bg-gray-50/50 border-t p-6 flex justify-end">
-          <Button
-            className="bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 rounded-full px-8 h-11 font-medium transition-all hover:scale-105 active:scale-95"
-            onClick={handleSaveConfig}
-          >
-            <Save className="mr-2 h-4 w-4" /> Lưu cấu hình
-          </Button>
-        </CardFooter>
-      </Card>
-
-      {/* RIGHT: HISTORY */}
-      <Card className="border-none shadow-lg bg-white ring-1 ring-gray-100 h-fit rounded-2xl overflow-hidden">
-        <CardHeader className="pb-3 bg-gray-50/30 border-b">
-          <CardTitle className="text-lg text-gray-800">Lịch sử</CardTitle>
-          <CardDescription>Các học kỳ đã qua</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent border-gray-100">
-                <TableHead className="pl-6 font-semibold">Học kỳ</TableHead>
-                <TableHead className="text-right pr-6 font-semibold">
-                  Trạng thái
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow className="bg-orange-50/40 hover:bg-orange-50/60 transition-colors cursor-default border-orange-100">
-                <TableCell className="pl-6 py-4">
-                  <div className="font-bold text-gray-900 text-base">
-                    Spring 2026
-                  </div>
-                  <div className="text-xs font-medium text-orange-600/80 mt-0.5">
-                    05/01 - 30/04
-                  </div>
-                </TableCell>
-                <TableCell className="text-right pr-6">
-                  <Badge className="bg-green-500 hover:bg-green-600 shadow-sm border-0 rounded-full px-3">
-                    Active
-                  </Badge>
-                </TableCell>
-              </TableRow>
-              <TableRow className="hover:bg-gray-50 transition-colors cursor-default border-gray-100">
-                <TableCell className="pl-6 py-4 opacity-70">
-                  <div className="font-medium text-gray-700">Fall 2025</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    05/09 - 30/12
-                  </div>
-                </TableCell>
-                <TableCell className="text-right pr-6">
-                  <Badge
-                    variant="secondary"
-                    className="rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300"
-                  >
-                    Closed
-                  </Badge>
-                </TableCell>
-              </TableRow>
-              <TableRow className="hover:bg-gray-50 transition-colors cursor-default border-0">
-                <TableCell className="pl-6 py-4 opacity-70">
-                  <div className="font-medium text-gray-700">Summer 2025</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    05/05 - 30/08
-                  </div>
-                </TableCell>
-                <TableCell className="text-right pr-6">
-                  <Badge
-                    variant="secondary"
-                    className="rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300"
-                  >
-                    Closed
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

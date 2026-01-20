@@ -25,7 +25,8 @@ import {
   GitCommit,
   ClipboardList, // Icon cho Bài tập
   List, // Icon cho Danh sách
-  CalendarCheck, // Icon Lịch
+  CalendarCheck,
+  Gavel, // Icon Lịch
 } from "lucide-react";
 import {
   Tooltip,
@@ -99,13 +100,13 @@ const routeGroups = [
       {
         label: "Kết quả học tập",
         icon: Layers,
-        href: "/student/my-score",
+        href: "/my-score",
         color: "text-yellow-500",
       },
       {
         label: "Đánh giá chéo",
         icon: GraduationCap,
-        href: "/student/peer-review",
+        href: "/peer-review",
         color: "text-orange-700",
       },
     ],
@@ -154,17 +155,31 @@ const routeGroups = [
         href: "/admin/classes",
         color: "text-blue-500",
       },
+      // --- THÊM MỚI ---
+      {
+        label: "Quản lý Đề tài",
+        icon: FileText,
+        href: "/admin/topics",
+        color: "text-emerald-500",
+      },
+      {
+        label: "Hội đồng bảo vệ",
+        icon: Gavel,
+        href: "/admin/councils",
+        color: "text-purple-600",
+      },
+      // ----------------
       {
         label: "Người dùng & Quyền",
         icon: ShieldAlert,
         href: "/admin/users",
-        color: "text-gray-400",
+        color: "text-gray-500",
       },
       {
         label: "Nhật ký hệ thống",
         icon: GitCommit,
         href: "/admin/logs",
-        color: "text-red-700",
+        color: "text-red-600",
       },
     ],
   },
@@ -191,7 +206,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   };
 
   const filteredRoutes = routeGroups.filter((group) =>
-    group.roles.includes(currentRole)
+    group.roles.includes(currentRole),
   );
 
   if (!mounted) return <div className="w-full h-full bg-[#111827]" />;
@@ -216,7 +231,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
       <div
         className={cn(
           "flex items-center h-16 transition-all duration-300",
-          isCollapsed ? "justify-center px-2" : "justify-between px-6"
+          isCollapsed ? "justify-center px-2" : "justify-between px-6",
         )}
       >
         <div className="flex items-center gap-3">
@@ -250,10 +265,10 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                   currentRole === "ADMIN"
                     ? "text-violet-400"
                     : currentRole === "LECTURER"
-                    ? "text-emerald-400"
-                    : currentRole === "LEADER"
-                    ? "text-blue-400"
-                    : "text-yellow-400"
+                      ? "text-emerald-400"
+                      : currentRole === "LEADER"
+                        ? "text-blue-400"
+                        : "text-yellow-400"
                 }`}
               >
                 {currentRole}
@@ -291,7 +306,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                             isCollapsed ? "justify-center px-2" : "px-4",
                             isActive
                               ? "bg-gray-800/50 text-white shadow-sm"
-                              : "text-gray-400 hover:bg-gray-800/30 hover:text-white"
+                              : "text-gray-400 hover:bg-gray-800/30 hover:text-white",
                           )}
                         >
                           <route.icon
@@ -300,7 +315,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                               isActive
                                 ? route.color
                                 : "text-gray-500 group-hover:text-white",
-                              !isCollapsed && "mr-3"
+                              !isCollapsed && "mr-3",
                             )}
                           />
                           {!isCollapsed && (

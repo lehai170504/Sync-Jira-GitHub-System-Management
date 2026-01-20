@@ -1,0 +1,58 @@
+import { ReportItem } from "./report-types";
+
+export const mockReports: ReportItem[] = [
+  {
+    id: "R01",
+    name: "Báo cáo tổng kết Sprint 4",
+    type: "PDF",
+    date: "15/01/2026",
+    size: "2.4 MB",
+    author: "Admin",
+    status: "Ready",
+  },
+  {
+    id: "R02",
+    name: "Bảng điểm chi tiết Sinh viên",
+    type: "Excel",
+    date: "14/01/2026",
+    size: "450 KB",
+    author: "System",
+    status: "Ready",
+  },
+  {
+    id: "R03",
+    name: "Phân tích rủi ro & Chất lượng",
+    type: "PDF",
+    date: "10/01/2026",
+    size: "1.2 MB",
+    author: "Admin",
+    status: "Archived",
+  },
+  {
+    id: "R04",
+    name: "Báo cáo tiến độ tuần 3",
+    type: "PDF",
+    date: "07/01/2026",
+    size: "1.8 MB",
+    author: "Admin",
+    status: "Archived",
+  },
+  {
+    id: "R05",
+    name: "Danh sách Hội đồng bảo vệ",
+    type: "Excel",
+    date: "05/01/2026",
+    size: "850 KB",
+    author: "Admin",
+    status: "Processing",
+  },
+  {
+    id: "R06",
+    name: "Log hệ thống tháng 12",
+    type: "Excel",
+    date: "01/01/2026",
+    size: "5.0 MB",
+    author: "System",
+    status: "Ready",
+  },
+];

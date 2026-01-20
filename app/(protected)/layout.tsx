@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation"; // 1. Import hook lấy đường dẫn
+import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/layouts/sidebar";
 import { UserNav } from "@/components/layouts/user-nav";
 import { NotificationsNav } from "@/components/layouts/notifications-nav";
+import { Footer } from "@/components/layouts/footer";
 import { cn } from "@/lib/utils";
 
 export default function DashboardLayout({
@@ -12,32 +13,26 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 2. Lấy đường dẫn hiện tại
   const pathname = usePathname();
-
-  // 3. State quản lý Sidebar (Mặc định thu gọn)
   const [isCollapsed, setIsCollapsed] = useState(true);
 
-  // 4. Định nghĩa các trang sẽ hiển thị Full Screen (Không có Sidebar/Header)
   const isFullScreenPage = pathname === "/lecturer/courses";
 
-  // --- TRƯỜNG HỢP 1: FULL SCREEN (Trang chọn lớp) ---
   if (isFullScreenPage) {
     return <div className="min-h-screen w-full bg-gray-50">{children}</div>;
   }
 
-  // --- TRƯỜNG HỢP 2: DASHBOARD CHUẨN (Có Sidebar & Header) ---
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
   return (
     <div className="h-full relative bg-gray-50/30">
-      {/* SIDEBAR CONTAINER */}
+      {/* SIDEBAR (Vẫn giữ cố định bên trái) */}
       <div
         className={cn(
           "hidden h-full md:flex md:flex-col md:fixed md:inset-y-0 z-[80] bg-gray-900 transition-all duration-300 ease-in-out",
-          isCollapsed ? "md:w-[80px]" : "md:w-72"
+          isCollapsed ? "md:w-[80px]" : "md:w-72",
         )}
       >
         <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
@@ -46,25 +41,19 @@ export default function DashboardLayout({
       {/* MAIN CONTENT WRAPPER */}
       <main
         className={cn(
-          "h-full min-h-screen pb-10 transition-all duration-300 ease-in-out",
-          // Margin left thay đổi tùy theo trạng thái Sidebar
-          isCollapsed ? "md:pl-[80px]" : "md:pl-72"
+          // 1. Đổi min-h-screen thành h-screen (cao bằng màn hình)
+          // 2. Thêm overflow-hidden để ngăn trang web cuộn (chỉ cuộn phần nội dung con)
+          "flex flex-col h-screen overflow-hidden transition-all duration-300 ease-in-out",
+          isCollapsed ? "md:pl-[80px]" : "md:pl-72",
         )}
       >
-        {/* HEADER */}
-        <div className="flex items-center justify-between p-4 border-b h-16 bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-          {/* Cụm Header bên trái (Title hoặc Breadcrumb có thể thêm ở đây) */}
-          <div className="flex items-center">
-            {/* Để trống hoặc thêm Breadcrumb nếu cần */}
-          </div>
+        {/* HEADER (Cố định ở trên nhờ flex layout) */}
+        <div className="flex-none flex items-center justify-between p-4 border-b h-16 bg-white/80 backdrop-blur-md z-50 shadow-sm">
+          <div className="flex items-center">{/* Breadcrumb */}</div>
 
-          {/* Cụm Header bên phải */}
           <div className="flex items-center gap-4">
             <NotificationsNav />
-
             <div className="h-6 w-px bg-gray-200" />
-
-            {/* Thông tin User (Hardcode tạm thời hoặc lấy từ Context/Cookie) */}
             <div className="flex flex-col items-end mr-1">
               <span className="text-sm font-semibold text-gray-700">
                 Nguyễn Văn A
@@ -73,13 +62,21 @@ export default function DashboardLayout({
                 Admin
               </span>
             </div>
-
             <UserNav />
           </div>
         </div>
 
-        {/* PAGE CONTENT */}
-        <div className="p-8">{children}</div>
+        {/* PAGE CONTENT (Khu vực cuộn) */}
+        {/* flex-1: Chiếm hết khoảng trống giữa Header và Footer */}
+        {/* overflow-y-auto: Chỉ cuộn nội dung trong khu vực này */}
+        <div className="flex-1 overflow-y-auto p-8 scroll-smooth">
+          {children}
+        </div>
+
+        {/* FOOTER (Cố định ở dưới nhờ flex layout) */}
+        <div className="flex-none">
+          <Footer />
+        </div>
       </main>
     </div>
   );

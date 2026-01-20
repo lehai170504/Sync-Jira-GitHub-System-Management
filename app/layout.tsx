@@ -8,12 +8,12 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+// Đã khai báo font Mono ở đây
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
-// 1. Cập nhật Metadata cho chuẩn SEO và Branding
 export const metadata: Metadata = {
   title: {
     template: "%s | SyncSystem",
@@ -32,15 +32,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // 2. Đổi ngôn ngữ sang tiếng Việt
     <html lang="vi" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans bg-gray-50/50`}
       >
-        {/* Nội dung chính của App */}
         {children}
-
-        {/* 3. Component Toaster (Bắt buộc để hiện thông báo popup) */}
         <Toaster position="top-right" richColors />
       </body>
     </html>

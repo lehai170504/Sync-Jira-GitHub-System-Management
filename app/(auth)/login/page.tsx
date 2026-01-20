@@ -31,7 +31,7 @@ export const DEMO_ROLES = {
     email: "gv_hien@fpt.edu.vn",
     label: "Giảng viên",
     icon: GraduationCap,
-    redirect: "/dashboard",
+    redirect: "/lecturer/courses",
   },
   LEADER: {
     email: "leader_team1@fpt.edu.vn",

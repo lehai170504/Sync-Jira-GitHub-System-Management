@@ -16,6 +16,7 @@ import {
   Briefcase,
   HelpCircle,
   Layers,
+  FileSpreadsheet,
   BookOpen,
   CalendarRange,
   School,
@@ -155,6 +156,24 @@ const routeGroups = [
         icon: Layers,
         href: "/leader/contribution",
         color: "text-yellow-500",
+      },
+      {
+        label: "Xuất bảng điểm",
+        icon: FileSpreadsheet,
+        href: "/leader/export-score",
+        color: "text-emerald-500",
+      },
+      {
+        label: "Export Worklog",
+        icon: FileText,
+        href: "/leader/export-worklog",
+        color: "text-blue-400",
+      },
+      {
+        label: "Preview Report",
+        icon: FileText,
+        href: "/leader/preview-report",
+        color: "text-slate-300",
       },
       {
         label: "Đồng bộ Jira",

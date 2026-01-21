@@ -7,7 +7,7 @@ import { UserRole } from "@/components/layouts/sidebar"; // Import Type Role
 // Import các Views
 import { OverviewTab } from "@/components/features/dashboard/overview-tab"; // ADMIN VIEW CŨ
 import { LecturerDashboard } from "@/components/features/dashboard/lecturer-view";
-import { LeaderDashboard } from "@/components/features/dashboard/leader-view";
+import { LeaderDashboard } from "@/components/features/dashboard/student-view";
 import { MemberDashboard } from "@/components/features/dashboard/member-view";
 
 import { Button } from "@/components/ui/button";

@@ -13,6 +13,8 @@ type Props = {
   tasks: Task[];
   members: Member[];
   isTaskOverdue: (task: Task) => boolean;
+  isLeader: boolean;
+  currentUserId: string;
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
 };
@@ -22,6 +24,8 @@ export function KanbanView({
   tasks,
   members,
   isTaskOverdue,
+  isLeader,
+  currentUserId,
   onEditTask,
   onDeleteTask,
 }: Props) {
@@ -61,6 +65,7 @@ export function KanbanView({
                 {columnTasks.map((task) => {
                   const assignee = members.find((m) => m.id === task.assigneeId);
                   const overdue = isTaskOverdue(task);
+                  const canEdit = isLeader || task.assigneeId === currentUserId;
                   return (
                     <Card
                       key={task.id}
@@ -110,22 +115,26 @@ export function KanbanView({
                             >
                               {task.storyPoints} SP
                             </Badge>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => onEditTask(task)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="-ml-3 h-7 w-7 text-red-600 hover:text-red-700"
-                              onClick={() => onDeleteTask(task.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            {canEdit && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => onEditTask(task)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {isLeader && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className={canEdit ? "-ml-3 h-7 w-7" : "h-7 w-7 text-red-600 hover:text-red-700"}
+                                onClick={() => onDeleteTask(task.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </CardContent>

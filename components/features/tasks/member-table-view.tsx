@@ -11,6 +11,8 @@ type Props = {
   members: Member[];
   tasks: Task[];
   isTaskOverdue: (task: Task) => boolean;
+  isLeader: boolean;
+  currentUserId: string;
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
 };
@@ -19,6 +21,8 @@ export function MemberTableView({
   members,
   tasks,
   isTaskOverdue,
+  isLeader,
+  currentUserId,
   onEditTask,
   onDeleteTask,
 }: Props) {
@@ -70,6 +74,7 @@ export function MemberTableView({
                 )}
                 {memberTasks.map((task) => {
                   const overdue = isTaskOverdue(task);
+                  const canEdit = isLeader || task.assigneeId === currentUserId;
                   return (
                     <div
                       key={task.id}
@@ -110,22 +115,26 @@ export function MemberTableView({
                         <span className="text-[11px] text-muted-foreground">
                           {task.storyPoints} SP
                         </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7"
-                          onClick={() => onEditTask(task)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-red-600 hover:text-red-700"
-                          onClick={() => onDeleteTask(task.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {canEdit && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => onEditTask(task)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {isLeader && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-red-600 hover:text-red-700"
+                            onClick={() => onDeleteTask(task.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );

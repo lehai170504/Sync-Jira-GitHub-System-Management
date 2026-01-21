@@ -22,7 +22,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-export default function LeaderSyncPage() {
+export default function SyncPage() {
   const [role, setRole] = useState<UserRole>("MEMBER");
 
   const [isSyncingJira, setIsSyncingJira] = useState(false);
@@ -45,13 +45,17 @@ export default function LeaderSyncPage() {
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
-    if (savedRole) setRole(savedRole);
-
-    if (typeof window !== "undefined") {
-      const storedJira = window.localStorage.getItem("leader_jira_last_sync");
-      const storedGithub = window.localStorage.getItem("leader_github_last_sync");
-      if (storedJira) setLastJiraRun(storedJira);
-      if (storedGithub) setLastGithubRun(storedGithub);
+    if (savedRole) {
+      setRole(savedRole);
+      const isLeaderRole = savedRole === "LEADER";
+      const prefix = isLeaderRole ? "leader" : "member";
+      
+      if (typeof window !== "undefined") {
+        const storedJira = window.localStorage.getItem(`${prefix}_jira_last_sync`);
+        const storedGithub = window.localStorage.getItem(`${prefix}_github_last_sync`);
+        if (storedJira) setLastJiraRun(storedJira);
+        if (storedGithub) setLastGithubRun(storedGithub);
+      }
     }
   }, []);
 
@@ -70,7 +74,8 @@ export default function LeaderSyncPage() {
       if (res.success && res.jira) {
         setLastJiraRun(res.timestamp);
         if (typeof window !== "undefined") {
-          window.localStorage.setItem("leader_jira_last_sync", res.timestamp);
+          const prefix = isLeader ? "leader" : "member";
+          window.localStorage.setItem(`${prefix}_jira_last_sync`, res.timestamp);
         }
         setJiraStats(res.jira);
         toast.success("Đã đồng bộ Jira thành công!", {
@@ -103,7 +108,8 @@ export default function LeaderSyncPage() {
       if (res.success && res.github) {
         setLastGithubRun(res.timestamp);
         if (typeof window !== "undefined") {
-          window.localStorage.setItem("leader_github_last_sync", res.timestamp);
+          const prefix = isLeader ? "leader" : "member";
+          window.localStorage.setItem(`${prefix}_github_last_sync`, res.timestamp);
         }
         setGithubStats(res.github);
         toast.success("Đã đồng bộ GitHub thành công!", {
@@ -121,15 +127,15 @@ export default function LeaderSyncPage() {
     }
   };
 
-  // Chỉ LEADER mới được truy cập
-  if (role !== "LEADER") {
+  // Chỉ LEADER và MEMBER mới được truy cập
+  if (role !== "LEADER" && role !== "MEMBER") {
     return (
       <div className="space-y-6 max-w-4xl mx-auto py-8 px-4 md:px-0">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-3xl font-bold tracking-tight">Đồng bộ dữ liệu</h2>
             <p className="text-muted-foreground">
-              Trang này chỉ dành cho Leader để kích hoạt đồng bộ Jira & GitHub cho nhóm của mình.
+              Trang này chỉ dành cho Leader và Member để kích hoạt đồng bộ Jira & GitHub.
             </p>
           </div>
         </div>
@@ -138,12 +144,14 @@ export default function LeaderSyncPage() {
           <AlertTriangle className="h-4 w-4 text-gray-600" />
           <AlertTitle>Không có quyền truy cập</AlertTitle>
           <AlertDescription>
-            Bạn đang đăng nhập với quyền <b>{role}</b>. Vui lòng chuyển sang tài khoản Leader nếu muốn đồng bộ dữ liệu.
+            Bạn đang đăng nhập với quyền <b>{role}</b>. Vui lòng chuyển sang tài khoản Leader hoặc Member nếu muốn đồng bộ dữ liệu.
           </AlertDescription>
         </Alert>
       </div>
     );
   }
+
+  const isLeader = role === "LEADER";
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto py-8 px-4 md:px-0">

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,6 +32,8 @@ type Props = {
   members: Member[];
   courses: Course[];
   sprints: Sprint[];
+  isLeader: boolean;
+  currentUserId: string;
 };
 
 export function TaskDialog({
@@ -43,7 +46,18 @@ export function TaskDialog({
   members,
   courses,
   sprints,
+  isLeader,
+  currentUserId,
 }: Props) {
+  // MEMBER chỉ có thể assign task cho chính mình
+  const canChangeAssignee = isLeader;
+  
+  // Đảm bảo MEMBER luôn assign cho chính mình khi mở dialog
+  React.useEffect(() => {
+    if (!isLeader && open && formTask.assigneeId !== currentUserId) {
+      setFormTask((prev) => ({ ...prev, assigneeId: currentUserId }));
+    }
+  }, [open, isLeader, currentUserId]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
@@ -69,6 +83,7 @@ export function TaskDialog({
               <Select
                 value={formTask.assigneeId}
                 onValueChange={(v) => setFormTask({ ...formTask, assigneeId: v })}
+                disabled={!canChangeAssignee}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn thành viên" />
@@ -81,6 +96,11 @@ export function TaskDialog({
                   ))}
                 </SelectContent>
               </Select>
+              {!canChangeAssignee && (
+                <p className="text-xs text-muted-foreground">
+                  Bạn chỉ có thể thêm/sửa task cho chính mình
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Story Points</Label>

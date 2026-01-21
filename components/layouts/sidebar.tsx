@@ -25,6 +25,7 @@ import {
   UserCircle,
   LayoutList,
   Activity,
+  Star,
 } from "lucide-react";
 import {
   Tooltip,
@@ -155,6 +156,18 @@ const routeGroups = [
         icon: Layers,
         href: "/leader/contribution",
         color: "text-yellow-500",
+      },
+      {
+        label: "Lịch sử commit",
+        icon: GitCommit,
+        href: "/leader/commits",
+        color: "text-slate-300",
+      },
+      {
+        label: "Đánh giá chéo",
+        icon: Star,
+        href: "/leader/peer-review",
+        color: "text-amber-500",
       },
       {
         label: "Xuất bảng điểm",

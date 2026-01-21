@@ -18,7 +18,7 @@ import { MemberTableView } from "./member-table-view";
 import { TaskDialog } from "./task-dialog";
 import { SprintDialog } from "./sprint-dialog";
 
-export function LeaderTaskBoard() {
+export function TaskBoard() {
   const [role, setRole] = useState<UserRole>("MEMBER");
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [selectedCourse, setSelectedCourse] = useState<string>(courses[0]?.id ?? "");
@@ -48,16 +48,28 @@ export function LeaderTaskBoard() {
     deadline: "",
   });
 
+  // Lấy current user ID (giả sử MEMBER có ID "m2", LEADER có thể là "m1")
+  const [currentUserId, setCurrentUserId] = useState<string>("m2");
+
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
-    if (savedRole) setRole(savedRole);
+    if (savedRole) {
+      setRole(savedRole);
+      // Giả sử: LEADER = m1, MEMBER = m2 (có thể lấy từ cookie hoặc API)
+      if (savedRole === "LEADER") {
+        setCurrentUserId("m1");
+      } else if (savedRole === "MEMBER") {
+        setCurrentUserId("m2");
+      }
+    }
   }, []);
 
   const resetTaskForm = () => {
+    const defaultAssigneeId = isLeader ? members[0]?.id ?? "" : currentUserId;
     setFormTask({
       id: "",
       title: "",
-      assigneeId: members[0]?.id ?? "",
+      assigneeId: defaultAssigneeId,
       status: "todo",
       storyPoints: 1,
       priority: "Medium",
@@ -88,6 +100,18 @@ export function LeaderTaskBoard() {
     }
     if (!formTask.deadline) {
       toast.error("Vui lòng chọn deadline cho task");
+      return;
+    }
+
+    // MEMBER chỉ có thể thêm/sửa task cho chính mình
+    if (!isLeader && formTask.assigneeId !== currentUserId) {
+      toast.error("Bạn chỉ có thể thêm/sửa task cho chính mình");
+      return;
+    }
+
+    // MEMBER chỉ có thể sửa task của chính mình
+    if (!isLeader && editingTask && editingTask.assigneeId !== currentUserId) {
+      toast.error("Bạn chỉ có thể sửa task của chính mình");
       return;
     }
 
@@ -178,15 +202,15 @@ export function LeaderTaskBoard() {
     toast.success("Đã xóa sprint");
   };
 
-  // Chỉ LEADER mới được truy cập Task Board
-  if (role !== "LEADER") {
+  // Chỉ LEADER và MEMBER mới được truy cập Task Board
+  if (role !== "LEADER" && role !== "MEMBER") {
     return (
       <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-3xl font-bold tracking-tight">Team Task Board</h2>
             <p className="text-muted-foreground">
-              Trang này chỉ dành cho Leader để theo dõi tiến độ task của từng thành viên.
+              Trang này chỉ dành cho Leader và Member để theo dõi tiến độ task của từng thành viên.
             </p>
           </div>
         </div>
@@ -195,12 +219,14 @@ export function LeaderTaskBoard() {
           <AlertTitle>Không có quyền truy cập</AlertTitle>
           <AlertDescription>
             Bạn đang đăng nhập với quyền <b>{role}</b>. Vui lòng chuyển sang tài khoản
-            Leader nếu muốn xem Task Board nhóm.
+            Leader hoặc Member nếu muốn xem Task Board nhóm.
           </AlertDescription>
         </Alert>
       </div>
     );
   }
+
+  const isLeader = role === "LEADER";
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
@@ -231,6 +257,7 @@ export function LeaderTaskBoard() {
           }}
           currentSprint={currentSprint}
           sprintOverdue={sprintOverdue}
+          isLeader={isLeader}
           onAddSprint={() => {
             setEditingSprint(null);
             resetSprintForm();
@@ -288,6 +315,8 @@ export function LeaderTaskBoard() {
             tasks={visibleTasks}
             members={members}
             isTaskOverdue={isTaskOverdue}
+            isLeader={isLeader}
+            currentUserId={currentUserId}
             onEditTask={(task) => {
               setEditingTask(task);
               setFormTask(task);
@@ -305,6 +334,8 @@ export function LeaderTaskBoard() {
             members={members}
             tasks={visibleTasks}
             isTaskOverdue={isTaskOverdue}
+            isLeader={isLeader}
+            currentUserId={currentUserId}
             onEditTask={(task) => {
               setEditingTask(task);
               setFormTask(task);
@@ -325,6 +356,8 @@ export function LeaderTaskBoard() {
         members={members}
         courses={courses}
         sprints={sprints}
+        isLeader={isLeader}
+        currentUserId={currentUserId}
       />
 
       <SprintDialog

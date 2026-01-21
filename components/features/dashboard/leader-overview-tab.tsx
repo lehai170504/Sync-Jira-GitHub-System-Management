@@ -1,4 +1,4 @@
-// src/components/features/dashboard/leader-view.tsx
+// src/components/features/dashboard/leader-overview-tab.tsx
 "use client";
 
 import {
@@ -26,7 +26,6 @@ import {
   Circle,
   GitCommit,
   AlertTriangle,
-  TrendingDown,
 } from "lucide-react";
 import { StatCard } from "./stat-card";
 
@@ -81,7 +80,39 @@ const riskAlerts = [
   },
 ];
 
-export function LeaderDashboard() {
+// Mock data: Task của Leader (Task Summary)
+const myTasks = [
+  {
+    id: "L-201",
+    title: "Review kiến trúc Sprint 4",
+    status: "In Progress",
+    statusColor: "bg-blue-100 text-blue-700",
+    due: "Hôm nay",
+  },
+  {
+    id: "L-202",
+    title: "Approve kế hoạch Sprint 5",
+    status: "To Do",
+    statusColor: "bg-gray-100 text-gray-700",
+    due: "Ngày mai",
+  },
+  {
+    id: "L-203",
+    title: "Họp 1-1 với các thành viên",
+    status: "Scheduled",
+    statusColor: "bg-amber-100 text-amber-700",
+    due: "Cuối tuần",
+  },
+  {
+    id: "L-204",
+    title: "Rà soát kết quả Contribution",
+    status: "Done",
+    statusColor: "bg-emerald-100 text-emerald-700",
+    due: "Hôm qua",
+  },
+];
+
+export function LeaderOverviewTab() {
   // Mock data: Tổng số Task theo trạng thái
   const taskStats = {
     todo: 8,
@@ -270,82 +301,195 @@ export function LeaderDashboard() {
         </Card>
       </div>
 
-      {/* RISK ALERTS: Cảnh báo rủi ro */}
+      {/* RISK ALERTS + TASK SUMMARY */}
+      <div className="grid gap-6 md:grid-cols-5">
+        {/* RISK ALERTS: Cảnh báo rủi ro */}
+        <Card className="md:col-span-3 shadow-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                  Cảnh báo rủi ro
+                </CardTitle>
+                <CardDescription>
+                  Các vấn đề cần chú ý và xử lý ngay.
+                </CardDescription>
+              </div>
+              <Badge
+                variant="destructive"
+                className="text-sm px-3 py-1 font-semibold"
+              >
+                {riskAlerts.length} Cảnh báo
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {riskAlerts.map((alert) => (
+              <Alert
+                key={alert.id}
+                className={`${
+                  alert.type === "high"
+                    ? "bg-red-50 border-red-200 text-red-900"
+                    : alert.type === "medium"
+                    ? "bg-orange-50 border-orange-200 text-orange-900"
+                    : "bg-yellow-50 border-yellow-200 text-yellow-900"
+                }`}
+              >
+                <AlertTriangle
+                  className={`h-4 w-4 ${
+                    alert.type === "high"
+                      ? "text-red-600"
+                      : alert.type === "medium"
+                      ? "text-orange-600"
+                      : "text-yellow-600"
+                  }`}
+                />
+                <AlertTitle className="flex items-center justify-between">
+                  <span>{alert.title}</span>
+                  <Badge
+                    variant={
+                      alert.type === "high"
+                        ? "destructive"
+                        : alert.type === "medium"
+                        ? "default"
+                        : "secondary"
+                    }
+                    className="ml-2 text-xs"
+                  >
+                    {alert.type === "high"
+                      ? "Cao"
+                      : alert.type === "medium"
+                      ? "Trung bình"
+                      : "Thấp"}
+                  </Badge>
+                </AlertTitle>
+                <AlertDescription className="mt-2">
+                  <p className="text-sm">{alert.description}</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Người phụ trách:
+                    </span>
+                    <Badge variant="outline" className="text-xs">
+                      {alert.assignee}
+                    </Badge>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* TASK SUMMARY: Task của tôi */}
+        <Card className="md:col-span-2 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base">Task của tôi</CardTitle>
+            <CardDescription>
+              Các đầu việc Leader cần xử lý, kèm trạng thái nhanh.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {myTasks.map((task) => (
+              <div
+                key={task.id}
+                className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2"
+              >
+                <div>
+                  <p className="text-sm font-semibold">{task.title}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Mã: <span className="font-mono">{task.id}</span> • Hạn:{" "}
+                    <span className="font-medium">{task.due}</span>
+                  </p>
+                </div>
+                <Badge
+                  variant="secondary"
+                  className={`text-[11px] font-normal ${task.statusColor}`}
+                >
+                  {task.status}
+                </Badge>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* COMMIT SUMMARY: Commit gần nhất */}
       <Card className="shadow-sm">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-                Cảnh báo rủi ro
-              </CardTitle>
-              <CardDescription>
-                Các vấn đề cần chú ý và xử lý ngay.
-              </CardDescription>
-            </div>
-            <Badge
-              variant="destructive"
-              className="text-sm px-3 py-1 font-semibold"
-            >
-              {riskAlerts.length} Cảnh báo
-            </Badge>
-          </div>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <GitCommit className="h-5 w-5 text-slate-800" />
+            Commit gần nhất của nhóm
+          </CardTitle>
+          <CardDescription>
+            Danh sách một số commit mới nhất, giúp Leader nắm nhanh hoạt động code của team.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {riskAlerts.map((alert) => (
-            <Alert
-              key={alert.id}
-              className={`${
-                alert.type === "high"
-                  ? "bg-red-50 border-red-200 text-red-900"
-                  : alert.type === "medium"
-                  ? "bg-orange-50 border-orange-200 text-orange-900"
-                  : "bg-yellow-50 border-yellow-200 text-yellow-900"
-              }`}
+        <CardContent className="space-y-2">
+          {[
+            {
+              id: "c1",
+              message: "Implement payment webhook handler",
+              author: "Nguyễn Văn An",
+              time: "10 phút trước",
+              branch: "feature/payment-webhook",
+            },
+            {
+              id: "c2",
+              message: "Refactor Auth middleware & fix bug token refresh",
+              author: "Trần Thị Bình",
+              time: "35 phút trước",
+              branch: "feature/auth-refactor",
+            },
+            {
+              id: "c3",
+              message: "Add unit test cho CartService",
+              author: "Lê Hoàng Cường",
+              time: "1 giờ trước",
+              branch: "test/cart-service",
+            },
+            {
+              id: "c4",
+              message: "Update README hướng dẫn deploy",
+              author: "Phạm Minh Dung",
+              time: "2 giờ trước",
+              branch: "chore/docs-deploy",
+            },
+          ].map((commit) => (
+            <div
+              key={commit.id}
+              className="flex items-start justify-between rounded-lg border bg-muted/40 px-3 py-2"
             >
-              <AlertTriangle
-                className={`h-4 w-4 ${
-                  alert.type === "high"
-                    ? "text-red-600"
-                    : alert.type === "medium"
-                    ? "text-orange-600"
-                    : "text-yellow-600"
-                }`}
-              />
-              <AlertTitle className="flex items-center justify-between">
-                <span>{alert.title}</span>
-                <Badge
-                  variant={
-                    alert.type === "high"
-                      ? "destructive"
-                      : alert.type === "medium"
-                      ? "default"
-                      : "secondary"
-                  }
-                  className="ml-2 text-xs"
-                >
-                  {alert.type === "high"
-                    ? "Cao"
-                    : alert.type === "medium"
-                    ? "Trung bình"
-                    : "Thấp"}
-                </Badge>
-              </AlertTitle>
-              <AlertDescription className="mt-2">
-                <p className="text-sm">{alert.description}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    Người phụ trách:
-                  </span>
-                  <Badge variant="outline" className="text-xs">
-                    {alert.assignee}
-                  </Badge>
+              <div className="flex items-start gap-2">
+                <div className="mt-1 rounded-full bg-slate-900 text-white h-6 w-6 flex items-center justify-center">
+                  <GitCommit className="h-3 w-3" />
                 </div>
-              </AlertDescription>
-            </Alert>
+                <div>
+                  <p className="text-sm font-semibold line-clamp-1">
+                    {commit.message}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    By <span className="font-medium">{commit.author}</span> •{" "}
+                    <span className="font-mono">{commit.branch}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  <span>{commit.time}</span>
+                </div>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] px-1.5 py-0.5 border-slate-300 text-slate-700"
+                >
+                  MỚI
+                </Badge>
+              </div>
+            </div>
           ))}
         </CardContent>
       </Card>
     </div>
   );
 }
+

@@ -23,6 +23,7 @@ type Props = {
 
   currentSprint?: Sprint;
   sprintOverdue: boolean;
+  isLeader: boolean;
   onAddSprint: () => void;
   onEditSprint: () => void;
   onDeleteSprint: () => void;
@@ -39,6 +40,7 @@ export function TaskBoardHeader({
   onSprintChange,
   currentSprint,
   sprintOverdue,
+  isLeader,
   onAddSprint,
   onEditSprint,
   onDeleteSprint,
@@ -74,24 +76,28 @@ export function TaskBoardHeader({
 
       {currentSprint && (
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-slate-300 text-slate-800"
-            onClick={onEditSprint}
-            title="Sửa sprint"
-          >
-            <Pencil className="h-4 w-4 mr-1" />
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
-            onClick={onDeleteSprint}
-            title="Xóa sprint"
-          >
-            <Trash2 className="h-4 w-4 mr-1" />
-          </Button>
+          {isLeader && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-slate-300 text-slate-800"
+                onClick={onEditSprint}
+                title="Sửa sprint"
+              >
+                <Pencil className="h-4 w-4 mr-1" />
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                onClick={onDeleteSprint}
+                title="Xóa sprint"
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+              </Button>
+            </>
+          )}
           {sprintOverdue && (
             <Badge variant="destructive" className="text-[11px]">
               Quá hạn
@@ -100,16 +106,18 @@ export function TaskBoardHeader({
         </div>
       )}
 
-      <Button
-        variant="outline"
-        size="sm"
-        className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
-        onClick={onAddSprint}
-        title="Thêm sprint"
-      >
-        <Plus className="h-4 w-4 mr-1" />
-        Thêm sprint
-      </Button>
+      {isLeader && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+          onClick={onAddSprint}
+          title="Thêm sprint"
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          Thêm sprint
+        </Button>
+      )}
 
       <Button
         size="sm"

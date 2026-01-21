@@ -8,15 +8,15 @@ export const reviewSchema = z
   })
   .refine(
     (data) => {
-      // Logic: Nếu điểm thấp (<= 2) thì comment phải có ít nhất 10 ký tự
-      if (data.rating <= 2) {
+      // Logic: Nếu điểm < 2 sao thì comment phải có ít nhất 10 ký tự
+      if (data.rating < 2) {
         return data.comment && data.comment.trim().length >= 10;
       }
       return true;
     },
     {
       message:
-        "Với mức điểm thấp (1-2 sao), bạn bắt buộc phải nhập lý do (tối thiểu 10 ký tự).",
+        "Với mức điểm thấp (< 2 sao), bạn bắt buộc phải nhập lý do (tối thiểu 10 ký tự).",
       path: ["comment"], // Gắn lỗi vào trường comment
     }
   );

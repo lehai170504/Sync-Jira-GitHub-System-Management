@@ -28,7 +28,8 @@ import {
   Gavel,
   LayoutList,
   Clock,
-  Activity, // 2. Thêm Activity vào đây
+  Activity,
+  CalendarCheck2, // 2. Thêm Activity vào đây
 } from "lucide-react";
 import {
   Tooltip,
@@ -78,9 +79,21 @@ const routeGroups = [
         color: "text-blue-500",
       },
       {
-        label: "Bài tập & Điểm",
+        label: "Bài tập ",
         icon: ClipboardList,
         href: "/lecturer/assignments",
+        color: "text-emerald-500",
+      },
+      {
+        label: "Lịch học & Buổi học",
+        icon: CalendarCheck2,
+        href: "/lecturer/schedule",
+        color: "text-blue-500",
+      },
+      {
+        label: "Điểm",
+        icon: GraduationCap,
+        href: "/lecturer/grading",
         color: "text-emerald-500",
       },
       {
@@ -239,7 +252,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   };
 
   const filteredRoutes = routeGroups.filter((group) =>
-    group.roles.includes(currentRole),
+    group.roles.includes(currentRole)
   );
 
   if (!mounted) return <div className="w-full h-full bg-[#111827]" />;
@@ -264,7 +277,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
       <div
         className={cn(
           "flex items-center h-16 transition-all duration-300 border-b border-gray-800/50",
-          isCollapsed ? "justify-center px-2" : "justify-between px-6",
+          isCollapsed ? "justify-center px-2" : "justify-between px-6"
         )}
       >
         <div className="flex items-center gap-3">
@@ -300,10 +313,10 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                   currentRole === "ADMIN"
                     ? "text-violet-400"
                     : currentRole === "LECTURER"
-                      ? "text-emerald-400"
-                      : currentRole === "LEADER"
-                        ? "text-blue-400"
-                        : "text-yellow-400"
+                    ? "text-emerald-400"
+                    : currentRole === "LEADER"
+                    ? "text-blue-400"
+                    : "text-yellow-400"
                 }`}
               >
                 {currentRole}
@@ -339,7 +352,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                             isCollapsed ? "justify-center px-2" : "px-4",
                             isActive
                               ? "bg-gray-800 text-white shadow-md shadow-gray-900/10"
-                              : "text-gray-400 hover:bg-gray-800/50 hover:text-gray-200",
+                              : "text-gray-400 hover:bg-gray-800/50 hover:text-gray-200"
                           )}
                         >
                           {/* Active Indicator Bar */}
@@ -353,7 +366,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                               isActive
                                 ? route.color
                                 : "text-gray-500 group-hover:text-gray-300",
-                              !isCollapsed && "mr-3",
+                              !isCollapsed && "mr-3"
                             )}
                           />
                           {!isCollapsed && (
@@ -389,7 +402,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                     onClick={handleBackToCourses}
                     variant="ghost"
                     size="icon"
-                    className="w-full h-10 hover:bg-gray-800 text-gray-400 hover:text-white"
+                    className="w-full h-10 hover:bg-gray-800 text-red-400 hover:text-red"
                   >
                     <ArrowLeftCircle className="w-5 h-5 text-[#F27124]" />
                   </Button>
@@ -406,12 +419,12 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
             <Button
               onClick={handleBackToCourses}
               variant="outline"
-              className="w-full justify-start gap-3 bg-gray-800/50 border-gray-700 hover:bg-gray-700 hover:text-white text-gray-300 transition-all h-11"
+              className="w-full justify-start gap-3 bg-gray-800/50 border-gray-700 hover:bg-gray-700 hover:text-red text-red-300 transition-all h-11"
             >
               <ArrowLeftCircle className="w-5 h-5 text-[#F27124]" />
               <div className="flex flex-col items-start text-xs">
                 <span className="font-semibold">Đổi lớp</span>
-                <span className="text-[10px] text-gray-500 font-normal">
+                <span className="text-[10px] text-red-500 font-normal">
                   Quay lại danh sách
                 </span>
               </div>

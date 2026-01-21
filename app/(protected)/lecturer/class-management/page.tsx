@@ -1,21 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useRouter } from "next/navigation"; // Dùng router để chuyển trang
 import {
   Search,
   Users,
-  MoreHorizontal,
   UserPlus,
-  Download,
-  Upload,
+  FileSpreadsheet,
+  MoreHorizontal,
+  ArrowRight,
   LayoutGrid,
-  List,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Accordion,
   AccordionContent,
@@ -30,12 +28,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { TeamDetailView } from "@/components/features/lecturer/team-detail-view";
+import { toast } from "sonner";
 
 // MOCK DATA
-const STUDENTS = [
+const INITIAL_STUDENTS = [
   {
     id: "1",
     name: "Nguyễn Văn A",
@@ -66,207 +62,194 @@ const STUDENTS = [
   },
 ];
 
-const TEAMS = [
-  { id: "t1", name: "Team 1: E-Commerce", status: "On Track" },
-  { id: "t2", name: "Team 2: LMS System", status: "Risk" },
-  { id: "t3", name: "Team 3: Grab Clone", status: "Behind" },
-];
-
 export default function ClassManagementPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTeamId, setSelectedTeamId] = useState(TEAMS[0].id); // Mặc định chọn Team 1
+  const [students, setStudents] = useState(INITIAL_STUDENTS);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Logic Grouping cho Tab Danh sách
-  const filtered = STUDENTS.filter((s) =>
-    s.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // --- EXCEL IMPORT HANDLER ---
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
+        loading: "Đang xử lý file...",
+        success: "Import danh sách thành công!",
+        error: "Lỗi đọc file",
+      });
+    }
+  };
+
+  // Logic Grouping
+  const filtered = students.filter(
+    (s) =>
+      s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
   const grouped = filtered.reduce((acc, student) => {
     const key = student.group || "Chưa có nhóm";
     if (!acc[key]) acc[key] = [];
     acc[key].push(student);
     return acc;
-  }, {} as Record<string, typeof STUDENTS>);
+  }, {} as Record<string, typeof INITIAL_STUDENTS>);
+
   const groupKeys = Object.keys(grouped).sort();
 
-  // Tìm tên team đang chọn
-  const selectedTeamName =
-    TEAMS.find((t) => t.id === selectedTeamId)?.name || "Unknown Team";
+  // --- HÀM CHUYỂN TRANG ---
+  const navigateToTeamDetail = (groupName: string) => {
+    // Giả lập map tên nhóm sang ID (Thực tế data sẽ có ID sẵn)
+    // Ví dụ: "Team 1" -> "t1"
+    const teamId = groupName.toLowerCase().replace(/\s+/g, "-");
+    router.push(`/lecturer/teams/${teamId}`);
+  };
 
   return (
-    <div className="space-y-6 animate-in fade-in-50">
+    <div className="space-y-8 animate-in fade-in-50 pb-10">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-gray-100 pb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
             Quản lý Lớp & Nhóm
           </h1>
-          <p className="text-muted-foreground text-sm">SE1783 • Spring 2026</p>
+          <p className="text-gray-500 mt-2 flex items-center gap-2">
+            <span className="font-semibold text-[#F27124]">SE1783</span>
+            <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+            <span>Danh sách sinh viên & Cấu trúc nhóm</span>
+          </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Upload className="mr-2 h-4 w-4" /> Import Excel
+        <div className="flex gap-3">
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+          <Button
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-white hover:bg-gray-50"
+          >
+            <FileSpreadsheet className="mr-2 h-4 w-4 text-green-600" /> Import
+            Excel
           </Button>
-          <Button className="bg-[#F27124] hover:bg-[#d65d1b] h-9">
+          <Button className="bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 text-white">
             <UserPlus className="mr-2 h-4 w-4" /> Thêm SV
           </Button>
         </div>
       </div>
 
-      <Tabs defaultValue="list_view" className="space-y-6">
-        <TabsList className="bg-white border">
-          <TabsTrigger value="list_view" className="gap-2">
-            <List className="h-4 w-4" /> Danh sách tổng quát
-          </TabsTrigger>
-          <TabsTrigger value="team_view" className="gap-2">
-            <LayoutGrid className="h-4 w-4" /> Chi tiết từng Nhóm
-          </TabsTrigger>
-        </TabsList>
+      {/* SEARCH BAR */}
+      <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Tìm kiếm theo tên hoặc MSSV..."
+            className="pl-10 bg-gray-50 border-transparent focus:bg-white focus:border-[#F27124] focus:ring-2 focus:ring-orange-100 rounded-xl transition-all"
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
 
-        {/* TAB 1: DANH SÁCH TỔNG QUÁT (ACCORDION VIEW) */}
-        <TabsContent value="list_view">
-          <div className="space-y-4">
-            <div className="relative max-w-md">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Tìm sinh viên..."
-                className="pl-8 bg-white"
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
-            <Accordion
-              type="multiple"
-              defaultValue={groupKeys}
-              className="space-y-4"
-            >
-              {groupKeys.map((group) => (
-                <AccordionItem
-                  key={group}
-                  value={group}
-                  className="border rounded-lg bg-white px-4 shadow-sm"
-                >
-                  <AccordionTrigger className="hover:no-underline py-3">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`p-2 rounded-full ${
-                          group === "Chưa có nhóm"
-                            ? "bg-gray-100 text-gray-500"
-                            : "bg-blue-50 text-blue-600"
-                        }`}
-                      >
-                        <Users className="h-4 w-4" />
-                      </div>
-                      <span className="font-bold text-gray-900 text-sm">
+      {/* ACCORDION LIST */}
+      <div className="space-y-4">
+        {groupKeys.map((group) => (
+          <Accordion
+            type="single"
+            collapsible
+            key={group}
+            className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
+          >
+            <AccordionItem value={group} className="border-0">
+              <div className="flex items-center justify-between px-4 py-3 bg-gray-50/30 hover:bg-gray-50 transition-colors">
+                <AccordionTrigger className="hover:no-underline py-0 flex-1">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`p-2.5 rounded-full ${
+                        group === "Chưa có nhóm"
+                          ? "bg-gray-200 text-gray-600"
+                          : "bg-blue-100 text-blue-600"
+                      }`}
+                    >
+                      <Users className="h-5 w-5" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-bold text-gray-900 text-base">
                         {group}
-                      </span>
-                      <Badge
-                        variant="secondary"
-                        className="ml-2 font-normal text-xs"
-                      >
-                        {grouped[group].length} SV
-                      </Badge>
+                      </p>
+                      <p className="text-xs text-muted-foreground font-medium mt-0.5">
+                        {grouped[group].length} thành viên
+                      </p>
                     </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="hover:bg-transparent">
-                          <TableHead>MSSV</TableHead>
-                          <TableHead>Họ tên</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead className="text-right">Thao tác</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {grouped[group].map((s) => (
-                          <TableRow key={s.id}>
-                            <TableCell className="font-medium text-xs">
-                              {s.code}
-                            </TableCell>
-                            <TableCell className="text-sm">{s.name}</TableCell>
-                            <TableCell className="text-xs text-muted-foreground">
-                              {s.email}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </TabsContent>
-
-        {/* TAB 2: CHI TIẾT NHÓM (MASTER-DETAIL VIEW) */}
-        <TabsContent value="team_view">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[800px]">
-            {/* SIDEBAR TRÁI: DANH SÁCH NHÓM */}
-            <Card className="lg:col-span-1 h-full overflow-hidden flex flex-col">
-              <CardHeader className="pb-3 border-b bg-gray-50/50">
-                <CardTitle className="text-sm font-bold flex items-center justify-between">
-                  Danh sách nhóm
-                  <Badge variant="outline">{TEAMS.length}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <div className="flex-1 overflow-y-auto p-2 space-y-2">
-                {TEAMS.map((team) => (
-                  <div
-                    key={team.id}
-                    onClick={() => setSelectedTeamId(team.id)}
-                    className={`p-3 rounded-lg cursor-pointer transition-all border ${
-                      selectedTeamId === team.id
-                        ? "bg-blue-50 border-blue-200 shadow-sm"
-                        : "bg-white border-transparent hover:bg-gray-50 hover:border-gray-200"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-1">
-                      <span
-                        className={`font-semibold text-sm ${
-                          selectedTeamId === team.id
-                            ? "text-blue-700"
-                            : "text-gray-700"
-                        }`}
-                      >
-                        {team.name}
-                      </span>
-                      {team.status === "Risk" && (
-                        <div
-                          className="w-2 h-2 rounded-full bg-red-500"
-                          title="Risk"
-                        />
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-1">
-                      Hệ thống bán thiết bị IoT...
-                    </p>
                   </div>
-                ))}
-              </div>
-            </Card>
+                </AccordionTrigger>
 
-            {/* CONTENT PHẢI: CHI TIẾT NHÓM */}
-            <Card className="lg:col-span-3 h-full overflow-hidden flex flex-col border-0 shadow-none bg-transparent">
-              <div className="h-full overflow-y-auto pr-2">
-                {/* Gọi Component TeamDetailView và truyền ID vào */}
-                <TeamDetailView
-                  teamId={selectedTeamId}
-                  teamName={selectedTeamName}
-                />
+                {/* NÚT CHUYỂN TRANG */}
+                {group !== "Chưa có nhóm" && (
+                  <Button
+                    size="sm"
+                    className="ml-4 bg-white border border-orange-200 text-orange-600 hover:bg-orange-50 hover:text-orange-700 shadow-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigateToTeamDetail(group);
+                    }}
+                  >
+                    <LayoutGrid className="mr-2 h-3.5 w-3.5" /> Chi tiết{" "}
+                    <ArrowRight className="ml-1 h-3 w-3" />
+                  </Button>
+                )}
               </div>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+
+              <AccordionContent className="px-0 pb-0">
+                <Table>
+                  <TableHeader className="bg-gray-50 border-y border-gray-100">
+                    <TableRow>
+                      <TableHead className="pl-6 w-[150px]">MSSV</TableHead>
+                      <TableHead>Họ và tên</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead className="text-right pr-6">
+                        Thao tác
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {grouped[group].map((s) => (
+                      <TableRow
+                        key={s.id}
+                        className="hover:bg-orange-50/10 transition-colors"
+                      >
+                        <TableCell className="font-medium pl-6">
+                          {s.code}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-orange-400 to-pink-500 text-white flex items-center justify-center text-xs font-bold">
+                              {s.name.charAt(0)}
+                            </div>
+                            {s.name}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-gray-500">
+                          {s.email}
+                        </TableCell>
+                        <TableCell className="text-right pr-6">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-400 hover:text-gray-600"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        ))}
+      </div>
     </div>
   );
 }

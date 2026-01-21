@@ -24,7 +24,6 @@ import {
   ChevronRight,
   UserCircle,
   LayoutList,
-  Clock,
   Activity,
 } from "lucide-react";
 import {
@@ -170,28 +169,10 @@ const routeGroups = [
         color: "text-blue-400",
       },
       {
-        label: "Preview Report",
-        icon: FileText,
-        href: "/leader/preview-report",
-        color: "text-slate-300",
-      },
-      {
-        label: "Đồng bộ Jira",
+        label: "Đồng bộ dữ liệu",
         icon: LayoutList,
-        href: "/leader/jira",
+        href: "/leader/sync",
         color: "text-sky-500",
-      },
-      {
-        label: "Đồng bộ GitHub",
-        icon: GitCommit,
-        href: "/leader/sync/github",
-        color: "text-slate-300",
-      },
-      {
-        label: "Trạng thái Sync",
-        icon: Clock,
-        href: "/leader/sync-status",
-        color: "text-emerald-400",
       },
       {
         label: "Ánh xạ tài khoản",

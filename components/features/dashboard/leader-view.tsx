@@ -98,7 +98,7 @@ export function LeaderDashboard() {
   return (
     <div className="space-y-6">
       {/* HEADER: Team Info */}
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 rounded-xl text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-lg gap-4">
+      <div className="from-slate-900 to-slate-800 p-6 rounded-xl text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-lg gap-4">
         <div>
           <h2 className="text-2xl font-bold">Team 1 - E-Commerce App</h2>
           <p className="text-slate-300 mt-1">

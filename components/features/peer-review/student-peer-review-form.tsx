@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { UserRole } from "@/components/layouts/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -11,12 +13,12 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { submitReview } from "@/server/actions/review-actions";
 
-// Mock data cho thành viên (không bao gồm LEADER - không thể tự đánh giá)
-const mockMembers = [
-  { id: "m1", name: "Nguyễn Văn An", initials: "AN", role: "MEMBER", avatarUrl: "" },
-  { id: "m2", name: "Trần Thị Bình", initials: "BT", role: "MEMBER", avatarUrl: "" },
-  { id: "m3", name: "Lê Hoàng Cường", initials: "LC", role: "MEMBER", avatarUrl: "" },
-  { id: "m4", name: "Phạm Minh Dung", initials: "DM", role: "MEMBER", avatarUrl: "" },
+// Mock data cho tất cả thành viên trong team (bao gồm cả LEADER)
+const allTeamMembers = [
+  { id: "m1", name: "Nguyễn Văn An", initials: "AN", role: "LEADER" as const, avatarUrl: "" },
+  { id: "m2", name: "Trần Thị Bình", initials: "BT", role: "MEMBER" as const, avatarUrl: "" },
+  { id: "m3", name: "Lê Hoàng Cường", initials: "LC", role: "MEMBER" as const, avatarUrl: "" },
+  { id: "m4", name: "Phạm Minh Dung", initials: "DM", role: "MEMBER" as const, avatarUrl: "" },
 ];
 
 type ReviewData = {
@@ -25,7 +27,25 @@ type ReviewData = {
   comment: string;
 };
 
-export function LeaderPeerReviewForm() {
+export function PeerReviewForm() {
+  const [role, setRole] = useState<UserRole>("MEMBER");
+  const [currentUserId, setCurrentUserId] = useState<string>("m2");
+
+  useEffect(() => {
+    const savedRole = Cookies.get("user_role") as UserRole;
+    if (savedRole) {
+      setRole(savedRole);
+      // Giả sử: LEADER = m1, MEMBER = m2 (có thể lấy từ cookie hoặc API)
+      if (savedRole === "LEADER") {
+        setCurrentUserId("m1");
+      } else if (savedRole === "MEMBER") {
+        setCurrentUserId("m2");
+      }
+    }
+  }, []);
+
+  // Lọc ra danh sách thành viên để đánh giá (trừ bản thân)
+  const membersToReview = allTeamMembers.filter((m) => m.id !== currentUserId);
   const [reviews, setReviews] = useState<Record<string, ReviewData>>({});
   const [submittedReviews, setSubmittedReviews] = useState<Set<string>>(new Set());
   const [submittingId, setSubmittingId] = useState<string | null>(null);
@@ -103,7 +123,7 @@ export function LeaderPeerReviewForm() {
 
       {/* Members Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockMembers.map((member) => {
+        {membersToReview.map((member) => {
           const review = reviews[member.id];
           const rating = review?.rating || 0;
           const comment = review?.comment || "";

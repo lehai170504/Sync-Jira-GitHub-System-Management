@@ -22,8 +22,8 @@ export default function ConfigPage() {
     if (savedRole) setRole(savedRole);
   }, []);
 
-  // LEADER: Hiển thị Jira + GitHub Configuration với Test Connection
-  if (role === "MEMBER") {
+  // LEADER và MEMBER: Hiển thị Jira + GitHub Configuration với Test Connection
+  if (role === "LEADER" || role === "MEMBER") {
     return (
       <div className="space-y-6 max-w-4xl mx-auto py-8 px-4 md:px-0">
         {/* HEADER */}

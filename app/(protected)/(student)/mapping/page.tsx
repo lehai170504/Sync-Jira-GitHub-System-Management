@@ -71,7 +71,7 @@ export default function MappingPage() {
   }, []);
 
   // Chỉ LEADER mới được sửa, còn lại (Admin/Lecturer) chỉ xem
-  const isReadOnly = role !== "ADMIN";
+  const isReadOnly = role !== "LEADER";
 
   // Stats - Tính toán dựa trên mappings thực tế
   const totalStudents = mockStudents.length;

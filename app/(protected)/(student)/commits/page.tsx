@@ -21,14 +21,15 @@ export default function LeaderCommitListPage() {
     return <div className="max-w-6xl mx-auto py-8 px-4 md:px-0" />;
   }
 
-  if (role !== "LEADER") {
+  // Chỉ LEADER và MEMBER mới được truy cập
+  if (role !== "LEADER" && role !== "MEMBER") {
     return (
       <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h2 className="text-3xl font-bold tracking-tight">Commit History</h2>
+            <h2 className="text-3xl font-bold tracking-tight">Lịch sử Commit</h2>
             <p className="text-muted-foreground">
-              Trang này chỉ dành cho Leader để xem lịch sử commit của nhóm.
+              Trang này chỉ dành cho Leader và Member để xem lịch sử commit.
             </p>
           </div>
         </div>
@@ -36,13 +37,12 @@ export default function LeaderCommitListPage() {
         <Alert className="bg-gray-50 border-gray-200 text-gray-800">
           <AlertTitle>Không có quyền truy cập</AlertTitle>
           <AlertDescription>
-            Bạn đang đăng nhập với quyền <b>{role}</b>. Vui lòng chuyển sang tài khoản Leader nếu
-            muốn xem lịch sử commit.
+            Bạn đang đăng nhập với quyền <b>{role}</b>. Vui lòng chuyển sang tài khoản Leader hoặc Member.
           </AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  return <LeaderCommits />;
+  return <LeaderCommits role={role} />;
 }

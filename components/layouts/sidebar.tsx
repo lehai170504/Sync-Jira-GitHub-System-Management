@@ -118,14 +118,32 @@ const routeGroups = [
       {
         label: "Kết quả học tập",
         icon: Layers,
-        href: "/student/my-score",
+        href: "/my-score",
         color: "text-yellow-500",
       },
       {
         label: "Đánh giá chéo",
         icon: GraduationCap,
-        href: "/student/peer-review",
+        href: "/peer-review",
         color: "text-orange-700",
+      },
+    ],
+  },
+  {
+    label: "Công việc & Tiến độ",
+    roles: ["MEMBER"],
+    items: [
+      {
+        label: "Tasks của tôi",
+        icon: FileText,
+        href: "/tasks",
+        color: "text-rose-500",
+      },
+      {
+        label: "Lịch sử commit",
+        icon: GitCommit,
+        href: "/commits",
+        color: "text-slate-300",
       },
     ],
   },
@@ -142,49 +160,43 @@ const routeGroups = [
       {
         label: "Phân công Task",
         icon: FileText,
-        href: "/leader/tasks",
+        href: "/tasks",
         color: "text-rose-500",
       },
       {
         label: "Tiến độ nhóm",
         icon: Activity,
-        href: "/leader/progress",
+        href: "/progress",
         color: "text-emerald-400",
       },
       {
         label: "Tỷ lệ đóng góp",
         icon: Layers,
-        href: "/leader/contribution",
+        href: "/contribution",
         color: "text-yellow-500",
       },
       {
         label: "Lịch sử commit",
         icon: GitCommit,
-        href: "/leader/commits",
+        href: "/commits",
         color: "text-slate-300",
       },
       {
         label: "Đánh giá chéo",
         icon: Star,
-        href: "/leader/peer-review",
+        href: "/peer-review",
         color: "text-amber-500",
       },
       {
-        label: "Xuất bảng điểm",
+        label: "Xuất báo cáo",
         icon: FileSpreadsheet,
-        href: "/leader/export-score",
+        href: "/export",
         color: "text-emerald-500",
-      },
-      {
-        label: "Export Worklog",
-        icon: FileText,
-        href: "/leader/export-worklog",
-        color: "text-blue-400",
       },
       {
         label: "Đồng bộ dữ liệu",
         icon: LayoutList,
-        href: "/leader/sync",
+        href: "/sync",
         color: "text-sky-500",
       },
       {
@@ -192,6 +204,24 @@ const routeGroups = [
         icon: Users,
         href: "/mapping",
         color: "text-pink-700",
+      },
+      {
+        label: "Cấu hình",
+        icon: Settings,
+        href: "/config",
+        color: "text-violet-500",
+      },
+    ],
+  },
+  {
+    label: "Cấu hình & Đồng bộ",
+    roles: ["MEMBER"],
+    items: [
+      {
+        label: "Đồng bộ dữ liệu",
+        icon: LayoutList,
+        href: "/sync",
+        color: "text-sky-500",
       },
       {
         label: "Cấu hình",

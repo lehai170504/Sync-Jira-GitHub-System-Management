@@ -5,9 +5,9 @@ import Cookies from "js-cookie";
 import { UserRole } from "@/components/layouts/sidebar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { LeaderPeerReviewForm } from "@/components/features/peer-review/student-peer-review-form";
+import { PeerReviewForm } from "@/components/features/peer-review/student-peer-review-form";
 
-export default function LeaderPeerReviewPage() {
+export default function PeerReviewPage() {
   const [role, setRole] = useState<UserRole>("MEMBER");
   const [mounted, setMounted] = useState(false);
 
@@ -21,20 +21,21 @@ export default function LeaderPeerReviewPage() {
     return null;
   }
 
-  if (role !== "MEMBER") {
+  // Chỉ LEADER và MEMBER mới được truy cập
+  if (role !== "LEADER" && role !== "MEMBER") {
     return (
       <div className="p-6">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Không có quyền truy cập</AlertTitle>
           <AlertDescription>
-            Chỉ LEADER mới có quyền truy cập trang này.
+            Chỉ LEADER và MEMBER mới có quyền truy cập trang này.
           </AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  return <LeaderPeerReviewForm />;
+  return <PeerReviewForm />;
 }
 

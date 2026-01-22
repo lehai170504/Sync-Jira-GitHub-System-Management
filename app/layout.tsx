@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import Providers from "./providers"; //
+import { AuthWatcher } from "@/features/auth/components/auth-watcher";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -8,7 +10,6 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-// Đã khai báo font Mono ở đây
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -36,7 +37,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans bg-gray-50/50`}
       >
-        {children}
+        {/* Bọc Providers quanh children */}
+        <Providers>
+          <AuthWatcher />
+          {children}
+        </Providers>
+
         <Toaster position="top-right" richColors />
       </body>
     </html>

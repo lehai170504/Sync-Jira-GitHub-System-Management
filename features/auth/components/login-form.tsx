@@ -1,0 +1,130 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2, ArrowRight, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useLogin } from "@/features/auth/hooks/use-login";
+import { toast } from "sonner";
+
+export function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const { mutate: login, isPending } = useLogin();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.warning("Vui lòng nhập đầy đủ Email và Mật khẩu.");
+      return;
+    }
+    login({ email, password });
+  };
+
+  return (
+    <div className="max-w-[480px] w-full mx-auto space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+          Đăng nhập hệ thống
+        </h1>
+        <p className="text-slate-500 text-base">
+          Nhập email và mật khẩu để truy cập vào không gian quản lý môn học.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Email */}
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-slate-700 font-medium">
+            Email
+          </Label>
+          <div className="relative">
+            <Input
+              id="email"
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isPending}
+              className="pl-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors"
+              required
+            />
+            <div className="absolute left-3 top-3 text-slate-400">
+              <Mail className="h-5 w-5" />
+            </div>
+          </div>
+        </div>
+
+        {/* Password */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password" className="text-slate-700 font-medium">
+              Mật khẩu
+            </Label>
+            <Link
+              href="/forgot-password"
+              className="text-xs font-medium text-[#F27124] hover:underline"
+            >
+              Quên mật khẩu?
+            </Link>
+          </div>
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isPending}
+              className="pl-10 pr-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors"
+              required
+            />
+            <div className="absolute left-3 top-3 text-slate-400">
+              <Lock className="h-5 w-5" />
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+              disabled={isPending}
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="w-full h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5"
+        >
+          {isPending ? (
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          ) : (
+            "Đăng nhập"
+          )}
+          {!isPending && <ArrowRight className="ml-2 h-5 w-5" />}
+        </Button>
+      </form>
+
+      <div className="text-center text-sm text-slate-500">
+        Chưa có tài khoản?{" "}
+        <Link
+          href="/register"
+          className="font-bold text-[#F27124] hover:underline"
+        >
+          Đăng ký ngay
+        </Link>
+      </div>
+    </div>
+  );
+}

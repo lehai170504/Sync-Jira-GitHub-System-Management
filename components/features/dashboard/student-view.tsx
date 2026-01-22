@@ -1,11 +1,11 @@
-// src/components/features/dashboard/member-view.tsx
+// src/components/features/dashboard/leader-view.tsx
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MemberOverviewTab } from "./member-overview-tab";
-import { MyStatisticsTab } from "./my-statistics-tab";
+import { LeaderOverviewTab } from "./leader-overview-tab";
+import { LeaderStatisticsTab } from "./leader-statistics-tab";
 
-export function MemberDashboard() {
+export function LeaderDashboard() {
   return (
     <Tabs defaultValue="overview" className="space-y-4">
       <TabsList className="bg-muted/60 p-1">
@@ -16,13 +16,13 @@ export function MemberDashboard() {
         value="overview"
         className="space-y-4 animate-in fade-in-50"
       >
-        <MemberOverviewTab />
+        <LeaderOverviewTab />
       </TabsContent>
       <TabsContent
         value="statistics"
         className="space-y-4 animate-in fade-in-50"
       >
-        <MyStatisticsTab />
+        <LeaderStatisticsTab />
       </TabsContent>
     </Tabs>
   );

@@ -30,14 +30,14 @@ export default function TeamDetailPage({
   return (
     <div className="space-y-4 animate-in fade-in-50 pb-10">
       {/* NAVIGATION HEADER */}
-      <div className="flex items-center gap-4 py-2 border-b border-transparent">
+      <div className="flex items-center gap-2 py-1 border-b border-transparent">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => router.back()}
           className="text-gray-500 hover:text-gray-900 hover:bg-gray-100 pl-0 gap-1"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to List
+          <ArrowLeft className="h-4 w-4" /> Quay lại danh sách nhóm
         </Button>
       </div>
 

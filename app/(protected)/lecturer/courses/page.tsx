@@ -173,9 +173,9 @@ export default function LecturerCoursesPage() {
                 value={selectedSemester}
                 onValueChange={setSelectedSemester}
               >
-                <SelectTrigger className="h-11 bg-white border-gray-200 shadow-sm rounded-lg focus:ring-2 focus:ring-[#F27124]/20">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <Calendar className="h-4 w-4 text-gray-500" />
+                <SelectTrigger className="h-11 bg-orange-100 border-orange-200 shadow-sm rounded-lg focus:ring-2 focus:ring-[#F27124]/20">
+                  <div className="flex items-center gap-2 text-orange-700">
+                    <Calendar className="h-4 w-4 text-orange-500" />
                     <SelectValue placeholder="Chọn học kỳ" />
                   </div>
                 </SelectTrigger>

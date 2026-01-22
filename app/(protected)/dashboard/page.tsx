@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { UserRole } from "@/components/layouts/sidebar"; // Import Type Role
+import { UserRole } from "@/components/layouts/sidebar";
 
-// Import các Views
+// Import Views
 import { OverviewTab } from "@/components/features/overview/overview-tab";
 import { LecturerDashboard } from "@/components/features/dashboard/lecturer-view";
 import { LeaderDashboard } from "@/components/features/dashboard/student-view";
@@ -20,19 +20,29 @@ export default function DashboardPage() {
   const [role, setRole] = useState<UserRole>("MEMBER");
 
   useEffect(() => {
-    // Lấy Role từ Cookie để hiển thị đúng giao diện
     const savedRole = Cookies.get("user_role") as UserRole;
     if (savedRole) setRole(savedRole);
   }, []);
 
+  // --- TRƯỜNG HỢP RIÊNG CHO GIẢNG VIÊN ---
+  // LecturerDashboard đã có Header riêng (Welcome, Avatar, Class Info) nên không cần Header chung nữa
+  if (role === "LECTURER") {
+    return (
+      <div className="flex-1 max-w-7xl mx-auto py-6 px-4 md:px-0">
+        <LecturerDashboard />
+      </div>
+    );
+  }
+
+  // --- CÁC ROLE CÒN LẠI (ADMIN, LEADER, MEMBER) ---
+
   return (
     <div className="flex-1 space-y-6 max-w-7xl mx-auto py-6 px-4 md:px-0">
-      {/* HEADER: Tiêu đề đổi theo Role */}
+      {/* HEADER CHUNG */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between space-y-2 md:space-y-0">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-foreground">
             {role === "ADMIN" && "Tổng quan dự án"}
-            {role === "LECTURER" && "Dashboard Giảng viên"}
             {role === "LEADER" && "Quản lý nhóm"}
             {role === "MEMBER" && "Góc học tập của tôi"}
           </h2>
@@ -56,7 +66,6 @@ export default function DashboardPage() {
 
       {/* RENDER VIEW THEO ROLE */}
       {role === "ADMIN" && (
-        // Admin giữ nguyên layout Tabs cũ
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="bg-muted/60 p-1">
             <TabsTrigger value="overview">Tổng quan</TabsTrigger>
@@ -84,13 +93,8 @@ export default function DashboardPage() {
         </Tabs>
       )}
 
-      {/* LECTURER VIEW */}
-      {role === "LECTURER" && <LecturerDashboard />}
-
-      {/* LEADER VIEW */}
       {role === "LEADER" && <LeaderDashboard />}
 
-      {/* MEMBER VIEW */}
       {role === "MEMBER" && <MemberDashboard />}
     </div>
   );

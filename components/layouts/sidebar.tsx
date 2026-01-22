@@ -29,6 +29,7 @@ import {
   BarChart3,
   ClipboardCheck,
   CalendarDays,
+  ArrowLeft, // Icon quay lại
 } from "lucide-react";
 import {
   Tooltip,
@@ -46,7 +47,7 @@ interface SidebarProps {
   toggleSidebar: () => void;
 }
 
-// 2. CONFIG MENU
+// 2. CONFIG MENU (Giữ nguyên như cũ)
 const routeGroups = [
   {
     label: "Tổng quan",
@@ -106,7 +107,6 @@ const routeGroups = [
         href: "/lecturer/class-management",
         color: "text-indigo-500",
       },
-
       {
         label: "Bài tập & Đồ án",
         icon: Layers,
@@ -119,7 +119,6 @@ const routeGroups = [
         href: "/lecturer/grading",
         color: "text-emerald-500",
       },
-
       {
         label: "Thống kê & Báo cáo",
         icon: BarChart3,
@@ -256,14 +255,14 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   }, []);
 
   const filteredRoutes = routeGroups.filter((group) =>
-    group.roles.includes(currentRole),
+    group.roles.includes(currentRole)
   );
 
   if (!mounted) return <div className="w-full h-full bg-[#111827]" />;
 
   return (
     <div className="flex flex-col h-full bg-[#111827] text-white border-r border-gray-800 relative">
-      {/* TOGGLE BUTTON - CENTERED VERTICALLY */}
+      {/* TOGGLE BUTTON */}
       <Button
         onClick={toggleSidebar}
         variant="ghost"
@@ -280,8 +279,8 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
       {/* 1. Header Logo */}
       <div
         className={cn(
-          "flex items-center h-16 transition-all duration-300",
-          isCollapsed ? "justify-center px-2" : "justify-between px-6",
+          "flex items-center h-16 transition-all duration-300 border-b border-gray-800/50",
+          isCollapsed ? "justify-center px-2" : "justify-between px-6"
         )}
       >
         <Link
@@ -297,31 +296,33 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                 SyncSystem
               </h1>
               <span className="text-[10px] text-gray-400 font-medium mt-1 truncate">
-                Project Manager
+                Academic Management
               </span>
             </div>
           )}
         </Link>
       </div>
 
-      {/* 2. User Role Badge */}
+      {/* 2. User Role Badge (Đã bỏ nút Đổi lớp ở đây) */}
       {!isCollapsed && (
-        <div className="px-4 mb-2 animate-in fade-in slide-in-from-left-5 duration-300">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800/50 border border-gray-700">
-            <UserCircle className="w-4 h-4 text-gray-400" />
+        <div className="px-4 py-4 animate-in fade-in slide-in-from-left-5 duration-300">
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gray-800/40 border border-gray-700/50">
+            <div className="p-1.5 bg-gray-700 rounded-lg">
+              <UserCircle className="w-4 h-4 text-gray-300" />
+            </div>
             <div className="flex flex-col">
-              <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
-                Role
+              <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider leading-none mb-1">
+                Current Role
               </span>
               <span
                 className={`text-xs font-bold ${
                   currentRole === "ADMIN"
                     ? "text-violet-400"
                     : currentRole === "LECTURER"
-                      ? "text-emerald-400"
-                      : currentRole === "LEADER"
-                        ? "text-blue-400"
-                        : "text-yellow-400"
+                    ? "text-emerald-400"
+                    : currentRole === "LEADER"
+                    ? "text-blue-400"
+                    : "text-yellow-400"
                 }`}
               >
                 {currentRole}
@@ -332,12 +333,12 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
       )}
 
       {/* 3. Menu Area */}
-      <div className="flex-1 px-3 space-y-6 overflow-y-auto py-4 scrollbar-hide">
+      <div className="flex-1 px-3 space-y-6 overflow-y-auto py-2 scrollbar-hide">
         <TooltipProvider delayDuration={0}>
           {filteredRoutes.map((group, index) => (
             <div key={index}>
               {!isCollapsed && (
-                <h3 className="mb-2 px-4 text-xs font-semibold uppercase tracking-wider text-gray-500 animate-in fade-in duration-300">
+                <h3 className="mb-2 px-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 animate-in fade-in duration-300">
                   {group.label}
                 </h3>
               )}
@@ -347,7 +348,6 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                     pathname === route.href ||
                     pathname.startsWith(`${route.href}/`);
 
-                  // COMPONENT LINK CHUNG
                   const LinkContent = (
                     <Link
                       href={route.href}
@@ -355,8 +355,8 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                         "group flex items-center rounded-lg py-2.5 text-sm font-medium transition-all duration-200",
                         isCollapsed ? "justify-center px-2" : "px-4",
                         isActive
-                          ? "bg-gray-800/50 text-white shadow-sm"
-                          : "text-gray-400 hover:bg-gray-800/30 hover:text-white",
+                          ? "bg-gray-800 text-white shadow-sm ring-1 ring-gray-700"
+                          : "text-gray-400 hover:bg-gray-800/50 hover:text-gray-200"
                       )}
                     >
                       <route.icon
@@ -364,35 +364,32 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                           "h-5 w-5 flex-shrink-0 transition-colors",
                           isActive
                             ? route.color
-                            : "text-gray-500 group-hover:text-white",
-                          !isCollapsed && "mr-3",
+                            : "text-gray-500 group-hover:text-gray-300",
+                          !isCollapsed && "mr-3"
                         )}
                       />
                       {!isCollapsed && (
                         <span className="truncate">{route.label}</span>
                       )}
                       {isActive && !isCollapsed && (
-                        <div className="ml-auto w-1 h-1 rounded-full bg-[#F27124]" />
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#F27124] shadow-[0_0_8px_#F27124]" />
                       )}
                     </Link>
                   );
 
-                  // NẾU THU GỌN -> WRAP TRONG TOOLTIP
                   if (isCollapsed) {
                     return (
                       <Tooltip key={route.href}>
                         <TooltipTrigger asChild>{LinkContent}</TooltipTrigger>
                         <TooltipContent
                           side="right"
-                          className="bg-white text-black font-medium border-gray-200"
+                          className="bg-gray-900 text-white border-gray-700"
                         >
                           {route.label}
                         </TooltipContent>
                       </Tooltip>
                     );
                   }
-
-                  // NẾU MỞ RỘNG -> RENDER BÌNH THƯỜNG
                   return <div key={route.href}>{LinkContent}</div>;
                 })}
               </div>
@@ -401,31 +398,74 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         </TooltipProvider>
       </div>
 
-      {/* 4. Footer Section */}
-      {!isCollapsed && (
-        <div className="p-4 mt-auto border-t border-gray-800 bg-[#0f1623] animate-in fade-in duration-300">
-          <div className="bg-gradient-to-br from-orange-900/50 to-red-900/20 rounded-lg p-4 border border-orange-500/10">
+      {/* 4. FOOTER SECTION (Nơi chứa nút Back & Status) */}
+      <div className="p-3 mt-auto border-t border-gray-800 bg-[#0f1623] space-y-3">
+        {/* --- NÚT ĐỔI LỚP (LECTURER ONLY) --- */}
+        {currentRole === "LECTURER" && (
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/lecturer/courses"
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl bg-gray-800/80 border border-gray-700/50 text-gray-300 hover:bg-gray-700 hover:text-white hover:border-gray-600 transition-all group shadow-sm",
+                    isCollapsed ? "justify-center p-2.5" : "px-4 py-3"
+                  )}
+                >
+                  <ArrowLeft className="w-4 h-4 text-[#F27124] group-hover:-translate-x-1 transition-transform" />
+                  {!isCollapsed && (
+                    <div className="flex flex-col text-left">
+                      <span className="text-sm font-semibold text-white">
+                        Đổi Lớp Khác
+                      </span>
+                      <span className="text-[10px] text-gray-500">
+                        Quay lại danh sách
+                      </span>
+                    </div>
+                  )}
+                </Link>
+              </TooltipTrigger>
+              {isCollapsed && (
+                <TooltipContent
+                  side="right"
+                  className="bg-gray-900 border-gray-700 text-white"
+                >
+                  Quay lại danh sách lớp
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {/* --- SYSTEM STATUS (Ẩn khi thu gọn để tiết kiệm chỗ) --- */}
+        {!isCollapsed && (
+          <div className="bg-gradient-to-br from-orange-950/40 to-red-950/20 rounded-xl p-4 border border-orange-500/10 animate-in fade-in slide-in-from-bottom-2">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-1.5 bg-orange-500/20 rounded-md">
-                <ShieldAlert className="w-4 h-4 text-orange-400" />
+              <div className="relative">
+                <div className="absolute inset-0 bg-orange-500 blur-[6px] opacity-20 rounded-full"></div>
+                <div className="p-1.5 bg-orange-900/40 rounded-md relative border border-orange-500/20">
+                  <ShieldAlert className="w-4 h-4 text-orange-400" />
+                </div>
               </div>
               <div>
-                <p className="text-xs font-semibold text-white">
+                <p className="text-xs font-semibold text-gray-200">
                   Hệ thống ổn định
                 </p>
-                <p className="text-xs text-orange-200">v1.2.0</p>
+                <p className="text-[10px] text-gray-500">
+                  Version 1.2.0 (Stable)
+                </p>
               </div>
             </div>
             <Link
               href="#"
-              className="text-[10px] text-gray-400 hover:text-white flex items-center gap-1 mt-2 transition-colors"
+              className="text-[10px] text-gray-400 hover:text-[#F27124] flex items-center gap-1.5 mt-3 transition-colors pl-1"
             >
               <HelpCircle className="w-3 h-3" />
-              <span>Xem tài liệu hướng dẫn</span>
+              <span>Hướng dẫn sử dụng</span>
             </Link>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

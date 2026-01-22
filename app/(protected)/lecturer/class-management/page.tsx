@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useRouter } from "next/navigation"; // Dùng router để chuyển trang
+import { useRouter } from "next/navigation";
 import {
   Search,
   Users,
@@ -10,10 +10,14 @@ import {
   MoreHorizontal,
   ArrowRight,
   LayoutGrid,
+  Mail,
+  User,
+  Hash,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import {
   Accordion,
   AccordionContent,
@@ -28,6 +32,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 // MOCK DATA
@@ -68,6 +88,15 @@ export default function ClassManagementPage() {
   const [students, setStudents] = useState(INITIAL_STUDENTS);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // State cho Modal thêm SV
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [newStudent, setNewStudent] = useState({
+    name: "",
+    code: "",
+    email: "",
+    group: "null",
+  });
+
   // --- EXCEL IMPORT HANDLER ---
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -78,6 +107,25 @@ export default function ClassManagementPage() {
         error: "Lỗi đọc file",
       });
     }
+  };
+
+  // --- ADD STUDENT HANDLER ---
+  const handleAddStudent = () => {
+    if (!newStudent.name || !newStudent.code || !newStudent.email) {
+      toast.error("Vui lòng điền đầy đủ thông tin bắt buộc!");
+      return;
+    }
+
+    const studentToAdd = {
+      id: Math.random().toString(36).substr(2, 9),
+      ...newStudent,
+      group: newStudent.group === "null" ? null : newStudent.group,
+    };
+
+    setStudents([...students, studentToAdd]);
+    setIsAddOpen(false);
+    setNewStudent({ name: "", code: "", email: "", group: "null" }); // Reset form
+    toast.success(`Đã thêm sinh viên ${studentToAdd.name}`);
   };
 
   // Logic Grouping
@@ -96,10 +144,7 @@ export default function ClassManagementPage() {
 
   const groupKeys = Object.keys(grouped).sort();
 
-  // --- HÀM CHUYỂN TRANG ---
   const navigateToTeamDetail = (groupName: string) => {
-    // Giả lập map tên nhóm sang ID (Thực tế data sẽ có ID sẵn)
-    // Ví dụ: "Team 1" -> "t1"
     const teamId = groupName.toLowerCase().replace(/\s+/g, "-");
     router.push(`/lecturer/teams/${teamId}`);
   };
@@ -128,14 +173,126 @@ export default function ClassManagementPage() {
           <Button
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
-            className="bg-white hover:bg-gray-50"
+            className="bg-white hover:bg-gray-50 border-gray-200 text-gray-700 shadow-sm"
           >
             <FileSpreadsheet className="mr-2 h-4 w-4 text-green-600" /> Import
             Excel
           </Button>
-          <Button className="bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 text-white">
-            <UserPlus className="mr-2 h-4 w-4" /> Thêm SV
-          </Button>
+
+          {/* DIALOG THÊM SINH VIÊN */}
+          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 text-white">
+                <UserPlus className="mr-2 h-4 w-4" /> Thêm SV
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Thêm Sinh viên mới</DialogTitle>
+                <DialogDescription>
+                  Nhập thông tin sinh viên để thêm vào danh sách lớp thủ công.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="code" className="text-right">
+                      MSSV <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Hash className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="code"
+                        placeholder="SE..."
+                        className="pl-9"
+                        value={newStudent.code}
+                        onChange={(e) =>
+                          setNewStudent({ ...newStudent, code: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-right">
+                      Email <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="@fpt.edu.vn"
+                        className="pl-9"
+                        value={newStudent.email}
+                        onChange={(e) =>
+                          setNewStudent({
+                            ...newStudent,
+                            email: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-right">
+                    Họ và tên <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="name"
+                      placeholder="Nguyễn Văn A"
+                      className="pl-9"
+                      value={newStudent.name}
+                      onChange={(e) =>
+                        setNewStudent({ ...newStudent, name: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="group" className="text-right">
+                    Nhóm (Tùy chọn)
+                  </Label>
+                  <div className="relative">
+                    <Layers className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 z-10" />
+                    <Select
+                      value={newStudent.group}
+                      onValueChange={(val) =>
+                        setNewStudent({ ...newStudent, group: val })
+                      }
+                    >
+                      <SelectTrigger className="pl-9">
+                        <SelectValue placeholder="Chọn nhóm" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="null">Chưa có nhóm</SelectItem>
+                        <SelectItem value="Team 1">Team 1</SelectItem>
+                        <SelectItem value="Team 2">Team 2</SelectItem>
+                        <SelectItem value="Team 3">Team 3</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddOpen(false)}>
+                  Hủy
+                </Button>
+                <Button
+                  className="bg-[#F27124] hover:bg-[#d65d1b]"
+                  onClick={handleAddStudent}
+                >
+                  Lưu Sinh viên
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 

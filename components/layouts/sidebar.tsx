@@ -8,7 +8,6 @@ import Cookies from "js-cookie";
 import {
   LayoutDashboard,
   Settings,
-  Users,
   FileText,
   GitCommit,
   ShieldAlert,
@@ -26,6 +25,10 @@ import {
   LayoutList,
   Activity,
   Star,
+  Settings2,
+  BarChart3,
+  ClipboardCheck,
+  CalendarDays,
 } from "lucide-react";
 import {
   Tooltip,
@@ -74,12 +77,6 @@ const routeGroups = [
         color: "text-blue-500",
       },
       {
-        label: "Ánh xạ tài khoản",
-        icon: Users,
-        href: "/mapping",
-        color: "text-pink-700",
-      },
-      {
         label: "Người dùng & Quyền",
         icon: ShieldAlert,
         href: "/admin/users",
@@ -98,16 +95,42 @@ const routeGroups = [
     roles: ["LECTURER"],
     items: [
       {
-        label: "Báo cáo & Điểm",
-        icon: FileText,
-        href: "/admin/reports",
-        color: "text-emerald-500",
+        label: "Lịch giảng dạy",
+        icon: CalendarDays,
+        href: "/lecturer/schedule",
+        color: "text-blue-500",
       },
       {
-        label: "Lớp đang dạy",
+        label: "Lớp học của tôi",
         icon: BookOpen,
-        href: "/lecturer/classes",
+        href: "/lecturer/class-management",
+        color: "text-indigo-500",
+      },
+
+      {
+        label: "Bài tập & Đồ án",
+        icon: Layers,
+        href: "/lecturer/assignments",
         color: "text-orange-500",
+      },
+      {
+        label: "Sổ điểm & Đánh giá",
+        icon: ClipboardCheck,
+        href: "/lecturer/grading",
+        color: "text-emerald-500",
+      },
+
+      {
+        label: "Thống kê & Báo cáo",
+        icon: BarChart3,
+        href: "/admin/reports",
+        color: "text-rose-500",
+      },
+      {
+        label: "Cấu hình môn học",
+        icon: Settings2,
+        href: "/lecturer/settings",
+        color: "text-slate-500",
       },
     ],
   },
@@ -152,12 +175,6 @@ const routeGroups = [
     roles: ["LEADER"],
     items: [
       {
-        label: "Thành viên nhóm",
-        icon: Users,
-        href: "/leader/members",
-        color: "text-indigo-500",
-      },
-      {
         label: "Phân công Task",
         icon: FileText,
         href: "/tasks",
@@ -200,12 +217,6 @@ const routeGroups = [
         color: "text-sky-500",
       },
       {
-        label: "Ánh xạ tài khoản",
-        icon: Users,
-        href: "/mapping",
-        color: "text-pink-700",
-      },
-      {
         label: "Cấu hình",
         icon: Settings,
         href: "/config",
@@ -245,7 +256,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   }, []);
 
   const filteredRoutes = routeGroups.filter((group) =>
-    group.roles.includes(currentRole)
+    group.roles.includes(currentRole),
   );
 
   if (!mounted) return <div className="w-full h-full bg-[#111827]" />;
@@ -270,7 +281,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
       <div
         className={cn(
           "flex items-center h-16 transition-all duration-300",
-          isCollapsed ? "justify-center px-2" : "justify-between px-6"
+          isCollapsed ? "justify-center px-2" : "justify-between px-6",
         )}
       >
         <Link
@@ -307,10 +318,10 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                   currentRole === "ADMIN"
                     ? "text-violet-400"
                     : currentRole === "LECTURER"
-                    ? "text-emerald-400"
-                    : currentRole === "LEADER"
-                    ? "text-blue-400"
-                    : "text-yellow-400"
+                      ? "text-emerald-400"
+                      : currentRole === "LEADER"
+                        ? "text-blue-400"
+                        : "text-yellow-400"
                 }`}
               >
                 {currentRole}
@@ -345,7 +356,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                         isCollapsed ? "justify-center px-2" : "px-4",
                         isActive
                           ? "bg-gray-800/50 text-white shadow-sm"
-                          : "text-gray-400 hover:bg-gray-800/30 hover:text-white"
+                          : "text-gray-400 hover:bg-gray-800/30 hover:text-white",
                       )}
                     >
                       <route.icon
@@ -354,7 +365,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                           isActive
                             ? route.color
                             : "text-gray-500 group-hover:text-white",
-                          !isCollapsed && "mr-3"
+                          !isCollapsed && "mr-3",
                         )}
                       />
                       {!isCollapsed && (

@@ -8,12 +8,12 @@ export function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Hàm kiểm tra định dạng JWT cơ bản (phải có 3 phần tách nhau bởi dấu chấm)
+  // Hàm kiểm tra định dạng JWT cơ bản
   const isValidToken = (t: string) => {
     return t && t.split(".").length === 3;
   };
 
-  // Danh sách các trang
+  // --- CẤU HÌNH CÁC PATH ---
   const authPaths = ["/login", "/register", "/forgot-password"];
   const protectedPaths = [
     "/dashboard",
@@ -24,19 +24,21 @@ export function middleware(request: NextRequest) {
     "/my-score",
   ];
 
+  // 👇 THÊM: Kiểm tra xem có phải trang chủ không
+  const isRootPath = pathname === "/";
+
   const isAuthPage = authPaths.some((path) => pathname.startsWith(path));
   const isProtectedPage = protectedPaths.some((path) =>
     pathname.startsWith(path),
   );
 
   // --- TRƯỜNG HỢP 1: TRUY CẬP TRANG BẢO VỆ (DASHBOARD...) ---
+  // (Logic này giữ nguyên: Chưa đăng nhập -> Đá về Login)
   if (isProtectedPage) {
-    // Nếu không có token HOẶC token sai định dạng (Fake cookie)
     if (!token || !isValidToken(token)) {
-      // Tạo response redirect về login
       const response = NextResponse.redirect(new URL("/login", request.url));
 
-      // XÓA SẠCH COOKIE RÁC (Quan trọng để tránh lỗi lặp)
+      // Xóa cookie rác
       response.cookies.delete("token");
       response.cookies.delete("refreshToken");
       response.cookies.delete("user_role");
@@ -45,40 +47,24 @@ export function middleware(request: NextRequest) {
 
       return response;
     }
-    // Nếu token hợp lệ về mặt cấu trúc -> Cho qua (Backend sẽ check signature sau)
   }
 
-  // --- TRƯỜNG HỢP 2: ĐÃ ĐĂNG NHẬP NHƯNG CỐ VÀO LOGIN/REGISTER ---
-  if (isAuthPage) {
+  // --- TRƯỜNG HỢP 2: ĐÃ ĐĂNG NHẬP (CÓ TOKEN) ---
+  if (isAuthPage || isRootPath) {
     if (token && isValidToken(token)) {
       // Điều hướng thông minh dựa trên Role
-
-      // Giảng viên có Dashboard riêng
       if (role === "LECTURER") {
         return NextResponse.redirect(new URL("/lecturer/courses", request.url));
       }
 
-      // Admin và Sinh viên dùng chung Dashboard (Giao diện thay đổi bên trong)
-      // Lưu ý: Nếu bạn tách /admin/dashboard riêng thì sửa lại dòng này
+      // Admin và Sinh viên về Dashboard chung
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
 
-  // Cho phép tiếp tục nếu không vi phạm các luật trên
   return NextResponse.next();
 }
 
-// Cấu hình các route mà Middleware sẽ chạy qua
 export const config = {
-  matcher: [
-    /*
-     * Match tất cả request paths ngoại trừ:
-     * 1. /api (API routes)
-     * 2. /_next/static (static files)
-     * 3. /_next/image (image optimization files)
-     * 4. favicon.ico (favicon file)
-     * 5. public images (như logo...)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico|images).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|images).*)"],
 };

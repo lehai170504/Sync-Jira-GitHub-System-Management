@@ -6,20 +6,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, ArrowRight, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useLogin } from "@/features/auth/hooks/use-login";
 import { toast } from "sonner";
+
+// Import Hooks từ file use-auth hoặc use-login tùy cách đặt tên
+import { useLogin } from "@/features/auth/hooks/use-login";
+import { useGoogleLogin } from "@/features/auth/hooks/use-auth";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Refs để điều khiển focus
   const emailInputRef = useRef<HTMLInputElement>(null);
 
-  const { mutate: login, isPending } = useLogin();
+  // Hooks
+  const { mutate: login, isPending: isLoginPending } = useLogin();
+  const { mutate: loginGoogle, isPending: isGooglePending } = useGoogleLogin();
 
-  // Auto focus vào Email khi component mount
+  const isPending = isLoginPending || isGooglePending;
+
   useEffect(() => {
     emailInputRef.current?.focus();
   }, []);
@@ -45,7 +50,7 @@ export function LoginForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Email */}
+        {/* Email Input */}
         <div className="space-y-2">
           <Label htmlFor="email" className="text-slate-700 font-medium">
             Email
@@ -53,7 +58,7 @@ export function LoginForm() {
           <div className="relative">
             <Input
               id="email"
-              ref={emailInputRef} // Gắn ref vào đây
+              ref={emailInputRef}
               type="email"
               placeholder="name@example.com"
               value={email}
@@ -61,15 +66,12 @@ export function LoginForm() {
               disabled={isPending}
               className="pl-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors"
               required
-              tabIndex={1} // Thứ tự tab 1
             />
-            <div className="absolute left-3 top-3 text-slate-400">
-              <Mail className="h-5 w-5" />
-            </div>
+            <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
           </div>
         </div>
 
-        {/* Password */}
+        {/* Password Input */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password" className="text-slate-700 font-medium">
@@ -78,7 +80,6 @@ export function LoginForm() {
             <Link
               href="/forgot-password"
               className="text-xs font-medium text-[#F27124] hover:underline"
-              tabIndex={-2}
             >
               Quên mật khẩu?
             </Link>
@@ -93,17 +94,13 @@ export function LoginForm() {
               disabled={isPending}
               className="pl-10 pr-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors"
               required
-              tabIndex={2} // Thứ tự tab 2 (nhảy từ email xuống đây)
             />
-            <div className="absolute left-3 top-3 text-slate-400">
-              <Lock className="h-5 w-5" />
-            </div>
+            <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 focus:outline-none"
               disabled={isPending}
-              tabIndex={-1}
             >
               {showPassword ? (
                 <EyeOff className="h-5 w-5" />
@@ -119,23 +116,54 @@ export function LoginForm() {
           type="submit"
           disabled={isPending}
           className="w-full h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5"
-          tabIndex={3} // Tab cuối cùng để Enter
         >
-          {isPending ? (
+          {isLoginPending ? (
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
           ) : (
             "Đăng nhập"
           )}
-          {!isPending && <ArrowRight className="ml-2 h-5 w-5" />}
+          {!isLoginPending && <ArrowRight className="ml-2 h-5 w-5" />}
         </Button>
       </form>
+
+      {/* --- GOOGLE LOGIN SECTION --- */}
+      <div className="space-y-4">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-slate-200" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-slate-500 font-medium">
+              Hoặc đăng nhập với
+            </span>
+          </div>
+        </div>
+
+        <Button
+          variant="outline"
+          type="button"
+          onClick={() => loginGoogle()}
+          disabled={isPending}
+          className="w-full h-12 text-base font-medium border-slate-200 text-slate-700 hover:bg-slate-50 relative"
+        >
+          {isGooglePending ? (
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          ) : (
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google"
+              className="w-5 h-5 mr-3"
+            />
+          )}
+          Google
+        </Button>
+      </div>
 
       <div className="text-center text-sm text-slate-500">
         Chưa có tài khoản?{" "}
         <Link
           href="/register"
           className="font-bold text-[#F27124] hover:underline"
-          tabIndex={5}
         >
           Đăng ký ngay
         </Link>

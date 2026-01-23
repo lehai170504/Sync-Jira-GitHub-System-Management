@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Lock, ShieldAlert, UserX, Loader2 } from "lucide-react";
-import { User } from "@/features/management/users/types";
+import { User } from "../types";
 import { UserRowActions } from "./user-row-actions";
 
 interface UserTableProps {
@@ -103,29 +103,29 @@ export function UserTable({
           <TableBody>
             {users.map((user) => (
               <TableRow
-                key={user._id} // Dùng _id làm key
+                key={user._id}
                 className="hover:bg-orange-50/30 transition-colors group border-gray-100"
               >
                 {/* User Info */}
                 <TableCell className="pl-6 py-3">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border border-gray-100 shadow-sm">
-                      <AvatarImage src={user.avatar_url} />{" "}
-                      {/* Dùng avatar_url */}
+                      <AvatarImage src={user.avatar_url} />
                       <AvatarFallback
                         className={`text-sm font-bold ${
-                          user.role === "LECTURER"
-                            ? "bg-blue-100 text-blue-600"
-                            : "bg-orange-100 text-orange-600"
+                          user.role === "ADMIN"
+                            ? "bg-purple-100 text-purple-600"
+                            : user.role === "LECTURER"
+                              ? "bg-blue-100 text-blue-600"
+                              : "bg-orange-100 text-orange-600"
                         }`}
                       >
-                        {user.full_name?.charAt(0) || "U"}{" "}
-                        {/* Dùng full_name */}
+                        {user.full_name?.charAt(0) || "U"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
                       <span className="font-semibold text-sm text-gray-900 group-hover:text-[#F27124] transition-colors">
-                        {user.full_name} {/* Dùng full_name */}
+                        {user.full_name}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {user.email}
@@ -137,27 +137,27 @@ export function UserTable({
                 {/* Code */}
                 <TableCell className="hidden sm:table-cell">
                   <span className="font-mono text-sm text-gray-600">
-                    {user.student_code || "---"} {/* Dùng student_code */}
+                    {user.student_code || "---"}
                   </span>
                 </TableCell>
 
-                {/* Role */}
+                {/* Role Badge */}
                 <TableCell>
                   <Badge
                     variant="outline"
                     className={`border-0 font-medium px-2.5 py-0.5 ${
-                      user.role === "LECTURER"
-                        ? "bg-blue-50 text-blue-700"
-                        : user.role === "ADMIN"
-                          ? "bg-purple-50 text-purple-700"
-                          : "bg-gray-100 text-gray-700"
+                      user.role === "ADMIN"
+                        ? "bg-purple-50 text-purple-700"
+                        : user.role === "LECTURER"
+                          ? "bg-blue-50 text-blue-700"
+                          : "bg-orange-50 text-orange-700"
                     }`}
                   >
-                    {user.role === "MEMBER"
-                      ? "Sinh viên"
+                    {user.role === "ADMIN"
+                      ? "Admin"
                       : user.role === "LECTURER"
                         ? "Giảng viên"
-                        : "Admin"}
+                        : "Sinh viên"}
                   </Badge>
                 </TableCell>
 

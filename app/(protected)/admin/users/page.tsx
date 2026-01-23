@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
@@ -9,60 +9,63 @@ import { toast } from "sonner";
 import { UserStats } from "@/features/management/users/components/user-stats";
 import { UserTable } from "@/features/management/users/components/user-table";
 import { UserToolbar } from "@/features/management/users/components/user-toolbar";
-// 👇 Import Modal Tạo User Mới
 import { CreateUserModal } from "@/features/management/users/components/create-user-modal";
 
 // Hooks & Types
 import { useUsers } from "@/features/management/users/hooks/use-users";
 
 export default function UserManagementPage() {
-  // 1. State quản lý bộ lọc & Pagination
+  // 1. State quản lý
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [isSyncing, setIsSyncing] = useState(false);
 
-  // 2. Fetch Data từ API
-  // Convert filter sang format API cần
-  const apiRole = roleFilter === "all" ? undefined : roleFilter;
-
-  // Gọi Hook lấy dữ liệu (Tự động fetch khi params thay đổi)
+  // 2. Fetch Data (Lấy ALL dữ liệu về FE để lọc)
+  // Lưu ý: Không truyền search/role vào API params để lấy toàn bộ danh sách
   const { data, isLoading } = useUsers({
-    page,
-    limit: 10,
-    role: apiRole,
-    search: searchTerm,
+    page: 1,
+    limit: 1000, // Lấy số lượng lớn để lọc FE (hoặc config backend trả về all)
   });
 
-  const users = data?.users || [];
-  const totalUsers = data?.total || 0;
+  const allUsers = data?.users || [];
 
-  // 3. Logic: Đồng bộ dữ liệu
-  const handleSyncData = async () => {
-    setIsSyncing(true);
-    // TODO: Gọi API sync thật ở đây nếu có
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    toast.success(
-      "Đã đồng bộ dữ liệu thành công từ hệ thống đào tạo (AP/FAP)!",
-    );
-    setIsSyncing(false);
-  };
+  // 3. Logic Filter (Client-side)
+  const filteredUsers = useMemo(() => {
+    return allUsers.filter((user) => {
+      // a. Lọc theo Search (Tên, Email, MSSV)
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch =
+        user.full_name.toLowerCase().includes(searchLower) ||
+        user.email.toLowerCase().includes(searchLower) ||
+        (user.student_code &&
+          user.student_code.toLowerCase().includes(searchLower));
 
-  // 4. Logic: Toggle Status
+      // b. Lọc theo Role
+      const matchesRole = roleFilter === "all" || user.role === roleFilter;
+
+      // c. Lọc theo Status (Default active nếu null)
+      const userStatus = user.status || "Active";
+      const matchesStatus =
+        statusFilter === "all" || userStatus === statusFilter;
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }, [allUsers, searchTerm, roleFilter, statusFilter]);
+
+  // 4. Logic Pagination (Client-side slicing)
+  const ITEMS_PER_PAGE = 10; // Phải khớp với trong UserTable
+  const totalFiltered = filteredUsers.length;
+  const paginatedUsers = filteredUsers.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE,
+  );
+
   const handleToggleStatus = (id: string) => {
-    toast.info(`Chức năng khóa/mở khóa user ${id} đang được phát triển.`);
+    toast.info(`Tính năng khóa user ${id} đang phát triển.`);
   };
 
-  // 5. Logic: Xóa bộ lọc
-  const clearFilters = () => {
-    setSearchTerm("");
-    setRoleFilter("all");
-    setStatusFilter("all");
-    setPage(1);
-  };
-
-  // 6. Xử lý Search
+  // Reset về trang 1 khi filter thay đổi
   const handleSearchChange = (val: string) => {
     setSearchTerm(val);
     setPage(1);
@@ -70,6 +73,18 @@ export default function UserManagementPage() {
 
   const handleRoleChange = (val: string) => {
     setRoleFilter(val);
+    setPage(1);
+  };
+
+  const handleStatusChange = (val: string) => {
+    setStatusFilter(val);
+    setPage(1);
+  };
+
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setRoleFilter("all");
+    setStatusFilter("all");
     setPage(1);
   };
 
@@ -87,55 +102,34 @@ export default function UserManagementPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Sync Button */}
-          <Button
-            variant="outline"
-            disabled={isSyncing}
-            onClick={handleSyncData}
-            className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-[#F27124] hover:border-orange-200 shadow-sm transition-all rounded-xl"
-          >
-            {isSyncing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Đang đồng bộ...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Đồng bộ AP/FAP
-              </>
-            )}
-          </Button>
-
-          {/* 👇 Thay nút cũ bằng Modal Tạo Mới */}
           <CreateUserModal />
         </div>
       </div>
 
-      {/* STATS DASHBOARD */}
-      <UserStats users={users} totalUsers={totalUsers} />
+      {/* STATS */}
+      {/* Tính toán dựa trên danh sách đã lọc (hoặc toàn bộ tùy nghiệp vụ) */}
+      <UserStats users={allUsers} totalUsers={allUsers.length} />
 
-      {/* CONTENT AREA */}
+      {/* CONTENT */}
       <div className="space-y-6">
-        {/* Toolbar Filter */}
         <UserToolbar
           searchTerm={searchTerm}
           setSearchTerm={handleSearchChange}
           roleFilter={roleFilter}
           setRoleFilter={handleRoleChange}
           statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
+          setStatusFilter={handleStatusChange}
+          onResetFilters={handleResetFilters}
         />
 
-        {/* Data Table */}
         <UserTable
-          users={users}
+          users={paginatedUsers} // Truyền dữ liệu đã cắt trang
           isLoading={isLoading}
-          total={totalUsers}
+          total={totalFiltered} // Truyền tổng số lượng sau khi lọc
           page={page}
           onPageChange={setPage}
           onToggleStatus={handleToggleStatus}
-          onClearFilters={clearFilters}
+          onClearFilters={handleResetFilters}
         />
       </div>
     </div>

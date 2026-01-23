@@ -12,7 +12,7 @@ interface UserStatsProps {
 export function UserStats({ users, totalUsers }: UserStatsProps) {
   // Lưu ý: Các chỉ số lọc bên dưới chỉ phản ánh trên trang dữ liệu đang tải về
   const lecturers = users.filter((u) => u.role === "LECTURER").length;
-  const students = users.filter((u) => u.role === "MEMBER").length;
+  const students = users.filter((u) => u.role === "STUDENT").length;
   // Fallback status nếu API chưa trả về
   const active = users.filter(
     (u) => (u.status || "Active") === "Active",

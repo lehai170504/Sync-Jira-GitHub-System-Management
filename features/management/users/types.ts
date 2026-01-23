@@ -1,4 +1,4 @@
-export type UserRole = "LECTURER" | "MEMBER" | "ADMIN";
+export type UserRole = "LECTURER" | "STUDENT" | "ADMIN";
 export type UserStatus = "Active" | "Reserved" | "Dropped"; // Giả định backend sẽ trả về field này hoặc ta cần map
 
 export interface User {

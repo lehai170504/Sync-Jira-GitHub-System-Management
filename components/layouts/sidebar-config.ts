@@ -9,7 +9,6 @@ import {
   BookOpen,
   Layers,
   ClipboardCheck,
-  BarChart3,
   Settings2,
   FileText,
   Activity,
@@ -105,12 +104,7 @@ export const routeGroups: RouteGroup[] = [
         href: "/lecturer/grading",
         color: "text-emerald-500",
       },
-      {
-        label: "Thống kê & Báo cáo",
-        icon: BarChart3,
-        href: "/lecturer/reports",
-        color: "text-rose-500",
-      },
+
       {
         label: "Cấu hình môn học",
         icon: Settings2,

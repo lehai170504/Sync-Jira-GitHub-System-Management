@@ -9,9 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 
 // Import các components con
-import { KPICards } from "@/components/features/lecturer/assignment/kpi-cards";
-import { SubmissionTable } from "@/components/features/lecturer/assignment/submission-table";
-import { AssignmentInfo } from "@/components/features/lecturer/assignment/assignment-info";
+import { KPICards } from "@/features/lecturer/components/assignment/kpi-cards";
+import { SubmissionTable } from "@/features/lecturer/components/assignment/submission-table";
+import { AssignmentInfo } from "@/features/lecturer/components/assignment/assignment-info";
 
 // --- MOCK CONFIG ---
 const ASSIGNMENT_MODE: "Individual" | "Group" = "Group";

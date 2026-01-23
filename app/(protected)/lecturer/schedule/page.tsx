@@ -1,9 +1,9 @@
 "use client";
 
-import { AgendaView } from "@/components/features/lecturer/schedule/agenda-view";
-import { CalendarView } from "@/components/features/lecturer/schedule/calendar-view";
-import { DeadlineView } from "@/components/features/lecturer/schedule/deadline-view";
-import { EventDialog } from "@/components/features/lecturer/schedule/event-dialog";
+import { AgendaView } from "@/features/lecturer/components/schedule/agenda-view";
+import { CalendarView } from "@/features/lecturer/components/schedule/calendar-view";
+import { DeadlineView } from "@/features/lecturer/components/schedule/deadline-view";
+import { EventDialog } from "@/features/lecturer/components/schedule/event-dialog";
 import { useState } from "react";
 
 // INITIAL DATA

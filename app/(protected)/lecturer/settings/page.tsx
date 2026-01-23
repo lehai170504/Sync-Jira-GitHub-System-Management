@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 import { AppearanceSettings } from "@/components/features/settings/appearance-card";
 import { NotificationSettings } from "@/components/features/settings/notification-card";
-import { GradingConfig } from "@/components/features/lecturer/settings/grading-config";
+import { GradingConfig } from "@/features/lecturer/components/settings/grading-config";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);

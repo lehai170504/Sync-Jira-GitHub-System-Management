@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { StudentImport } from "@/components/features/lecturer/class/student-import";
-import { AddStudentDialog } from "@/components/features/lecturer/class/add-student-dialog";
-import { StudentList } from "@/components/features/lecturer/class/student-list";
+import { StudentImport } from "@/features/lecturer/components/class/student-import";
+import { AddStudentDialog } from "@/features/lecturer/components/class/add-student-dialog";
+import { StudentList } from "@/features/lecturer/components/class/student-list";
 
 // MOCK INITIAL DATA
 const INITIAL_STUDENTS = [

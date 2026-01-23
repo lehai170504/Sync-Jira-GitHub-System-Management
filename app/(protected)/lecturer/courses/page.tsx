@@ -3,9 +3,9 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { CourseHeader } from "@/components/features/lecturer/courses/course-header";
-import { CourseFilter } from "@/components/features/lecturer/courses/course-filter";
-import { CourseGrid } from "@/components/features/lecturer/courses/course-grid";
+import { CourseHeader } from "@/features/lecturer/components/courses/course-header";
+import { CourseFilter } from "@/features/lecturer/components/courses/course-filter";
+import { CourseGrid } from "@/features/lecturer/components/courses/course-grid";
 
 // MOCK DATA
 const TEACHING_CLASSES = [

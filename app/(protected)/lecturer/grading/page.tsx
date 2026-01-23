@@ -19,8 +19,8 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-import { GradingStats } from "@/components/features/lecturer/grading/grading-stats";
-import { GradingTable } from "@/components/features/lecturer/grading/grading-table";
+import { GradingStats } from "@/features/lecturer/components/grading/grading-stats";
+import { GradingTable } from "@/features/lecturer/components/grading/grading-table";
 
 // MOCK DATA
 const GRADES = [

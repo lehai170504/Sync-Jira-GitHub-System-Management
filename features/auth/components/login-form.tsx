@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,15 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  // Refs để điều khiển focus
+  const emailInputRef = useRef<HTMLInputElement>(null);
+
   const { mutate: login, isPending } = useLogin();
+
+  // Auto focus vào Email khi component mount
+  useEffect(() => {
+    emailInputRef.current?.focus();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +53,7 @@ export function LoginForm() {
           <div className="relative">
             <Input
               id="email"
+              ref={emailInputRef} // Gắn ref vào đây
               type="email"
               placeholder="name@example.com"
               value={email}
@@ -52,6 +61,7 @@ export function LoginForm() {
               disabled={isPending}
               className="pl-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors"
               required
+              tabIndex={1} // Thứ tự tab 1
             />
             <div className="absolute left-3 top-3 text-slate-400">
               <Mail className="h-5 w-5" />
@@ -68,6 +78,7 @@ export function LoginForm() {
             <Link
               href="/forgot-password"
               className="text-xs font-medium text-[#F27124] hover:underline"
+              tabIndex={-2}
             >
               Quên mật khẩu?
             </Link>
@@ -82,6 +93,7 @@ export function LoginForm() {
               disabled={isPending}
               className="pl-10 pr-10 h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors"
               required
+              tabIndex={2} // Thứ tự tab 2 (nhảy từ email xuống đây)
             />
             <div className="absolute left-3 top-3 text-slate-400">
               <Lock className="h-5 w-5" />
@@ -91,6 +103,7 @@ export function LoginForm() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 focus:outline-none"
               disabled={isPending}
+              tabIndex={-1}
             >
               {showPassword ? (
                 <EyeOff className="h-5 w-5" />
@@ -106,6 +119,7 @@ export function LoginForm() {
           type="submit"
           disabled={isPending}
           className="w-full h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5"
+          tabIndex={3} // Tab cuối cùng để Enter
         >
           {isPending ? (
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -121,6 +135,7 @@ export function LoginForm() {
         <Link
           href="/register"
           className="font-bold text-[#F27124] hover:underline"
+          tabIndex={5}
         >
           Đăng ký ngay
         </Link>

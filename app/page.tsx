@@ -9,7 +9,7 @@ import {
   Trello, // Icon đại diện cho Jira
   ShieldCheck,
   Sparkles,
-  BookOpen, // Thay LayoutDashboard bằng BookOpen cho hợp ngữ cảnh môn học
+  BookOpen,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -18,7 +18,7 @@ export default function HomePage() {
       {/* --- BACKGROUND EFFECTS --- */}
       <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
         <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-200/40 blur-[100px] mix-blend-multiply animate-blob"></div>
-        <div className="absolute top-[10%] right-[-15%] w-[400px] h-[400px] rounded-full bg-blue-200/40 blur-[100px] mix-blend-multiply animate-blob animation-delay-2000"></div>
+        <div className="absolute top-[10%] right-[-15%] w-[400px] h-[400px] rounded-full bg-purple-200/40 blur-[100px] mix-blend-multiply animate-blob animation-delay-2000"></div>
       </div>
 
       {/* --- 1. NAVBAR --- */}
@@ -41,7 +41,7 @@ export default function HomePage() {
           {/* Logo FPT University */}
           <div className="hidden sm:block opacity-90 hover:opacity-100 transition-opacity">
             <Image
-              src="/images/Logo_Trường_Đại_học_FPT.svg.png" // Đảm bảo bạn có file ảnh này
+              src="/images/Logo_Trường_Đại_học_FPT.svg.png"
               alt="FPT University Logo"
               width={120}
               height={36}
@@ -146,13 +146,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* GitHub Node */}
-            <div className="absolute bottom-[25%] right-[5%] bg-[#181717]/10 p-4 rounded-2xl backdrop-blur-md border border-[#181717]/20 shadow-lg animate-float-fast">
+            {/* GitHub Node (UPDATED COLORS) */}
+            <div className="absolute bottom-[25%] right-[5%] bg-[#6e5494]/10 p-4 rounded-2xl backdrop-blur-md border border-[#6e5494]/20 shadow-lg animate-float-fast">
               <div className="flex items-center gap-3">
-                <Github className="h-10 w-10 text-[#181717]" />
+                <Github className="h-10 w-10 text-purple-600" />
                 <div>
-                  <h4 className="font-bold text-[#181717]">GitHub Repo</h4>
-                  <p className="text-xs text-[#181717]/80">
+                  <h4 className="font-bold text-purple-600">GitHub Repo</h4>
+                  <p className="text-xs text-purple-600/80">
                     Source Code Môn học
                   </p>
                 </div>
@@ -173,9 +173,10 @@ export default function HomePage() {
                 strokeDasharray="6 6"
                 className="opacity-30 animate-pulse-slow"
               />
+              {/* Updated Stroke Color */}
               <path
                 d="M 150 350 Q 350 250 550 350"
-                stroke="#181717"
+                stroke="#6e5494"
                 strokeWidth="2"
                 fill="none"
                 strokeDasharray="6 6"
@@ -205,10 +206,10 @@ export default function HomePage() {
               title="Quản lý Task Môn học"
               desc="Sinh viên tạo và cập nhật trạng thái bài tập, bài Lab trên Jira. Hệ thống tự động đồng bộ về lớp học."
             />
-            {/* Feature 2: GitHub */}
+            {/* Feature 2: GitHub (UPDATED COLOR) */}
             <FeatureCard
               icon={<Github className="h-8 w-8 text-white" />}
-              iconBg="bg-[#181717]"
+              iconBg="bg-purple-600"
               title="Nộp bài qua Code"
               desc="Giảng viên Review code trực tiếp qua Pull Request. Tính điểm dựa trên chất lượng commit vào Repository môn học."
             />

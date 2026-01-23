@@ -2,22 +2,32 @@
 
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { ClassItem } from "./class-types";
+import { Class } from "@/features/management/classes/types";
 import { ClassCard } from "./class-card";
 
 interface ClassListProps {
-  classes: ClassItem[];
-  onSelectClass: (cls: ClassItem) => void;
-  onEditClass: (cls: ClassItem) => void;
+  classes: Class[];
+  isLoading: boolean;
+  onSelectClass: (cls: Class) => void;
+  onEditClass: (cls: Class) => void;
   onClearFilters: () => void;
 }
 
 export function ClassList({
   classes,
+  isLoading,
   onSelectClass,
   onEditClass,
   onClearFilters,
 }: ClassListProps) {
+  if (isLoading) {
+    return (
+      <div className="h-64 flex items-center justify-center text-gray-400">
+        Đang tải danh sách lớp học...
+      </div>
+    );
+  }
+
   if (classes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50/50">
@@ -46,7 +56,7 @@ export function ClassList({
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {classes.map((cls) => (
           <ClassCard
-            key={cls.id}
+            key={cls._id}
             cls={cls}
             onClick={() => onSelectClass(cls)}
             onEdit={onEditClass}
@@ -54,7 +64,7 @@ export function ClassList({
         ))}
       </div>
 
-      {/* Pagination Footer */}
+      {/* Pagination Footer (Mock UI) */}
       <div className="flex items-center justify-between border-t border-gray-100 pt-4">
         <p className="text-sm text-muted-foreground">
           Hiển thị {classes.length} kết quả
@@ -66,15 +76,9 @@ export function ClassList({
           <Button
             variant="outline"
             size="sm"
-            className="bg-[#F27124] text-white border-[#F27124] hover:bg-[#d65d1b] hover:text-white"
+            className="bg-[#F27124] text-white border-[#F27124]"
           >
             1
-          </Button>
-          <Button variant="ghost" size="sm">
-            2
-          </Button>
-          <Button variant="ghost" size="sm">
-            3
           </Button>
           <Button variant="outline" size="sm">
             Tiếp

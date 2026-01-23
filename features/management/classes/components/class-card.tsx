@@ -16,25 +16,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Calendar, MoreVertical, Users } from "lucide-react";
-import { ClassItem } from "./class-types";
+import { Class } from "@/features/management/classes/types";
 
-export function ClassCard({
-  cls,
-  onClick,
-  onEdit,
-}: {
-  cls: ClassItem;
+interface ClassCardProps {
+  cls: Class;
   onClick: () => void;
-  onEdit: (cls: ClassItem) => void;
-}) {
+  onEdit: (cls: Class) => void;
+}
+
+export function ClassCard({ cls, onClick, onEdit }: ClassCardProps) {
+  // Hàm helper lấy màu status (giả định có status, nếu không thì mặc định)
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Active":
-        return "bg-green-50 text-green-700 border-green-200";
-      case "Finished":
-        return "bg-gray-100 text-gray-600 border-gray-200";
-      default:
-        return "bg-orange-50 text-orange-700 border-orange-200";
+      case "Active": return "bg-green-50 text-green-700 border-green-200";
+      case "Finished": return "bg-gray-100 text-gray-600 border-gray-200";
+      default: return "bg-blue-50 text-blue-700 border-blue-200";
     }
   };
 
@@ -45,12 +41,14 @@ export function ClassCard({
     >
       <CardHeader className="p-5 pb-2">
         <div className="flex justify-between items-start">
+          {/* Badge Môn học / Code */}
           <Badge
             variant="outline"
             className="bg-gray-50 text-gray-600 border-gray-200 font-mono text-xs px-2 py-0.5 rounded-md"
           >
-            {cls.subject}
+            {cls.semester?.code || "N/A"}
           </Badge>
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -65,7 +63,7 @@ export function ClassCard({
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
-                  onEdit(cls); //
+                  onEdit(cls);
                 }}
               >
                 Chỉnh sửa
@@ -79,29 +77,33 @@ export function ClassCard({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+
         <div className="mt-2">
-          <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#F27124] transition-colors">
-            {cls.code}
+          {/* Tên lớp */}
+          <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#F27124] transition-colors line-clamp-1" title={cls.name}>
+            {cls.name}
           </h3>
+          
           <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
             <Calendar className="h-3.5 w-3.5" />
-            <span>{cls.semester}</span>
+            <span>{cls.semester?.code || "Unknown Semester"}</span>
             <span className="text-gray-300">•</span>
             <Badge
               variant="secondary"
-              className={`text-[10px] px-1.5 h-5 border ${getStatusColor(cls.status)}`}
+              className={`text-[10px] px-1.5 h-5 border ${getStatusColor("Active")}`}
             >
-              {cls.status}
+              Active
             </Badge>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="p-5 pt-2">
+        {/* Giảng viên */}
         <div className="flex items-center gap-3 mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100 group-hover:bg-orange-50/30 group-hover:border-orange-100 transition-colors">
           <Avatar className="h-9 w-9 border border-white shadow-sm">
             <AvatarFallback className="bg-blue-100 text-blue-600 text-xs font-bold">
-              {cls.lecturer.charAt(3).toUpperCase()}
+              {cls.lecturer?.full_name?.charAt(0) || "G"}
             </AvatarFallback>
           </Avatar>
           <div className="overflow-hidden">
@@ -109,7 +111,7 @@ export function ClassCard({
               Giảng viên
             </p>
             <p className="text-sm font-semibold text-gray-700 truncate">
-              {cls.lecturer.split("@")[0]}
+              {cls.lecturer?.full_name || "Chưa phân công"}
             </p>
           </div>
         </div>
@@ -118,7 +120,7 @@ export function ClassCard({
       <CardFooter className="px-5 py-4 border-t bg-gray-50/50 flex justify-between items-center text-sm text-gray-500">
         <div className="flex items-center gap-1.5">
           <Users className="h-4 w-4" />
-          <span className="font-medium">{cls.students}</span> Sinh viên
+          <span className="font-medium">0</span> Sinh viên
         </div>
         <div className="text-xs text-[#F27124] font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
           Xem chi tiết →

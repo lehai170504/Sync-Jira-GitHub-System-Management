@@ -12,22 +12,47 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Lock, ShieldAlert, UserX } from "lucide-react";
-import { User } from "./user-types";
+import { Lock, ShieldAlert, UserX, Loader2 } from "lucide-react";
+import { User } from "@/features/management/users/types";
 import { UserRowActions } from "./user-row-actions";
 
 interface UserTableProps {
   users: User[];
-  onToggleStatus: (id: number) => void;
+  isLoading: boolean;
+  total: number;
+  page: number;
+  onPageChange: (page: number) => void;
+  onToggleStatus: (id: string) => void;
   onClearFilters: () => void;
 }
 
 export function UserTable({
   users,
+  isLoading,
+  total,
+  page,
+  onPageChange,
   onToggleStatus,
   onClearFilters,
 }: UserTableProps) {
-  if (users.length === 0) {
+  // Tính tổng số trang (giả sử limit mỗi trang là 10)
+  const ITEMS_PER_PAGE = 10;
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+
+  // 1. Loading State
+  if (isLoading) {
+    return (
+      <Card className="border-none shadow-sm ring-1 ring-gray-100 rounded-xl h-96 flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-[#F27124]" />
+          <p className="text-sm text-gray-500">Đang tải danh sách...</p>
+        </div>
+      </Card>
+    );
+  }
+
+  // 2. Empty State
+  if (!users || users.length === 0) {
     return (
       <Card className="border-none shadow-sm ring-1 ring-gray-100 rounded-xl overflow-hidden">
         <CardContent className="h-64 flex flex-col items-center justify-center text-center p-6">
@@ -78,14 +103,15 @@ export function UserTable({
           <TableBody>
             {users.map((user) => (
               <TableRow
-                key={user.id}
+                key={user._id} // Dùng _id làm key
                 className="hover:bg-orange-50/30 transition-colors group border-gray-100"
               >
                 {/* User Info */}
                 <TableCell className="pl-6 py-3">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border border-gray-100 shadow-sm">
-                      <AvatarImage src={user.avatar} />
+                      <AvatarImage src={user.avatar_url} />{" "}
+                      {/* Dùng avatar_url */}
                       <AvatarFallback
                         className={`text-sm font-bold ${
                           user.role === "LECTURER"
@@ -93,12 +119,13 @@ export function UserTable({
                             : "bg-orange-100 text-orange-600"
                         }`}
                       >
-                        {user.name.charAt(0)}
+                        {user.full_name?.charAt(0) || "U"}{" "}
+                        {/* Dùng full_name */}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
                       <span className="font-semibold text-sm text-gray-900 group-hover:text-[#F27124] transition-colors">
-                        {user.name}
+                        {user.full_name} {/* Dùng full_name */}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {user.email}
@@ -110,7 +137,7 @@ export function UserTable({
                 {/* Code */}
                 <TableCell className="hidden sm:table-cell">
                   <span className="font-mono text-sm text-gray-600">
-                    {user.code}
+                    {user.student_code || "---"} {/* Dùng student_code */}
                   </span>
                 </TableCell>
 
@@ -121,16 +148,22 @@ export function UserTable({
                     className={`border-0 font-medium px-2.5 py-0.5 ${
                       user.role === "LECTURER"
                         ? "bg-blue-50 text-blue-700"
-                        : "bg-gray-100 text-gray-700"
+                        : user.role === "ADMIN"
+                          ? "bg-purple-50 text-purple-700"
+                          : "bg-gray-100 text-gray-700"
                     }`}
                   >
-                    {user.role === "MEMBER" ? "Sinh viên" : "Giảng viên"}
+                    {user.role === "MEMBER"
+                      ? "Sinh viên"
+                      : user.role === "LECTURER"
+                        ? "Giảng viên"
+                        : "Admin"}
                   </Badge>
                 </TableCell>
 
                 {/* Status */}
                 <TableCell>
-                  {user.status === "Active" ? (
+                  {(user.status || "Active") === "Active" ? (
                     <div className="flex items-center gap-1.5">
                       <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                       <span className="text-sm font-medium text-green-700">
@@ -163,26 +196,29 @@ export function UserTable({
           </TableBody>
         </Table>
 
-        {/* Mock Pagination Footer */}
+        {/* Pagination Footer */}
         <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4 bg-gray-50/30">
           <p className="text-sm text-muted-foreground">
-            Hiển thị {users.length} kết quả
+            Hiển thị {users.length} trên tổng {total} kết quả
           </p>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled>
-              Trước
-            </Button>
+          <div className="flex gap-2 items-center">
             <Button
               variant="outline"
               size="sm"
-              className="bg-[#F27124] text-white border-[#F27124] hover:bg-[#d65d1b] hover:text-white"
+              onClick={() => onPageChange(page - 1)}
+              disabled={page <= 1}
             >
-              1
+              Trước
             </Button>
-            <Button variant="ghost" size="sm">
-              2
-            </Button>
-            <Button variant="outline" size="sm">
+            <span className="text-sm font-medium px-2">
+              Trang {page} / {totalPages || 1}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(page + 1)}
+              disabled={page >= totalPages}
+            >
               Tiếp
             </Button>
           </div>

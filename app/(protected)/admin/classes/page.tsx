@@ -1,66 +1,57 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ClassStats } from "@/components/features/classes/class-stats";
-import { ClassToolbar } from "@/components/features/classes/class-toolbar";
-import { ClassList } from "@/components/features/classes/class-list";
+import { toast } from "sonner";
+
+// Components
+import { ClassStats } from "@/features/management/classes/components/class-stats";
+import { ClassToolbar } from "@/features/management/classes/components/class-toolbar";
+import { ClassList } from "@/features/management/classes/components/class-list";
+
+// Import các component Drawer/Dialog cũ (Cần update type cho các file này sau)
 import { ClassDetailDrawer } from "@/components/features/classes/class-detail-drawer";
-import {
-  classesData,
-  mockStudents,
-} from "@/components/features/classes/class-data";
-import { ClassItem } from "@/components/features/classes/class-types";
 import { EditClassDialog } from "@/components/features/classes/edit-class-dialog";
 
-export default function ClassManagementPage() {
-  const [selectedClass, setSelectedClass] = useState<ClassItem | null>(null);
-  const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
+// Hooks & Types
+import { useClasses } from "@/features/management/classes/hooks/use-classes";
+import { Class } from "@/features/management/classes/types";
 
-  // State quản lý Filter
+export default function ClassManagementPage() {
+  // 1. State quản lý
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [editingClass, setEditingClass] = useState<Class | null>(null);
+
+  // State Filter
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
-    subject: "all",
-    status: "all",
-    semester: "all",
+  const [semesterFilter, setSemesterFilter] = useState<string>("all");
+
+  // 2. Fetch Data từ API
+  // Nếu chọn "all", gửi undefined để API lấy tất cả, ngược lại gửi ID học kỳ
+  const apiSemesterId = semesterFilter === "all" ? undefined : semesterFilter;
+
+  const { data, isLoading } = useClasses({
+    semester_id: apiSemesterId,
   });
 
-  // Derived Data (Tính toán dữ liệu lọc)
-  const uniqueSubjects = useMemo(
-    () => Array.from(new Set(classesData.map((c) => c.subject))),
-    [],
-  );
-  const uniqueSemesters = useMemo(
-    () => Array.from(new Set(classesData.map((c) => c.semester))),
-    [],
-  );
+  const classes = data?.classes || [];
 
-  const activeFiltersCount = [
-    filters.subject !== "all",
-    filters.status !== "all",
-    filters.semester !== "all",
-  ].filter(Boolean).length;
-
+  // 3. Logic Filter Client-side (Search Text)
+  // API đã lọc theo học kỳ rồi, giờ ta chỉ cần lọc theo tên/giảng viên ở client
   const filteredClasses = useMemo(() => {
-    return classesData.filter((cls) => {
-      const matchesSearch =
-        cls.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cls.lecturer.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesSubject =
-        filters.subject === "all" || cls.subject === filters.subject;
-      const matchesStatus =
-        filters.status === "all" || cls.status === filters.status;
-      const matchesSemester =
-        filters.semester === "all" || cls.semester === filters.semester;
-
+    return classes.filter((cls) => {
+      const searchLower = searchTerm.toLowerCase();
       return (
-        matchesSearch && matchesSubject && matchesStatus && matchesSemester
+        cls.name.toLowerCase().includes(searchLower) ||
+        cls.lecturer?.full_name?.toLowerCase().includes(searchLower) ||
+        cls.lecturer?.email?.toLowerCase().includes(searchLower)
       );
     });
-  }, [searchTerm, filters]);
+  }, [classes, searchTerm]);
 
+  // 4. Clear Filters
   const clearFilters = () => {
     setSearchTerm("");
-    setFilters({ subject: "all", status: "all", semester: "all" });
+    setSemesterFilter("all");
   };
 
   return (
@@ -75,45 +66,55 @@ export default function ClassManagementPage() {
         </p>
       </div>
 
-      {/* STATS DASHBOARD */}
-      <ClassStats data={classesData} />
+      {/* STATS DASHBOARD 
+
+[Image of dashboard metrics ui]
+ */}
+      {/* Truyền dữ liệu thật từ API vào Stats */}
+      <ClassStats data={classes} />
 
       {/* TOOLBAR */}
+      {/* Sử dụng Component Toolbar mới đã tích hợp sẵn Select Học kỳ từ API */}
       <ClassToolbar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        filters={filters}
-        setFilters={setFilters}
-        uniqueSubjects={uniqueSubjects}
-        uniqueSemesters={uniqueSemesters}
-        activeFiltersCount={activeFiltersCount}
+        semesterFilter={semesterFilter}
+        setSemesterFilter={setSemesterFilter}
         clearFilters={clearFilters}
       />
 
       {/* CLASS LIST */}
       <ClassList
         classes={filteredClasses}
+        isLoading={isLoading}
         onSelectClass={setSelectedClass}
         onEditClass={(cls) => setEditingClass(cls)}
         onClearFilters={clearFilters}
       />
+
+      {/* --- CÁC COMPONENT PHỤ (DRAWER/DIALOG) --- */}
+      {/* Lưu ý: Bạn cần cập nhật Type trong các file này để khớp với interface Class mới (_id thay vì id) */}
+
       {/* DETAIL DRAWER */}
-      <ClassDetailDrawer
+      {/* Giả định ClassDetailDrawer đã được update để nhận prop `selectedClass` kiểu `Class`.
+        Nếu chưa, bạn cần vào file đó sửa `id: number` thành `_id: string`.
+      */}
+      {/* <ClassDetailDrawer
         isOpen={!!selectedClass}
         onOpenChange={(open) => !open && setSelectedClass(null)}
-        selectedClass={selectedClass}
-        students={mockStudents}
-      />
+        selectedClass={selectedClass} 
+      /> */}
+
       {/* EDIT CLASS DIALOG */}
-      <EditClassDialog
+      {/* <EditClassDialog
         open={!!editingClass}
         onOpenChange={(open) => !open && setEditingClass(null)}
         classData={editingClass}
         onSuccess={() => {
-          // Logic reload data nếu cần
+          // React Query sẽ tự động invalidate cache nên không cần reload thủ công
           console.log("Edit success");
         }}
-      />
+      /> */}
     </div>
   );
 }

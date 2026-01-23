@@ -160,25 +160,6 @@ export function ProfileSidebar() {
               </span>
             </div>
           )}
-
-          {/* Github & LinkedIn (Static Mock - Vì API chưa trả về) */}
-          <div className="flex items-center gap-3 text-sm group cursor-pointer">
-            <div className="p-2 bg-slate-100 rounded-full group-hover:bg-slate-200 transition-colors flex-shrink-0">
-              <Github className="h-4 w-4 text-slate-700" />
-            </div>
-            <span className="text-muted-foreground group-hover:text-gray-900 transition-colors">
-              Chưa liên kết
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 text-sm group cursor-pointer">
-            <div className="p-2 bg-blue-50 rounded-full group-hover:bg-blue-100 transition-colors flex-shrink-0">
-              <Linkedin className="h-4 w-4 text-blue-700" />
-            </div>
-            <span className="text-muted-foreground group-hover:text-gray-900 transition-colors">
-              Chưa liên kết
-            </span>
-          </div>
         </CardContent>
       </Card>
     </aside>

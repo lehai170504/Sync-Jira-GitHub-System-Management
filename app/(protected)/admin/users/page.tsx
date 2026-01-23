@@ -1,69 +1,76 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw } from "lucide-react"; // Import Loader2
+import { Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { UserStats } from "@/components/features/users/user-stats";
-import { UserToolbar } from "@/components/features/users/user-toolbar";
-import { UserTable } from "@/components/features/users/user-table";
-import { initialUsers } from "@/components/features/users/user-data";
-import { User } from "@/components/features/users/user-types";
+
+// Components
+import { UserStats } from "@/features/management/users/components/user-stats";
+import { UserTable } from "@/features/management/users/components/user-table";
+import { UserToolbar } from "@/features/management/users/components/user-toolbar";
+// 👇 Import Modal Tạo User Mới
+import { CreateUserModal } from "@/features/management/users/components/create-user-modal";
+
+// Hooks & Types
+import { useUsers } from "@/features/management/users/hooks/use-users";
 
 export default function UserManagementPage() {
-  const [users, setUsers] = useState<User[]>(initialUsers);
-  const [isSyncing, setIsSyncing] = useState(false); // State quản lý loading đồng bộ
-
-  // State Filter
+  // 1. State quản lý bộ lọc & Pagination
+  const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  // Logic: Giả lập đồng bộ dữ liệu
+  // 2. Fetch Data từ API
+  // Convert filter sang format API cần
+  const apiRole = roleFilter === "all" ? undefined : roleFilter;
+
+  // Gọi Hook lấy dữ liệu (Tự động fetch khi params thay đổi)
+  const { data, isLoading } = useUsers({
+    page,
+    limit: 10,
+    role: apiRole,
+    search: searchTerm,
+  });
+
+  const users = data?.users || [];
+  const totalUsers = data?.total || 0;
+
+  // 3. Logic: Đồng bộ dữ liệu
   const handleSyncData = async () => {
     setIsSyncing(true);
-    // Giả lập delay gọi API (2 giây)
+    // TODO: Gọi API sync thật ở đây nếu có
     await new Promise((resolve) => setTimeout(resolve, 2000));
-
     toast.success(
       "Đã đồng bộ dữ liệu thành công từ hệ thống đào tạo (AP/FAP)!",
     );
     setIsSyncing(false);
   };
 
-  // Logic: Toggle Status (Khóa/Mở khóa)
-  const toggleStatus = (id: number) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((u) => {
-        if (u.id === id) {
-          const newStatus = u.status === "Active" ? "Reserved" : "Active";
-          const actionText =
-            newStatus === "Active" ? "Mở khóa" : "Khóa (Bảo lưu)";
-          toast.success(`Đã ${actionText} tài khoản ${u.email}`);
-          return { ...u, status: newStatus };
-        }
-        return u;
-      }),
-    );
+  // 4. Logic: Toggle Status
+  const handleToggleStatus = (id: string) => {
+    toast.info(`Chức năng khóa/mở khóa user ${id} đang được phát triển.`);
   };
 
-  // Logic: Filter
-  const filteredUsers = useMemo(() => {
-    return users.filter((u) => {
-      const matchesSearch =
-        u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.code.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesRole = roleFilter === "all" || u.role === roleFilter;
-      const matchesStatus = statusFilter === "all" || u.status === statusFilter;
-      return matchesSearch && matchesRole && matchesStatus;
-    });
-  }, [users, searchTerm, roleFilter, statusFilter]);
-
+  // 5. Logic: Xóa bộ lọc
   const clearFilters = () => {
     setSearchTerm("");
     setRoleFilter("all");
     setStatusFilter("all");
+    setPage(1);
+  };
+
+  // 6. Xử lý Search
+  const handleSearchChange = (val: string) => {
+    setSearchTerm(val);
+    setPage(1);
+  };
+
+  const handleRoleChange = (val: string) => {
+    setRoleFilter(val);
+    setPage(1);
   };
 
   return (
@@ -79,44 +86,55 @@ export default function UserManagementPage() {
           </p>
         </div>
 
-        {/* Sync Button với Loading State */}
-        <Button
-          variant="outline"
-          disabled={isSyncing}
-          onClick={handleSyncData}
-          className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-[#F27124] hover:border-orange-200 shadow-sm transition-all rounded-xl min-w-[200px]"
-        >
-          {isSyncing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Đang đồng bộ...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Đồng bộ từ AP/FAP
-            </>
-          )}
-        </Button>
+        <div className="flex items-center gap-3">
+          {/* Sync Button */}
+          <Button
+            variant="outline"
+            disabled={isSyncing}
+            onClick={handleSyncData}
+            className="bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-[#F27124] hover:border-orange-200 shadow-sm transition-all rounded-xl"
+          >
+            {isSyncing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Đang đồng bộ...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Đồng bộ AP/FAP
+              </>
+            )}
+          </Button>
+
+          {/* 👇 Thay nút cũ bằng Modal Tạo Mới */}
+          <CreateUserModal />
+        </div>
       </div>
 
       {/* STATS DASHBOARD */}
-      <UserStats users={users} />
+      <UserStats users={users} totalUsers={totalUsers} />
 
       {/* CONTENT AREA */}
       <div className="space-y-6">
+        {/* Toolbar Filter */}
         <UserToolbar
           searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
+          setSearchTerm={handleSearchChange}
           roleFilter={roleFilter}
-          setRoleFilter={setRoleFilter}
+          setRoleFilter={handleRoleChange}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
         />
 
+        {/* Data Table */}
         <UserTable
-          users={filteredUsers}
-          onToggleStatus={toggleStatus}
+          users={users}
+          isLoading={isLoading}
+          total={totalUsers}
+          page={page}
+          onPageChange={setPage}
+          onToggleStatus={handleToggleStatus}
           onClearFilters={clearFilters}
         />
       </div>

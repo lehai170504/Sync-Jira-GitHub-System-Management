@@ -2,13 +2,21 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { GraduationCap, School, UserCheck, Users } from "lucide-react";
-import { User } from "./user-types";
+import { User } from "@/features/management/users/types";
 
-export function UserStats({ users }: { users: User[] }) {
-  const total = users.length;
+interface UserStatsProps {
+  users: User[];
+  totalUsers: number;
+}
+
+export function UserStats({ users, totalUsers }: UserStatsProps) {
+  // Lưu ý: Các chỉ số lọc bên dưới chỉ phản ánh trên trang dữ liệu đang tải về
   const lecturers = users.filter((u) => u.role === "LECTURER").length;
   const students = users.filter((u) => u.role === "MEMBER").length;
-  const active = users.filter((u) => u.status === "Active").length;
+  // Fallback status nếu API chưa trả về
+  const active = users.filter(
+    (u) => (u.status || "Active") === "Active",
+  ).length;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -18,7 +26,8 @@ export function UserStats({ users }: { users: User[] }) {
             <p className="text-sm font-medium text-muted-foreground">
               Tổng người dùng
             </p>
-            <h3 className="text-2xl font-bold">{total}</h3>
+            {/* Sử dụng total từ API response */}
+            <h3 className="text-2xl font-bold">{totalUsers}</h3>
           </div>
           <div className="h-10 w-10 bg-orange-50 rounded-full flex items-center justify-center text-[#F27124]">
             <Users className="h-5 w-5" />
@@ -30,7 +39,7 @@ export function UserStats({ users }: { users: User[] }) {
         <CardContent className="p-4 flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-muted-foreground">
-              Giảng viên
+              Giảng viên (Trang này)
             </p>
             <h3 className="text-2xl font-bold text-blue-600">{lecturers}</h3>
           </div>
@@ -44,7 +53,7 @@ export function UserStats({ users }: { users: User[] }) {
         <CardContent className="p-4 flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-muted-foreground">
-              Sinh viên
+              Sinh viên (Trang này)
             </p>
             <h3 className="text-2xl font-bold text-purple-600">{students}</h3>
           </div>

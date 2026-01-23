@@ -2,8 +2,8 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, CalendarRange } from "lucide-react";
-import { SemesterTab } from "@/components/features/academic/semester-tab";
-import { SubjectTab } from "@/components/features/academic/subject-tab";
+import { SemesterTab } from "@/features/management/semesters/components/semester-tab";
+import { SubjectTab } from "@/features/management/components/academic/subject-tab";
 
 export default function AcademicPage() {
   const triggerStyle =

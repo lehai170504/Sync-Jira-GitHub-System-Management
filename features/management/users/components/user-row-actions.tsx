@@ -11,11 +11,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Lock, MoreVertical, RotateCcw, Unlock } from "lucide-react";
 import { toast } from "sonner";
-import { User } from "./user-types";
+import { User } from "@/features/management/users/types";
 
 interface UserRowActionsProps {
   user: User;
-  onToggleStatus: (id: number) => void;
+  onToggleStatus: (id: string) => void; // ID là string (_id từ MongoDB)
 }
 
 export function UserRowActions({ user, onToggleStatus }: UserRowActionsProps) {
@@ -49,10 +49,11 @@ export function UserRowActions({ user, onToggleStatus }: UserRowActionsProps) {
           <span>Reset Mật khẩu</span>
         </DropdownMenuItem>
 
-        {user.status === "Active" ? (
+        {/* Kiểm tra status, mặc định là Active nếu không có */}
+        {(user.status || "Active") === "Active" ? (
           <DropdownMenuItem
             className="gap-2 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer py-2"
-            onClick={() => onToggleStatus(user.id)}
+            onClick={() => onToggleStatus(user._id)}
           >
             <Lock className="h-4 w-4" />
             <span>Set Bảo lưu (Lock)</span>
@@ -60,7 +61,7 @@ export function UserRowActions({ user, onToggleStatus }: UserRowActionsProps) {
         ) : (
           <DropdownMenuItem
             className="gap-2 text-green-600 focus:text-green-600 focus:bg-green-50 cursor-pointer py-2"
-            onClick={() => onToggleStatus(user.id)}
+            onClick={() => onToggleStatus(user._id)}
           >
             <Unlock className="h-4 w-4" />
             <span>Mở khóa (Active)</span>

@@ -2,11 +2,12 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, GraduationCap, Users } from "lucide-react";
-import { ClassItem } from "./class-types";
+import { Class } from "@/features/management/classes/types";
 
-export function ClassStats({ data }: { data: ClassItem[] }) {
-  const totalStudents = data.reduce((acc, curr) => acc + curr.students, 0);
-  const activeClasses = data.filter((c) => c.status === "Active").length;
+export function ClassStats({ data }: { data: Class[] }) {
+  // TODO: Nếu API trả về số lượng sinh viên, tính tổng ở đây
+  const totalStudents = 0;
+  const activeClasses = data.length; // Giả định status Active
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

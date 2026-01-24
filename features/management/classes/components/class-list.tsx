@@ -8,16 +8,17 @@ import { ClassCard } from "./class-card";
 interface ClassListProps {
   classes: Class[];
   isLoading: boolean;
-  onSelectClass: (cls: Class) => void;
   onEditClass: (cls: Class) => void;
+  // 👇 1. Thêm prop này để nhận hàm mở Drawer từ cha
+  onViewClassDetails: (cls: Class) => void;
   onClearFilters: () => void;
 }
 
 export function ClassList({
   classes,
   isLoading,
-  onSelectClass,
   onEditClass,
+  onViewClassDetails,
   onClearFilters,
 }: ClassListProps) {
   if (isLoading) {
@@ -58,13 +59,13 @@ export function ClassList({
           <ClassCard
             key={cls._id}
             cls={cls}
-            onClick={() => onSelectClass(cls)}
             onEdit={onEditClass}
+            onViewDetails={onViewClassDetails}
           />
         ))}
       </div>
 
-      {/* Pagination Footer (Mock UI) */}
+      {/* Pagination Footer */}
       <div className="flex items-center justify-between border-t border-gray-100 pt-4">
         <p className="text-sm text-muted-foreground">
           Hiển thị {classes.length} kết quả

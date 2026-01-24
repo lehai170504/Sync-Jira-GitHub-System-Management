@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button"; // Thêm Button
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Filter, Search, UserCheck, X } from "lucide-react"; // Thêm Icon X
+import { Filter, Search, User, Activity, X, RotateCcw } from "lucide-react";
 
 interface UserToolbarProps {
   searchTerm: string;
@@ -18,7 +18,6 @@ interface UserToolbarProps {
   setRoleFilter: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (value: string) => void;
-  // Thêm prop để reset
   onResetFilters?: () => void;
 }
 
@@ -31,87 +30,97 @@ export function UserToolbar({
   setStatusFilter,
   onResetFilters,
 }: UserToolbarProps) {
-  // Kiểm tra xem có đang lọc gì không
   const isFiltered =
     searchTerm !== "" || roleFilter !== "all" || statusFilter !== "all";
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 justify-between p-4 bg-white border rounded-xl shadow-sm transition-all">
-      {/* Search Bar */}
-      <div className="relative w-full lg:w-96 group">
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-focus-within:text-[#F27124] transition-colors" />
+    <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center p-1">
+      {/* --- LEFT: SEARCH BAR --- */}
+      <div className="relative w-full lg:w-96 group transition-all duration-200 ease-in-out">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-[#F27124] transition-colors" />
         <Input
-          placeholder="Tìm kiếm theo Tên, Email, MSSV..."
-          className="pl-10 bg-gray-50/50 focus:bg-white border-gray-200 focus:border-[#F27124] focus:ring-[#F27124]/20 rounded-xl transition-all"
+          placeholder="Tìm kiếm Tên, Email, MSSV..."
+          className="pl-10 pr-10 h-11 bg-white border-gray-200 focus:border-[#F27124] focus:ring-2 focus:ring-[#F27124]/10 rounded-xl shadow-sm hover:border-[#F27124]/50 transition-all"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        {/* Nút X xóa search text */}
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
 
-      {/* Filters Group */}
-      <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto items-center">
-        {/* 1. Filter Role */}
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger
-            className={`w-full sm:w-[180px] border-gray-200 rounded-xl focus:ring-[#F27124]/20 focus:border-[#F27124] ${roleFilter !== "all" ? "bg-orange-50 border-orange-200 text-orange-700" : "bg-white"}`}
-          >
-            <div className="flex items-center gap-2">
-              <Filter
-                className={`h-3.5 w-3.5 ${roleFilter !== "all" ? "text-orange-600" : "text-muted-foreground"}`}
-              />
-              <span
-                className={
-                  roleFilter !== "all" ? "font-medium" : "text-gray-700"
-                }
-              >
+      {/* --- RIGHT: FILTERS & ACTIONS --- */}
+      <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-3 items-center">
+        {/* Filter Group Wrapper */}
+        <div className="flex flex-1 sm:flex-none gap-3 w-full sm:w-auto">
+          {/* 1. Filter Role */}
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger
+              className={`h-11 w-full sm:w-[160px] rounded-xl border transition-all duration-200 ${
+                roleFilter !== "all"
+                  ? "bg-orange-50 border-orange-200 text-orange-700 font-medium"
+                  : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2 truncate">
+                <User
+                  className={`h-4 w-4 ${roleFilter !== "all" ? "text-orange-600" : "text-gray-400"}`}
+                />
                 <SelectValue placeholder="Vai trò" />
-              </span>
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả Vai trò</SelectItem>
-            <SelectItem value="ADMIN">Quản trị viên (Admin)</SelectItem>
-            <SelectItem value="LECTURER">Giảng viên (Lecturer)</SelectItem>
-            <SelectItem value="STUDENT">Sinh viên (Student)</SelectItem>
-          </SelectContent>
-        </Select>
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả Vai trò</SelectItem>
+              <SelectItem value="ADMIN">Quản trị viên</SelectItem>
+              <SelectItem value="LECTURER">Giảng viên</SelectItem>
+              <SelectItem value="STUDENT">Sinh viên</SelectItem>
+            </SelectContent>
+          </Select>
 
-        {/* 2. Filter Status */}
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger
-            className={`w-full sm:w-[180px] border-gray-200 rounded-xl focus:ring-[#F27124]/20 focus:border-[#F27124] ${statusFilter !== "all" ? "bg-orange-50 border-orange-200 text-orange-700" : "bg-white"}`}
-          >
-            <div className="flex items-center gap-2">
-              <UserCheck
-                className={`h-3.5 w-3.5 ${statusFilter !== "all" ? "text-orange-600" : "text-muted-foreground"}`}
-              />
-              <span
-                className={
-                  statusFilter !== "all" ? "font-medium" : "text-gray-700"
-                }
-              >
+          {/* 2. Filter Status */}
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger
+              className={`h-11 w-full sm:w-[160px] rounded-xl border transition-all duration-200 ${
+                statusFilter !== "all"
+                  ? "bg-orange-50 border-orange-200 text-orange-700 font-medium"
+                  : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2 truncate">
+                <Activity
+                  className={`h-4 w-4 ${statusFilter !== "all" ? "text-orange-600" : "text-gray-400"}`}
+                />
                 <SelectValue placeholder="Trạng thái" />
-              </span>
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả Trạng thái</SelectItem>
-            <SelectItem value="Active">Đang hoạt động</SelectItem>
-            <SelectItem value="Reserved">Bảo lưu</SelectItem>
-            <SelectItem value="Dropped">Thôi học</SelectItem>
-          </SelectContent>
-        </Select>
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả Trạng thái</SelectItem>
+              <SelectItem value="Active">Đang hoạt động</SelectItem>
+              <SelectItem value="Reserved">Bảo lưu</SelectItem>
+              <SelectItem value="Dropped">Thôi học</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        {/* 3. Button Reset (Chỉ hiện khi có filter) */}
+        {/* Separator & Reset Button */}
         {isFiltered && onResetFilters && (
-          <Button
-            variant="ghost"
-            onClick={onResetFilters}
-            className="h-10 px-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl"
-          >
-            <X className="h-4 w-4 mr-2" />
-            Xóa lọc
-          </Button>
+          <>
+            <div className="hidden sm:block w-px h-6 bg-gray-200 mx-1" />
+            <Button
+              variant="ghost"
+              onClick={onResetFilters}
+              className="h-11 w-full sm:w-auto px-4 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors font-medium"
+            >
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Đặt lại
+            </Button>
+          </>
         )}
       </div>
     </div>

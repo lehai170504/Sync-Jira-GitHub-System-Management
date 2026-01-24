@@ -1,18 +1,37 @@
+// Định nghĩa các sub-interface cho gọn
+export interface SemesterInfo {
+  _id: string;
+  name: string;
+  code: string;
+}
+
+export interface LecturerInfo {
+  _id: string;
+  email: string;
+  full_name: string;
+}
+
+export interface ContributionConfig {
+  jiraWeight: number;
+  gitWeight: number;
+  reviewWeight: number;
+  allowOverCeiling: boolean;
+}
+
 export interface Class {
   _id: string;
-  name: string; // VD: "Software Engineering Project"
-  semester_id: string; // ID của học kỳ
-  lecturer_id: string; // ID của giảng viên
-  // Các field khác nếu API trả về thêm (như lecturer_name, semester_code để hiển thị)
-  lecturer?: {
-    _id: string;
-    full_name: string;
-    email: string;
-  };
-  semester?: {
-    _id: string;
-    code: string;
-  };
+  name: string; // VD: "SE1943-A"
+  class_code: string; // VD: "SE1943-A"
+  subjectName: string;
+  subject_id: string | null;
+  status: "Active" | "Finished" | string;
+  semester_id: SemesterInfo;
+  lecturer_id: LecturerInfo;
+
+  contributionConfig?: ContributionConfig;
+  gradeStructure?: any[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ClassResponse {
@@ -20,8 +39,11 @@ export interface ClassResponse {
   classes: Class[];
 }
 
+// 👇 CẬP NHẬT PAYLOAD THEO HÌNH ẢNH
 export interface CreateClassPayload {
-  name: string;
+  name: string; // VD: Software Engineering Project - Class 1
+  subject_id: string; // ID môn học
+  subjectName: string; // Tên môn học (BE yêu cầu gửi kèm)
   semester_id: string;
   lecturer_id: string;
 }

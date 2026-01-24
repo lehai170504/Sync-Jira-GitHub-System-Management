@@ -8,8 +8,7 @@ export const useClasses = (filters: ClassFilters) => {
   return useQuery({
     queryKey: ["classes", filters],
     queryFn: () => getClassesApi(filters),
-
-    staleTime: 5 * 60 * 1000,
+    staleTime: 1 * 60 * 1000, // Cache 1 phút
     placeholderData: (previousData) => previousData,
   });
 };
@@ -22,7 +21,6 @@ export const useCreateClass = () => {
     mutationFn: (payload: CreateClassPayload) => createClassApi(payload),
     onSuccess: () => {
       toast.success("Tạo lớp học thành công!");
-
       queryClient.invalidateQueries({ queryKey: ["classes"] });
     },
     onError: (error: any) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,6 +25,7 @@ import { Loader2 } from "lucide-react";
 import { useCreateClass } from "../hooks/use-classes";
 import { useSemesters } from "@/features/management/semesters/hooks/use-semesters";
 import { useUsers } from "@/features/management/users/hooks/use-users";
+import { useSubjects } from "@/features/management/subjects/hooks/use-subjects";
 
 interface ClassDialogProps {
   open: boolean;
@@ -32,30 +33,68 @@ interface ClassDialogProps {
 }
 
 export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
-  // Hooks Data (Lấy danh sách để chọn)
+  // 1. Lấy dữ liệu Select options
   const { data: semesters } = useSemesters();
-  const { data: lecturersData } = useUsers({ role: "LECTURER", limit: 100 }); // Lấy list giảng viên
-  const lecturers = lecturersData?.users || [];
+  const { data: lecturersData } = useUsers({ role: "LECTURER", limit: 100 });
+  const { data: subjectsData } = useSubjects("Active"); // Lấy môn học đang Active
 
-  // Hook Create
+  const lecturers = lecturersData?.users || [];
+  const subjects = subjectsData?.subjects || [];
+
+  // 2. Hook Create
   const { mutate: createClass, isPending } = useCreateClass();
 
+  // 3. Form State
   const [formData, setFormData] = useState({
     name: "",
     semester_id: "",
     lecturer_id: "",
+    subject_id: "",
+    subjectName: "",
   });
 
+  // Reset form khi mở dialog
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        name: "",
+        semester_id: "",
+        lecturer_id: "",
+        subject_id: "",
+        subjectName: "",
+      });
+    }
+  }, [open]);
+
+  // Xử lý chọn môn học (Cần lấy cả ID và Name)
+  const handleSubjectChange = (subjectId: string) => {
+    const selectedSubject = subjects.find((s) => s._id === subjectId);
+    if (selectedSubject) {
+      setFormData((prev) => ({
+        ...prev,
+        subject_id: subjectId,
+        subjectName: selectedSubject.name,
+        // Có thể tự động điền tên lớp gợi ý nếu muốn: prev.name || selectedSubject.code + "_"
+      }));
+    }
+  };
+
   const handleSubmit = () => {
-    if (!formData.name || !formData.semester_id || !formData.lecturer_id) {
-      toast.error("Vui lòng điền đầy đủ thông tin!");
+    // Validate
+    if (
+      !formData.name ||
+      !formData.semester_id ||
+      !formData.lecturer_id ||
+      !formData.subject_id
+    ) {
+      toast.warning("Vui lòng điền đầy đủ thông tin!");
       return;
     }
 
+    // Call API
     createClass(formData, {
       onSuccess: () => {
         onOpenChange(false);
-        setFormData({ name: "", semester_id: "", lecturer_id: "" });
       },
     });
   };
@@ -68,11 +107,35 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
         </DialogHeader>
 
         <div className="grid gap-5">
-          {/* TÊN LỚP */}
+          {/* 1. CHỌN MÔN HỌC (Quan trọng) */}
           <div className="grid gap-2">
-            <Label>Tên lớp học</Label>
+            <Label>
+              Môn học <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              value={formData.subject_id}
+              onValueChange={handleSubjectChange}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn môn học" />
+              </SelectTrigger>
+              <SelectContent>
+                {subjects.map((sub) => (
+                  <SelectItem key={sub._id} value={sub._id}>
+                    {sub.code} - {sub.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 2. TÊN LỚP */}
+          <div className="grid gap-2">
+            <Label>
+              Tên lớp học <span className="text-red-500">*</span>
+            </Label>
             <Input
-              placeholder="VD: Software Engineering Project"
+              placeholder="VD: SE1943-A"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
@@ -80,9 +143,11 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
             />
           </div>
 
-          {/* CHỌN HỌC KỲ */}
+          {/* 3. CHỌN HỌC KỲ */}
           <div className="grid gap-2">
-            <Label>Học kỳ</Label>
+            <Label>
+              Học kỳ <span className="text-red-500">*</span>
+            </Label>
             <Select
               value={formData.semester_id}
               onValueChange={(val) =>
@@ -102,9 +167,11 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
             </Select>
           </div>
 
-          {/* CHỌN GIẢNG VIÊN */}
+          {/* 4. CHỌN GIẢNG VIÊN */}
           <div className="grid gap-2">
-            <Label>Giảng viên phụ trách</Label>
+            <Label>
+              Giảng viên phụ trách <span className="text-red-500">*</span>
+            </Label>
             <Select
               value={formData.lecturer_id}
               onValueChange={(val) =>

@@ -1,15 +1,5 @@
 import { axiosClient } from "@/lib/axios-client";
-
-export interface JiraProject {
-  id: string;
-  key: string; // VD: "PROJ"
-  name: string; // VD: "My Project Name"
-}
-
-interface JiraProjectsResponse {
-  total: number;
-  projects: JiraProject[];
-}
+import { JiraProject, JiraProjectsResponse } from "../types";
 
 // --- JIRA INTEGRATION ---
 

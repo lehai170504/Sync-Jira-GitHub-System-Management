@@ -37,7 +37,7 @@ export default function GoogleCallbackPage() {
       queryClient.removeQueries({ queryKey: ["user-profile"] });
 
       toast.success("Đăng nhập thành công!");
-      window.location.href = "/dashboard";
+      window.location.href = "/courses";
     } else {
       router.push("/login");
     }

@@ -1,16 +1,5 @@
 import { axiosClient } from "@/lib/axios-client";
-
-export interface GithubRepo {
-  id: number;
-  name: string;
-  url: string;
-}
-
-// 2. Interface cho Response bao bọc bên ngoài
-interface GithubReposResponse {
-  total: number;
-  repos: GithubRepo[];
-}
+import { GithubRepo, GithubReposResponse } from "../types";
 
 // --- GITHUB INTEGRATION ---
 

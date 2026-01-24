@@ -29,7 +29,7 @@ export default function DashboardLayout({
     setMounted(true);
   }, []);
 
-  const isFullScreenPage = pathname === "/lecturer/courses";
+  const isFullScreenPage = ["/lecturer/courses", "/courses"].includes(pathname);
 
   if (isFullScreenPage) {
     return <div className="min-h-screen w-full bg-gray-50">{children}</div>;

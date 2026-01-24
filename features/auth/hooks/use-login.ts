@@ -32,7 +32,7 @@ export const useLogin = () => {
           targetUrl = "/dashboard";
           break;
         default:
-          targetUrl = "/dashboard";
+          targetUrl = "/courses";
           break;
       }
 

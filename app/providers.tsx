@@ -3,16 +3,17 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { getQueryClient } from "@/lib/get-query-client";
-import type * as React from "react";
+import { SocketProvider } from "@/components/providers/socket-provider";
+import { FCMTokenProvider } from "@/components/providers/fcm-token-provider";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  // Lấy queryClient (đảm bảo singleton ở client)
   const queryClient = getQueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      {/* Devtools chỉ hiện khi ở môi trường dev */}
+      <SocketProvider>
+        <FCMTokenProvider>{children}</FCMTokenProvider>
+      </SocketProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

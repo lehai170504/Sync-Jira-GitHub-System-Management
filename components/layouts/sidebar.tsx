@@ -1,4 +1,3 @@
-// src/components/layouts/sidebar.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -14,6 +13,8 @@ import {
   ArrowLeft,
   ShieldAlert,
   HelpCircle,
+  BookOpen,
+  Crown, // 👇 Thêm icon Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +24,10 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 
-// Import file đã tách
+// Import config
 import { routeGroups, UserRole } from "./sidebar-config";
 import { NavItem } from "./nav-item";
+import { useProfile } from "@/features/auth/hooks/use-profile";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -34,14 +36,47 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   const pathname = usePathname();
-  const [currentRole, setCurrentRole] = useState<UserRole>("STUDENT");
   const [mounted, setMounted] = useState(false);
+
+  const { data: profile } = useProfile();
+  const currentRole = (profile?.user?.role as UserRole) || "STUDENT";
+
+  // State lưu thông tin lớp học mở rộng
+  const [classInfo, setClassInfo] = useState<{
+    className: string;
+    subject?: string;
+    isStudentView: boolean;
+    isLeader?: boolean; // 👇 Thêm field leader
+  } | null>(null);
 
   useEffect(() => {
     setMounted(true);
-    const role = Cookies.get("user_role") as UserRole;
-    if (role) setCurrentRole(role);
-  }, []);
+
+    // --- LOGIC LẤY THÔNG TIN LỚP TỪ COOKIE CHO CẢ 2 ROLE ---
+    const lecturerClass = Cookies.get("lecturer_class_name");
+    const lecturerSubject = Cookies.get("lecturer_subject");
+
+    const studentClass = Cookies.get("student_class_name");
+    const studentTeam = Cookies.get("student_team_name");
+    const studentIsLeader = Cookies.get("student_is_leader") === "true"; // 👇 Ép kiểu về boolean
+
+    if (currentRole === "LECTURER" && lecturerClass) {
+      setClassInfo({
+        className: lecturerClass,
+        subject: lecturerSubject,
+        isStudentView: false,
+      });
+    } else if (currentRole === "STUDENT" && studentClass) {
+      setClassInfo({
+        className: studentClass,
+        subject: studentTeam || "My Team",
+        isStudentView: true,
+        isLeader: studentIsLeader, // 👇 Cập nhật trạng thái leader
+      });
+    } else {
+      setClassInfo(null);
+    }
+  }, [currentRole, pathname]); // Re-run khi đổi role hoặc đổi route để cập nhật cookie mới nhất
 
   if (!mounted) return <div className="w-full h-full bg-[#111827]" />;
 
@@ -66,7 +101,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         )}
       </Button>
 
-      {/* HEADER LOGO */}
+      {/* HEADER LOGO / CLASS INFO */}
       <div
         className={cn(
           "flex items-center h-16 transition-all duration-300 border-b border-gray-800/50",
@@ -74,19 +109,41 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         )}
       >
         <Link
-          href="/dashboard"
-          className="flex items-center gap-3 hover:opacity-80 transition"
+          href={
+            currentRole === "LECTURER" ? "/dashboard" : "/student/dashboard"
+          }
+          className="flex items-center gap-3 hover:opacity-80 transition max-w-full"
         >
-          <div className="relative w-9 h-9 flex-shrink-0 flex items-center justify-center bg-[#F27124] rounded-xl shadow-lg shadow-orange-500/20">
-            <Briefcase className="w-5 h-5 text-white" />
+          <div
+            className={cn(
+              "relative w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl shadow-lg transition-colors",
+              classInfo
+                ? classInfo.isStudentView
+                  ? "bg-[#F27124] shadow-orange-500/20"
+                  : "bg-blue-600 shadow-blue-500/20"
+                : "bg-gray-700",
+            )}
+          >
+            {classInfo ? (
+              <BookOpen className="w-5 h-5 text-white" />
+            ) : (
+              <Briefcase className="w-5 h-5 text-white" />
+            )}
           </div>
+
           {!isCollapsed && (
             <div className="flex flex-col overflow-hidden">
-              <h1 className="text-lg font-bold tracking-tight leading-none truncate">
-                SyncSystem
+              <h1
+                className="text-lg font-bold tracking-tight leading-none truncate"
+                title={classInfo?.className || "SyncSystem"}
+              >
+                {classInfo ? classInfo.className : "SyncSystem"}
               </h1>
-              <span className="text-[10px] text-gray-400 font-medium mt-1 truncate">
-                Academic Management
+              <span
+                className="text-[10px] text-gray-400 font-medium mt-1 truncate"
+                title={classInfo?.subject || "Academic Management"}
+              >
+                {classInfo ? classInfo.subject : "Academic Management"}
               </span>
             </div>
           )}
@@ -96,27 +153,45 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
       {/* USER ROLE BADGE */}
       {!isCollapsed && (
         <div className="px-4 py-4 animate-in fade-in slide-in-from-left-5 duration-300">
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gray-800/40 border border-gray-700/50">
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gray-800/40 border border-gray-700/50 relative overflow-hidden group">
             <div className="p-1.5 bg-gray-700 rounded-lg">
               <UserCircle className="w-4 h-4 text-gray-300" />
             </div>
+
             <div className="flex flex-col">
               <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider leading-none mb-1">
-                Current Role
+                Role
               </span>
-              <span
-                className={cn(
-                  "text-xs font-bold",
-                  currentRole === "ADMIN"
-                    ? "text-violet-400"
-                    : currentRole === "LECTURER"
-                      ? "text-emerald-400"
-                      : "text-blue-400",
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "text-xs font-bold",
+                    currentRole === "ADMIN"
+                      ? "text-violet-400"
+                      : currentRole === "LECTURER"
+                        ? "text-emerald-400"
+                        : "text-[#F27124]",
+                  )}
+                >
+                  {currentRole}
+                </span>
+
+                {/* 👇 BADGE LEADER CHO SINH VIÊN */}
+                {classInfo?.isLeader && (
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-yellow-500/10 border border-yellow-500/20 animate-pulse">
+                    <Crown className="w-2.5 h-2.5 text-yellow-500 fill-yellow-500" />
+                    <span className="text-[9px] font-bold text-yellow-500 uppercase">
+                      Leader
+                    </span>
+                  </div>
                 )}
-              >
-                {currentRole}
-              </span>
+              </div>
             </div>
+
+            {/* Hiệu ứng ánh sáng nếu là Leader */}
+            {classInfo?.isLeader && (
+              <div className="absolute -right-4 -top-4 w-12 h-12 bg-yellow-500/5 blur-2xl rounded-full" />
+            )}
           </div>
         </div>
       )}
@@ -127,7 +202,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
           {filteredRoutes.map((group, index) => (
             <div key={index}>
               {!isCollapsed && (
-                <h3 className="mb-2 px-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 animate-in fade-in duration-300">
+                <h3 className="mb-2 px-4 text-[10px] font-bold uppercase tracking-wider text-gray-500">
                   {group.label}
                 </h3>
               )}
@@ -148,12 +223,15 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
       {/* FOOTER */}
       <div className="p-3 mt-auto border-t border-gray-800 bg-[#0f1623] space-y-3">
-        {currentRole === "LECTURER" && (
+        {/* NÚT ĐỔI LỚP: Linh hoạt cho cả 2 Role */}
+        {classInfo && (
           <TooltipProvider delayDuration={0}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="/lecturer/courses"
+                  href={
+                    classInfo.isStudentView ? "/courses" : "/lecturer/courses"
+                  }
                   className={cn(
                     "flex items-center gap-3 rounded-xl bg-gray-800/80 border border-gray-700/50 text-gray-300 hover:bg-gray-700 hover:text-white transition-all group shadow-sm",
                     isCollapsed ? "justify-center p-2.5" : "px-4 py-3",
@@ -177,29 +255,23 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                   side="right"
                   className="bg-gray-900 border-gray-700 text-white"
                 >
-                  Quay lại danh sách lớp
+                  Danh sách lớp
                 </TooltipContent>
               )}
             </Tooltip>
           </TooltipProvider>
         )}
 
+        {/* System Status Section */}
         {!isCollapsed && (
-          <div className="bg-gradient-to-br from-orange-950/40 to-red-950/20 rounded-xl p-4 border border-orange-500/10 animate-in fade-in slide-in-from-bottom-2">
+          <div className="bg-gradient-to-br from-orange-950/40 to-red-950/20 rounded-xl p-4 border border-orange-500/10">
             <div className="flex items-center gap-3 mb-2">
-              <div className="relative">
-                <div className="absolute inset-0 bg-orange-500 blur-[6px] opacity-20 rounded-full"></div>
-                <div className="p-1.5 bg-orange-900/40 rounded-md relative border border-orange-500/20">
-                  <ShieldAlert className="w-4 h-4 text-orange-400" />
-                </div>
-              </div>
+              <ShieldAlert className="w-4 h-4 text-orange-400" />
               <div>
                 <p className="text-xs font-semibold text-gray-200">
                   Hệ thống ổn định
                 </p>
-                <p className="text-[10px] text-gray-500">
-                  Version 1.2.0 (Stable)
-                </p>
+                <p className="text-[10px] text-gray-500">v1.2.0 (Stable)</p>
               </div>
             </div>
             <Link

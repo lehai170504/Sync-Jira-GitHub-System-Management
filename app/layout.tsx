@@ -35,6 +35,7 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <body
+        suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans bg-gray-50/50`}
       >
         {/* Bọc Providers quanh children */}

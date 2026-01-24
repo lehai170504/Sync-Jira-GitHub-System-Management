@@ -9,8 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ReactNode } from "react";
 
 interface CourseFilterProps {
+  // 👇 Thêm prop icon vào interface
+  title?: string;
+  description?: string;
+  icon?: ReactNode;
+
   semesters: string[];
   selectedSemester: string;
   onSemesterChange: (value: string) => void;
@@ -19,6 +25,10 @@ interface CourseFilterProps {
 }
 
 export function CourseFilter({
+  title = "Các lớp giảng dạy",
+  description = "Chọn lớp học để bắt đầu quản lý và chấm điểm.",
+  icon,
+
   semesters,
   selectedSemester,
   onSemesterChange,
@@ -29,11 +39,10 @@ export function CourseFilter({
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-4">
       <div>
         <h2 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
-          <BookOpen className="h-8 w-8 text-[#F27124]" /> Các lớp giảng dạy
+          {icon || <BookOpen className="h-8 w-8 text-[#F27124]" />}
+          {title}
         </h2>
-        <p className="text-gray-500 mt-2 text-lg">
-          Chọn lớp học để bắt đầu quản lý và chấm điểm.
-        </p>
+        <p className="text-gray-500 mt-2 text-lg">{description}</p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
@@ -47,7 +56,8 @@ export function CourseFilter({
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Tất cả các kỳ</SelectItem>
+              <SelectItem value="all">Tất cả các kỳ</SelectItem>{" "}
+              {/* Sửa ALL -> all cho khớp logic state */}
               {semesters.map((sem) => (
                 <SelectItem key={sem} value={sem}>
                   {sem}

@@ -13,24 +13,29 @@ import { useClasses } from "@/features/management/classes/hooks/use-classes";
 import { Class } from "@/features/management/classes/types";
 
 export default function ClassManagementPage() {
-  // 1. State quản lý
+  // 1. State quản lý UI
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // State Filter
+  // 2. State Filter
   const [searchTerm, setSearchTerm] = useState("");
   const [semesterFilter, setSemesterFilter] = useState<string>("all");
+  const [lecturerFilter, setLecturerFilter] = useState<string>("all");
 
-  // 2. Fetch Data từ API
+  // 3. Chuẩn bị Params gọi API
+  // Nếu chọn "all" thì gửi undefined để API lấy tất cả
   const apiSemesterId = semesterFilter === "all" ? undefined : semesterFilter;
+  const apiLecturerId = lecturerFilter === "all" ? undefined : lecturerFilter;
 
+  // 4. Fetch Data từ API
   const { data, isLoading } = useClasses({
     semester_id: apiSemesterId,
+    lecturer_id: apiLecturerId,
   });
 
   const classes = data?.classes || [];
 
-  // 3. Logic Filter Client-side
+  // 5. Logic Filter Client-side (Tìm kiếm văn bản)
   const filteredClasses = useMemo(() => {
     return classes.filter((cls) => {
       const searchLower = searchTerm.toLowerCase();
@@ -43,10 +48,11 @@ export default function ClassManagementPage() {
     });
   }, [classes, searchTerm]);
 
-  // 4. Handlers
+  // 6. Handlers
   const clearFilters = () => {
     setSearchTerm("");
     setSemesterFilter("all");
+    setLecturerFilter("all"); // 👈 Reset giảng viên
   };
 
   const handleViewDetails = (cls: Class) => {
@@ -62,7 +68,7 @@ export default function ClassManagementPage() {
           Danh sách Lớp học
         </h2>
         <p className="text-muted-foreground mt-1">
-          Quản lý các lớp học, theo dõi tiến độ và thành viên.
+          Quản lý các lớp học, phân công giảng viên và theo dõi tiến độ.
         </p>
       </div>
 
@@ -76,8 +82,13 @@ export default function ClassManagementPage() {
       <ClassToolbar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        // Filter Học kỳ
         semesterFilter={semesterFilter}
         setSemesterFilter={setSemesterFilter}
+        // Filter Giảng viên (Mới)
+        lecturerFilter={lecturerFilter}
+        setLecturerFilter={setLecturerFilter}
+        // Reset
         clearFilters={clearFilters}
       />
 
@@ -87,6 +98,7 @@ export default function ClassManagementPage() {
         isLoading={isLoading}
         onEditClass={(cls) => console.log("Edit functionality pending", cls)}
         onClearFilters={clearFilters}
+        // Mở Drawer chi tiết
         onViewClassDetails={handleViewDetails}
       />
 
@@ -95,7 +107,7 @@ export default function ClassManagementPage() {
         isOpen={isDrawerOpen}
         onOpenChange={setIsDrawerOpen}
         selectedClass={selectedClass}
-        students={[]}
+        students={[]} // Tạm thời để trống chờ API students
       />
     </div>
   );

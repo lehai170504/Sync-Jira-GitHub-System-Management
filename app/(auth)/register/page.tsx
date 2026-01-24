@@ -61,10 +61,6 @@ export default function RegisterPage() {
       toast.error("Mật khẩu phải có ít nhất 6 ký tự.");
       return;
     }
-    if (!formData.studentCode.trim()) {
-      toast.error("Vui lòng nhập Mã số Sinh viên hoặc Giảng viên.");
-      return;
-    }
 
     // Logic ảnh mặc định nếu không nhập
     const finalAvatar = formData.avatarUrl.trim()

@@ -44,7 +44,6 @@ export function UserToolbar({
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        {/* Nút X xóa search text */}
         {searchTerm && (
           <button
             onClick={() => setSearchTerm("")}
@@ -59,7 +58,7 @@ export function UserToolbar({
       <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-3 items-center">
         {/* Filter Group Wrapper */}
         <div className="flex flex-1 sm:flex-none gap-3 w-full sm:w-auto">
-          {/* 1. Filter Role */}
+          {/* 1. Filter Role (CHỈ CÒN GIẢNG VIÊN & SINH VIÊN) */}
           <Select value={roleFilter} onValueChange={setRoleFilter}>
             <SelectTrigger
               className={`h-11 w-full sm:w-[160px] rounded-xl border transition-all duration-200 ${
@@ -77,7 +76,6 @@ export function UserToolbar({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả Vai trò</SelectItem>
-              <SelectItem value="ADMIN">Quản trị viên</SelectItem>
               <SelectItem value="LECTURER">Giảng viên</SelectItem>
               <SelectItem value="STUDENT">Sinh viên</SelectItem>
             </SelectContent>
@@ -108,7 +106,7 @@ export function UserToolbar({
           </Select>
         </div>
 
-        {/* Separator & Reset Button */}
+        {/* Reset Button */}
         {isFiltered && onResetFilters && (
           <>
             <div className="hidden sm:block w-px h-6 bg-gray-200 mx-1" />

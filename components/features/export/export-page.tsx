@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { FileSpreadsheet, FileText } from "lucide-react";
 
-import { UserRole } from "@/components/layouts/sidebar";
+import { UserRole } from "@/components/layouts/sidebar-config";
 import { exportScoreReport, exportSRSReport } from "@/server/actions/report-actions";
 import { downloadBase64File } from "@/lib/download-utils";
 
@@ -19,7 +19,8 @@ const LAST_EXPORT_SCORE_KEY = "leader_export_score_lastRun";
 const LAST_EXPORT_WORKLOG_KEY = "leader_export_worklog_lastRun";
 
 export function ExportPage() {
-  const [role, setRole] = useState<UserRole>("MEMBER");
+  const [role, setRole] = useState<UserRole>("STUDENT");
+  const [isLeader, setIsLeader] = useState(false);
   const [loadingScore, setLoadingScore] = useState(false);
   const [loadingWorklog, setLoadingWorklog] = useState(false);
   const [lastExportScoreAt, setLastExportScoreAt] = useState<string | null>(null);
@@ -27,7 +28,10 @@ export function ExportPage() {
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
+    const leaderStatus = Cookies.get("student_is_leader") === "true";
+    
     if (savedRole) setRole(savedRole);
+    setIsLeader(leaderStatus);
 
     if (typeof window !== "undefined") {
       const lastScore = window.localStorage.getItem(LAST_EXPORT_SCORE_KEY);
@@ -82,7 +86,7 @@ export function ExportPage() {
   };
 
   // Chỉ LEADER mới được truy cập
-  if (role !== "LEADER") {
+  if (!isLeader) {
     return (
       <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
         <ExportHeader />
@@ -90,7 +94,7 @@ export function ExportPage() {
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-800">
           <h3 className="font-semibold mb-1">Không có quyền truy cập</h3>
           <p className="text-sm">
-            Bạn đang đăng nhập với quyền <b>{role}</b>. Vui lòng chuyển sang tài khoản Leader.
+            Bạn đang đăng nhập với vai trò Member. Vui lòng liên hệ Leader.
           </p>
         </div>
       </div>

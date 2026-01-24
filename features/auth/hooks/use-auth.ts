@@ -44,7 +44,7 @@ export const useGoogleCallback = () => {
       }
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       toast.success("Đăng nhập thành công!");
-      router.push("/dashboard");
+      router.push("/courses");
     },
     onError: (error: any) => {
       const msg = error.response?.data?.message || "Đăng nhập thất bại.";

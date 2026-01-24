@@ -35,11 +35,14 @@ export function UserTable({
   onToggleStatus,
   onClearFilters,
 }: UserTableProps) {
-  // Tính tổng số trang (giả sử limit mỗi trang là 10)
   const ITEMS_PER_PAGE = 10;
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
-  // 1. Loading State
+  // 1. LỌC DATA: Chỉ lấy LECTURER và STUDENT
+  const filteredUsers = users.filter((user) =>
+    ["LECTURER", "STUDENT"].includes(user.role),
+  );
+
   if (isLoading) {
     return (
       <Card className="border-none shadow-sm ring-1 ring-gray-100 rounded-xl h-96 flex items-center justify-center bg-white">
@@ -51,8 +54,7 @@ export function UserTable({
     );
   }
 
-  // 2. Empty State
-  if (!users || users.length === 0) {
+  if (!filteredUsers || filteredUsers.length === 0) {
     return (
       <Card className="border-none shadow-sm ring-1 ring-gray-100 rounded-xl overflow-hidden">
         <CardContent className="h-64 flex flex-col items-center justify-center text-center p-6">
@@ -101,23 +103,20 @@ export function UserTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <TableRow
                 key={user._id}
                 className="hover:bg-orange-50/30 transition-colors group border-gray-100"
               >
-                {/* User Info */}
                 <TableCell className="pl-6 py-3">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border border-gray-100 shadow-sm">
                       <AvatarImage src={user.avatar_url} />
                       <AvatarFallback
                         className={`text-sm font-bold ${
-                          user.role === "ADMIN"
-                            ? "bg-purple-100 text-purple-600"
-                            : user.role === "LECTURER"
-                              ? "bg-blue-100 text-blue-600"
-                              : "bg-orange-100 text-orange-600"
+                          user.role === "LECTURER"
+                            ? "bg-blue-100 text-blue-600"
+                            : "bg-orange-100 text-orange-600"
                         }`}
                       >
                         {user.full_name?.charAt(0) || "U"}
@@ -133,35 +132,23 @@ export function UserTable({
                     </div>
                   </div>
                 </TableCell>
-
-                {/* Code */}
                 <TableCell className="hidden sm:table-cell">
                   <span className="font-mono text-sm text-gray-600">
                     {user.student_code || "---"}
                   </span>
                 </TableCell>
-
-                {/* Role Badge */}
                 <TableCell>
                   <Badge
                     variant="outline"
                     className={`border-0 font-medium px-2.5 py-0.5 ${
-                      user.role === "ADMIN"
-                        ? "bg-purple-50 text-purple-700"
-                        : user.role === "LECTURER"
-                          ? "bg-blue-50 text-blue-700"
-                          : "bg-orange-50 text-orange-700"
+                      user.role === "LECTURER"
+                        ? "bg-blue-50 text-blue-700 ring-1 ring-blue-700/10"
+                        : "bg-orange-50 text-orange-700 ring-1 ring-orange-700/10"
                     }`}
                   >
-                    {user.role === "ADMIN"
-                      ? "Admin"
-                      : user.role === "LECTURER"
-                        ? "Giảng viên"
-                        : "Sinh viên"}
+                    {user.role === "LECTURER" ? "Giảng viên" : "Sinh viên"}
                   </Badge>
                 </TableCell>
-
-                {/* Status */}
                 <TableCell>
                   {(user.status || "Active") === "Active" ? (
                     <div className="flex items-center gap-1.5">
@@ -186,8 +173,6 @@ export function UserTable({
                     </Badge>
                   )}
                 </TableCell>
-
-                {/* Actions */}
                 <TableCell className="text-right pr-6">
                   <UserRowActions user={user} onToggleStatus={onToggleStatus} />
                 </TableCell>
@@ -199,7 +184,7 @@ export function UserTable({
         {/* Pagination Footer */}
         <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4 bg-gray-50/30">
           <p className="text-sm text-muted-foreground">
-            Hiển thị {users.length} trên tổng {total} kết quả
+            Hiển thị <b>{filteredUsers.length}</b> kết quả
           </p>
           <div className="flex gap-2 items-center">
             <Button

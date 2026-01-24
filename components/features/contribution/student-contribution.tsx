@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
-import { UserRole } from "@/components/layouts/sidebar";
+import { UserRole } from "@/components/layouts/sidebar-config";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Layers } from "lucide-react";
@@ -18,11 +18,15 @@ import { JiraContributionCard } from "./jira-contribution-card";
 import { GithubContributionCard } from "./github-contribution-card";
 
 export function LeaderContribution() {
-  const [role, setRole] = useState<UserRole>("MEMBER");
+  const [role, setRole] = useState<UserRole>("STUDENT");
+  const [isLeader, setIsLeader] = useState(false);
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
+    const leaderStatus = Cookies.get("student_is_leader") === "true";
+    
     if (savedRole) setRole(savedRole);
+    setIsLeader(leaderStatus);
   }, []);
 
   // Always run hooks before conditional returns to keep hook order stable
@@ -39,7 +43,7 @@ export function LeaderContribution() {
     [],
   );
 
-  if (role !== "LEADER") {
+  if (!isLeader) {
     return (
       <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
         <div className="flex items-center justify-between">
@@ -54,7 +58,7 @@ export function LeaderContribution() {
         <Alert className="bg-gray-50 border-gray-200 text-gray-800">
           <AlertTitle>Không có quyền truy cập</AlertTitle>
           <AlertDescription>
-            Bạn đang đăng nhập với quyền <b>{role}</b>. Vui lòng chuyển sang tài khoản Leader nếu
+            Bạn đang đăng nhập với vai trò Member. Vui lòng liên hệ Leader nếu
             muốn xem tỷ lệ đóng góp.
           </AlertDescription>
         </Alert>

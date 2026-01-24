@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { UserRole } from "@/components/layouts/sidebar";
+import { UserRole } from "@/components/layouts/sidebar-config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -33,14 +33,22 @@ const chartData = memberProgress.map((m) => ({
 }));
 
 export default function LeaderProgressPage() {
-  const [role, setRole] = useState<UserRole>("MEMBER");
+  const [role, setRole] = useState<UserRole>("STUDENT");
+  const [isLeader, setIsLeader] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
+    const leaderStatus = Cookies.get("student_is_leader") === "true";
+    
     if (savedRole) setRole(savedRole);
+    setIsLeader(leaderStatus);
+    setMounted(true);
   }, []);
 
-  if (role !== "LEADER") {
+  if (!mounted) return null;
+
+  if (!isLeader) {
     return (
       <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
         <div className="flex items-center justify-between">
@@ -58,8 +66,7 @@ export default function LeaderProgressPage() {
         <Alert className="bg-gray-50 border-gray-200 text-gray-800">
           <AlertTitle>Không có quyền truy cập</AlertTitle>
           <AlertDescription>
-            Bạn đang đăng nhập với quyền <b>{role}</b>. Vui lòng chuyển sang tài
-            khoản Leader nếu muốn xem tiến độ nhóm.
+            Bạn đang đăng nhập với vai trò Member. Vui lòng liên hệ Leader nếu cần xem thông tin này.
           </AlertDescription>
         </Alert>
       </div>

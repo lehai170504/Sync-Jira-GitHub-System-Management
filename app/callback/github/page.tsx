@@ -27,11 +27,11 @@ export default function GithubCallbackPage() {
       // Làm mới dữ liệu
       router.refresh();
       // Chuyển hướng về trang cấu hình
-      router.replace("/config");
+      router.replace("/profile");
     } else {
       // Trường hợp thất bại
       toast.error("Kết nối thất bại: " + (error || "Lỗi không xác định"));
-      router.replace("/config");
+      router.replace("/profile");
     }
   }, [searchParams, router]);
 

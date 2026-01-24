@@ -5,7 +5,7 @@ import {
   ArrowLeft,
   Loader2,
   User,
-  Hash,
+  Hash, // Icon Hash cho mã số
   Lock,
   KeyRound,
   Link as LinkIcon,
@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge"; // Ensure this is imported correctly
+import { Badge } from "@/components/ui/badge";
 import { RegisterFormData } from "../types";
 
 interface RegisterStep2Props {
@@ -72,6 +72,9 @@ export function RegisterStep2({
     }
   };
 
+  // Kiểm tra xem có cần nhập mã số không (Chỉ STUDENT mới cần)
+  const isStudent = formData.role === "STUDENT";
+
   return (
     <form
       onSubmit={onSubmit}
@@ -79,7 +82,8 @@ export function RegisterStep2({
     >
       <div className="grid grid-cols-2 gap-4">
         {/* Role Selection */}
-        <div className="space-y-2">
+        {/* Nếu không phải sinh viên (tức là giảng viên), ô này sẽ chiếm 2 cột (full width) */}
+        <div className={`space-y-2 ${!isStudent ? "col-span-2" : ""}`}>
           <Label>Vai trò</Label>
           <Select
             value={formData.role}
@@ -95,23 +99,26 @@ export function RegisterStep2({
           </Select>
         </div>
 
-        {/* Student/Lecturer Code */}
-        <div className="space-y-2">
-          <Label htmlFor="code">Mã số (MSSV/CB)</Label>
-          <div className="relative">
-            <Input
-              id="code"
-              placeholder="SE123456"
-              value={formData.studentCode}
-              onChange={(e) => onUpdate("studentCode", e.target.value)}
-              className="pl-10 h-11 uppercase"
-              required
-            />
-            <div className="absolute left-3 top-3 text-slate-400">
-              <Badge className="h-5 w-5" />
+        {/* Student Code - Chỉ hiển thị khi Role là STUDENT */}
+        {isStudent && (
+          <div className="space-y-2">
+            <Label htmlFor="code">Mã số sinh viên (MSSV)</Label>
+            <div className="relative">
+              <Input
+                id="code"
+                placeholder="SE123456"
+                value={formData.studentCode}
+                onChange={(e) => onUpdate("studentCode", e.target.value)}
+                className="pl-10 h-11 uppercase"
+                required // Vẫn giữ required vì khi render ra nó mới bắt buộc
+              />
+              <div className="absolute left-3 top-3 text-slate-400">
+                <Hash className="h-5 w-5" />{" "}
+                {/* Thay Badge bằng Hash cho đúng icon mã số */}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Full Name */}

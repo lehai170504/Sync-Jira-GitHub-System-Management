@@ -21,20 +21,24 @@ export const useLogin = () => {
 
       toast.success(`Chào mừng quay lại, ${data.user.full_name}!`);
 
-      // 3. Điều hướng
+      // 3. Xác định đường dẫn đích
+      let targetUrl = "/dashboard"; // Mặc định
+
       switch (data.user.role) {
         case "LECTURER":
-          router.push("/lecturer/courses");
+          targetUrl = "/lecturer/courses";
           break;
         case "ADMIN":
-          router.push("/dashboard");
+          targetUrl = "/dashboard";
           break;
         default:
-          router.push("/dashboard");
+          targetUrl = "/courses";
           break;
       }
 
-      router.refresh();
+      // 4. Điều hướng và Reload lại trang (Hard Navigation)
+      // Sử dụng window.location.href thay vì router.push để trình duyệt tải lại hoàn toàn
+      window.location.href = targetUrl;
     },
     onError: (error: any) => {
       const errorData = error.response?.data;
@@ -44,6 +48,7 @@ export const useLogin = () => {
           description: "Vui lòng kiểm tra email để lấy OTP.",
           action: {
             label: "Nhập OTP",
+            // Giữ nguyên router.push ở đây vì chỉ chuyển trang nhập OTP, không cần reload nặng
             onClick: () =>
               router.push(`/verify-otp?email=${errorData.email || ""}`),
           },

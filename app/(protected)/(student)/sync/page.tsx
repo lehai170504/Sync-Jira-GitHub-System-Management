@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { UserRole } from "@/components/layouts/sidebar";
+import { UserRole } from "@/components/layouts/sidebar-config";
 import {
   triggerJiraSync,
   triggerGithubSync,
@@ -28,7 +28,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export default function SyncPage() {
-  const [role, setRole] = useState<UserRole>("MEMBER");
+  const [role, setRole] = useState<UserRole>("STUDENT");
+  const [isLeaderState, setIsLeaderState] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const [lastJiraRun, setLastJiraRun] = useState<string | undefined>(undefined);
@@ -48,27 +49,29 @@ export default function SyncPage() {
     linesOfCode?: number;
   } | null>(null);
 
-  const isLeader = role === "LEADER";
-
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
-    if (savedRole) {
-      setRole(savedRole);
-      const isLeaderRole = savedRole === "LEADER";
-      const prefix = isLeaderRole ? "leader" : "member";
+    const leaderStatus = Cookies.get("student_is_leader") === "true";
+    
+    if (savedRole) setRole(savedRole);
+    setIsLeaderState(leaderStatus);
 
-      if (typeof window !== "undefined") {
-        const storedJira = window.localStorage.getItem(
-          `${prefix}_jira_last_sync`,
-        );
-        const storedGithub = window.localStorage.getItem(
-          `${prefix}_github_last_sync`,
-        );
-        if (storedJira) setLastJiraRun(storedJira);
-        if (storedGithub) setLastGithubRun(storedGithub);
-      }
+    // Logic này để lấy localStorage cache
+    const prefix = leaderStatus ? "leader" : "member";
+
+    if (typeof window !== "undefined") {
+      const storedJira = window.localStorage.getItem(
+        `${prefix}_jira_last_sync`,
+      );
+      const storedGithub = window.localStorage.getItem(
+        `${prefix}_github_last_sync`,
+      );
+      if (storedJira) setLastJiraRun(storedJira);
+      if (storedGithub) setLastGithubRun(storedGithub);
     }
   }, []);
+
+  const isLeader = isLeaderState;
 
   const handleSyncAll = async () => {
     setIsSyncing(true);
@@ -133,7 +136,7 @@ export default function SyncPage() {
   };
 
   // Chỉ LEADER và MEMBER mới được truy cập
-  if (role !== "LEADER" && role !== "MEMBER") {
+  if (role !== "STUDENT") {
     return (
       <div className="space-y-6 max-w-4xl mx-auto py-8 px-4 md:px-0">
         <Alert className="bg-gray-50 border-gray-200 text-gray-800">

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
-import { UserRole } from "@/components/layouts/sidebar";
+import { UserRole } from "@/components/layouts/sidebar-config";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,7 +19,8 @@ import { TaskDialog } from "./task-dialog";
 import { SprintDialog } from "./sprint-dialog";
 
 export function TaskBoard() {
-  const [role, setRole] = useState<UserRole>("MEMBER");
+  const [role, setRole] = useState<UserRole>("STUDENT");
+  const [isLeaderState, setIsLeaderState] = useState(false);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [selectedCourse, setSelectedCourse] = useState<string>(courses[0]?.id ?? "");
   const [sprints, setSprints] = useState<Sprint[]>(initialSprints);
@@ -53,16 +54,20 @@ export function TaskBoard() {
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
-    if (savedRole) {
-      setRole(savedRole);
-      // Giả sử: LEADER = m1, MEMBER = m2 (có thể lấy từ cookie hoặc API)
-      if (savedRole === "LEADER") {
-        setCurrentUserId("m1");
-      } else if (savedRole === "MEMBER") {
-        setCurrentUserId("m2");
-      }
+    const leaderStatus = Cookies.get("student_is_leader") === "true";
+    
+    if (savedRole) setRole(savedRole);
+    setIsLeaderState(leaderStatus);
+
+    // Mock logic user ID
+    if (leaderStatus) {
+      setCurrentUserId("m1");
+    } else {
+      setCurrentUserId("m2");
     }
   }, []);
+
+  const isLeader = isLeaderState;
 
   const resetTaskForm = () => {
     const defaultAssigneeId = isLeader ? members[0]?.id ?? "" : currentUserId;
@@ -202,31 +207,10 @@ export function TaskBoard() {
     toast.success("Đã xóa sprint");
   };
 
-  // Chỉ LEADER và MEMBER mới được truy cập Task Board
-  if (role !== "LEADER" && role !== "MEMBER") {
-    return (
-      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h2 className="text-3xl font-bold tracking-tight">Team Task Board</h2>
-            <p className="text-muted-foreground">
-              Trang này chỉ dành cho Leader và Member để theo dõi tiến độ task của từng thành viên.
-            </p>
-          </div>
-        </div>
-        <Separator />
-        <Alert className="bg-gray-50 border-gray-200 text-gray-800">
-          <AlertTitle>Không có quyền truy cập</AlertTitle>
-          <AlertDescription>
-            Bạn đang đăng nhập với quyền <b>{role}</b>. Vui lòng chuyển sang tài khoản
-            Leader hoặc Member nếu muốn xem Task Board nhóm.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
+  // Trang này dành cho Sinh viên
+  if (role !== "STUDENT" && role !== "LEADER" && role !== "MEMBER") {
+    // Logic cũ check LEADER/MEMBER
   }
-
-  const isLeader = role === "LEADER";
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">

@@ -21,11 +21,13 @@ const MEMBER_ID_TO_NAME: Record<string, string> = {
 };
 
 interface LeaderCommitsProps {
-  role?: UserRole;
+  role?: UserRole; // Deprecated
+  isLeader?: boolean;
 }
 
-export function LeaderCommits({ role: propRole }: LeaderCommitsProps) {
-  const [role, setRole] = useState<UserRole>("MEMBER");
+export function LeaderCommits({ role: propRole, isLeader: propIsLeader }: LeaderCommitsProps) {
+  const [role, setRole] = useState<UserRole>("STUDENT");
+  const [isLeaderState, setIsLeaderState] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>("m2");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -34,25 +36,28 @@ export function LeaderCommits({ role: propRole }: LeaderCommitsProps) {
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
+    const leaderCookie = Cookies.get("student_is_leader") === "true";
+    
+    // Ưu tiên prop truyền vào
+    if (propIsLeader !== undefined) {
+      setIsLeaderState(propIsLeader);
+    } else {
+      setIsLeaderState(leaderCookie);
+    }
+
     if (savedRole) {
       setRole(savedRole);
-      // Giả sử: LEADER = m1, MEMBER = m2 (có thể lấy từ cookie hoặc API)
-      if (savedRole === "LEADER") {
+      // Giả sử: LEADER = m1, MEMBER = m2 (logic mock cũ)
+      // Bây giờ dùng logic mới:
+      if (leaderCookie) {
         setCurrentUserId("m1");
-      } else if (savedRole === "MEMBER") {
-        setCurrentUserId("m2");
-      }
-    } else if (propRole) {
-      setRole(propRole);
-      if (propRole === "LEADER") {
-        setCurrentUserId("m1");
-      } else if (propRole === "MEMBER") {
+      } else {
         setCurrentUserId("m2");
       }
     }
-  }, [propRole]);
+  }, [propIsLeader]);
 
-  const isLeader = role === "LEADER";
+  const isLeader = isLeaderState;
   const currentUserAuthorName = MEMBER_ID_TO_NAME[currentUserId] || "";
 
   const authors = useMemo(() => {

@@ -12,12 +12,11 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (credentials: LoginCredentials) => loginApi(credentials),
     onSuccess: (data) => {
-      // 1. Lưu thông tin xác thực (Rất nhanh, diễn ra tại máy client)
-      Cookies.set("token", data.access_token, { expires: 1 });
-      Cookies.set("refreshToken", data.refresh_token, { expires: 7 });
-      Cookies.set("user_role", data.user.role, { expires: 1 });
-      Cookies.set("user_email", data.user.email, { expires: 1 });
-      Cookies.set("user_name", data.user.full_name, { expires: 1 });
+      Cookies.set("token", data.access_token, { path: "/", expires: 1 });
+      Cookies.set("refreshToken", data.refresh_token, { path: "/", expires: 7 });
+      Cookies.set("user_role", data.user.role, { path: "/", expires: 1 });
+      Cookies.set("user_email", data.user.email, { path: "/", expires: 1 });
+      Cookies.set("user_name", data.user.full_name, { path: "/", expires: 1 });
 
       toast.success(`Chào mừng quay lại, ${data.user.full_name}!`);
 

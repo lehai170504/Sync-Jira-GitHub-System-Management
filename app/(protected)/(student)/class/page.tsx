@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Cookies from "js-cookie";
 import {
   Search,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 // Components
 import { StudentClassList } from "@/features/management/classes/components/student-class-list";
@@ -21,24 +22,79 @@ import { AddProjectDialog } from "@/features/projects/components/AddProjectDialo
 // Hooks
 import { useClassStudents } from "@/features/management/classes/hooks/use-classes";
 import { useMyProject } from "@/features/projects/hooks/use-my-project";
+import { useSocket } from "@/components/providers/socket-provider";
 
 export default function StudentClassListPage() {
-  // 1. Lấy thông tin từ Cookie
   const classId = Cookies.get("student_class_id");
   const className = Cookies.get("student_class_name");
   const myTeamName = Cookies.get("student_team_name");
   const isLeader = Cookies.get("student_is_leader") === "true";
 
-  // 2. Fetch Data
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: studentsData, isLoading: isStudentsLoading } =
-    useClassStudents(classId);
+  const {
+    data: studentsData,
+    isLoading: isStudentsLoading,
+    refetch: refetchStudents,
+  } = useClassStudents(classId);
 
   const {
     data: project,
     isLoading: isProjectLoading,
-    refetch,
+    refetch: refetchProject,
   } = useMyProject();
+
+  const { socket, isConnected } = useSocket();
+  const prevConnected = useRef(false);
+
+  // Refetch khi vừa reconnect
+  useEffect(() => {
+    const justReconnected = !prevConnected.current && isConnected;
+    prevConnected.current = isConnected;
+    if (justReconnected && classId) refetchStudents();
+  }, [isConnected, classId, refetchStudents]);
+
+  // Fallback: refetch khi quay lại tab (giảng viên import ở tab khác)
+  useEffect(() => {
+    if (!classId) return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refetchStudents();
+    };
+    window.addEventListener("visibilitychange", onVisible);
+    return () => window.removeEventListener("visibilitychange", onVisible);
+  }, [classId, refetchStudents]);
+
+  // Socket: join room + nghe refresh_class (đồng bộ khi GV import/thêm/xóa thành viên)
+  useEffect(() => {
+    if (!socket || !isConnected || !classId) return;
+
+    const roomId = (classId ?? "").trim();
+    const roomName = (className ?? "").trim() || roomId;
+
+    const onAny = (event: string, ...args: unknown[]) => {
+      console.log("[Socket] ←", event, args?.length ? args : "");
+    };
+    socket.onAny(onAny);
+
+    socket.emit("join_class", roomId);
+    if (roomName !== roomId) socket.emit("join_class", roomName);
+
+    const handleRefreshClass = () => {
+      toast.promise(refetchStudents(), {
+        loading: "Đang đồng bộ danh sách lớp...",
+        success: "Đã cập nhật!",
+        error: "Lỗi đồng bộ.",
+      });
+    };
+
+    socket.on("refresh_class", handleRefreshClass);
+
+    return () => {
+      socket.offAny(onAny);
+      socket.off("refresh_class", handleRefreshClass);
+      socket.emit("leave_class", roomId);
+      if (roomName !== roomId) socket.emit("leave_class", roomName);
+    };
+  }, [socket, isConnected, classId, className, refetchStudents]);
 
   const students = studentsData?.students || [];
   const totalCount = studentsData?.total || 0;
@@ -103,7 +159,7 @@ export default function StudentClassListPage() {
             ) : (
               <AddProjectDialog
                 members={myTeamMembers}
-                onSuccess={() => refetch()}
+                onSuccess={() => refetchProject()}
               />
             )}
           </div>

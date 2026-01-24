@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Cookies from "js-cookie";
 import {
   Search,
@@ -9,7 +9,6 @@ import {
   UserCheck,
   LayoutGrid,
   GraduationCap,
-  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,6 +33,7 @@ export default function ClassManagementPage() {
   const [students, setStudents] = useState<ClassStudent[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [lastUpdatedId, setLastUpdatedId] = useState<string | null>(null);
+  const prevConnected = useRef(false);
 
   // 1. Đồng bộ dữ liệu ban đầu
   useEffect(() => {
@@ -44,26 +44,40 @@ export default function ClassManagementPage() {
     }
   }, [studentsData]);
 
-  // 2. Refetch khi reconnect
+  // 2. Refetch chỉ khi vừa reconnect (false → true), tránh refetch thừa lúc mount
   useEffect(() => {
-    if (isConnected) {
-      console.log("🔄 Socket reconnected, fetching fresh data...");
+    const justReconnected = !prevConnected.current && isConnected;
+    prevConnected.current = isConnected;
+    if (justReconnected) {
       refetch();
     }
   }, [isConnected, refetch]);
 
-  // 3. 👇 ĐÂY LÀ NƠI LẮNG NGHE (LISTENERS)
+  // 3. Fallback: refetch khi user quay lại tab (vd. import từ Swagger/tab khác, socket chưa kịp)
   useEffect(() => {
-    // Kiểm tra ID lớp có bị "thừa" khoảng trắng hay ngoặc kép không
-    console.log("🔍 Kiểm tra ID lớp hiện tại:", `[${classId}]`);
+    if (!classId) return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refetch();
+    };
+    window.addEventListener("visibilitychange", onVisible);
+    return () => window.removeEventListener("visibilitychange", onVisible);
+  }, [classId, refetch]);
 
+  // 4. Socket: join room + lắng nghe refresh / team_member_changed
+  useEffect(() => {
     if (!socket || !isConnected || !classId) return;
 
-    // A. Gửi lệnh tham gia phòng
-    console.log(`📡 Đang gửi lệnh JOIN_CLASS cho ID: ${classId}`);
-    socket.emit("join_class", classId);
+    const roomId = (classId ?? "").trim();
+    const roomName = (className ?? "").trim() || roomId;
 
-    // B. Lắng nghe cập nhật đơn lẻ (Thêm/Sửa/Xóa)
+    const onAny = (event: string, ...args: unknown[]) => {
+      console.log("[Socket] ←", event, args?.length ? args : "");
+    };
+    socket.onAny(onAny);
+
+    socket.emit("join_class", roomId);
+    if (roomName !== roomId) socket.emit("join_class", roomName);
+
     const handleMemberChange = ({
       action,
       data,
@@ -71,13 +85,9 @@ export default function ClassManagementPage() {
       action: string;
       data: any;
     }) => {
-      console.log("⚡ [Socket] Nhận sự kiện team_member_changed:", action);
       const studentId = data._id || data.id;
-
-      // Kích hoạt hiệu ứng nháy
       setLastUpdatedId(studentId);
       setTimeout(() => setLastUpdatedId(null), 3000);
-
       setStudents((prev) => {
         const newStudent = { ...data, _id: studentId };
         if (action === "insert")
@@ -91,13 +101,11 @@ export default function ClassManagementPage() {
       });
     };
 
-    // C. Lắng nghe lệnh REFRESH (Quan trọng cho vụ Import của ông)
     const handleRefreshClass = () => {
-      console.log("🚀 [Socket] Server bảo REFRESH toàn bộ danh sách!");
       toast.promise(refetch(), {
-        loading: "Đang đồng bộ dữ liệu lớp học...",
-        success: "Đã cập nhật danh sách lớp!",
-        error: "Lỗi đồng bộ dữ liệu.",
+        loading: "Đang đồng bộ danh sách lớp...",
+        success: "Đã cập nhật!",
+        error: "Lỗi đồng bộ.",
       });
     };
 
@@ -105,11 +113,13 @@ export default function ClassManagementPage() {
     socket.on("refresh_class", handleRefreshClass);
 
     return () => {
+      socket.offAny(onAny);
       socket.off("team_member_changed", handleMemberChange);
       socket.off("refresh_class", handleRefreshClass);
-      socket.emit("leave_class", classId);
+      socket.emit("leave_class", roomId);
+      if (roomName !== roomId) socket.emit("leave_class", roomName);
     };
-  }, [socket, isConnected, classId, refetch]);
+  }, [socket, isConnected, classId, className, refetch]);
 
   const handleImportSuccess = () => refetch();
   const handleSuccess = () => refetch();

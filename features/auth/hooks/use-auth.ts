@@ -40,14 +40,12 @@ export const useGoogleCallback = () => {
     onSuccess: (data) => {
       // 1. Lưu Tokens vào Cookie (Xử lý đồng bộ, cực nhanh)
       if (data?.accessToken) {
-        Cookies.set("token", data.accessToken, { expires: 1 });
-        Cookies.set("refreshToken", data.refreshToken, { expires: 7 });
+        Cookies.set("token", data.accessToken, { path: "/", expires: 1 });
+        Cookies.set("refreshToken", data.refreshToken, { path: "/", expires: 7 });
       }
-
-      // 2. Lưu thông tin User
       if (data?.user) {
-        Cookies.set("user_role", data.user.role, { expires: 1 });
-        Cookies.set("user_name", data.user.full_name, { expires: 1 });
+        Cookies.set("user_role", data.user.role, { path: "/", expires: 1 });
+        Cookies.set("user_name", data.user.full_name, { path: "/", expires: 1 });
       }
 
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });

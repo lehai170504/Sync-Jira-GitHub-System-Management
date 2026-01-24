@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie"; // ❌ Không cần dùng Cookies để lấy info nữa
 
 import { Sidebar } from "@/components/layouts/sidebar";
 import { UserNav } from "@/components/layouts/user-nav";
@@ -10,11 +10,9 @@ import { NotificationsNav } from "@/components/layouts/notifications-nav";
 import { Footer } from "@/components/layouts/footer";
 import { cn } from "@/lib/utils";
 
-// Định nghĩa kiểu dữ liệu User để hiển thị
-interface UserInfo {
-  name: string;
-  role: string;
-}
+// 👇 1. Import Hook lấy thông tin user (getMe)
+import { useProfile } from "@/features/auth/hooks/use-profile";
+import { Skeleton } from "@/components/ui/skeleton"; // (Tùy chọn) Để hiện loading đẹp hơn
 
 export default function DashboardLayout({
   children,
@@ -24,25 +22,11 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const { data, isLoading } = useProfile();
+  const user = data?.user;
 
-  // State lưu thông tin user
-  const [userInfo, setUserInfo] = useState<UserInfo>({
-    name: "Người dùng",
-    role: "MEMBER",
-  });
-
-  // Lấy thông tin user từ Cookie khi Client Mount
   useEffect(() => {
     setMounted(true);
-    const name = Cookies.get("user_name");
-    const role = Cookies.get("user_role");
-
-    if (name && role) {
-      setUserInfo({
-        name: name,
-        role: role,
-      });
-    }
   }, []);
 
   const isFullScreenPage = pathname === "/lecturer/courses";
@@ -79,22 +63,30 @@ export default function DashboardLayout({
       >
         {/* HEADER */}
         <div className="flex-none flex items-center justify-between p-4 border-b h-16 bg-white/80 backdrop-blur-md z-50 shadow-sm">
-          <div className="flex items-center">
-            {/* Breadcrumb Area (Có thể thêm sau) */}
-          </div>
+          <div className="flex items-center">{/* Breadcrumb Area */}</div>
 
           <div className="flex items-center gap-4">
             <NotificationsNav />
             <div className="h-6 w-px bg-gray-200" />
 
-            {/* User Info (Dynamic Data) */}
             <div className="flex flex-col items-end mr-1 hidden sm:flex">
-              <span className="text-sm font-semibold text-gray-700 truncate max-w-[150px]">
-                {userInfo.name}
-              </span>
-              <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">
-                {userInfo.role}
-              </span>
+              {isLoading ? (
+                // Loading State (Skeleton)
+                <>
+                  <Skeleton className="h-4 w-24 mb-1" />
+                  <Skeleton className="h-3 w-16" />
+                </>
+              ) : (
+                // Data Loaded
+                <>
+                  <span className="text-sm font-semibold text-gray-700 truncate max-w-[150px]">
+                    {user?.full_name || "Người dùng"}
+                  </span>
+                  <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">
+                    {user?.role || "MEMBER"}
+                  </span>
+                </>
+              )}
             </div>
 
             <UserNav />

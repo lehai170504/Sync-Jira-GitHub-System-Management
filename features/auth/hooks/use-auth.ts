@@ -3,35 +3,34 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import {
-  getGoogleAuthUrlApi,
+  getGoogleAuthUrlApi, // Import hàm vừa sửa ở trên
   googleCallbackApi,
   GoogleCallbackParams,
 } from "../api/auth-api";
 
-// --- HOOK 1: LOGIN VỚI GOOGLE (Ở trang Login) ---
+// --- HOOK 1: LOGIN VỚI GOOGLE ---
 export const useGoogleLogin = () => {
   return useMutation({
     mutationFn: async () => {
-      // Tạo redirect_uri trỏ về trang Callback của Frontend
-      const redirectUri = `${window.location.origin}/auth/callback`;
-      return getGoogleAuthUrlApi(redirectUri);
+      // Frontend URL để Google quay về
+      const redirectUri = window.location.origin;
+      return await getGoogleAuthUrlApi(redirectUri);
     },
-    onSuccess: (url) => {
-      if (url) {
-        // Chuyển hướng người dùng sang Google
-        window.location.href = url;
+    onSuccess: (googleUrl) => {
+      if (googleUrl) {
+        window.location.href = googleUrl;
       } else {
-        toast.error("Không nhận được liên kết đăng nhập từ hệ thống.");
+        toast.error("Hệ thống không trả về đường dẫn đăng nhập.");
       }
     },
     onError: (error: any) => {
-      console.error(error);
-      toast.error("Lỗi khởi tạo đăng nhập Google.");
+      console.error("Google Login Error:", error);
+      toast.error("Không thể kết nối tới máy chủ.");
     },
   });
 };
 
-// --- HOOK 2: XỬ LÝ CALLBACK (Ở trang Callback) ---
+// --- HOOK 2: XỬ LÝ CALLBACK (Giữ nguyên không đổi) ---
 export const useGoogleCallback = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -39,23 +38,17 @@ export const useGoogleCallback = () => {
   return useMutation({
     mutationFn: (params: GoogleCallbackParams) => googleCallbackApi(params),
     onSuccess: (data) => {
-      // 1. Lưu Token vào Cookie/Storage
       if (data?.accessToken) {
-        Cookies.set("accessToken", data.accessToken);
+        Cookies.set("token", data.accessToken);
         Cookies.set("refreshToken", data.refreshToken);
       }
-
-      // 2. Làm mới trạng thái user (nếu dùng React Query quản lý user)
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
-
-      // 3. Thông báo & Chuyển hướng vào Dashboard
-      toast.success("Đăng nhập thành công! Đang chuyển hướng...");
+      toast.success("Đăng nhập thành công!");
       router.push("/dashboard");
     },
     onError: (error: any) => {
       const msg = error.response?.data?.message || "Đăng nhập thất bại.";
       toast.error(msg);
-      // Nếu lỗi, quay về trang login
       router.push("/login?error=google_failed");
     },
   });

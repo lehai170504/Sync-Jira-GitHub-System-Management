@@ -5,17 +5,18 @@ const ROOT_URL =
 
 // --- GOOGLE OAUTH ---
 
-// 1. Lấy URL đăng nhập Google
+// 1. Lấy URL đăng nhập Google (Sửa lại dùng Axios)
 export const getGoogleAuthUrlApi = async (redirectUri: string) => {
   const { data } = await axiosClient.get(`${ROOT_URL}/auth/google`, {
     params: {
       redirect_uri: redirectUri,
     },
   });
-  return data.url;
+
+  return data.redirectUrl;
 };
 
-// 2. Callback xử lý sau khi Google redirect về
+// 2. Callback xử lý
 export interface GoogleCallbackParams {
   code: string;
   error?: string;

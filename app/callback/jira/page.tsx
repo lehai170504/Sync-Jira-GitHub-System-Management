@@ -23,10 +23,10 @@ export default function JiraCallbackPage() {
     if (success === "true") {
       toast.success(`Kết nối Jira thành công! Tài khoản: ${email}`);
       router.refresh(); // Refresh để cập nhật state ở Dashboard
-      router.replace("/config");
+      router.replace("/profile");
     } else {
       toast.error("Kết nối Jira thất bại: " + (error || "Lỗi không xác định"));
-      router.replace("/config");
+      router.replace("/profile");
     }
   }, [searchParams, router]);
 

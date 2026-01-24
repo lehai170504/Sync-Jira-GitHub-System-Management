@@ -16,6 +16,8 @@ import {
   LayoutList,
   Settings,
   LucideIcon,
+  Users,
+  Briefcase,
 } from "lucide-react";
 
 export type UserRole = "ADMIN" | "LECTURER" | "STUDENT";
@@ -117,6 +119,18 @@ export const routeGroups: RouteGroup[] = [
     label: "Học tập & Đồ án",
     roles: ["STUDENT"],
     items: [
+      {
+        label: "Danh sách lớp",
+        icon: Users,
+        href: "/class",
+        color: "text-blue-400",
+      },
+      {
+        label: "Thông tin dự án",
+        icon: Briefcase,
+        href: "/project",
+        color: "text-orange-500",
+      },
       {
         label: "Kết quả học tập",
         icon: Layers,

@@ -199,12 +199,6 @@ const routeGroups = [
         color: "text-slate-300",
       },
       {
-        label: "Đánh giá chéo",
-        icon: Star,
-        href: "/peer-review",
-        color: "text-amber-500",
-      },
-      {
         label: "Xuất báo cáo",
         icon: FileSpreadsheet,
         href: "/export",

@@ -150,37 +150,38 @@ export function JiraFormLeader() {
   return (
     <Card className="border-none shadow-lg overflow-hidden -mt-5">
       {/* BRAND HEADER */}
-      <div className="bg-[#0052CC] p-6 text-white flex justify-between items-start">
+      <div className="bg-[#0052CC] p-4 md:p-6 text-white flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-white rounded-lg shadow-sm">
+          <div className="p-2 bg-white rounded-lg shadow-sm shrink-0">
             <img
               src="https://cdn.iconscout.com/icon/free/png-256/free-jira-3628861-3030021.png"
-              className="w-6 h-6"
+              className="w-5 h-5 md:w-6 md:h-6"
               alt="Jira"
             />
           </div>
-          <div>
-            <CardTitle className="text-lg text-white">Jira Software</CardTitle>
-            <CardDescription className="text-blue-100 mt-1">
-              Cấu hình kết nối Jira để đồng bộ User Stories & Story Points
+          <div className="min-w-0 flex-1">
+            <CardTitle className="text-base md:text-lg text-white">Jira Software</CardTitle>
+            <CardDescription className="text-blue-100 mt-1 text-xs md:text-sm">
+              <span className="hidden sm:inline">Cấu hình kết nối Jira để đồng bộ User Stories & Story Points</span>
+              <span className="sm:hidden">Đồng bộ User Stories & Story Points</span>
             </CardDescription>
           </div>
         </div>
         {isConnected ? (
-          <Badge className="bg-green-400/20 text-green-100 hover:bg-green-400/20 border-0">
-            <CheckCircle2 className="w-3 h-3 mr-1" /> Đã kết nối
+          <Badge className="bg-green-400/20 text-green-100 hover:bg-green-400/20 border-0 shrink-0">
+            <CheckCircle2 className="w-3 h-3 mr-1" /> <span className="hidden sm:inline">Đã kết nối</span><span className="sm:hidden">Kết nối</span>
           </Badge>
         ) : (
           <Badge
             variant="secondary"
-            className="bg-white/20 text-white hover:bg-white/30 border-0"
+            className="bg-white/20 text-white hover:bg-white/30 border-0 shrink-0"
           >
-            Chưa kết nối
+            <span className="hidden sm:inline">Chưa kết nối</span><span className="sm:hidden">Chưa kết nối</span>
           </Badge>
         )}
       </div>
 
-      <CardContent className="p-6">
+      <CardContent className="p-4 md:p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* ALERT: Connection Status */}
@@ -231,7 +232,7 @@ export function JiraFormLeader() {
             />
 
             {/* Email & API Token Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <FormField
                 control={form.control}
                 name="email"
@@ -254,7 +255,7 @@ export function JiraFormLeader() {
                 name="apiToken"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <FormLabel>API Token</FormLabel>
                       <a
                         href="https://id.atlassian.com/manage-profile/security/api-tokens"
@@ -262,7 +263,9 @@ export function JiraFormLeader() {
                         rel="noopener noreferrer"
                         className="text-xs text-[#0052CC] hover:underline flex items-center gap-1"
                       >
-                        Lấy token ở đâu? <ExternalLink className="w-3 h-3" />
+                        <span className="hidden sm:inline">Lấy token ở đâu?</span>
+                        <span className="sm:hidden">Hướng dẫn</span>
+                        <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
                     <FormDescription className="text-xs">
@@ -304,29 +307,32 @@ export function JiraFormLeader() {
                 variant="outline"
                 onClick={handleTestConnection}
                 disabled={testing || loading}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto order-2 sm:order-1"
               >
                 {testing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang kiểm tra...
+                    <span className="hidden sm:inline">Đang kiểm tra...</span>
+                    <span className="sm:hidden">Đang kiểm tra</span>
                   </>
                 ) : (
                   <>
                     <Plug className="mr-2 h-4 w-4" />
-                    Test Connection
+                    <span className="hidden sm:inline">Test Connection</span>
+                    <span className="sm:hidden">Test</span>
                   </>
                 )}
               </Button>
               <Button
                 type="submit"
                 disabled={loading || testing || connectionStatus.status !== "success"}
-                className="w-full sm:w-auto bg-[#0052CC] hover:bg-[#0747A6] min-w-[140px]"
+                className="w-full sm:w-auto bg-[#0052CC] hover:bg-[#0747A6] min-w-[140px] order-1 sm:order-2"
               >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Đang lưu...
+                    <span className="hidden sm:inline">Đang lưu...</span>
+                    <span className="sm:hidden">Đang lưu</span>
                   </>
                 ) : (
                   "Lưu cấu hình"

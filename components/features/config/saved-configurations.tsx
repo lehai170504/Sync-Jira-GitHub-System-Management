@@ -96,60 +96,60 @@ export function SavedConfigurations({ onEdit }: SavedConfigurationsProps) {
     <div className="space-y-6">
       {/* JIRA CONFIGURATION CARD */}
       <Card className="border-l-4 border-l-[#0052CC]">
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-[#0052CC]/10 rounded-lg">
+        <CardHeader className="p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="p-2 bg-[#0052CC]/10 rounded-lg shrink-0">
                 <img
                   src="https://cdn.iconscout.com/icon/free/png-256/free-jira-3628861-3030021.png"
-                  className="w-6 h-6"
+                  className="w-5 h-5 md:w-6 md:h-6"
                   alt="Jira"
                 />
               </div>
-              <div>
-                <CardTitle className="text-lg">Jira Software</CardTitle>
-                <CardDescription className="mt-1">
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base md:text-lg">Jira Software</CardTitle>
+                <CardDescription className="mt-1 text-xs md:text-sm">
                   Cấu hình đã lưu và đang hoạt động
                 </CardDescription>
               </div>
             </div>
-            <Badge className="bg-green-500/20 text-green-700 border-green-200">
-              <CheckCircle2 className="w-3 h-3 mr-1" /> Đã kết nối
+            <Badge className="bg-green-500/20 text-green-700 border-green-200 shrink-0 w-fit">
+              <CheckCircle2 className="w-3 h-3 mr-1" /> <span className="hidden sm:inline">Đã kết nối</span><span className="sm:hidden">Kết nối</span>
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-4 md:p-6 pt-0">
           {/* Domain URL */}
-          <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-            <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1">
-              <p className="text-xs font-medium text-muted-foreground mb-1">
+          <div className="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-muted/50 rounded-lg">
+            <Globe className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] md:text-xs font-medium text-muted-foreground mb-1">
                 Domain URL
               </p>
-              <p className="text-sm font-mono">{mockSavedConfigs.jira.domainUrl}</p>
+              <p className="text-xs md:text-sm font-mono break-all">{mockSavedConfigs.jira.domainUrl}</p>
             </div>
           </div>
 
           {/* Email */}
-          <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-            <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1">
-              <p className="text-xs font-medium text-muted-foreground mb-1">
+          <div className="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-muted/50 rounded-lg">
+            <Mail className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] md:text-xs font-medium text-muted-foreground mb-1">
                 Email Admin
               </p>
-              <p className="text-sm">{mockSavedConfigs.jira.email}</p>
+              <p className="text-xs md:text-sm break-all">{mockSavedConfigs.jira.email}</p>
             </div>
           </div>
 
           {/* API Token (Masked) */}
-          <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-            <Key className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1">
-              <p className="text-xs font-medium text-muted-foreground mb-1">
+          <div className="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-muted/50 rounded-lg">
+            <Key className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] md:text-xs font-medium text-muted-foreground mb-1">
                 API Token (Đã mã hóa)
               </p>
               <div className="flex items-center gap-2">
-                <p className="text-sm font-mono">
+                <p className="text-xs md:text-sm font-mono break-all">
                   {showJiraToken
                     ? mockSavedConfigs.jira.apiToken
                     : maskToken(mockSavedConfigs.jira.apiToken)}
@@ -157,7 +157,7 @@ export function SavedConfigurations({ onEdit }: SavedConfigurationsProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 px-2"
+                  className="h-6 w-6 md:h-7 md:w-7 px-0 md:px-2 shrink-0"
                   onClick={() => setShowJiraToken(!showJiraToken)}
                 >
                   {showJiraToken ? (
@@ -167,29 +167,30 @@ export function SavedConfigurations({ onEdit }: SavedConfigurationsProps) {
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                 Token được mã hóa và lưu trữ an toàn
               </p>
             </div>
           </div>
 
           {/* Saved Date */}
-          <div className="flex items-center justify-between pt-2 border-t text-xs text-muted-foreground">
-            <span>
-              Đã lưu: {new Date(mockSavedConfigs.jira.savedAt).toLocaleString("vi-VN")}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t text-xs text-muted-foreground">
+            <span className="text-[10px] md:text-xs">
+              <span className="hidden sm:inline">Đã lưu: </span>
+              {new Date(mockSavedConfigs.jira.savedAt).toLocaleString("vi-VN")}
             </span>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 text-xs"
+                className="h-7 text-xs flex-1 sm:flex-initial"
                 onClick={() => onEdit?.("jira")}
               >
-                <Edit className="h-3 w-3 mr-1" /> Chỉnh sửa
+                <Edit className="h-3 w-3 mr-1" /> <span className="hidden sm:inline">Chỉnh sửa</span><span className="sm:hidden">Sửa</span>
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-7 text-xs text-red-600 hover:text-red-700">
+                  <Button variant="outline" size="sm" className="h-7 text-xs text-red-600 hover:text-red-700 flex-1 sm:flex-initial">
                     <Trash2 className="h-3 w-3 mr-1" /> Xóa
                   </Button>
                 </AlertDialogTrigger>
@@ -218,47 +219,47 @@ export function SavedConfigurations({ onEdit }: SavedConfigurationsProps) {
 
       {/* GITHUB CONFIGURATION CARD */}
       <Card className="border-l-4 border-l-[#181717]">
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-[#181717]/10 rounded-lg">
-                <ExternalLink className="w-6 h-6 text-[#181717]" />
+        <CardHeader className="p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="p-2 bg-[#181717]/10 rounded-lg shrink-0">
+                <ExternalLink className="w-5 h-5 md:w-6 md:h-6 text-[#181717]" />
               </div>
-              <div>
-                <CardTitle className="text-lg">GitHub Repository</CardTitle>
-                <CardDescription className="mt-1">
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base md:text-lg">GitHub Repository</CardTitle>
+                <CardDescription className="mt-1 text-xs md:text-sm">
                   Cấu hình đã lưu và đang hoạt động
                 </CardDescription>
               </div>
             </div>
-            <Badge className="bg-green-500/20 text-green-700 border-green-200">
-              <CheckCircle2 className="w-3 h-3 mr-1" /> Đã kết nối
+            <Badge className="bg-green-500/20 text-green-700 border-green-200 shrink-0 w-fit">
+              <CheckCircle2 className="w-3 h-3 mr-1" /> <span className="hidden sm:inline">Đã kết nối</span><span className="sm:hidden">Kết nối</span>
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-4 md:p-6 pt-0">
           {/* Repository URL */}
-          <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-            <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1">
-              <p className="text-xs font-medium text-muted-foreground mb-1">
+          <div className="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-muted/50 rounded-lg">
+            <Globe className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] md:text-xs font-medium text-muted-foreground mb-1">
                 Repository URL
               </p>
-              <p className="text-sm font-mono break-all">
+              <p className="text-xs md:text-sm font-mono break-all">
                 {mockSavedConfigs.github.repoUrl}
               </p>
             </div>
           </div>
 
           {/* Access Token (Masked) */}
-          <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-            <Key className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1">
-              <p className="text-xs font-medium text-muted-foreground mb-1">
+          <div className="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-muted/50 rounded-lg">
+            <Key className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] md:text-xs font-medium text-muted-foreground mb-1">
                 Access Token (Đã mã hóa)
               </p>
               <div className="flex items-center gap-2">
-                <p className="text-sm font-mono">
+                <p className="text-xs md:text-sm font-mono break-all">
                   {showGithubToken
                     ? mockSavedConfigs.github.accessToken
                     : maskToken(mockSavedConfigs.github.accessToken)}
@@ -266,7 +267,7 @@ export function SavedConfigurations({ onEdit }: SavedConfigurationsProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 px-2"
+                  className="h-6 w-6 md:h-7 md:w-7 px-0 md:px-2 shrink-0"
                   onClick={() => setShowGithubToken(!showGithubToken)}
                 >
                   {showGithubToken ? (
@@ -276,29 +277,30 @@ export function SavedConfigurations({ onEdit }: SavedConfigurationsProps) {
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                 Token được mã hóa và lưu trữ an toàn
               </p>
             </div>
           </div>
 
           {/* Saved Date */}
-          <div className="flex items-center justify-between pt-2 border-t text-xs text-muted-foreground">
-            <span>
-              Đã lưu: {new Date(mockSavedConfigs.github.savedAt).toLocaleString("vi-VN")}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t text-xs text-muted-foreground">
+            <span className="text-[10px] md:text-xs">
+              <span className="hidden sm:inline">Đã lưu: </span>
+              {new Date(mockSavedConfigs.github.savedAt).toLocaleString("vi-VN")}
             </span>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 text-xs"
+                className="h-7 text-xs flex-1 sm:flex-initial"
                 onClick={() => onEdit?.("github")}
               >
-                <Edit className="h-3 w-3 mr-1" /> Chỉnh sửa
+                <Edit className="h-3 w-3 mr-1" /> <span className="hidden sm:inline">Chỉnh sửa</span><span className="sm:hidden">Sửa</span>
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-7 text-xs text-red-600 hover:text-red-700">
+                  <Button variant="outline" size="sm" className="h-7 text-xs text-red-600 hover:text-red-700 flex-1 sm:flex-initial">
                     <Trash2 className="h-3 w-3 mr-1" /> Xóa
                   </Button>
                 </AlertDialogTrigger>

@@ -55,9 +55,9 @@ export function TaskDialog({
   // Đảm bảo MEMBER luôn assign cho chính mình khi mở dialog
   React.useEffect(() => {
     if (!isLeader && open && formTask.assigneeId !== currentUserId) {
-      setFormTask((prev) => ({ ...prev, assigneeId: currentUserId }));
+      setFormTask({ ...formTask, assigneeId: currentUserId });
     }
-  }, [open, isLeader, currentUserId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, isLeader, currentUserId, formTask, setFormTask]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">

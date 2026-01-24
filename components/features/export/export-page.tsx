@@ -64,20 +64,18 @@ export function ExportPage() {
       setLoadingWorklog(true);
       const res = await exportSRSReport();
 
-      // Hiện tại server action đang mock "đang bảo trì"
-      if (res.success) {
+      if (res.success && res.data && res.filename) {
+        downloadBase64File(res.data, res.filename);
         const now = new Date().toISOString();
         window.localStorage.setItem(LAST_EXPORT_WORKLOG_KEY, now);
         setLastExportWorklogAt(now);
-        toast.success("Đã xuất file Worklog (mock).");
-      } else {
-        toast.info("Tính năng xuất Worklog Word đang được mô phỏng (mock).", {
-          description:
-            "Trong bản triển khai thật, file .docx sẽ được tạo và tải về tự động.",
-        });
+        toast.success("Đã tải xuống file Worklog Word!");
+        return;
       }
+
+      toast.error(res.error || "Có lỗi xảy ra khi xuất Worklog Word.");
     } catch (e) {
-      toast.error("Có lỗi xảy ra khi gọi xuất Worklog.");
+      toast.error("Có lỗi xảy ra khi xuất Worklog Word.");
     } finally {
       setLoadingWorklog(false);
     }

@@ -18,7 +18,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"; // Import Dialog
+} from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Bell,
@@ -36,13 +36,13 @@ type Notification = {
   id: number;
   title: string;
   desc: string;
-  detailContent: string; // Nội dung chi tiết dài hơn
+  detailContent: string;
   time: string;
   icon: any;
   color: string;
-  bgColor: string; // Thêm màu nền cho icon
+  bgColor: string;
   read: boolean;
-  type: "task" | "review" | "system"; // Để hiển thị nút hành động phù hợp
+  type: "task" | "review" | "system";
 };
 
 const INITIAL_NOTIFICATIONS: Notification[] = [

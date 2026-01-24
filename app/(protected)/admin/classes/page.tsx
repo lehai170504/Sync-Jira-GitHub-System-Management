@@ -1,66 +1,57 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ClassStats } from "@/components/features/classes/class-stats";
-import { ClassToolbar } from "@/components/features/classes/class-toolbar";
-import { ClassList } from "@/components/features/classes/class-list";
-import { ClassDetailDrawer } from "@/components/features/classes/class-detail-drawer";
-import {
-  classesData,
-  mockStudents,
-} from "@/components/features/classes/class-data";
-import { ClassItem } from "@/components/features/classes/class-types";
-import { EditClassDialog } from "@/components/features/classes/edit-class-dialog";
+
+// Components
+import { ClassStats } from "@/features/management/classes/components/class-stats";
+import { ClassToolbar } from "@/features/management/classes/components/class-toolbar";
+import { ClassList } from "@/features/management/classes/components/class-list";
+import { ClassDetailDrawer } from "@/features/management/classes/components/class-detail-drawer";
+
+// Hooks & Types
+import { useClasses } from "@/features/management/classes/hooks/use-classes";
+import { Class } from "@/features/management/classes/types";
 
 export default function ClassManagementPage() {
-  const [selectedClass, setSelectedClass] = useState<ClassItem | null>(null);
-  const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
+  // 1. State quản lý
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // State quản lý Filter
+  // State Filter
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
-    subject: "all",
-    status: "all",
-    semester: "all",
+  const [semesterFilter, setSemesterFilter] = useState<string>("all");
+
+  // 2. Fetch Data từ API
+  const apiSemesterId = semesterFilter === "all" ? undefined : semesterFilter;
+
+  const { data, isLoading } = useClasses({
+    semester_id: apiSemesterId,
   });
 
-  // Derived Data (Tính toán dữ liệu lọc)
-  const uniqueSubjects = useMemo(
-    () => Array.from(new Set(classesData.map((c) => c.subject))),
-    [],
-  );
-  const uniqueSemesters = useMemo(
-    () => Array.from(new Set(classesData.map((c) => c.semester))),
-    [],
-  );
+  const classes = data?.classes || [];
 
-  const activeFiltersCount = [
-    filters.subject !== "all",
-    filters.status !== "all",
-    filters.semester !== "all",
-  ].filter(Boolean).length;
-
+  // 3. Logic Filter Client-side
   const filteredClasses = useMemo(() => {
-    return classesData.filter((cls) => {
-      const matchesSearch =
-        cls.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cls.lecturer.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesSubject =
-        filters.subject === "all" || cls.subject === filters.subject;
-      const matchesStatus =
-        filters.status === "all" || cls.status === filters.status;
-      const matchesSemester =
-        filters.semester === "all" || cls.semester === filters.semester;
-
+    return classes.filter((cls) => {
+      const searchLower = searchTerm.toLowerCase();
       return (
-        matchesSearch && matchesSubject && matchesStatus && matchesSemester
+        cls.name.toLowerCase().includes(searchLower) ||
+        cls.class_code.toLowerCase().includes(searchLower) ||
+        cls.lecturer_id?.full_name?.toLowerCase().includes(searchLower) ||
+        cls.lecturer_id?.email?.toLowerCase().includes(searchLower)
       );
     });
-  }, [searchTerm, filters]);
+  }, [classes, searchTerm]);
 
+  // 4. Handlers
   const clearFilters = () => {
     setSearchTerm("");
-    setFilters({ subject: "all", status: "all", semester: "all" });
+    setSemesterFilter("all");
+  };
+
+  const handleViewDetails = (cls: Class) => {
+    setSelectedClass(cls);
+    setIsDrawerOpen(true);
   };
 
   return (
@@ -75,44 +66,36 @@ export default function ClassManagementPage() {
         </p>
       </div>
 
-      {/* STATS DASHBOARD */}
-      <ClassStats data={classesData} />
+      {/* STATS DASHBOARD 
+
+[Image of dashboard metrics ui]
+ */}
+      <ClassStats data={classes} />
 
       {/* TOOLBAR */}
       <ClassToolbar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        filters={filters}
-        setFilters={setFilters}
-        uniqueSubjects={uniqueSubjects}
-        uniqueSemesters={uniqueSemesters}
-        activeFiltersCount={activeFiltersCount}
+        semesterFilter={semesterFilter}
+        setSemesterFilter={setSemesterFilter}
         clearFilters={clearFilters}
       />
 
       {/* CLASS LIST */}
       <ClassList
         classes={filteredClasses}
-        onSelectClass={setSelectedClass}
-        onEditClass={(cls) => setEditingClass(cls)}
+        isLoading={isLoading}
+        onEditClass={(cls) => console.log("Edit functionality pending", cls)}
         onClearFilters={clearFilters}
+        onViewClassDetails={handleViewDetails}
       />
+
       {/* DETAIL DRAWER */}
       <ClassDetailDrawer
-        isOpen={!!selectedClass}
-        onOpenChange={(open) => !open && setSelectedClass(null)}
+        isOpen={isDrawerOpen}
+        onOpenChange={setIsDrawerOpen}
         selectedClass={selectedClass}
-        students={mockStudents}
-      />
-      {/* EDIT CLASS DIALOG */}
-      <EditClassDialog
-        open={!!editingClass}
-        onOpenChange={(open) => !open && setEditingClass(null)}
-        classData={editingClass}
-        onSuccess={() => {
-          // Logic reload data nếu cần
-          console.log("Edit success");
-        }}
+        students={[]}
       />
     </div>
   );

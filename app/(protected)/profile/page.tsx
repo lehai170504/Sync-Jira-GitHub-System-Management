@@ -1,8 +1,8 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
-import { ProfileSidebar } from "@/components/features/profile/profile-sidebar";
-import { ProfileTabs } from "@/components/features/profile/profile-tabs";
+import { ProfileSidebar } from "@/features/auth/components/profile/profile-sidebar";
+import { ProfileTabs } from "@/features/auth/components/profile/profile-tabs";
 
 export default function ProfilePage() {
   return (

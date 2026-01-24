@@ -1,10 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Cookies from "js-cookie";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,176 +16,188 @@ import {
 import {
   LogOut,
   User,
-  Settings,
   CreditCard,
   BadgeCheck,
   BookOpen,
-  LayoutDashboard,
+  Shield,
+  Loader2,
+  Settings,
 } from "lucide-react";
+// 👇 1. Import useQueryClient
+import { useQueryClient } from "@tanstack/react-query";
 
-// Định nghĩa thông tin User giả lập theo Role
-const USER_INFO_MAP = {
-  ADMIN: {
-    name: "System Admin",
-    email: "admin@fpt.edu.vn",
-    avatar: "https://github.com/shadcn.png",
-    fallback: "AD",
-    color: "text-purple-600",
-  },
-  LECTURER: {
-    name: "Trần Văn Hiến",
-    email: "hientv@fpt.edu.vn",
-    avatar: "", // Không có ảnh để test fallback
-    fallback: "GV",
-    color: "text-blue-600",
-  },
-  LEADER: {
-    name: "Nguyễn Văn A (Leader)",
-    email: "annv@fpt.edu.vn",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-    fallback: "LD",
-    color: "text-orange-600",
-  },
-  MEMBER: {
-    name: "Trần Thị Bình",
-    email: "binhtt@fpt.edu.vn",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
-    fallback: "SV",
-    color: "text-green-600",
-  },
-};
+import { useProfile } from "@/features/auth/hooks/use-profile";
+import { useLogout } from "@/features/auth/hooks/use-logout";
 
 export function UserNav() {
-  const router = useRouter();
-  const [role, setRole] = useState<keyof typeof USER_INFO_MAP>("MEMBER");
-  const [mounted, setMounted] = useState(false);
+  // 1. Hook Query Client
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    // Lấy role từ cookie khi client load xong
-    const savedRole = Cookies.get("user_role") as keyof typeof USER_INFO_MAP;
-    if (savedRole && USER_INFO_MAP[savedRole]) {
-      setRole(savedRole);
-    }
-    setMounted(true);
-  }, []);
+  // 2. Lấy thông tin user
+  const { data: profileData, isLoading: isProfileLoading } = useProfile();
+  const user = profileData?.user;
 
-  // Lấy thông tin user hiện tại
-  const currentUser = USER_INFO_MAP[role] || USER_INFO_MAP.MEMBER;
+  // 3. Hook logout
+  const { mutate: logout, isPending: isLogoutPending } = useLogout();
 
-  // Hàm đăng xuất
+  // 👇 4. Xử lý Logout: Xóa Cache ngay lập tức
   const handleLogout = () => {
-    Cookies.remove("user_role"); // Xóa cookie role
-    router.push("/login"); // Quay về trang login
+    if (isLogoutPending) return;
+
+    // Quan trọng: Xóa toàn bộ cache user cũ để tránh hiển thị nhầm khi login user mới
+    queryClient.removeQueries();
+    // Hoặc cụ thể hơn: queryClient.removeQueries({ queryKey: ["user-profile"] });
+
+    logout();
   };
 
-  if (!mounted) return null; // Tránh hydration error
+  const getRoleColor = (role?: string) => {
+    switch (role) {
+      case "ADMIN":
+        return "text-purple-600 bg-purple-50 border-purple-200";
+      case "LECTURER":
+        return "text-blue-600 bg-blue-50 border-blue-200"; // Đổi màu cho Lecturer
+      case "STUDENT":
+        return "text-emerald-600 bg-emerald-50 border-emerald-200";
+      default:
+        return "text-slate-600 bg-slate-50 border-slate-200";
+    }
+  };
+
+  const getInitials = (name?: string) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .slice(-2)
+      .join("")
+      .toUpperCase();
+  };
+
+  if (isProfileLoading) {
+    return (
+      <div className="w-10 h-10 bg-slate-200 rounded-full animate-pulse" />
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative h-9 w-9 rounded-full ring-2 ring-transparent hover:ring-primary/20 transition-all"
+          className="relative h-10 w-10 rounded-full ring-2 ring-transparent hover:ring-slate-200 transition-all p-0"
         >
-          <Avatar className="h-9 w-9 border border-gray-200 shadow-sm">
-            <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-            <AvatarFallback
-              className={`bg-primary/10 font-bold ${currentUser.color}`}
-            >
-              {currentUser.fallback}
+          <Avatar className="h-9 w-9 border border-slate-200 shadow-sm">
+            <AvatarImage
+              src={user.avatar_url}
+              alt={user.full_name}
+              className="object-cover"
+            />
+            <AvatarFallback className="font-bold text-slate-500 bg-slate-100">
+              {getInitials(user.full_name)}
             </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        {/* USER INFO HEADER */}
-        <DropdownMenuLabel className="font-normal p-4 bg-muted/30">
+      <DropdownMenuContent className="w-64 p-1" align="end" forceMount>
+        {/* Header Info */}
+        <DropdownMenuLabel className="font-normal p-3 bg-slate-50/50 mb-1 rounded-t-sm">
           <div className="flex flex-col space-y-1.5">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold leading-none text-foreground truncate max-w-[150px]">
-                {currentUser.name}
+              <p className="text-sm font-semibold leading-none text-slate-900 truncate max-w-[150px]">
+                {user.full_name}
               </p>
-              {/* Icon tích xanh cho uy tín */}
-              <BadgeCheck
-                className={`w-4 h-4 ${currentUser.color}`}
-                fill="currentColor"
-                color="white"
-              />
+              {user.is_verified && (
+                <BadgeCheck
+                  className="w-4 h-4 text-blue-500"
+                  fill="currentColor"
+                  color="white"
+                />
+              )}
             </div>
-            <p className="text-xs leading-none text-muted-foreground truncate">
-              {currentUser.email}
+            <p className="text-xs leading-none text-slate-500 truncate">
+              {user.email}
             </p>
+            <div className="pt-1.5">
+              <span
+                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getRoleColor(user.role)}`}
+              >
+                {user.role}
+              </span>
+            </div>
           </div>
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          {/* AI CŨNG CÓ: Hồ sơ cá nhân */}
           <Link href="/profile" passHref>
             <DropdownMenuItem className="cursor-pointer">
-              <User className="mr-2 h-4 w-4 text-muted-foreground" />
+              <User className="mr-2 h-4 w-4 text-slate-500" />
               <span>Hồ sơ cá nhân</span>
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </DropdownMenuItem>
           </Link>
 
-          {/* CHỈ SINH VIÊN (Leader/Member): Xem điểm */}
-          {(role === "MEMBER" || role === "LEADER") && (
-            <Link href="/my-score" passHref>
+          {/* MENU RIÊNG CHO TỪNG ROLE */}
+
+          {/* 1. STUDENT */}
+          {user.role === "STUDENT" && (
+            <Link href="/student/my-score" passHref>
               <DropdownMenuItem className="cursor-pointer">
-                <CreditCard className="mr-2 h-4 w-4 text-muted-foreground" />
+                <CreditCard className="mr-2 h-4 w-4 text-slate-500" />
                 <span>Điểm số của tôi</span>
               </DropdownMenuItem>
             </Link>
           )}
 
-          {/* CHỈ GIẢNG VIÊN: Lớp học */}
-          {role === "LECTURER" && (
-            <Link href="/lecturer/classes" passHref>
+          {/* 2. LECTURER */}
+          {user.role === "LECTURER" && (
+            <Link href="/lecturer/class-management" passHref>
               <DropdownMenuItem className="cursor-pointer">
-                <BookOpen className="mr-2 h-4 w-4 text-muted-foreground" />
+                <BookOpen className="mr-2 h-4 w-4 text-slate-500" />
                 <span>Lớp đang dạy</span>
               </DropdownMenuItem>
             </Link>
           )}
 
-          {/* CHỈ ADMIN & LEADER: Vào Dashboard quản lý */}
-          {(role === "ADMIN" || role === "LEADER") && (
-            <Link href="/dashboard" passHref>
-              <DropdownMenuItem className="cursor-pointer">
-                <LayoutDashboard className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>Quản lý dự án</span>
-              </DropdownMenuItem>
-            </Link>
+          {/* 3. ADMIN */}
+          {user.role === "ADMIN" && (
+            <>
+              <Link href="/dashboard" passHref>
+                <DropdownMenuItem className="cursor-pointer">
+                  <Shield className="mr-2 h-4 w-4 text-slate-500" />
+                  <span>Dashboard Quản trị</span>
+                </DropdownMenuItem>
+              </Link>
+              {/* Thêm link config cho Admin/Leader nếu cần */}
+              <Link href="/dashboard/config" passHref>
+                <DropdownMenuItem className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4 text-slate-500" />
+                  <span>Cấu hình hệ thống</span>
+                </DropdownMenuItem>
+              </Link>
+            </>
           )}
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 
-        {/* CHỈ ADMIN: Cài đặt hệ thống */}
-        {role === "ADMIN" && (
-          <>
-            <Link href="/settings" passHref>
-              <DropdownMenuItem className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span>Cài đặt hệ thống</span>
-                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuSeparator />
-          </>
-        )}
-
-        {/* LOGOUT BUTTON */}
         <DropdownMenuItem
           className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
           onClick={handleLogout}
+          disabled={isLogoutPending}
         >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Đăng xuất</span>
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+          {isLogoutPending ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <LogOut className="mr-2 h-4 w-4" />
+          )}
+          <span>{isLogoutPending ? "Đang đăng xuất..." : "Đăng xuất"}</span>
+          {!isLogoutPending && <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

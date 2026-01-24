@@ -4,7 +4,7 @@ import { use } from "react"; // <--- 1. Thêm import này
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TeamDetailView } from "@/components/features/lecturer/team-detail-view";
+import { TeamDetailView } from "@/features/lecturer/components/team/team-detail-view";
 
 // Mock helper to get team name
 const getTeamNameById = (id: string) => {

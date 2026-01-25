@@ -68,6 +68,12 @@ export default function SyncPage() {
     setSyncResult(null);
 
     try {
+      console.log("[Sync] Gửi xuống BE: POST /integrations/projects/:projectId/sync", {
+        projectId: project._id,
+        jiraProjectKey: project.jiraProjectKey,
+        githubRepoUrl: project.githubRepoUrl,
+        note: "Chỉ gửi projectId (path). BE tự lấy jiraProjectKey, githubRepoUrl từ project.",
+      });
       const result = await syncProjectApi(project._id);
       const gh = result?.stats?.github ?? 0;
       const jr = result?.stats?.jira ?? 0;

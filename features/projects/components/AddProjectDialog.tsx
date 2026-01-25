@@ -38,6 +38,7 @@ import { useCreateProject } from "@/features/projects/hooks/use-create-project";
 import { useGithubRepos } from "@/features/integration/hooks/use-github-repos";
 import { useJiraProjects } from "@/features/integration/hooks/use-jira-projects";
 import { ClassStudent } from "@/features/management/classes/types";
+import { extractJiraProjectKey } from "@/lib/jira-utils";
 
 // Interface đã cập nhật onSuccess để fix lỗi TypeScript ts(2322)
 interface AddProjectDialogProps {
@@ -91,13 +92,18 @@ export function AddProjectDialog({
     )
       return;
 
+    const cleanKey = extractJiraProjectKey(selectedJira);
+    const payload = {
+      name: projectName,
+      members: selectedMemberIds,
+      githubRepoUrl: selectedRepo,
+      jiraProjectKey: cleanKey,
+    };
+    console.log("[AddProject] Gửi xuống BE:", payload);
+    console.log("[AddProject] jiraProjectKey (sạch, dùng cho MongoDB):", JSON.stringify(cleanKey));
+
     createProject(
-      {
-        name: projectName,
-        members: selectedMemberIds,
-        githubRepoUrl: selectedRepo,
-        jiraProjectKey: selectedJira,
-      },
+      payload,
       {
         onSuccess: () => {
           setOpen(false);

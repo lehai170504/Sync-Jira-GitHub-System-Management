@@ -16,7 +16,7 @@ export const useCreateProject = () => {
       // Refresh lại danh sách project hoặc thông tin nhóm nếu cần
       queryClient.invalidateQueries({ queryKey: ["my-project"] });
 
-      router.push("/dashboard");
+      router.push("/project");
     },
     onError: (error: any) => {
       const msg =

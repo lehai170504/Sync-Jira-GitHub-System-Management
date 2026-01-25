@@ -25,7 +25,7 @@ import { useUpdateStudents } from "@/features/management/classes/hooks/use-class
 import {
   ClassStudent,
   UpdateStudentsPayload,
-} from "@/features/management/classes/types";
+} from "@/features/management/classes/types/class-types";
 
 interface EditStudentDialogProps {
   classId: string;

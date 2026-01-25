@@ -10,7 +10,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Users, BookOpen } from "lucide-react";
-import { Class } from "@/features/management/classes/types";
+import { Class } from "@/features/management/classes/types/class-types";
 
 interface ClassCardProps {
   cls: Class;

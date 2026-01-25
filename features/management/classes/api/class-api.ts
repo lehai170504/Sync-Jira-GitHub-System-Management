@@ -8,7 +8,7 @@ import {
   AddStudentPayload,
   RemoveStudentsPayload,
   UpdateStudentsPayload,
-} from "../types";
+} from "../types/class-types";
 
 // 1. GET: Lấy danh sách lớp học
 export const getClassesApi = async (

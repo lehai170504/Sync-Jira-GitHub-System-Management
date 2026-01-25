@@ -20,7 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 
 // 👇 Import Type ClassStudent
-import { ClassStudent } from "@/features/management/classes/types";
+import { ClassStudent } from "@/features/management/classes/types/class-types";
 
 export function StudentClassList({
   students,

@@ -38,7 +38,7 @@ import { toast } from "sonner"; // Import toast
 import { useCreateProject } from "@/features/projects/hooks/use-create-project";
 import { useGithubRepos } from "@/features/integration/hooks/use-github-repos";
 import { useJiraProjects } from "@/features/integration/hooks/use-jira-projects";
-import { ClassStudent } from "@/features/management/classes/types";
+import { ClassStudent } from "@/features/management/classes/types/class-types";
 
 interface AddProjectDialogProps {
   members: ClassStudent[];

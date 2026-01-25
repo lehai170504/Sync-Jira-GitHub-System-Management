@@ -16,7 +16,7 @@ import {
   ImportStudentsPayload,
   RemoveStudentsPayload,
   UpdateStudentsPayload,
-} from "../types";
+} from "../types/class-types";
 
 // Hook lấy danh sách lớp (Query)
 export const useClasses = (filters: ClassFilters) => {

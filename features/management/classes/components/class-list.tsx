@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { Class } from "@/features/management/classes/types";
+import { Class } from "@/features/management/classes/types/class-types";
 import { ClassCard } from "./class-card";
 
 interface ClassListProps {

@@ -12,8 +12,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useRemoveStudents } from "@/features/management/classes/hooks/use-classes";
-import { ClassStudent } from "@/features/management/classes/types";
-import { Loader2 } from "lucide-react";
+import { ClassStudent } from "@/features/management/classes/types/class-types";
+import { Loader2, UserMinus } from "lucide-react"; // Thêm icon UserMinus cho hợp ngữ cảnh
 
 interface DeleteStudentAlertProps {
   classId: string;
@@ -32,15 +32,13 @@ export function DeleteStudentAlert({
 }: DeleteStudentAlertProps) {
   const { mutate: removeStudents, isPending } = useRemoveStudents();
 
-  const handleDelete = () => {
-    // Vì API chỉ xóa lẻ, ta lấy sinh viên đầu tiên được chọn
-    const targetStudent = students[0];
+  // Lấy sinh viên đang được chọn (xử lý an toàn)
+  const targetStudent = students[0];
+
+  const handleRemove = () => {
     if (!targetStudent) return;
 
     // Logic xác định ID:
-    // 1. Nếu là Enrolled: Lấy _id gán vào student_id
-    // 2. Nếu là Pending: Lấy pending_id (hoặc _id) gán vào pending_id
-
     let studentIdVal = "";
     let pendingIdVal = "";
 
@@ -51,7 +49,7 @@ export function DeleteStudentAlert({
       pendingIdVal = targetStudent.pending_id || targetStudent._id;
     }
 
-    console.log("Deleting Single:", {
+    console.log("Removing form class:", {
       student_id: studentIdVal,
       pending_id: pendingIdVal,
     });
@@ -75,27 +73,40 @@ export function DeleteStudentAlert({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Bạn có chắc chắn muốn xóa?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Bạn đang xóa sinh viên <b>{students[0]?.full_name}</b> khỏi lớp.{" "}
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-orange-100 rounded-full">
+              <UserMinus className="w-5 h-5 text-orange-600" />
+            </div>
+            <AlertDialogTitle>Mời ra khỏi lớp học</AlertDialogTitle>
+          </div>
+
+          <AlertDialogDescription className="pt-2 text-slate-600">
+            Bạn có chắc chắn muốn mời sinh viên{" "}
+            <b>{targetStudent?.full_name}</b> ra khỏi lớp?
             <br />
-            Hành động này không thể hoàn tác.
+            <br />
+            <span className="block p-3 bg-slate-50 border border-slate-100 rounded-lg text-xs text-slate-500">
+              💡 <b>Lưu ý:</b> Hành động này chỉ gỡ sinh viên khỏi danh sách lớp
+              hiện tại. Tài khoản và dữ liệu cá nhân của sinh viên trên hệ thống
+              vẫn được giữ nguyên.
+            </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Hủy</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Đóng</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
-              handleDelete();
+              handleRemove();
             }}
             disabled={isPending}
-            className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-600"
+            className="bg-orange-600 hover:bg-orange-700 text-white focus:ring-orange-600"
           >
             {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
-            Xóa sinh viên
+            Xác nhận mời ra
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

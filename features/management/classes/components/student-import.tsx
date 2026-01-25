@@ -8,7 +8,7 @@ import * as XLSX from "xlsx";
 
 // 1. Import Hook và Type đã tạo
 import { useImportStudents } from "@/features/management/classes/hooks/use-classes";
-import { ImportStudentDto } from "@/features/management/classes/types";
+import { ImportStudentDto } from "@/features/management/classes/types/class-types";
 
 interface StudentImportProps {
   classId: string; // 👇 Cần classId để gọi API

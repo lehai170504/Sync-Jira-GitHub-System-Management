@@ -14,7 +14,7 @@ import {
   ShieldAlert,
   HelpCircle,
   BookOpen,
-  Crown, // 👇 Thêm icon Crown
+  Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,7 @@ import {
 import { routeGroups, UserRole } from "./sidebar-config";
 import { NavItem } from "./nav-item";
 import { useProfile } from "@/features/auth/hooks/use-profile";
+import { useClassTeams } from "@/features/student/hooks/use-class-teams"; // 👈 Import Hook mới
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -38,49 +39,73 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
+  // 1. Lấy thông tin Profile & Class ID từ Cookie
   const { data: profile } = useProfile();
   const currentRole = (profile?.user?.role as UserRole) || "STUDENT";
 
-  // State lưu thông tin lớp học mở rộng
+  // Cookie Classes
+  const lecturerClassId = Cookies.get("lecturer_class_id");
+  const studentClassId = Cookies.get("student_class_id");
+
+  // 2. 👇 Gọi Hook lấy Team Info (Chỉ chạy khi là Student và có ClassId)
+  const shouldFetchTeams = currentRole === "STUDENT" && !!studentClassId;
+  const { data: teamsData } = useClassTeams(
+    shouldFetchTeams ? studentClassId : undefined,
+  );
+
+  // State lưu thông tin hiển thị
   const [classInfo, setClassInfo] = useState<{
     className: string;
     subject?: string;
     isStudentView: boolean;
-    isLeader?: boolean; // 👇 Thêm field leader
+    isLeader?: boolean;
   } | null>(null);
 
   useEffect(() => {
     setMounted(true);
 
-    // --- LOGIC LẤY THÔNG TIN LỚP TỪ COOKIE CHO CẢ 2 ROLE ---
-    const lecturerClass = Cookies.get("lecturer_class_name");
-    const lecturerSubject = Cookies.get("lecturer_subject");
+    // --- LOGIC CẬP NHẬT CLASS INFO ---
+    if (currentRole === "LECTURER") {
+      const lecturerClass = Cookies.get("lecturer_class_name");
+      const lecturerSubject = Cookies.get("lecturer_subject");
 
-    const studentClass = Cookies.get("student_class_name");
-    const studentTeam = Cookies.get("student_team_name");
-    const studentIsLeader = Cookies.get("student_is_leader") === "true"; // 👇 Ép kiểu về boolean
+      if (lecturerClass) {
+        setClassInfo({
+          className: lecturerClass,
+          subject: lecturerSubject,
+          isStudentView: false,
+        });
+      }
+    } else if (currentRole === "STUDENT") {
+      const studentClass = Cookies.get("student_class_name");
+      const studentTeamNameCookie = Cookies.get("student_team_name");
+      const studentIsLeader = Cookies.get("student_is_leader") === "true";
 
-    if (currentRole === "LECTURER" && lecturerClass) {
-      setClassInfo({
-        className: lecturerClass,
-        subject: lecturerSubject,
-        isStudentView: false,
-      });
-    } else if (currentRole === "STUDENT" && studentClass) {
-      setClassInfo({
-        className: studentClass,
-        subject: studentTeam || "My Team",
-        isStudentView: true,
-        isLeader: studentIsLeader, // 👇 Cập nhật trạng thái leader
-      });
+      // Ưu tiên lấy tên team từ API nếu có (chính xác hơn cookie cũ)
+      let displayTeamName = studentTeamNameCookie || "Chưa có nhóm";
+
+      if (teamsData?.teams && studentTeamNameCookie) {
+        const myTeam = teamsData.teams.find(
+          (t: any) => t.project_name === studentTeamNameCookie,
+        );
+        if (myTeam) displayTeamName = myTeam.project_name;
+      }
+
+      if (studentClass) {
+        setClassInfo({
+          className: studentClass,
+          subject: displayTeamName, // Hiển thị tên nhóm ở dòng phụ
+          isStudentView: true,
+          isLeader: studentIsLeader,
+        });
+      }
     } else {
       setClassInfo(null);
     }
-  }, [currentRole, pathname]); // Re-run khi đổi role hoặc đổi route để cập nhật cookie mới nhất
+  }, [currentRole, pathname, teamsData]); // Thêm teamsData vào dependency
 
   if (!mounted) return <div className="w-full h-full bg-[#111827]" />;
 
-  // Lọc menu theo role
   const filteredRoutes = routeGroups.filter((group) =>
     group.roles.includes(currentRole),
   );
@@ -143,6 +168,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                 className="text-[10px] text-gray-400 font-medium mt-1 truncate"
                 title={classInfo?.subject || "Academic Management"}
               >
+                {/* Hiển thị Tên Môn (GV) hoặc Tên Nhóm (SV) */}
                 {classInfo ? classInfo.subject : "Academic Management"}
               </span>
             </div>
@@ -176,7 +202,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                   {currentRole}
                 </span>
 
-                {/* 👇 BADGE LEADER CHO SINH VIÊN */}
+                {/* BADGE LEADER CHO SINH VIÊN */}
                 {classInfo?.isLeader && (
                   <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-yellow-500/10 border border-yellow-500/20 animate-pulse">
                     <Crown className="w-2.5 h-2.5 text-yellow-500 fill-yellow-500" />
@@ -223,7 +249,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
       {/* FOOTER */}
       <div className="p-3 mt-auto border-t border-gray-800 bg-[#0f1623] space-y-3">
-        {/* NÚT ĐỔI LỚP: Linh hoạt cho cả 2 Role */}
+        {/* NÚT ĐỔI LỚP */}
         {classInfo && (
           <TooltipProvider delayDuration={0}>
             <Tooltip>

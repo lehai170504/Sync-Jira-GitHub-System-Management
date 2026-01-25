@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 
 // Import Type chuẩn từ file types
-import { Class } from "@/features/management/classes/types";
+import { Class } from "@/features/management/classes/types/class-types";
 
 export interface Student {
   id: number;

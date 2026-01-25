@@ -10,7 +10,7 @@ import { ClassDetailDrawer } from "@/features/management/classes/components/clas
 
 // Hooks & Types
 import { useClasses } from "@/features/management/classes/hooks/use-classes";
-import { Class } from "@/features/management/classes/types";
+import { Class } from "@/features/management/classes/types/class-types";
 
 export default function ClassManagementPage() {
   // 1. State quản lý UI

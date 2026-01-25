@@ -74,3 +74,17 @@ export interface ProjectsApiResponse {
   total: number;
   projects: ProjectManagement[];
 }
+
+export interface TeamConfigPayload {
+  jira_url: string; // https://your-domain.atlassian.net
+  jira_project_key: string; // SCRUM
+  jira_board_id: number; // 1, 2, 3...
+  api_token_jira: string; // ATATT...
+  github_repo_url: string; // https://github.com/user/repo
+  api_token_github: string; // ghp_...
+}
+
+export interface TeamConfigResponse {
+  message: string;
+  data: any; // Team object đã update
+}

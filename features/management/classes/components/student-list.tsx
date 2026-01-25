@@ -40,7 +40,7 @@ import {
 import { useState } from "react";
 
 // Import Types & Components
-import { ClassStudent } from "@/features/management/classes/types";
+import { ClassStudent } from "@/features/management/classes/types/class-types";
 import { EditStudentDialog } from "./edit-student-dialog";
 import { DeleteStudentAlert } from "./delete-student-alert";
 import { SendStudentNotification } from "@/features/notifications/components/SendStudentNotification";
@@ -50,7 +50,7 @@ interface StudentListProps {
   students: ClassStudent[];
   filterTerm: string;
   onRefresh?: () => void;
-  lastUpdatedId?: string | null; // 👇 Nhận ID để nháy sáng
+  lastUpdatedId?: string | null;
 }
 
 export function StudentList({
@@ -91,11 +91,6 @@ export function StudentList({
     if (b === "Chưa có nhóm") return -1;
     return a.localeCompare(b);
   });
-
-  const navigateToTeamDetail = (groupName: string) => {
-    const teamId = groupName.toLowerCase().replace(/\s+/g, "-");
-    router.push(`/lecturer/teams/${teamId}`);
-  };
 
   if (students.length === 0) {
     return (
@@ -155,21 +150,6 @@ export function StudentList({
                       </div>
                     </div>
                   </AccordionTrigger>
-
-                  {group !== "Chưa có nhóm" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="ml-6 h-11 rounded-2xl border-2 border-slate-100 bg-white hover:bg-slate-900 hover:text-white hover:border-slate-900 font-black text-xs uppercase tracking-widest transition-all px-6 active:scale-95"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigateToTeamDetail(group);
-                      }}
-                    >
-                      <LayoutGrid className="mr-2 h-4 w-4 text-orange-500" />
-                      Chi tiết nhóm
-                    </Button>
-                  )}
                 </div>
 
                 <AccordionContent className="px-0 pb-0">

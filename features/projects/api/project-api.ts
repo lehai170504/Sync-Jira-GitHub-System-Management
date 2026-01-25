@@ -6,6 +6,8 @@ import {
   ProjectDetail,
   ProjectManagement,
   ProjectsApiResponse,
+  TeamConfigPayload,
+  TeamConfigResponse,
 } from "../types";
 
 // POST /api/projects: Leader tạo Project mới cho nhóm
@@ -34,4 +36,12 @@ export const getLecturerProjectsApi = async (
   );
 
   return data.projects || [];
+};
+
+export const updateTeamConfigApi = async (
+  teamId: string,
+  payload: TeamConfigPayload,
+): Promise<TeamConfigResponse> => {
+  const { data } = await axiosClient.put(`/teams/${teamId}/config`, payload);
+  return data;
 };

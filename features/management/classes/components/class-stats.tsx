@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, GraduationCap, Users } from "lucide-react";
-import { Class } from "@/features/management/classes/types";
+import { Class } from "@/features/management/classes/types/class-types";
 
 export function ClassStats({ data }: { data: Class[] }) {
   // TODO: Nếu API trả về số lượng sinh viên, tính tổng ở đây

@@ -1,5 +1,12 @@
 import { axiosClient } from "@/lib/axios-client";
-import { CreateProjectPayload, CreateProjectResponse, MyProjectResponse, ProjectDetail } from "../types";
+import {
+  CreateProjectPayload,
+  CreateProjectResponse,
+  MyProjectResponse,
+  ProjectDetail,
+  ProjectManagement,
+  ProjectsApiResponse,
+} from "../types";
 
 // POST /api/projects: Leader tạo Project mới cho nhóm
 export const createProjectApi = async (
@@ -17,4 +24,14 @@ export const getMyProjectApi = async (): Promise<ProjectDetail> => {
     "/projects/my-project",
   );
   return data.project;
+};
+
+export const getLecturerProjectsApi = async (
+  classId: string,
+): Promise<ProjectManagement[]> => {
+  const { data } = await axiosClient.get<ProjectsApiResponse>(
+    `/projects/lecturer/classes/${classId}`,
+  );
+
+  return data.projects || [];
 };

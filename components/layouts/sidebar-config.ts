@@ -18,6 +18,7 @@ import {
   LucideIcon,
   Users,
   Briefcase,
+  FolderGit2,
 } from "lucide-react";
 
 export type UserRole = "ADMIN" | "LECTURER" | "STUDENT";
@@ -95,7 +96,13 @@ export const routeGroups: RouteGroup[] = [
         color: "text-indigo-500",
       },
       {
-        label: "Bài tập & Đồ án",
+        label: "Quản lý Đồ án",
+        icon: FolderGit2,
+        href: "/lecturer/projects",
+        color: "text-violet-500", // Màu tím nổi bật
+      },
+      {
+        label: "Bài tập & Deadline",
         icon: Layers,
         href: "/lecturer/assignments",
         color: "text-orange-500",

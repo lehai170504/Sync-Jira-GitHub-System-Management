@@ -44,3 +44,31 @@ export interface ProjectDetail {
 export interface MyProjectResponse {
   project: ProjectDetail;
 }
+
+// 1. Type cho Member (Dùng chung cho leader_id, lecturer_id, và items trong members)
+export interface ProjectMember {
+  _id: string;
+  student_code: string; // JSON: "SE172095"
+  email: string; // JSON: "thienhpse172095@fpt.edu.vn"
+  full_name: string; // JSON: "Huynh Phuoc Thien (K17 HCM)"
+  avatar_url: string; // JSON: "http://..."
+}
+
+// 2. Type cho Project (Khớp 1-1 với JSON Object trong mảng projects)
+export interface ProjectManagement {
+  _id: string;
+  name: string;
+  leader_id: ProjectMember;
+  lecturer_id?: ProjectMember;
+  members: ProjectMember[];
+  githubRepoUrl?: string;
+  jiraProjectKey?: string;
+  created_at: string;
+  updatedAt?: string;
+}
+
+// 3. Type cho Response bọc ngoài cùng ({ total, projects })
+export interface ProjectsApiResponse {
+  total: number;
+  projects: ProjectManagement[];
+}

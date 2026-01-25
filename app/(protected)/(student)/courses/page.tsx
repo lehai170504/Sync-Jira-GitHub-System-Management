@@ -19,7 +19,7 @@ import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 import { useSemesters } from "@/features/management/semesters/hooks/use-semesters";
 
 // Types (Backend response type)
-import { MyClass } from "@/features/student/types";
+import { MyClass } from "@/features/student/types/my-class-types";
 
 // Helper màu sắc
 const GRADES_COLORS = [

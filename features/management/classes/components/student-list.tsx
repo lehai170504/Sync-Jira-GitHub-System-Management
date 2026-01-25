@@ -127,7 +127,7 @@ export function StudentList({
               defaultValue={group}
               className="bg-white border border-slate-100 rounded-[32px] shadow-sm overflow-hidden transition-all hover:shadow-md"
             >
-              <AccordionItem value={group} className="border-0">
+              <AccordionItem value={group} className="border-0" key={group}>
                 <div className="flex items-center justify-between px-8 py-5 bg-slate-50/30">
                   <AccordionTrigger className="hover:no-underline py-0 flex-1">
                     <div className="flex items-center gap-5">

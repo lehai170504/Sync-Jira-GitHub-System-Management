@@ -8,7 +8,6 @@ import {
   CalendarDays,
   BookOpen,
   Layers,
-  ClipboardCheck,
   Settings2,
   FileText,
   Activity,
@@ -19,6 +18,7 @@ import {
   Users,
   Briefcase,
   FolderGit2,
+  LinkIcon,
 } from "lucide-react";
 
 export type UserRole = "ADMIN" | "LECTURER" | "STUDENT";
@@ -99,7 +99,7 @@ export const routeGroups: RouteGroup[] = [
         label: "Quản lý Đồ án",
         icon: FolderGit2,
         href: "/lecturer/projects",
-        color: "text-violet-500", // Màu tím nổi bật
+        color: "text-violet-500",
       },
       {
         label: "Bài tập & Deadline",
@@ -107,13 +107,6 @@ export const routeGroups: RouteGroup[] = [
         href: "/lecturer/assignments",
         color: "text-orange-500",
       },
-      {
-        label: "Sổ điểm & Đánh giá",
-        icon: ClipboardCheck,
-        href: "/lecturer/grading",
-        color: "text-emerald-500",
-      },
-
       {
         label: "Cấu hình môn học",
         icon: Settings2,
@@ -138,6 +131,13 @@ export const routeGroups: RouteGroup[] = [
         href: "/project",
         color: "text-orange-500",
       },
+      {
+        label: "Liên kết tài khoản",
+        icon: LinkIcon,
+        href: "/team/mapping",
+        color: "text-indigo-500",
+      },
+      // ----------------
       {
         label: "Kết quả học tập",
         icon: Layers,

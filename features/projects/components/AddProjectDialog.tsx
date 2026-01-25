@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
+  FolderPlus,
+  Users,
   Github,
   Trello,
   Loader2,
-  FolderPlus,
   CheckCircle2,
-  Users,
 } from "lucide-react";
 import {
   Dialog,
@@ -32,15 +32,14 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner"; // Import toast
 
 // Hooks & Types
 import { useCreateProject } from "@/features/projects/hooks/use-create-project";
 import { useGithubRepos } from "@/features/integration/hooks/use-github-repos";
 import { useJiraProjects } from "@/features/integration/hooks/use-jira-projects";
 import { ClassStudent } from "@/features/management/classes/types";
-import { extractJiraProjectKey } from "@/lib/jira-utils";
 
-// Interface đã cập nhật onSuccess để fix lỗi TypeScript ts(2322)
 interface AddProjectDialogProps {
   members: ClassStudent[];
   onSuccess?: () => void;
@@ -52,30 +51,36 @@ export function AddProjectDialog({
 }: AddProjectDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  // Form State
   const [projectName, setProjectName] = useState("");
   const [selectedRepo, setSelectedRepo] = useState("");
   const [selectedJira, setSelectedJira] = useState("");
-
-  // State quản lý các thành viên được chọn
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
 
-  // Tự động chọn tất cả members khi danh sách members thay đổi hoặc khi dialog mở
-  useEffect(() => {
-    if (members && open) {
-      setSelectedMemberIds(members.map((m) => m._id));
-    }
-  }, [members, open]);
-
+  // Hooks Data
   const { data: githubData, isLoading: isLoadingRepos } = useGithubRepos(open);
   const { data: jiraData, isLoading: isLoadingJira } = useJiraProjects(open);
   const { mutate: createProject, isPending } = useCreateProject();
 
+  // Normalize Data
   const repos = Array.isArray(githubData)
     ? githubData
     : (githubData as any)?.repos || [];
   const projects = Array.isArray(jiraData)
     ? jiraData
     : (jiraData as any)?.projects || [];
+
+  // Tự động chọn tất cả thành viên khi mở dialog
+  useEffect(() => {
+    if (members && open) {
+      // Lọc bỏ những member không có _id để tránh gửi null/undefined
+      const validIds = members
+        .map((m) => m._id)
+        .filter((id): id is string => !!id);
+      setSelectedMemberIds(validIds);
+    }
+  }, [members, open]);
 
   const toggleMember = (id: string) => {
     setSelectedMemberIds((prev) =>
@@ -84,41 +89,46 @@ export function AddProjectDialog({
   };
 
   const handleSubmit = () => {
-    if (
-      !projectName ||
-      !selectedRepo ||
-      !selectedJira ||
-      selectedMemberIds.length === 0
-    )
+    // 1. Validate Form
+    if (!projectName.trim()) {
+      toast.error("Vui lòng nhập tên dự án");
       return;
+    }
+    if (selectedMemberIds.length === 0) {
+      toast.error("Vui lòng chọn ít nhất 1 thành viên");
+      return;
+    }
+    // Github/Jira có thể optional tùy logic, nếu bắt buộc thì uncomment:
+    if (!selectedRepo || !selectedJira) {
+      toast.error("Vui lòng chọn Github Repo và Jira Project");
+      return;
+    }
 
-    const cleanKey = extractJiraProjectKey(selectedJira);
+    // 2. Chuẩn bị Payload
     const payload = {
       name: projectName,
-      members: selectedMemberIds,
+      members: selectedMemberIds, // Mảng ID: ["id1", "id2"]
       githubRepoUrl: selectedRepo,
-      jiraProjectKey: cleanKey,
+      jiraProjectKey: selectedJira,
     };
-    console.log("[AddProject] Gửi xuống BE:", payload);
-    console.log("[AddProject] jiraProjectKey (sạch, dùng cho MongoDB):", JSON.stringify(cleanKey));
 
-    createProject(
-      payload,
-      {
-        onSuccess: () => {
-          setOpen(false);
-          setProjectName("");
-          setSelectedRepo("");
-          setSelectedJira("");
+    // DEBUG: In ra console để xem data gửi đi có đúng ý BE không
+    console.log("🚀 Payload gửi đi:", payload);
 
-          // Thực thi callback refetch của trang cha
-          onSuccess?.();
+    // 3. Gọi API
+    createProject(payload, {
+      onSuccess: () => {
+        toast.success("Khởi tạo dự án thành công!");
+        setOpen(false);
+        // Reset Form
+        setProjectName("");
+        setSelectedRepo("");
+        setSelectedJira("");
 
-          // Chuyển hướng sang trang chi tiết dự án
-          router.push("/project");
-        },
+        onSuccess?.();
+        // router.push("/project"); // Chuyển trang nếu cần
       },
-    );
+    });
   };
 
   return (
@@ -135,13 +145,13 @@ export function AddProjectDialog({
           <DialogTitle className="text-2xl font-bold tracking-tight text-slate-900">
             Tạo dự án mới
           </DialogTitle>
-          <DialogDescription className="text-sm text-slate-500 leading-relaxed text-left -mt-5">
+          <DialogDescription className="text-sm text-slate-500 leading-relaxed text-left">
             Kết nối GitHub, Jira và xác nhận thành viên để bắt đầu không gian
             làm việc.
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4 -mr-4 -mt-5">
+        <ScrollArea className="flex-1 pr-4 -mr-4">
           <div className="grid gap-6 py-6">
             {/* Tên dự án */}
             <div className="grid gap-2 text-left">
@@ -160,7 +170,7 @@ export function AddProjectDialog({
               />
             </div>
 
-            {/* Xác nhận thành viên */}
+            {/* Chọn Thành viên */}
             <div className="grid gap-3 text-left">
               <Label className="text-xs font-bold uppercase text-slate-400 tracking-widest flex items-center gap-2">
                 <Users className="w-4 h-4 text-slate-900" /> Xác nhận thành viên
@@ -197,11 +207,6 @@ export function AddProjectDialog({
                   </div>
                 ))}
               </div>
-              {selectedMemberIds.length === 0 && (
-                <p className="text-[10px] text-rose-500 font-bold uppercase">
-                  * Vui lòng chọn ít nhất 1 thành viên
-                </p>
-              )}
             </div>
 
             {/* GitHub Repo */}
@@ -213,9 +218,7 @@ export function AddProjectDialog({
                 <SelectTrigger className="rounded-xl border-slate-200 h-12 bg-white">
                   <SelectValue
                     placeholder={
-                      isLoadingRepos
-                        ? "Đang tải danh sách..."
-                        : "Chọn repository"
+                      isLoadingRepos ? "Đang tải..." : "Chọn repository"
                     }
                   />
                 </SelectTrigger>
@@ -242,7 +245,7 @@ export function AddProjectDialog({
                 <SelectTrigger className="rounded-xl border-slate-200 h-12 bg-white">
                   <SelectValue
                     placeholder={
-                      isLoadingJira ? "Đang tải dự án..." : "Chọn dự án Jira"
+                      isLoadingJira ? "Đang tải..." : "Chọn dự án Jira"
                     }
                   />
                 </SelectTrigger>
@@ -265,17 +268,11 @@ export function AddProjectDialog({
           </div>
         </ScrollArea>
 
-        <DialogFooter className="pt-6 border-t -mt-10 mr-50">
+        <DialogFooter className="pt-6 border-t mt-4">
           <Button
             onClick={handleSubmit}
-            disabled={
-              isPending ||
-              !projectName ||
-              !selectedRepo ||
-              !selectedJira ||
-              selectedMemberIds.length === 0
-            }
-            className="w-70 bg-slate-900 hover:bg-black text-white rounded-xl uppercase font-bold text-sm h-14 shadow-xl transition-all active:scale-[0.98]"
+            disabled={isPending}
+            className="w-full bg-slate-900 hover:bg-black text-white rounded-xl uppercase font-bold text-sm h-14 shadow-xl transition-all active:scale-[0.98]"
           >
             {isPending ? (
               <Loader2 className="w-5 h-5 animate-spin mr-2" />

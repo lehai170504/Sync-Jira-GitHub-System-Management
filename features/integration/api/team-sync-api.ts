@@ -19,6 +19,27 @@ export interface SyncLeader410Body {
   jira_project_key: string;
 }
 
+/**
+ * Đồng bộ dữ liệu team từ Jira và GitHub.
+ * POST /api/teams/:teamId/sync
+ */
+export interface TeamSyncResponse {
+  message: string;
+  stats: {
+    git: number;
+    jira_sprints: number;
+    jira_tasks: number;
+    errors: string[];
+  };
+}
+
+export async function syncTeamApi(teamId: string): Promise<TeamSyncResponse> {
+  const { data } = await axiosClient.post<TeamSyncResponse>(
+    `/teams/${teamId}/sync`,
+  );
+  return data;
+}
+
 /** Kiểm tra response lỗi có phải 410 (Jira project không còn tồn tại) không. */
 export function isSyncLeader410(err: unknown): err is { response: { status: 410; data: SyncLeader410Body } } {
   const e = err as { response?: { status?: number; data?: SyncLeader410Body } };

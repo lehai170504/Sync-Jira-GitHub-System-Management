@@ -27,4 +27,9 @@ export interface SyncResponse {
     github: number;
     jira: number;
   };
+  /** Gợi ý từ BE khi Jira/GitHub sync thất bại hoặc 0 */
+  details?: {
+    jiraError?: string;
+    githubError?: string;
+  };
 }

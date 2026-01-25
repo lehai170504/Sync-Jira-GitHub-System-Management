@@ -15,10 +15,11 @@ import {
   Clock,
   LayoutList,
   TrendingUp,
-  FileText,
-  Code,
   Zap,
+  ExternalLink,
+  Info,
 } from "lucide-react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useMyProject } from "@/features/projects/hooks/use-my-project";
@@ -68,19 +69,26 @@ export default function SyncPage() {
 
     try {
       const result = await syncProjectApi(project._id);
-      
-      setSyncResult(result);
+      const gh = result?.stats?.github ?? 0;
+      const jr = result?.stats?.jira ?? 0;
+
+      setSyncResult({ ...result, stats: { github: gh, jira: jr } });
       const now = new Date().toISOString();
       setLastSyncTime(now);
-      
+
       if (typeof window !== "undefined") {
         window.localStorage.setItem("last_sync_time", now);
       }
 
-      // Hiển thị thông báo thành công
-      toast.success(result.message, {
-        description: `Đã đồng bộ ${result.stats.github} commits từ GitHub và ${result.stats.jira} issues từ Jira.`,
+      toast.success(result.message ?? "Đồng bộ hoàn tất", {
+        description: `GitHub: ${gh} commits. Jira: ${jr} issues.`,
       });
+      if (jr === 0 && gh > 0) {
+        toast.info("Jira trả về 0 issue", {
+          description:
+            "Kiểm tra kết nối Jira (Hồ sơ → Tích hợp) và Project Key của dự án.",
+        });
+      }
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message ||
@@ -174,6 +182,24 @@ export default function SyncPage() {
             )}
           </Button>
 
+          {project?._id && (
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+              <span title="Jira Project Key">
+                Jira: <strong className="text-gray-700">{project.jiraProjectKey || "—"}</strong>
+              </span>
+              <span>•</span>
+              <span title="GitHub Repo">
+                GitHub: <strong className="text-gray-700 truncate max-w-[180px]">{project.githubRepoUrl ? project.githubRepoUrl.replace(/^https?:\/\//, "") : "—"}</strong>
+              </span>
+              <Link
+                href="/profile"
+                className="inline-flex items-center gap-1 text-violet-600 hover:underline"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Kiểm tra kết nối Jira/GitHub
+              </Link>
+            </div>
+          )}
+
           {lastSyncTime && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground bg-white/80 px-4 py-2 rounded-full border shadow-sm">
               <Clock className="h-4 w-4 text-violet-600" />
@@ -218,7 +244,7 @@ export default function SyncPage() {
               </div>
             </CardHeader>
             <CardContent className="flex-1 p-6">
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
                   <p className="text-sm text-indigo-600 font-medium mb-1">
                     Issues đã đồng bộ
@@ -230,6 +256,23 @@ export default function SyncPage() {
                     <TrendingUp className="h-4 w-4 text-indigo-500" />
                   </div>
                 </div>
+                {syncResult.stats.jira === 0 && (
+                  <Alert className="bg-amber-50 border-amber-200">
+                    <Info className="h-4 w-4 text-amber-600" />
+                    <AlertTitle className="text-amber-800">Jira không đồng bộ được</AlertTitle>
+                    <AlertDescription className="text-amber-700 text-sm">
+                      Jira trả 0 issue. Kiểm tra: (1){" "}
+                      <Link href="/profile" className="underline font-medium">Hồ sơ → Tích hợp</Link> đã kết nối Jira;
+                      (2) Project Key <strong>{project?.jiraProjectKey || "—"}</strong> khớp với project Jira;
+                      (3) Token/quyền Jira còn hiệu lực. Backend: log Jira API (401/403 → token hoặc quyền).
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {syncResult.details?.jiraError && (
+                  <p className="text-sm text-amber-700 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200">
+                    {syncResult.details.jiraError}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

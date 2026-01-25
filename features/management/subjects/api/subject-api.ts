@@ -1,5 +1,9 @@
 import { axiosClient } from "@/lib/axios-client";
-import { SubjectListResponse, CreateSubjectDto } from "../types";
+import {
+  SubjectListResponse,
+  CreateSubjectDto,
+  SubjectDetailResponse,
+} from "../types/subject-types.js";
 
 const BASE_URL = "/management/subjects";
 
@@ -16,4 +20,11 @@ export const getSubjectsApi = async (params?: { status?: string }) => {
 export const createSubjectApi = async (data: CreateSubjectDto) => {
   const { data: responseData } = await axiosClient.post(BASE_URL, data);
   return responseData;
+};
+
+export const getSubjectDetailApi = async (
+  id: string,
+): Promise<SubjectDetailResponse> => {
+  const { data } = await axiosClient.get(`/management/subjects/${id}`);
+  return data;
 };

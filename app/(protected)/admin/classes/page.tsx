@@ -1,33 +1,36 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import {
+  GraduationCap,
+  Search,
+  Plus,
+  FilterX,
+  LayoutGrid,
+  ListFilter,
+} from "lucide-react";
 
 // Components
 import { ClassStats } from "@/features/management/classes/components/class-stats";
 import { ClassToolbar } from "@/features/management/classes/components/class-toolbar";
 import { ClassList } from "@/features/management/classes/components/class-list";
 import { ClassDetailDrawer } from "@/features/management/classes/components/class-detail-drawer";
+import { Button } from "@/components/ui/button";
 
 // Hooks & Types
 import { useClasses } from "@/features/management/classes/hooks/use-classes";
 import { Class } from "@/features/management/classes/types/class-types";
 
 export default function ClassManagementPage() {
-  // 1. State quản lý UI
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  // 2. State Filter
   const [searchTerm, setSearchTerm] = useState("");
   const [semesterFilter, setSemesterFilter] = useState<string>("all");
   const [lecturerFilter, setLecturerFilter] = useState<string>("all");
 
-  // 3. Chuẩn bị Params gọi API
-  // Nếu chọn "all" thì gửi undefined để API lấy tất cả
   const apiSemesterId = semesterFilter === "all" ? undefined : semesterFilter;
   const apiLecturerId = lecturerFilter === "all" ? undefined : lecturerFilter;
 
-  // 4. Fetch Data từ API
   const { data, isLoading } = useClasses({
     semester_id: apiSemesterId,
     lecturer_id: apiLecturerId,
@@ -35,7 +38,6 @@ export default function ClassManagementPage() {
 
   const classes = data?.classes || [];
 
-  // 5. Logic Filter Client-side (Tìm kiếm văn bản)
   const filteredClasses = useMemo(() => {
     return classes.filter((cls) => {
       const searchLower = searchTerm.toLowerCase();
@@ -48,11 +50,10 @@ export default function ClassManagementPage() {
     });
   }, [classes, searchTerm]);
 
-  // 6. Handlers
   const clearFilters = () => {
     setSearchTerm("");
     setSemesterFilter("all");
-    setLecturerFilter("all"); // 👈 Reset giảng viên
+    setLecturerFilter("all");
   };
 
   const handleViewDetails = (cls: Class) => {
@@ -61,54 +62,90 @@ export default function ClassManagementPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
-      {/* HEADER SECTION */}
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-          Danh sách Lớp học
-        </h2>
-        <p className="text-muted-foreground mt-1">
-          Quản lý các lớp học, phân công giảng viên và theo dõi tiến độ.
-        </p>
+    <div className="min-h-screen bg-slate-50/50 pb-20 font-sans">
+      <div className="max-w-[1400px] mx-auto p-4 md:p-8 space-y-10 animate-in fade-in duration-700">
+        {/* --- 1. HEADER SECTION --- */}
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between border-b border-slate-100 pb-8">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-[#F27124] font-black uppercase tracking-[0.2em] text-[10px]">
+              <GraduationCap className="h-4 w-4" />
+              <span>Hệ thống quản lý đào tạo</span>
+            </div>
+            <h1 className="text-4xl font-black tracking-tighter text-slate-900 md:text-5xl">
+              Danh sách Lớp học
+            </h1>
+            <p className="text-slate-500 font-medium text-sm md:text-base max-w-2xl">
+              Quản lý vận hành lớp học, phân công giảng viên và theo dõi tiến độ
+              đào tạo tập trung.
+            </p>
+          </div>
+        </div>
+
+        {/* --- 2. STATS DASHBOARD --- */}
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-orange-100 to-blue-100 rounded-[40px] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+          <div className="relative">
+            <ClassStats data={classes} />
+          </div>
+        </div>
+
+        {/* --- 3. FILTER & TOOLBAR AREA --- */}
+        <div className="bg-white p-2 rounded-[32px] border border-slate-100 shadow-sm transition-all hover:shadow-md">
+          <ClassToolbar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            semesterFilter={semesterFilter}
+            setSemesterFilter={setSemesterFilter}
+            lecturerFilter={lecturerFilter}
+            setLecturerFilter={setLecturerFilter}
+            clearFilters={clearFilters}
+          />
+        </div>
+
+        {/* --- 4. DATA LIST SECTION --- */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-4">
+            <div className="flex items-center gap-2">
+              <LayoutGrid className="w-5 h-5 text-slate-400" />
+              <h3 className="font-black text-slate-900 uppercase tracking-widest text-xs">
+                Kết quả tìm kiếm ({filteredClasses.length})
+              </h3>
+            </div>
+
+            {searchTerm ||
+            semesterFilter !== "all" ||
+            lecturerFilter !== "all" ? (
+              <Button
+                variant="ghost"
+                onClick={clearFilters}
+                className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 gap-1"
+              >
+                <FilterX className="w-3 h-3" /> Xóa bộ lọc
+              </Button>
+            ) : null}
+          </div>
+
+          <div className="min-h-[500px]">
+            <ClassList
+              classes={filteredClasses}
+              isLoading={isLoading}
+              onEditClass={(cls) =>
+                console.log("Edit functionality pending", cls)
+              }
+              onClearFilters={clearFilters}
+              onViewClassDetails={handleViewDetails}
+            />
+          </div>
+        </div>
+
+        {/* --- 5. DETAIL DRAWER --- */}
+        <ClassDetailDrawer
+          isOpen={isDrawerOpen}
+          onOpenChange={setIsDrawerOpen}
+          selectedClass={selectedClass}
+          students={[]}
+        />
       </div>
-
-      {/* STATS DASHBOARD 
-
-[Image of dashboard metrics ui]
- */}
-      <ClassStats data={classes} />
-
-      {/* TOOLBAR */}
-      <ClassToolbar
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        // Filter Học kỳ
-        semesterFilter={semesterFilter}
-        setSemesterFilter={setSemesterFilter}
-        // Filter Giảng viên (Mới)
-        lecturerFilter={lecturerFilter}
-        setLecturerFilter={setLecturerFilter}
-        // Reset
-        clearFilters={clearFilters}
-      />
-
-      {/* CLASS LIST */}
-      <ClassList
-        classes={filteredClasses}
-        isLoading={isLoading}
-        onEditClass={(cls) => console.log("Edit functionality pending", cls)}
-        onClearFilters={clearFilters}
-        // Mở Drawer chi tiết
-        onViewClassDetails={handleViewDetails}
-      />
-
-      {/* DETAIL DRAWER */}
-      <ClassDetailDrawer
-        isOpen={isDrawerOpen}
-        onOpenChange={setIsDrawerOpen}
-        selectedClass={selectedClass}
-        students={[]} // Tạm thời để trống chờ API students
-      />
     </div>
   );
 }

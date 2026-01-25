@@ -5,16 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, History, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
-import { Semester } from "@/features/management/semesters/api/semester-api"; // Import type từ API của bạn
+import { Semester } from "@/features/management/semesters/api/semester-api";
 
 interface SemesterHistoryProps {
   activeSemester?: Semester;
   pastSemesters: Semester[];
+  onSelect: (id: string) => void;
 }
 
 export function SemesterHistory({
   activeSemester,
   pastSemesters,
+  onSelect,
 }: SemesterHistoryProps) {
   return (
     <Card className="border-none shadow-lg shadow-slate-200/50 bg-white rounded-3xl overflow-hidden max-h-[85vh] flex flex-col">
@@ -39,7 +41,10 @@ export function SemesterHistory({
           <TableBody>
             {/* Active Row */}
             {activeSemester && (
-              <TableRow className="border-l-[6px] border-l-[#F27124] bg-orange-50/40 hover:bg-orange-50/60">
+              <TableRow
+                className="border-l-[6px] border-l-[#F27124] bg-orange-50/40 hover:bg-orange-50/60"
+                onClick={() => onSelect(activeSemester._id)}
+              >
                 <TableCell className="pl-6 py-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-slate-900 text-base">
@@ -67,6 +72,7 @@ export function SemesterHistory({
                   <TableRow
                     key={sem._id}
                     className="border-l-[6px] border-l-transparent hover:border-l-slate-200 hover:bg-slate-50 transition-all group cursor-default"
+                    onClick={() => onSelect(sem._id)}
                   >
                     <TableCell className="pl-6 py-4">
                       <div className="flex items-center justify-between mb-1.5">

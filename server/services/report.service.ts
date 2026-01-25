@@ -1,4 +1,5 @@
 import ExcelJS from "exceljs";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
 
 // Mock data: Trong thực tế bạn sẽ query từ Prisma (db.student.findMany...)
 const mockScores = [
@@ -75,6 +76,107 @@ export const ReportService = {
 
     // 5. Xuất ra Buffer
     const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
+  },
+
+  async generateWorklog() {
+    // Tạo file Word ngắn để test
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            new Paragraph({
+              text: "WORKLOG REPORT - SPRINT 4",
+              heading: HeadingLevel.HEADING_1,
+              alignment: AlignmentType.CENTER,
+            }),
+            new Paragraph({
+              text: "",
+            }),
+            new Paragraph({
+              text: `Ngày xuất: ${new Date().toLocaleDateString("vi-VN")}`,
+              children: [
+                new TextRun({
+                  text: `Ngày xuất: ${new Date().toLocaleDateString("vi-VN")}`,
+                  bold: true,
+                }),
+              ],
+            }),
+            new Paragraph({
+              text: "",
+            }),
+            new Paragraph({
+              text: "1. TỔNG QUAN",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              text: "Đây là báo cáo worklog ngắn để test chức năng export Word file.",
+            }),
+            new Paragraph({
+              text: "",
+            }),
+            new Paragraph({
+              text: "2. CÔNG VIỆC ĐÃ HOÀN THÀNH",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "• Task 1: ",
+                  bold: true,
+                }),
+                new TextRun({
+                  text: "Thiết kế giao diện dashboard",
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "• Task 2: ",
+                  bold: true,
+                }),
+                new TextRun({
+                  text: "Implement chức năng sync Jira",
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "• Task 3: ",
+                  bold: true,
+                }),
+                new TextRun({
+                  text: "Tạo API endpoint cho GitHub sync",
+                }),
+              ],
+            }),
+            new Paragraph({
+              text: "",
+            }),
+            new Paragraph({
+              text: "3. GHI CHÚ",
+              heading: HeadingLevel.HEADING_2,
+            }),
+            new Paragraph({
+              text: "File này được tạo tự động bởi hệ thống. Đây là phiên bản test ngắn gọn.",
+            }),
+            new Paragraph({
+              text: "",
+            }),
+            new Paragraph({
+              text: "--- Hết báo cáo ---",
+              alignment: AlignmentType.CENTER,
+            }),
+          ],
+        },
+      ],
+    });
+
+    // Xuất ra Buffer
+    const buffer = await Packer.toBuffer(doc);
     return buffer;
   },
 };

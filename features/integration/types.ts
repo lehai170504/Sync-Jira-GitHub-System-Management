@@ -20,3 +20,13 @@ export interface JiraProjectsResponse {
   total: number;
   projects: JiraProject[];
 }
+
+export interface SyncResponse {
+  message: string;
+  stats: {
+    github: number;
+    jira: number;
+    /** BE gửi khi Jira 410 hoặc lỗi khác; GitHub vẫn có thể đã sync OK */
+    errors?: string[];
+  };
+}

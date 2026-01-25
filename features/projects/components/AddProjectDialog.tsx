@@ -38,6 +38,7 @@ import { useCreateProject } from "@/features/projects/hooks/use-create-project";
 import { useGithubRepos } from "@/features/integration/hooks/use-github-repos";
 import { useJiraProjects } from "@/features/integration/hooks/use-jira-projects";
 import { ClassStudent } from "@/features/management/classes/types";
+import { extractJiraProjectKey } from "@/lib/jira-utils";
 
 // Interface đã cập nhật onSuccess để fix lỗi TypeScript ts(2322)
 interface AddProjectDialogProps {
@@ -91,13 +92,18 @@ export function AddProjectDialog({
     )
       return;
 
+    const cleanKey = extractJiraProjectKey(selectedJira);
+    const payload = {
+      name: projectName,
+      members: selectedMemberIds,
+      githubRepoUrl: selectedRepo,
+      jiraProjectKey: cleanKey,
+    };
+    console.log("[AddProject] Gửi xuống BE:", payload);
+    console.log("[AddProject] jiraProjectKey (sạch, dùng cho MongoDB):", JSON.stringify(cleanKey));
+
     createProject(
-      {
-        name: projectName,
-        members: selectedMemberIds,
-        githubRepoUrl: selectedRepo,
-        jiraProjectKey: selectedJira,
-      },
+      payload,
       {
         onSuccess: () => {
           setOpen(false);
@@ -129,13 +135,13 @@ export function AddProjectDialog({
           <DialogTitle className="text-2xl font-bold tracking-tight text-slate-900">
             Tạo dự án mới
           </DialogTitle>
-          <DialogDescription className="text-sm text-slate-500 leading-relaxed text-left">
+          <DialogDescription className="text-sm text-slate-500 leading-relaxed text-left -mt-5">
             Kết nối GitHub, Jira và xác nhận thành viên để bắt đầu không gian
             làm việc.
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4 -mr-4">
+        <ScrollArea className="flex-1 pr-4 -mr-4 -mt-5">
           <div className="grid gap-6 py-6">
             {/* Tên dự án */}
             <div className="grid gap-2 text-left">
@@ -259,7 +265,7 @@ export function AddProjectDialog({
           </div>
         </ScrollArea>
 
-        <DialogFooter className="pt-6 border-t mt-4">
+        <DialogFooter className="pt-6 border-t -mt-10 mr-50">
           <Button
             onClick={handleSubmit}
             disabled={
@@ -269,7 +275,7 @@ export function AddProjectDialog({
               !selectedJira ||
               selectedMemberIds.length === 0
             }
-            className="w-full bg-slate-900 hover:bg-black text-white rounded-xl uppercase font-bold text-sm h-14 shadow-xl transition-all active:scale-[0.98]"
+            className="w-70 bg-slate-900 hover:bg-black text-white rounded-xl uppercase font-bold text-sm h-14 shadow-xl transition-all active:scale-[0.98]"
           >
             {isPending ? (
               <Loader2 className="w-5 h-5 animate-spin mr-2" />

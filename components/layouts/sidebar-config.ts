@@ -180,6 +180,12 @@ export const routeGroups: RouteGroup[] = [
         href: "/sync",
         color: "text-sky-500",
       },
+      {
+        label: "Cấu hình",
+        icon: Settings,
+        href: "/config",
+        color: "text-violet-500",
+      },
     ],
   },
 ];

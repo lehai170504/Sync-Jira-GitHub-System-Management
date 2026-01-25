@@ -20,3 +20,11 @@ export interface JiraProjectsResponse {
   total: number;
   projects: JiraProject[];
 }
+
+export interface SyncResponse {
+  message: string;
+  stats: {
+    github: number;
+    jira: number;
+  };
+}

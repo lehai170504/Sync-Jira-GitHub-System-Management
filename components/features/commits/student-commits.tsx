@@ -3,22 +3,17 @@
 import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
 import { Separator } from "@/components/ui/separator";
-import { GitCommit } from "lucide-react";
+import { GitCommit, Loader2 } from "lucide-react";
 import { mockCommits, mockCommitDetails } from "./mock-data";
 import { CommitFilters } from "./commit-filters";
 import { CommitListTable } from "./commit-list-table";
 import { CommitDetailModal } from "./commit-detail-modal";
 import { getValidation } from "./utils";
-import { UserRole } from "@/components/layouts/sidebar";
+import { UserRole } from "@/components/layouts/sidebar-config";
 import type { CommitItem } from "./types";
-
-// Mapping member ID to author name (from tasks mock data)
-const MEMBER_ID_TO_NAME: Record<string, string> = {
-  m1: "Nguyễn Văn An",
-  m2: "Trần Thị Bình",
-  m3: "Lê Hoàng Cường",
-  m4: "Phạm Minh Dung",
-};
+import { useTeamMembers } from "@/features/student/hooks/use-team-members";
+import { useClassTeams } from "@/features/student/hooks/use-class-teams";
+import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 
 interface LeaderCommitsProps {
   role?: UserRole; // Deprecated
@@ -28,11 +23,69 @@ interface LeaderCommitsProps {
 export function LeaderCommits({ role: propRole, isLeader: propIsLeader }: LeaderCommitsProps) {
   const [role, setRole] = useState<UserRole>("STUDENT");
   const [isLeaderState, setIsLeaderState] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string>("m2");
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [teamId, setTeamId] = useState<string | undefined>(undefined);
+  const [selectedClassId, setSelectedClassId] = useState<string>("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [authorFilter, setAuthorFilter] = useState<string>("ALL");
   const [selectedCommitId, setSelectedCommitId] = useState<string | null>(null);
+
+  // API calls - Lấy danh sách classes
+  const { data: myClassesData, isLoading: isClassesLoading } = useMyClasses();
+  const currentStudentId = Cookies.get("student_id");
+
+  // Lấy classId từ selectedClassId hoặc cookie
+  const classId = selectedClassId || Cookies.get("student_class_id") || "";
+  const myTeamName = Cookies.get("student_team_name");
+  
+  const { data: teamsData, isLoading: isTeamLoading } = useClassTeams(classId);
+  const myTeamInfo = teamsData?.teams?.find(
+    (t: any) => t.project_name === myTeamName
+  );
+  const resolvedTeamId = myTeamInfo?._id;
+  
+  const { data: membersData, isLoading: isMembersLoading } = useTeamMembers(resolvedTeamId);
+
+  // Khởi tạo selectedClassId từ cookie hoặc class đầu tiên
+  useEffect(() => {
+    if (!selectedClassId && myClassesData?.classes && myClassesData.classes.length > 0) {
+      const cookieClassId = Cookies.get("student_class_id");
+      const foundClass = myClassesData.classes.find(
+        (c) => c.class._id === cookieClassId
+      );
+      if (foundClass) {
+        setSelectedClassId(foundClass.class._id);
+      } else {
+        // Nếu không tìm thấy class trong cookie, chọn class đầu tiên
+        setSelectedClassId(myClassesData.classes[0].class._id);
+      }
+    }
+  }, [myClassesData, selectedClassId]);
+
+  // Set teamId khi đã có data
+  useEffect(() => {
+    if (resolvedTeamId) {
+      setTeamId(resolvedTeamId);
+    }
+  }, [resolvedTeamId]);
+
+  // Lấy currentUserId và isLeader từ members data
+  useEffect(() => {
+    if (membersData?.members && currentStudentId) {
+      const currentMember = membersData.members.find(
+        (m) => m.student._id === currentStudentId
+      );
+      if (currentMember?._id) {
+        setCurrentUserId(currentMember._id);
+        // Đánh dấu isLeader từ API data (role_in_team === "Leader")
+        const memberIsLeader = currentMember.role_in_team === "Leader";
+        if (propIsLeader === undefined) {
+          setIsLeaderState(memberIsLeader);
+        }
+      }
+    }
+  }, [membersData, currentStudentId, propIsLeader]);
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
@@ -41,29 +94,51 @@ export function LeaderCommits({ role: propRole, isLeader: propIsLeader }: Leader
     // Ưu tiên prop truyền vào
     if (propIsLeader !== undefined) {
       setIsLeaderState(propIsLeader);
-    } else {
+    } else if (!membersData?.members) {
+      // Chỉ dùng cookie nếu chưa có API data
       setIsLeaderState(leaderCookie);
     }
 
     if (savedRole) {
       setRole(savedRole);
-      // Giả sử: LEADER = m1, MEMBER = m2 (logic mock cũ)
-      // Bây giờ dùng logic mới:
-      if (leaderCookie) {
-        setCurrentUserId("m1");
-      } else {
-        setCurrentUserId("m2");
-      }
     }
-  }, [propIsLeader]);
+  }, [propIsLeader, membersData]);
 
   const isLeader = isLeaderState;
-  const currentUserAuthorName = MEMBER_ID_TO_NAME[currentUserId] || "";
 
+  // Tạo mapping từ API members data (giống /project)
+  const memberNameMap = useMemo(() => {
+    if (!membersData?.members) return {};
+    const map: Record<string, string> = {};
+    membersData.members.forEach((member) => {
+      // Map theo member._id (member ID) và student._id (student ID)
+      map[member._id] = member.student.full_name;
+      map[member.student._id] = member.student.full_name;
+    });
+    return map;
+  }, [membersData]);
+
+  const currentUserAuthorName = currentUserId ? memberNameMap[currentUserId] || "" : "";
+
+  // Lấy danh sách authors từ members data
   const authors = useMemo(() => {
+    if (membersData?.members && membersData.members.length > 0) {
+      // Lấy tên từ members API
+      const memberNames = membersData.members.map((m) => m.student.full_name);
+      return memberNames.sort((a, b) => a.localeCompare(b, "vi"));
+    }
+    // Fallback về mock data nếu chưa có API data
     const uniq = Array.from(new Set(mockCommits.map((c) => c.author)));
     return uniq.sort((a, b) => a.localeCompare(b, "vi"));
-  }, []);
+  }, [membersData]);
+
+  // Lấy danh sách tên các leader để đánh dấu
+  const leaderNames = useMemo(() => {
+    if (!membersData?.members) return [];
+    return membersData.members
+      .filter((m) => m.role_in_team === "Leader")
+      .map((m) => m.student.full_name);
+  }, [membersData]);
 
   const filteredCommits = useMemo(() => {
     const from = fromDate ? new Date(fromDate) : null;
@@ -95,11 +170,40 @@ export function LeaderCommits({ role: propRole, isLeader: propIsLeader }: Leader
     setFromDate("");
     setToDate("");
     setAuthorFilter("ALL");
+    // Reset class về class đầu tiên hoặc class từ cookie
+    if (myClassesData?.classes && myClassesData.classes.length > 0) {
+      const cookieClassId = Cookies.get("student_class_id");
+      const foundClass = myClassesData.classes.find(
+        (c) => c.class._id === cookieClassId
+      );
+      setSelectedClassId(foundClass?.class._id || myClassesData.classes[0].class._id);
+    }
   };
+
+  // Lấy danh sách classes để hiển thị trong dropdown
+  const classOptions = useMemo(() => {
+    if (!myClassesData?.classes) return [];
+    return myClassesData.classes.map((item) => ({
+      id: item.class._id,
+      name: item.class.name,
+      code: item.class.class_code || "",
+    }));
+  }, [myClassesData]);
 
   const totalCommits = filteredCommits.length;
   const validCommits = filteredCommits.filter((c) => getValidation(c.id).status === "valid").length;
   const invalidCommits = totalCommits - validCommits;
+
+  // Loading state
+  if (isClassesLoading || isTeamLoading || isMembersLoading) {
+    return (
+      <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0">
@@ -171,6 +275,11 @@ export function LeaderCommits({ role: propRole, isLeader: propIsLeader }: Leader
         onReset={handleResetFilters}
         isLeader={isLeader}
         currentUserAuthorName={currentUserAuthorName}
+        leaderNames={leaderNames}
+        classOptions={classOptions}
+        selectedClassId={selectedClassId}
+        onClassChange={setSelectedClassId}
+        teamId={resolvedTeamId}
       />
 
       {/* COMMIT LIST */}

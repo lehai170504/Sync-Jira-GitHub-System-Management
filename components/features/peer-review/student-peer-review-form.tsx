@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
-import { UserRole } from "@/components/layouts/sidebar";
+import { UserRole } from "@/components/layouts/sidebar-config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -12,14 +12,9 @@ import { Star, CheckCircle2, Loader2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { submitReview } from "@/server/actions/review-actions";
-
-// Mock data cho tất cả thành viên trong team (bao gồm cả LEADER)
-const allTeamMembers = [
-  { id: "m1", name: "Nguyễn Văn An", initials: "AN", role: "LEADER" as const, avatarUrl: "" },
-  { id: "m2", name: "Trần Thị Bình", initials: "BT", role: "MEMBER" as const, avatarUrl: "" },
-  { id: "m3", name: "Lê Hoàng Cường", initials: "LC", role: "MEMBER" as const, avatarUrl: "" },
-  { id: "m4", name: "Phạm Minh Dung", initials: "DM", role: "MEMBER" as const, avatarUrl: "" },
-];
+import { useTeamMembers } from "@/features/student/hooks/use-team-members";
+import { useClassTeams } from "@/features/student/hooks/use-class-teams";
+import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 
 type ReviewData = {
   revieweeId: string;
@@ -28,24 +23,82 @@ type ReviewData = {
 };
 
 export function PeerReviewForm() {
-  const [role, setRole] = useState<UserRole>("MEMBER");
-  const [currentUserId, setCurrentUserId] = useState<string>("m2");
+  const [role, setRole] = useState<UserRole>("STUDENT");
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [teamId, setTeamId] = useState<string | undefined>(undefined);
+
+  const classId = Cookies.get("student_class_id");
+  const { data: myClasses } = useMyClasses();
+  const { data: teamsData } = useClassTeams(classId);
+  const { data: membersData, isLoading: isMembersLoading } = useTeamMembers(teamId);
+
+  // Lấy teamId từ class hiện tại
+  useEffect(() => {
+    if (classId && myClasses?.classes) {
+      const currentClass = myClasses.classes.find(
+        (cls) => cls.class._id === classId
+      );
+      if (currentClass?.team_id) {
+        setTeamId(currentClass.team_id);
+      }
+    } else if (teamsData?.teams && teamsData.teams.length > 0) {
+      const myTeamName = Cookies.get("student_team_name");
+      const myTeam = teamsData.teams.find(
+        (t: any) => t.project_name === myTeamName
+      );
+      if (myTeam?._id) {
+        setTeamId(myTeam._id);
+      } else if (teamsData.teams[0]?._id) {
+        setTeamId(teamsData.teams[0]._id);
+      }
+    }
+  }, [classId, myClasses, teamsData]);
+
+  // Lấy currentUserId từ members data
+  useEffect(() => {
+    const studentId = Cookies.get("student_id");
+    if (membersData?.members && studentId) {
+      const currentMember = membersData.members.find(
+        (m) => m.student._id === studentId
+      );
+      if (currentMember?._id) {
+        setCurrentUserId(currentMember._id);
+      }
+    }
+  }, [membersData]);
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
     if (savedRole) {
       setRole(savedRole);
-      // Giả sử: LEADER = m1, MEMBER = m2 (có thể lấy từ cookie hoặc API)
-      if (savedRole === "LEADER") {
-        setCurrentUserId("m1");
-      } else if (savedRole === "MEMBER") {
-        setCurrentUserId("m2");
-      }
     }
   }, []);
 
+  // Map API members data sang format của component
+  const allTeamMembers = useMemo(() => {
+    if (!membersData?.members) return [];
+    return membersData.members.map((member) => {
+      const name = member.student.full_name;
+      const initials = name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(-2);
+      return {
+        id: member._id,
+        name: name,
+        initials: initials,
+        role: member.role_in_team === "Leader" ? ("LEADER" as const) : ("MEMBER" as const),
+        avatarUrl: member.student.avatar_url || "",
+      };
+    });
+  }, [membersData]);
+
   // Lọc ra danh sách thành viên để đánh giá (trừ bản thân)
-  const membersToReview = allTeamMembers.filter((m) => m.id !== currentUserId);
+  const membersToReview = useMemo(() => {
+    return allTeamMembers.filter((m) => m.id !== currentUserId);
+  }, [allTeamMembers, currentUserId]);
   const [reviews, setReviews] = useState<Record<string, ReviewData>>({});
   const [submittedReviews, setSubmittedReviews] = useState<Set<string>>(new Set());
   const [submittingId, setSubmittingId] = useState<string | null>(null);
@@ -105,6 +158,43 @@ export function PeerReviewForm() {
       setSubmittedReviews((prev) => new Set(prev).add(memberId));
     }
   };
+
+  // Loading state
+  if (isMembersLoading || !teamId) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (membersToReview.length === 0) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-indigo-100 rounded-lg">
+            <Users className="h-6 w-6 text-indigo-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Đánh giá chéo (Peer Review)</h1>
+            <p className="text-sm text-muted-foreground">
+              Chấm điểm thành viên trong nhóm bằng star rating
+            </p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">
+              Chưa có thành viên nào để đánh giá.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">

@@ -1,6 +1,8 @@
 // src/components/features/dashboard/leader-overview-tab.tsx
 "use client";
 
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import {
   Card,
   CardContent,
@@ -26,8 +28,11 @@ import {
   Circle,
   GitCommit,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { StatCard } from "./stat-card";
+import { useTeamDashboard } from "@/features/management/teams/hooks/use-team-dashboard";
+import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 
 // Mock data: Burndown Chart (Tiến độ Sprint)
 const burnDownData = [
@@ -113,34 +118,108 @@ const myTasks = [
 ];
 
 export function LeaderOverviewTab() {
-  // Mock data: Tổng số Task theo trạng thái
-  const taskStats = {
-    todo: 8,
-    inProgress: 5,
-    done: 24,
-    total: 37,
+  const [teamId, setTeamId] = useState<string | undefined>(undefined);
+  const { data: myClasses } = useMyClasses();
+  const { data: dashboardData, isLoading, error } = useTeamDashboard(teamId);
+
+  // Lấy teamId từ class hiện tại hoặc từ myClasses
+  useEffect(() => {
+    const classId = Cookies.get("student_class_id");
+    if (classId && myClasses?.classes) {
+      const currentClass = myClasses.classes.find(
+        (cls) => cls.class._id === classId
+      );
+      if (currentClass?.team_id) {
+        setTeamId(currentClass.team_id);
+      }
+    } else if (myClasses?.classes && myClasses.classes.length > 0) {
+      // Nếu không có classId trong cookie, lấy class đầu tiên
+      setTeamId(myClasses.classes[0].team_id);
+    }
+  }, [myClasses]);
+
+  // Loading state
+  if (isLoading || !teamId) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <p className="text-red-600 text-sm">
+              Không thể tải dữ liệu dashboard. Vui lòng thử lại sau.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Lấy dữ liệu từ API
+  const tasks = dashboardData?.overview.tasks || {
+    total: 0,
+    done: 0,
+    todo: 0,
+    done_percent: 0,
+    story_point_total: 0,
+    story_point_done: 0,
+  };
+
+  const commits = dashboardData?.overview.commits || {
+    total: 0,
+    counted: 0,
+    last_commit_date: null,
+  };
+
+  const sprints = dashboardData?.overview.sprints || {
+    total: 0,
+    active: 0,
   };
 
   // Tính phần trăm hoàn thành
-  const completionRate = Math.round(
-    (taskStats.done / taskStats.total) * 100
-  );
+  const completionRate = tasks.total > 0 
+    ? Math.round((tasks.done / tasks.total) * 100)
+    : 0;
+
+  // Task stats từ API
+  const taskStats = {
+    todo: tasks.todo,
+    inProgress: tasks.total - tasks.done - tasks.todo, // Tính toán từ total - done - todo
+    done: tasks.done,
+    total: tasks.total,
+  };
 
   return (
     <div className="space-y-6">
       {/* HEADER: Team Info */}
-      <div className="from-slate-900 to-slate-800 p-6 rounded-xl text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-lg gap-4">
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 rounded-xl text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-lg gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Team 1 - E-Commerce App</h2>
+          <h2 className="text-2xl font-bold">
+            {dashboardData?.team.project_name || "Nhóm"}
+          </h2>
           <p className="text-slate-300 mt-1">
-            Sprint 4: Payment Integration (Còn 3 ngày)
+            {sprints.active > 0
+              ? `Đang có ${sprints.active} sprint hoạt động`
+              : "Chưa có sprint nào"}
+            {dashboardData?.team.last_sync_at && (
+              <span className="ml-2 text-xs">
+                • Đồng bộ: {new Date(dashboardData.team.last_sync_at).toLocaleString("vi-VN")}
+              </span>
+            )}
           </p>
         </div>
         <div className="text-right">
           <div className="text-3xl font-bold text-[#F27124]">
             {completionRate}%
           </div>
-          <div className="text-xs text-slate-400">Hoàn thành Sprint</div>
+          <div className="text-xs text-slate-400">Hoàn thành Task</div>
         </div>
       </div>
 
@@ -284,16 +363,20 @@ export function LeaderOverviewTab() {
             </div>
             <div className="mt-4 flex items-center justify-center gap-6 text-sm">
               <div className="text-center">
-                <div className="text-2xl font-bold text-[#F27124]">97</div>
+                <div className="text-2xl font-bold text-[#F27124]">
+                  {commits.total}
+                </div>
                 <div className="text-xs text-muted-foreground">
-                  Tổng tuần này
+                  Tổng số commits
                 </div>
               </div>
               <div className="h-12 w-px bg-gray-200" />
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">+15%</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {commits.counted}
+                </div>
                 <div className="text-xs text-muted-foreground">
-                  So tuần trước
+                  Đã được tính điểm
                 </div>
               </div>
             </div>

@@ -39,6 +39,8 @@ export interface ProjectDetail {
   githubRepoUrl: string;
   jiraProjectKey: string;
   created_at: string;
+  /** BE gửi khi getMyProject lazy-sync Jira trả 410; vẫn hiển thị project bình thường */
+  jira_sync_warning?: string;
 }
 
 export interface MyProjectResponse {

@@ -26,10 +26,7 @@ export interface SyncResponse {
   stats: {
     github: number;
     jira: number;
-  };
-  /** Gợi ý từ BE khi Jira/GitHub sync thất bại hoặc 0 */
-  details?: {
-    jiraError?: string;
-    githubError?: string;
+    /** BE gửi khi Jira 410 hoặc lỗi khác; GitHub vẫn có thể đã sync OK */
+    errors?: string[];
   };
 }

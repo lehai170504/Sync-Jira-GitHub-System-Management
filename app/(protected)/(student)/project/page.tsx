@@ -10,7 +10,9 @@ import {
   Mail,
   Code,
   Rocket,
+  AlertTriangle,
 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +59,16 @@ export default function ProjectDetailsPage() {
   // 5. TRƯỜNG HỢP: ĐÃ CÓ DỰ ÁN
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 animate-in fade-in duration-500">
+      {project.jira_sync_warning && (
+        <Alert className="mb-6 bg-amber-50 border-amber-200">
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <AlertTitle className="text-amber-800">Cảnh báo Jira</AlertTitle>
+          <AlertDescription className="text-amber-700 text-sm">
+            {project.jira_sync_warning}
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Header Project */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b pb-8">
         <div className="space-y-2">

@@ -72,8 +72,8 @@ axiosClient.interceptors.response.use(
 
         // 3. Lưu Token mới vào Cookie
         // (Lưu ý: set lại thời gian hết hạn phù hợp với BE trả về)
-        Cookies.set("token", data.access_token, { expires: 1 });
-        Cookies.set("refreshToken", data.refresh_token, { expires: 7 });
+        Cookies.set("token", data.access_token, { path: "/", expires: 1 });
+        Cookies.set("refreshToken", data.refresh_token, { path: "/", expires: 7 });
 
         // 4. Gắn token mới vào header của request ban đầu
         axiosClient.defaults.headers.common["Authorization"] =
@@ -90,14 +90,12 @@ axiosClient.interceptors.response.use(
         // Nếu Refresh Token cũng hết hạn hoặc lỗi -> Logout bắt buộc
         processQueue(refreshError, null);
 
-        // Xóa sạch dữ liệu
-        Cookies.remove("token");
-        Cookies.remove("refreshToken");
-        Cookies.remove("user_role");
-        Cookies.remove("user_email");
-        Cookies.remove("user_name");
-
-        // Bắn sự kiện logout cho các tab khác
+        const opt = { path: "/" as const };
+        Cookies.remove("token", opt);
+        Cookies.remove("refreshToken", opt);
+        Cookies.remove("user_role", opt);
+        Cookies.remove("user_email", opt);
+        Cookies.remove("user_name", opt);
         if (typeof window !== "undefined") {
           localStorage.setItem("logout_event", Date.now().toString());
           window.location.href = "/login";

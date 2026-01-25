@@ -8,19 +8,17 @@ import { logoutApi } from "../api/logout-api";
 export const useLogout = () => {
   const router = useRouter();
 
+  const cookieOpt = { path: "/" as const };
+
   const handleClientLogout = () => {
-    // 1. Xóa toàn bộ Cookie
-    Cookies.remove("token");
-    Cookies.remove("refreshToken");
-    Cookies.remove("user_role");
-    Cookies.remove("user_email");
-    Cookies.remove("user_name");
-    Cookies.remove("user_avatar");
+    Cookies.remove("token", cookieOpt);
+    Cookies.remove("refreshToken", cookieOpt);
+    Cookies.remove("user_role", cookieOpt);
+    Cookies.remove("user_email", cookieOpt);
+    Cookies.remove("user_name", cookieOpt);
+    Cookies.remove("user_avatar", cookieOpt);
 
-    // 2. Bắn sự kiện để các tab khác cũng logout theo (AuthWatcher)
     localStorage.setItem("logout_event", Date.now().toString());
-
-    // 3. Chuyển hướng về login
     router.push("/login");
     router.refresh();
   };

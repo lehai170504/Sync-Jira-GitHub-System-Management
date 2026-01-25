@@ -1,9 +1,11 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import {
-  getGoogleAuthUrlApi, // Import hàm vừa sửa ở trên
+  getGoogleAuthUrlApi,
   googleCallbackApi,
   GoogleCallbackParams,
 } from "../api/auth-api";
@@ -12,7 +14,6 @@ import {
 export const useGoogleLogin = () => {
   return useMutation({
     mutationFn: async () => {
-      // Frontend URL để Google quay về
       const redirectUri = window.location.origin;
       return await getGoogleAuthUrlApi(redirectUri);
     },
@@ -30,26 +31,38 @@ export const useGoogleLogin = () => {
   });
 };
 
-// --- HOOK 2: XỬ LÝ CALLBACK (Giữ nguyên không đổi) ---
+// --- HOOK 2: XỬ LÝ CALLBACK (ĐÃ TỐI ƯU TỐC ĐỘ) ---
 export const useGoogleCallback = () => {
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (params: GoogleCallbackParams) => googleCallbackApi(params),
     onSuccess: (data) => {
+      // 1. Lưu Tokens vào Cookie (Xử lý đồng bộ, cực nhanh)
       if (data?.accessToken) {
-        Cookies.set("token", data.accessToken);
-        Cookies.set("refreshToken", data.refreshToken);
+        Cookies.set("token", data.accessToken, { path: "/", expires: 1 });
+        Cookies.set("refreshToken", data.refreshToken, { path: "/", expires: 7 });
       }
+      if (data?.user) {
+        Cookies.set("user_role", data.user.role, { path: "/", expires: 1 });
+        Cookies.set("user_name", data.user.full_name, { path: "/", expires: 1 });
+      }
+
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
-      toast.success("Đăng nhập thành công!");
-      router.push("/courses");
+      toast.success(`Chào mừng ${data.user?.full_name || "bạn"}!`);
+
+      // 3. Xác định đường dẫn đích
+      let targetUrl = "/courses";
+      if (data.user?.role === "LECTURER") targetUrl = "/lecturer/courses";
+      if (data.user?.role === "ADMIN") targetUrl = "/dashboard";
+
+      // 4. Chuyển hướng ngay lập tức (Hard Navigation)
+      window.location.href = targetUrl;
     },
     onError: (error: any) => {
       const msg = error.response?.data?.message || "Đăng nhập thất bại.";
       toast.error(msg);
-      router.push("/login?error=google_failed");
+      window.location.href = "/login?error=google_failed";
     },
   });
 };

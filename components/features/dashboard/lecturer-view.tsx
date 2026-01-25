@@ -8,62 +8,26 @@ import {
   Layers,
   BarChart3,
   CheckCircle2,
-  MoreVertical,
-  Bell,
-  ArrowRight,
-  MapPin,
-  Link as LinkIcon,
   TrendingUp,
   Clock,
   Calendar as CalendarIcon,
-  Search,
+  MapPin,
+  ChevronRight,
+  Sparkles,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { cn } from "@/lib/utils";
+
+// 👇 IMPORT COMPONENT GỬI THÔNG BÁO
+import { SendClassNotification } from "@/features/notifications/components/SendClassNotification";
 
 // --- MOCK DATA ---
 const PERFORMANCE_DATA = [
-  { name: "Excellent", value: 45, color: "#4f46e5" }, // Indigo
-  { name: "Good", value: 35, color: "#f97316" }, // Orange
-  { name: "Average", value: 20, color: "#22c55e" }, // Green
-];
-
-const STUDENTS_LIST = [
-  {
-    id: 1,
-    name: "Nguyễn Văn An",
-    topic: "E-Commerce AI",
-    grade: "A (Very Good)",
-    status: "In Progress",
-    avatar: "A",
-  },
-  {
-    id: 2,
-    name: "Trần Thị Bích",
-    topic: "LMS System",
-    grade: "B+ (Good)",
-    status: "In Progress",
-    avatar: "B",
-  },
-  {
-    id: 3,
-    name: "Lê Văn Cường",
-    topic: "Grab Clone",
-    grade: "C (Pass)",
-    status: "Reviewed",
-    avatar: "C",
-  },
-  {
-    id: 4,
-    name: "Phạm Minh Duy",
-    topic: "IoT Dashboard",
-    grade: "A+ (Excellent)",
-    status: "Not viewed",
-    avatar: "P",
-  },
+  { name: "Excellent", value: 45, color: "#4f46e5" },
+  { name: "Good", value: 35, color: "#f27124" }, // Đổi màu orange đồng bộ thương hiệu
+  { name: "Average", value: 20, color: "#10b981" },
 ];
 
 const SCHEDULE = [
@@ -76,394 +40,178 @@ export function LecturerDashboard() {
   const router = useRouter();
   const [className, setClassName] = useState("Loading...");
   const [subjectCode, setSubjectCode] = useState("...");
+  const [classId, setClassId] = useState("");
 
   useEffect(() => {
+    const savedClassId = Cookies.get("lecturer_class_id");
     const savedClass = Cookies.get("lecturer_class_name");
     const savedSubject = Cookies.get("lecturer_subject");
 
-    // Nếu không có cookie (chưa chọn lớp), giả lập dữ liệu để hiện UI đẹp (hoặc redirect)
     if (!savedClass) {
-      // router.push("/lecturer/courses"); // Uncomment dòng này khi chạy thật
       setClassName("SE1783");
       setSubjectCode("SWP391");
+      setClassId("mock-class-id");
     } else {
       setClassName(savedClass);
       setSubjectCode(savedSubject || "");
+      setClassId(savedClassId || "");
     }
-  }, [router]);
+  }, []);
 
   return (
-    <div className="space-y-8 animate-in fade-in-50 pb-10">
-      {/* 1. WELCOME SECTION */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-            Tổng quan Lớp học
-          </h1>
-          <p className="text-gray-500 mt-2 flex items-center gap-2">
-            Chào mừng trở lại! Đây là tình hình lớp{" "}
-            <span className="font-bold text-[#F27124]">{className}</span> môn{" "}
-            <span className="font-bold text-gray-700">{subjectCode}</span>.
-          </p>
+    <div className="space-y-10 animate-in fade-in duration-700 pb-10 font-sans">
+      {/* 1. HERO WELCOME SECTION */}
+      <div className="relative overflow-hidden bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm">
+        <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+          <Sparkles className="w-40 h-40 text-[#F27124]" />
         </div>
-        <div className="flex items-center gap-2 bg-white p-1.5 rounded-full border shadow-sm">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="rounded-full text-gray-500 hover:text-[#F27124] hover:bg-orange-50 relative"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-          </Button>
-          <Avatar className="h-9 w-9 border border-gray-200">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback className="bg-[#F27124] text-white">
-              GV
-            </AvatarFallback>
-          </Avatar>
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="space-y-2">
+            <Badge className="bg-orange-100 text-[#F27124] hover:bg-orange-100 mb-2 uppercase tracking-[0.2em] text-[10px] font-black px-4 py-1 rounded-full border-none">
+              Lecturer Workspace
+            </Badge>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 leading-tight">
+              Tổng quan Lớp học
+            </h1>
+            <p className="text-slate-500 text-lg font-medium flex items-center gap-2">
+              Tình hình lớp{" "}
+              <span className="text-[#F27124] font-black underline decoration-2 underline-offset-4 decoration-orange-200">
+                {className}
+              </span>
+              môn{" "}
+              <span className="text-slate-900 font-black">{subjectCode}</span>
+            </p>
+          </div>
+
+          <div className="shrink-0 transition-all hover:scale-105 active:scale-95">
+            <SendClassNotification classId={classId} className={className} />
+          </div>
         </div>
       </div>
 
-      {/* 2. STATS CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Card 1: Students */}
-        <Card className="border-none shadow-sm bg-white ring-1 ring-gray-100 hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Sĩ số
-                </p>
-                <h3 className="text-3xl font-bold text-gray-900 mt-2">30</h3>
-                <div className="flex items-center gap-1 mt-1 text-green-600 text-xs font-medium">
-                  <TrendingUp className="h-3 w-3" /> +2 mới
+      {/* 2. STATS CARDS GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          {
+            label: "Sĩ số",
+            value: "30",
+            icon: Users,
+            color: "bg-indigo-50 text-indigo-600",
+            trend: "+2 mới",
+          },
+          {
+            label: "Số Nhóm",
+            value: "06",
+            icon: Layers,
+            color: "bg-blue-50 text-blue-600",
+            trend: "Đã chốt",
+          },
+          {
+            label: "Đang làm",
+            value: "18",
+            icon: BarChart3,
+            color: "bg-orange-50 text-orange-600",
+            trend: "Cần review",
+          },
+          {
+            label: "Hoàn thành",
+            value: "23",
+            icon: CheckCircle2,
+            color: "bg-emerald-50 text-emerald-600",
+            trend: "Đạt chỉ tiêu",
+          },
+        ].map((stat, i) => (
+          <Card
+            key={i}
+            className="border-none shadow-sm bg-white ring-1 ring-slate-100 hover:ring-orange-200 transition-all group rounded-[28px] overflow-hidden"
+          >
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start">
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    {stat.label}
+                  </p>
+                  <h3 className="text-4xl font-black text-slate-900 tracking-tighter">
+                    {stat.value}
+                  </h3>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                    <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />{" "}
+                    {stat.trend}
+                  </div>
+                </div>
+                <div
+                  className={cn(
+                    "p-4 rounded-2xl transition-all group-hover:scale-110 shadow-sm",
+                    stat.color,
+                  )}
+                >
+                  <stat.icon className="h-7 w-7" />
                 </div>
               </div>
-              <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
-                <Users className="h-6 w-6" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 2: Groups */}
-        <Card className="border-none shadow-sm bg-white ring-1 ring-gray-100 hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Số Nhóm
-                </p>
-                <h3 className="text-3xl font-bold text-gray-900 mt-2">6</h3>
-                <p className="text-xs text-gray-400 mt-1">Đã chốt danh sách</p>
-              </div>
-              <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-                <Layers className="h-6 w-6" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 3: In Progress */}
-        <Card className="border-none shadow-sm bg-white ring-1 ring-gray-100 hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Đang thực hiện
-                </p>
-                <h3 className="text-3xl font-bold text-gray-900 mt-2">18</h3>
-                <p className="text-xs text-orange-600 mt-1 font-medium">
-                  Cần review gấp
-                </p>
-              </div>
-              <div className="p-3 bg-orange-50 text-orange-600 rounded-xl">
-                <BarChart3 className="h-6 w-6" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 4: Completed */}
-        <Card className="border-none shadow-sm bg-white ring-1 ring-gray-100 hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Hoàn thành
-                </p>
-                <h3 className="text-3xl font-bold text-gray-900 mt-2">23</h3>
-                <p className="text-xs text-green-600 mt-1 font-medium">
-                  Đạt chỉ tiêu
-                </p>
-              </div>
-              <div className="p-3 bg-green-50 text-green-600 rounded-xl">
-                <CheckCircle2 className="h-6 w-6" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* 3. MIDDLE SECTION */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* Student Performance Chart (Span 4) */}
-        <Card className="md:col-span-4 border-none shadow-sm ring-1 ring-gray-100">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-bold text-gray-800">
-              Kết quả học tập
+      {/* 3. ANALYTICS & BROADCAST SECTION */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Kết quả học tập - Biểu đồ tập trung vào Typography và Khoảng trắng */}
+        <Card className="lg:col-span-4 border-none shadow-xl shadow-slate-200/40 bg-white rounded-[32px] overflow-hidden">
+          <CardHeader className="px-8 pt-8 pb-0">
+            <CardTitle className="text-xl font-black text-slate-900 tracking-tight">
+              Hiệu suất học tập
             </CardTitle>
-            <MoreVertical className="h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600" />
           </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center h-[280px]">
-            <div className="relative w-48 h-48">
+          <CardContent className="flex flex-col items-center justify-center p-8">
+            <div className="relative w-64 h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={PERFORMANCE_DATA}
-                    innerRadius={65}
-                    outerRadius={85}
-                    paddingAngle={5}
+                    innerRadius={80}
+                    outerRadius={105}
+                    paddingAngle={10}
                     dataKey="value"
-                    cornerRadius={5}
+                    strokeWidth={0}
+                    cornerRadius={12}
                   >
                     {PERFORMANCE_DATA.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={entry.color}
-                        strokeWidth={0}
+                        className="outline-none"
                       />
                     ))}
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      borderRadius: "8px",
+                      borderRadius: "16px",
                       border: "none",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
                     }}
                   />
                 </PieChart>
               </ResponsiveContainer>
-              {/* Center Text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-3xl font-bold text-gray-800">75%</span>
-                <span className="text-[10px] text-gray-500 uppercase font-semibold tracking-widest">
-                  Passed
+                <span className="text-5xl font-black text-slate-900 tracking-tighter">
+                  75%
+                </span>
+                <span className="text-[10px] text-emerald-500 uppercase font-black tracking-[0.2em] mt-2">
+                  Pass Rate
                 </span>
               </div>
             </div>
-            <div className="flex gap-4 mt-6">
+            <div className="grid grid-cols-3 gap-6 mt-10 w-full px-2">
               {PERFORMANCE_DATA.map((item) => (
-                <div
-                  key={item.name}
-                  className="flex items-center gap-1.5 text-xs font-medium"
-                >
+                <div key={item.name} className="text-center space-y-1.5">
+                  <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                    {item.name}
+                  </div>
                   <div
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  ></div>
-                  <span className="text-gray-600">{item.name}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Calendar (Span 4) */}
-        <Card className="md:col-span-4 border-none shadow-sm ring-1 ring-gray-100">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="flex items-center gap-2 text-gray-800">
-              <CalendarIcon className="h-4 w-4 text-[#F27124]" />
-              <span className="text-base font-bold">Lịch trình</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-600">
-                Tháng 1, 2026
-              </span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {/* Simple Calendar Mock */}
-            <div className="grid grid-cols-7 gap-1 text-center text-[10px] uppercase font-bold text-gray-400 mb-3">
-              <span>Sun</span>
-              <span>Mon</span>
-              <span>Tue</span>
-              <span>Wed</span>
-              <span>Thu</span>
-              <span>Fri</span>
-              <span>Sat</span>
-            </div>
-            <div className="grid grid-cols-7 gap-2 text-center text-sm">
-              {/* Empty days */}
-              {[...Array(3)].map((_, i) => (
-                <div key={`e-${i}`}></div>
-              ))}
-              {/* Days */}
-              {[...Array(31)].map((_, i) => {
-                const day = i + 1;
-                const isToday = day === 22; // Mock today
-                return (
-                  <div
-                    key={day}
-                    className={`h-9 w-9 flex items-center justify-center rounded-xl cursor-pointer transition-all duration-200
-                            ${
-                              isToday
-                                ? "bg-[#F27124] text-white shadow-md shadow-orange-200 font-bold scale-110"
-                                : "text-gray-600 hover:bg-gray-100 font-medium"
-                            }`}
+                    className="text-lg font-black"
+                    style={{ color: item.color }}
                   >
-                    {day}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="mt-6 pt-4 border-t flex items-center justify-between">
-              <span className="text-xs text-gray-500 font-medium">
-                Sự kiện hôm nay
-              </span>
-              <Badge
-                variant="secondary"
-                className="bg-orange-50 text-[#F27124] hover:bg-orange-100"
-              >
-                2 Task
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Messages / Notifications (Span 4) */}
-        <Card className="md:col-span-4 border-none shadow-sm ring-1 ring-gray-100">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-bold text-gray-800">
-              Thông báo mới
-            </CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs text-[#F27124] hover:text-[#d65d1b] hover:bg-orange-50 h-7"
-            >
-              Xem tất cả
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-0">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="flex gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
-              >
-                <div
-                  className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${
-                    i === 1 ? "bg-red-500" : "bg-gray-300"
-                  }`}
-                />
-                <div className="flex-1 overflow-hidden">
-                  <div className="flex justify-between items-start">
-                    <h4 className="text-sm font-semibold text-gray-900 truncate">
-                      {i === 1
-                        ? "Phòng Đào tạo"
-                        : i === 2
-                        ? "Nhóm 1 (E-Com)"
-                        : "Hệ thống"}
-                    </h4>
-                    <span className="text-[10px] text-gray-400 group-hover:text-gray-600">
-                      2h trước
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500 truncate mt-0.5 line-clamp-1">
-                    {i === 1
-                      ? "Thông báo về lịch nghỉ tết Nguyên Đán..."
-                      : i === 2
-                      ? "Em xin phép nộp muộn Lab 1 ạ..."
-                      : "Server bảo trì định kỳ..."}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* 3. BOTTOM SECTION */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* Students Table (Span 8) */}
-        <Card className="md:col-span-8 border-none shadow-sm ring-1 ring-gray-100">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-lg font-bold text-gray-800">
-              Sinh viên tiêu biểu
-            </CardTitle>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 border-dashed text-xs"
-              >
-                <Search className="h-3 w-3 mr-1" /> Tìm kiếm
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 text-xs text-gray-500"
-              >
-                Xem tất cả <ArrowRight className="h-3 w-3 ml-1" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1">
-              {STUDENTS_LIST.map((s) => (
-                <div
-                  key={s.id}
-                  className="grid grid-cols-12 items-center gap-4 py-3 px-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/80 rounded-lg transition-all group cursor-pointer"
-                >
-                  <div className="col-span-4 flex items-center gap-3">
-                    <Avatar className="h-9 w-9 border border-gray-100 group-hover:border-[#F27124]/50 transition-colors">
-                      <AvatarFallback className="bg-orange-50 text-[#F27124] text-xs font-bold">
-                        {s.avatar}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <span className="text-sm font-semibold text-gray-800 block group-hover:text-[#F27124] transition-colors">
-                        {s.name}
-                      </span>
-                      <span className="text-[10px] text-gray-400 font-mono">
-                        SE170{s.id}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-span-3 text-xs text-gray-600 font-medium bg-gray-50 px-2 py-1 rounded w-fit">
-                    {s.topic}
-                  </div>
-                  <div className="col-span-2 text-xs font-bold text-gray-800">
-                    {s.grade}
-                  </div>
-                  <div className="col-span-2">
-                    <Badge
-                      variant="outline"
-                      className={`border-0 font-medium px-2 py-0.5
-                              ${
-                                s.status === "In Progress"
-                                  ? "bg-blue-50 text-blue-600"
-                                  : s.status === "Reviewed"
-                                  ? "bg-green-50 text-green-600"
-                                  : "bg-orange-50 text-orange-600"
-                              }
-                           `}
-                    >
-                      {s.status === "In Progress"
-                        ? "Đang làm"
-                        : s.status === "Reviewed"
-                        ? "Đã chấm"
-                        : "Chưa xem"}
-                    </Badge>
-                  </div>
-                  <div className="col-span-1 text-right">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <ArrowRight className="h-4 w-4 text-gray-400" />
-                    </Button>
+                    {item.value}%
                   </div>
                 </div>
               ))}
@@ -471,46 +219,83 @@ export function LecturerDashboard() {
           </CardContent>
         </Card>
 
-        {/* Weekly Timetable (Span 4) */}
-        <Card className="md:col-span-4 border-none shadow-sm bg-[#FDF8F3] ring-1 ring-orange-100">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <Clock className="h-5 w-5 text-[#F27124]" /> Lịch dạy hôm nay
+        {/* Lịch trình dạy học - Hiện đại hóa List Item */}
+        <Card className="lg:col-span-4 border-none shadow-xl shadow-slate-200/40 bg-white rounded-[32px] overflow-hidden">
+          <CardHeader className="px-8 pt-8 flex flex-row items-center justify-between">
+            <CardTitle className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <CalendarIcon className="h-5 w-5 text-[#F27124]" />
+              </div>
+              Lịch dạy
             </CardTitle>
+            <Badge
+              variant="outline"
+              className="text-[10px] font-black border-slate-200 text-slate-400 rounded-full px-3"
+            >
+              TODAY
+            </Badge>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="p-8 space-y-5">
             {SCHEDULE.map((item, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-orange-100/50 hover:border-orange-200 transition-colors"
+                className="flex items-center justify-between p-5 bg-slate-50/50 rounded-[24px] border border-slate-100 hover:border-orange-200 hover:bg-orange-50/30 transition-all cursor-pointer group shadow-sm"
               >
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold text-[#F27124] mb-0.5">
-                    {item.time}
-                  </span>
-                  <span className="text-sm font-bold text-gray-800">
-                    {item.class}
-                  </span>
-                  <div className="flex items-center gap-1 mt-1 text-[11px] text-gray-500 font-medium">
-                    <MapPin className="h-3 w-3" /> {item.room}
+                <div className="flex gap-5 items-center">
+                  <div className="text-center min-w-[50px]">
+                    <p className="text-sm font-black text-[#F27124]">
+                      {item.time}
+                    </p>
+                  </div>
+                  <div className="w-[1.5px] h-10 bg-slate-200 rounded-full group-hover:bg-orange-200 transition-colors" />
+                  <div className="overflow-hidden">
+                    <p className="font-black text-slate-900 text-base tracking-tight">
+                      {item.class}
+                    </p>
+                    <p className="text-xs text-slate-400 font-bold flex items-center gap-1.5 mt-1 uppercase tracking-tight">
+                      <MapPin className="h-3.5 w-3.5 opacity-50" /> {item.room}
+                    </p>
                   </div>
                 </div>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 rounded-full text-gray-400 hover:text-[#F27124] hover:bg-orange-50"
-                >
-                  <LinkIcon className="h-4 w-4" />
-                </Button>
+                <div className="p-2 rounded-full bg-white border border-slate-100 group-hover:translate-x-1 transition-all shadow-sm">
+                  <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-[#F27124]" />
+                </div>
               </div>
             ))}
+          </CardContent>
+        </Card>
 
-            {/* Quick Note Area */}
-            <div className="mt-4">
-              <textarea
-                className="w-full text-xs p-3 bg-white/50 border border-orange-100 rounded-lg focus:ring-1 focus:ring-[#F27124] resize-none h-20 outline-none text-gray-700 placeholder:text-gray-400 focus:bg-white transition-colors"
-                placeholder="Ghi chú nhanh cho lớp..."
-              ></textarea>
+        {/* Cột 3: Broadcast Center - Glassmorphism Card */}
+        <Card className="lg:col-span-4 border-none shadow-2xl shadow-orange-600/20 bg-[#F27124] rounded-[32px] overflow-hidden relative group">
+          <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-125 transition-transform duration-700 pointer-events-none">
+            <Clock className="w-48 h-48 text-white" />
+          </div>
+          <CardHeader className="relative z-10 px-8 pt-8">
+            <CardTitle className="text-xl font-black text-white flex items-center gap-3">
+              <TrendingUp className="h-6 w-6" /> Broadcast Center
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="relative z-10 space-y-8 p-8 pt-4">
+            <div className="p-7 bg-white/15 backdrop-blur-md rounded-[28px] border border-white/20 shadow-inner">
+              <p className="text-base text-orange-50 leading-relaxed font-bold mb-8">
+                Cần nhắc cả lớp về{" "}
+                <span className="text-white underline decoration-wavy underline-offset-4">
+                  deadline
+                </span>
+                , báo nghỉ hoặc gửi link họp trực tuyến ngay bây giờ?
+              </p>
+              <div className="w-full transition-transform hover:-translate-y-1">
+                <SendClassNotification
+                  classId={classId}
+                  className={className}
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-3 bg-black/10 py-3 rounded-2xl border border-white/5">
+              <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
+              <span className="text-[10px] font-black text-orange-50 uppercase tracking-[0.2em]">
+                FCM System Online
+              </span>
             </div>
           </CardContent>
         </Card>

@@ -28,10 +28,9 @@ export default function GoogleCallbackPage() {
     }
 
     if (token) {
-      Cookies.set("token", token, { path: "/" });
-
+      Cookies.set("token", token, { path: "/", expires: 1 });
       if (refreshToken) {
-        Cookies.set("refreshToken", refreshToken, { path: "/" });
+        Cookies.set("refreshToken", refreshToken, { path: "/", expires: 7 });
       }
 
       queryClient.removeQueries({ queryKey: ["user-profile"] });

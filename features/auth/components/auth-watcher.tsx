@@ -12,18 +12,12 @@ export function AuthWatcher() {
     const syncLogout = (event: StorageEvent) => {
       // Kiểm tra xem key thay đổi có phải là "logout_event" không
       if (event.key === "logout_event") {
-        console.log("Detect logout from another tab. Clearing cookies...");
-
-        // 1. Xóa toàn bộ Token
-        Cookies.remove("token");
-        Cookies.remove("refreshToken"); // <--- Thêm mới
-
-        // 2. Xóa thông tin User
-        Cookies.remove("user_role");
-        Cookies.remove("user_email");
-        Cookies.remove("user_name");
-
-        // 3. Chuyển hướng về login
+        const opt = { path: "/" as const };
+        Cookies.remove("token", opt);
+        Cookies.remove("refreshToken", opt);
+        Cookies.remove("user_role", opt);
+        Cookies.remove("user_email", opt);
+        Cookies.remove("user_name", opt);
         router.push("/login");
         router.refresh();
       }

@@ -14,6 +14,8 @@ import type { CommitItem } from "./types";
 import { useTeamMembers } from "@/features/student/hooks/use-team-members";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
+import { useTeamCommits, useMemberCommits } from "@/features/integration/hooks/use-team-commits";
+import { useMyCommits } from "@/features/integration/hooks/use-my-commits";
 
 interface LeaderCommitsProps {
   role?: UserRole; // Deprecated
@@ -106,6 +108,36 @@ export function LeaderCommits({ role: propRole, isLeader: propIsLeader }: Leader
 
   const isLeader = isLeaderState;
 
+  // Tạo mapping từ author name sang memberId
+  const authorToMemberIdMap = useMemo(() => {
+    if (!membersData?.members) return {};
+    const map: Record<string, string> = {};
+    membersData.members.forEach((member) => {
+      map[member.student.full_name] = member._id; // Map tên thành viên sang memberId
+    });
+    return map;
+  }, [membersData]);
+
+  // Gọi API team commits khi isLeader và authorFilter === "ALL"
+  const shouldFetchTeamCommits = isLeader && authorFilter === "ALL" && !!resolvedTeamId;
+  const { data: teamCommitsData, isLoading: isTeamCommitsLoading } = useTeamCommits(
+    resolvedTeamId,
+    shouldFetchTeamCommits
+  );
+
+  // Gọi API member commits khi isLeader và authorFilter !== "ALL"
+  const selectedMemberId = authorFilter !== "ALL" ? authorToMemberIdMap[authorFilter] : undefined;
+  const shouldFetchMemberCommits = isLeader && authorFilter !== "ALL" && !!resolvedTeamId && !!selectedMemberId;
+  const { data: memberCommitsData, isLoading: isMemberCommitsLoading } = useMemberCommits(
+    resolvedTeamId,
+    selectedMemberId,
+    shouldFetchMemberCommits
+  );
+
+  // Gọi API my-commits khi không phải isLeader (MEMBER)
+  const shouldFetchMyCommits = !isLeader;
+  const { data: myCommitsData, isLoading: isMyCommitsLoading } = useMyCommits();
+
   // Tạo mapping từ API members data (giống /project)
   const memberNameMap = useMemo(() => {
     if (!membersData?.members) return {};
@@ -140,13 +172,67 @@ export function LeaderCommits({ role: propRole, isLeader: propIsLeader }: Leader
       .map((m) => m.student.full_name);
   }, [membersData]);
 
+  // Map API team commits sang format CommitItem
+  const apiTeamCommits: CommitItem[] = useMemo(() => {
+    if (!teamCommitsData?.commits) return [];
+    return teamCommitsData.commits.map((commit) => ({
+      id: commit._id,
+      message: commit.message,
+      author: commit.author,
+      branch: commit.branch,
+      date: commit.date,
+    }));
+  }, [teamCommitsData]);
+
+  // Map API member commits sang format CommitItem
+  const apiMemberCommits: CommitItem[] = useMemo(() => {
+    if (!memberCommitsData?.commits) return [];
+    return memberCommitsData.commits.map((commit) => ({
+      id: commit._id,
+      message: commit.message,
+      author: commit.author,
+      branch: commit.branch,
+      date: commit.date,
+    }));
+  }, [memberCommitsData]);
+
+  // Map API my-commits sang format CommitItem (cho MEMBER)
+  const apiMyCommits: CommitItem[] = useMemo(() => {
+    if (!myCommitsData?.commits) return [];
+    return myCommitsData.commits.map((commit: any) => ({
+      id: commit._id,
+      message: commit.message,
+      author: commit.author,
+      branch: commit.branch,
+      date: commit.date,
+    }));
+  }, [myCommitsData]);
+
+  // Sử dụng commits từ API nếu có, fallback về mock data
+  const allCommits = useMemo(() => {
+    // Nếu là LEADER và filter "ALL", dùng API team commits
+    if (isLeader && authorFilter === "ALL" && apiTeamCommits.length > 0) {
+      return apiTeamCommits;
+    }
+    // Nếu là LEADER và filter theo author cụ thể, dùng API member commits
+    if (isLeader && authorFilter !== "ALL" && apiMemberCommits.length > 0) {
+      return apiMemberCommits;
+    }
+    // Nếu là MEMBER, dùng API my-commits
+    if (!isLeader && apiMyCommits.length > 0) {
+      return apiMyCommits;
+    }
+    // Fallback về mock
+    return mockCommits;
+  }, [isLeader, authorFilter, apiTeamCommits, apiMemberCommits, apiMyCommits]);
+
   const filteredCommits = useMemo(() => {
     const from = fromDate ? new Date(fromDate) : null;
     const to = toDate ? new Date(toDate) : null;
-    return mockCommits.filter((c) => {
+    return allCommits.filter((c) => {
       // MEMBER chỉ xem commits của chính họ
       if (!isLeader && c.author !== currentUserAuthorName) return false;
-      // LEADER có thể filter theo author
+      // LEADER có thể filter theo author (đã filter ở allCommits nếu dùng API)
       if (isLeader && authorFilter !== "ALL" && c.author !== authorFilter) return false;
       const d = new Date(c.date);
       if (from && d < from) return false;
@@ -158,11 +244,11 @@ export function LeaderCommits({ role: propRole, isLeader: propIsLeader }: Leader
       }
       return true;
     });
-  }, [fromDate, toDate, authorFilter, isLeader, currentUserAuthorName]);
+  }, [fromDate, toDate, authorFilter, isLeader, currentUserAuthorName, allCommits]);
 
   const selectedCommit = useMemo(
-    () => (selectedCommitId ? mockCommits.find((c) => c.id === selectedCommitId) : undefined),
-    [selectedCommitId]
+    () => (selectedCommitId ? allCommits.find((c) => c.id === selectedCommitId) : undefined),
+    [selectedCommitId, allCommits]
   );
   const selectedDetail = selectedCommitId ? mockCommitDetails[selectedCommitId] : undefined;
 
@@ -195,7 +281,14 @@ export function LeaderCommits({ role: propRole, isLeader: propIsLeader }: Leader
   const invalidCommits = totalCommits - validCommits;
 
   // Loading state
-  if (isClassesLoading || isTeamLoading || isMembersLoading) {
+  if (
+    isClassesLoading ||
+    isTeamLoading ||
+    isMembersLoading ||
+    (shouldFetchTeamCommits && isTeamCommitsLoading) ||
+    (shouldFetchMemberCommits && isMemberCommitsLoading) ||
+    (shouldFetchMyCommits && isMyCommitsLoading)
+  ) {
     return (
       <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0">
         <div className="flex items-center justify-center h-64">

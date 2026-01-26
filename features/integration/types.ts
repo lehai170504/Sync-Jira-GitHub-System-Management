@@ -30,3 +30,25 @@ export interface SyncResponse {
     errors?: string[];
   };
 }
+
+// Commit types for my-commits API
+export interface MyCommitItem {
+  _id: string;
+  message: string;
+  author: string;
+  branch: string;
+  date: string; // ISO date
+  sha?: string;
+  url?: string;
+  additions?: number;
+  deletions?: number;
+}
+
+export interface MyCommitsResponse {
+  project: {
+    _id: string;
+    name: string;
+  };
+  total: number;
+  commits: MyCommitItem[];
+}

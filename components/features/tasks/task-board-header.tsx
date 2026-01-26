@@ -20,10 +20,16 @@ type Props = {
   sprints: Sprint[];
   selectedSprint: string;
   onSprintChange: (sprintId: string) => void;
+  isSprintsLoading?: boolean;
 
   currentSprint?: Sprint;
   sprintOverdue: boolean;
   isLeader: boolean;
+  sprintMeta?: {
+    start_date?: string;
+    end_date?: string;
+    state?: string;
+  };
   onAddSprint: () => void;
   onEditSprint: () => void;
   onDeleteSprint: () => void;
@@ -38,16 +44,25 @@ export function TaskBoardHeader({
   sprints,
   selectedSprint,
   onSprintChange,
+  isSprintsLoading = false,
   currentSprint,
   sprintOverdue,
   isLeader,
+  sprintMeta,
   onAddSprint,
   onEditSprint,
   onDeleteSprint,
   onAddTask,
 }: Props) {
+  const formatDate = (iso?: string) => {
+    if (!iso) return "-";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "-";
+    return d.toLocaleDateString("vi-VN");
+  };
+
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Select value={selectedCourse} onValueChange={onCourseChange}>
         <SelectTrigger className="w-[240px]">
           <SelectValue placeholder="Chọn môn học" />
@@ -61,16 +76,26 @@ export function TaskBoardHeader({
         </SelectContent>
       </Select>
 
-      <Select value={selectedSprint} onValueChange={onSprintChange}>
+      <Select
+        value={selectedSprint}
+        onValueChange={onSprintChange}
+        disabled={isSprintsLoading || sprints.length === 0}
+      >
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Chọn sprint" />
         </SelectTrigger>
         <SelectContent>
-          {sprints.map((p) => (
-            <SelectItem key={p.id} value={p.id}>
-              {p.name} • {p.deadline}
+          {isSprintsLoading ? (
+            <SelectItem value="__loading" disabled>
+              Đang tải sprint...
             </SelectItem>
-          ))}
+          ) : (
+            sprints.map((p) => (
+              <SelectItem key={p.id} value={p.id}>
+                {p.name} • {p.deadline}
+              </SelectItem>
+            ))
+          )}
         </SelectContent>
       </Select>
 
@@ -127,6 +152,40 @@ export function TaskBoardHeader({
         <Plus className="h-4 w-4 mr-1" />
         Thêm task
       </Button>
+
+      {currentSprint && sprintMeta && (
+        <div className="flex flex-col gap-1 text-xs text-muted-foreground ml-2">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Trạng thái:</span>
+            <Badge
+              variant={
+                sprintMeta.state === "active"
+                  ? "default"
+                  : sprintMeta.state === "closed"
+                    ? "destructive"
+                    : "outline"
+              }
+              className={
+                sprintMeta.state === "active"
+                  ? "bg-emerald-500 text-white"
+                  : sprintMeta.state === "closed"
+                    ? "bg-red-500 text-white"
+                  : "border-slate-300"
+              }
+            >
+              {sprintMeta.state || "unknown"}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-4">
+            <span>
+              Bắt đầu: <span className="font-medium">{formatDate(sprintMeta.start_date)}</span>
+            </span>
+            <span>
+              Kết thúc: <span className="font-medium">{formatDate(sprintMeta.end_date)}</span>
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -14,7 +14,9 @@ export type Course = {
 export type Sprint = {
   id: string;
   name: string;
-  deadline: string; // yyyy-MM-dd
+  deadline: string; // yyyy-MM-dd (legacy, for backward compatibility)
+  start_date?: string; // ISO date string
+  end_date?: string; // ISO date string
 };
 
 export type Task = {

@@ -58,7 +58,12 @@ export function TaskBoardHeader({
     if (!iso) return "-";
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return "-";
-    return d.toLocaleDateString("vi-VN");
+    return new Intl.DateTimeFormat("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(d);
   };
 
   return (
@@ -67,7 +72,7 @@ export function TaskBoardHeader({
         <SelectTrigger className="w-[240px]">
           <SelectValue placeholder="Chọn môn học" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="mt-9 max-h-[320px] overflow-y-auto">
           {courses.map((c) => (
             <SelectItem key={c.id} value={c.id}>
               {c.name}
@@ -84,7 +89,7 @@ export function TaskBoardHeader({
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Chọn sprint" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="mt-9 max-h-[320px] overflow-y-auto">
           {isSprintsLoading ? (
             <SelectItem value="__loading" disabled>
               Đang tải sprint...
@@ -92,7 +97,7 @@ export function TaskBoardHeader({
           ) : (
             sprints.map((p) => (
               <SelectItem key={p.id} value={p.id}>
-                {p.name} • {p.deadline}
+                {p.name}
               </SelectItem>
             ))
           )}

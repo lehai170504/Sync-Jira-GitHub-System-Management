@@ -5,14 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Clock, Loader2, Save } from "lucide-react";
+  Clock,
+  Loader2,
+  Save,
+  Database as DbIcon,
+  Activity,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export function OperationalSettings() {
@@ -20,105 +18,116 @@ export function OperationalSettings() {
 
   const handleSave = async () => {
     setIsLoading(true);
-    // Giả lập call API
     await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsLoading(false);
-    toast.success("Cấu hình vận hành đã được cập nhật!");
+    toast.success("HỆ THỐNG: Cấu hình vận hành đã được cập nhật!");
   };
 
   return (
-    <Card className="md:col-span-2 border-slate-200 shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Clock className="h-5 w-5 text-[#F27124]" /> Tham số Vận hành
-        </CardTitle>
-        <CardDescription>
-          Cấu hình các quy tắc nghiệp vụ cốt lõi cho đồ án tốt nghiệp.
-        </CardDescription>
-      </CardHeader>
+    <div className="w-full font-mono">
+      <div className="grid gap-10 md:grid-cols-2 p-2">
+        {/* Cột 1: Thời gian */}
+        <div className="space-y-6">
+          <SectionHeader icon={Clock} title="Quy tắc thời gian" />
 
-      <CardContent className="grid gap-6 md:grid-cols-2">
-        {/* SPRINT DURATION */}
-        <div className="space-y-2">
-          <Label htmlFor="sprint">Thời gian Sprint (Tuần)</Label>
-          <Input
-            id="sprint"
-            type="number"
-            defaultValue={2}
-            className="focus-visible:ring-[#F27124]/20 focus-visible:border-[#F27124]"
-          />
-          <p className="text-[11px] text-muted-foreground">
-            Chu kỳ lặp lại mặc định để tính điểm progress.
-          </p>
-        </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                Chu kỳ Sprint (Tuần)
+              </Label>
+              <Input
+                type="number"
+                defaultValue={2}
+                className="h-12 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-[#F27124]/20 font-bold"
+              />
+            </div>
 
-        {/* DEADLINE TIME */}
-        <div className="space-y-2">
-          <Label htmlFor="deadline">Giờ nộp bài (Cut-off Time)</Label>
-          <Input
-            id="deadline"
-            type="time"
-            defaultValue="23:59"
-            className="focus-visible:ring-[#F27124]/20 focus-visible:border-[#F27124]"
-          />
-          <p className="text-[11px] text-muted-foreground">
-            Hệ thống sẽ khóa chức năng submit sau khung giờ này.
-          </p>
-        </div>
-
-        {/* GITHUB WEIGHT */}
-        <div className="space-y-2">
-          <Label>Trọng số điểm Code (GitHub)</Label>
-          <div className="flex items-center gap-3">
-            <Input
-              type="number"
-              defaultValue={40}
-              className="focus-visible:ring-[#F27124]/20 focus-visible:border-[#F27124]"
-            />
-            <span className="text-sm font-medium text-muted-foreground w-8">
-              %
-            </span>
+            <div className="space-y-2">
+              <Label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                Giờ khóa bài (Cut-off)
+              </Label>
+              <Input
+                type="time"
+                defaultValue="23:59"
+                className="h-12 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-[#F27124]/20 font-bold"
+              />
+            </div>
           </div>
         </div>
 
-        {/* JIRA WEIGHT */}
-        <div className="space-y-2">
-          <Label>Trọng số điểm Task (Jira)</Label>
-          <div className="flex items-center gap-3">
-            <Input
-              type="number"
-              defaultValue={40}
-              className="focus-visible:ring-[#F27124]/20 focus-visible:border-[#F27124]"
-            />
-            <span className="text-sm font-medium text-muted-foreground w-8">
-              %
-            </span>
+        {/* Cột 2: Trọng số điểm */}
+        <div className="space-y-6">
+          <SectionHeader icon={Activity} title="Trọng số đánh giá" />
+
+          <div className="grid grid-cols-2 gap-4">
+            <WeightInput label="GitHub Code" defaultValue={40} />
+            <WeightInput label="Jira Tasks" defaultValue={40} />
+          </div>
+
+          <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100">
+            <p className="text-[10px] text-blue-600 font-bold uppercase leading-relaxed">
+              Lưu ý: Tổng trọng số nên đạt 100% để đảm bảo tính toán Progress
+              chính xác theo thuật toán SyncSystem_V1.
+            </p>
           </div>
         </div>
-      </CardContent>
+      </div>
 
-      <CardFooter className="bg-slate-50/50 border-t border-slate-100 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <span className="text-xs text-muted-foreground order-2 sm:order-1">
-          Lần cập nhật cuối: 15/01/2026 bởi{" "}
-          <span className="font-medium text-gray-700">Admin</span>
-        </span>
+      {/* Footer mượt mà */}
+      <div className="mt-10 pt-8 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-6">
+        <div className="flex items-center gap-3">
+          <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            Last_Update: 15/01/2026 // By_Admin
+          </span>
+        </div>
 
         <Button
           onClick={handleSave}
           disabled={isLoading}
-          className="bg-[#F27124] hover:bg-[#d65d1b] text-white shadow-md shadow-orange-500/20 rounded-xl px-6 min-w-[140px] order-1 sm:order-2 w-full sm:w-auto transition-all"
+          className="h-14 bg-slate-900 hover:bg-[#F27124] text-white rounded-[20px] px-10 transition-all duration-300 active:scale-95 shadow-xl hover:shadow-[#F27124]/20"
         >
           {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang lưu...
-            </>
+            <Loader2 className="h-5 w-5 animate-spin mr-3" />
           ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" /> Lưu cấu hình
-            </>
+            <Save className="h-5 w-5 mr-3" />
           )}
+          <span className="font-black uppercase tracking-widest text-xs">
+            Lưu cấu hình
+          </span>
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
+  );
+}
+
+function SectionHeader({ icon: Icon, title }: any) {
+  return (
+    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+      <Icon className="h-4 w-4 text-[#F27124]" />
+      <span className="text-[12px] font-black uppercase tracking-widest text-slate-900">
+        {title}
+      </span>
+    </div>
+  );
+}
+
+function WeightInput({ label, defaultValue }: any) {
+  return (
+    <div className="space-y-2">
+      <Label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1">
+        {label}
+      </Label>
+      <div className="relative">
+        <Input
+          type="number"
+          defaultValue={defaultValue}
+          className="h-12 rounded-2xl border-slate-200 pr-10 font-bold bg-slate-50/50 focus:bg-white"
+        />
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">
+          %
+        </span>
+      </div>
+    </div>
   );
 }

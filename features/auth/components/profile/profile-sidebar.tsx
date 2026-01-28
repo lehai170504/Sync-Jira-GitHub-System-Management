@@ -6,22 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Camera,
-  Github,
-  Linkedin,
   Mail,
   Loader2,
   User as UserIcon,
+  Fingerprint,
+  ShieldCheck,
 } from "lucide-react";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 
 export function ProfileSidebar() {
-  // Sử dụng Hook lấy dữ liệu từ API
   const { data, isLoading, isError } = useProfile();
-
-  // Lấy user từ data trả về
   const user = data?.user;
 
-  // Hàm helper hiển thị Role
   const getRoleDisplayName = (role?: string) => {
     switch (role) {
       case "ADMIN":
@@ -35,7 +31,6 @@ export function ProfileSidebar() {
     }
   };
 
-  // Hàm helper lấy initials
   const getInitials = (name?: string) => {
     if (!name) return "U";
     return name
@@ -46,122 +41,116 @@ export function ProfileSidebar() {
       .toUpperCase();
   };
 
-  // 1. Trạng thái Loading
   if (isLoading) {
     return (
-      <aside className="w-full md:w-1/4 space-y-6">
-        <Card className="h-80 flex items-center justify-center border-slate-200">
-          <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+      <div className="space-y-6 w-full font-mono">
+        <Card className="h-[400px] flex flex-col items-center justify-center border-slate-200/60 rounded-[32px] bg-white shadow-sm">
+          <Loader2 className="h-10 w-10 animate-spin text-[#F27124] opacity-20" />
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-4">
+            Loading_Profile...
+          </p>
         </Card>
-      </aside>
+      </div>
     );
   }
 
-  // 2. Trạng thái Lỗi hoặc không có user
   if (isError || !user) {
     return (
-      <aside className="w-full md:w-1/4 space-y-6">
-        <Card className="p-6 text-center text-muted-foreground border-slate-200">
-          Không thể tải thông tin người dùng.
+      <div className="w-full font-mono">
+        <Card className="p-8 text-center text-slate-400 border-slate-200/60 rounded-[32px] uppercase font-bold text-xs tracking-widest bg-white">
+          Error_Fetch_User_Data
         </Card>
-      </aside>
+      </div>
     );
   }
 
   return (
-    <aside className="w-full md:w-1/4 space-y-6">
-      {/* CARD 1: USER INFO */}
-      <Card className="text-center overflow-hidden border-slate-200 shadow-sm">
-        {/* Cover Background */}
-        <div className="h-24 bg-gradient-to-r from-orange-400 to-red-500"></div>
+    <div className="space-y-6 w-full font-mono">
+      {/* CARD 1: IDENTITY CARD */}
+      <Card className="overflow-hidden border-slate-200/60 rounded-[32px] bg-white shadow-sm transition-all hover:shadow-md">
+        <div className="h-28 bg-[#0B0F1A] relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#F27124_1px,transparent_1px)] [background-size:16px_16px]" />
+          <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white to-transparent" />
+        </div>
 
         {/* Avatar Section */}
-        <div className="relative -mt-12 flex justify-center">
-          <div className="relative">
-            <Avatar className="h-24 w-24 border-4 border-white shadow-md bg-white">
+        <div className="relative -mt-14 flex justify-center">
+          <div className="relative group">
+            <Avatar className="h-28 w-28 border-[6px] border-white shadow-xl bg-white rounded-[32px]">
               <AvatarImage src={user.avatar_url} className="object-cover" />
-              <AvatarFallback className="text-2xl font-bold bg-slate-100 text-slate-500">
+              <AvatarFallback className="text-3xl font-black bg-orange-50 text-[#F27124]">
                 {getInitials(user.full_name)}
               </AvatarFallback>
             </Avatar>
             <Button
               size="icon"
-              variant="secondary"
-              className="absolute bottom-0 right-0 rounded-full h-8 w-8 shadow-sm border border-white hover:bg-slate-100"
+              className="absolute -bottom-1 -right-1 rounded-2xl h-9 w-9 shadow-lg bg-[#F27124] hover:bg-[#d65d1b] text-white border-4 border-white transition-transform group-hover:scale-110"
             >
-              <Camera className="h-4 w-4 text-gray-600" />
+              <Camera className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        <CardContent className="pt-4 pb-6">
-          <h2
-            className="text-xl font-bold text-gray-900 truncate px-2"
-            title={user.full_name}
-          >
+        <CardContent className="pt-5 pb-8 text-center">
+          <h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter line-clamp-1">
             {user.full_name}
           </h2>
 
-          {/* Hiển thị MSSV nếu là sinh viên, hoặc Email */}
-          <p className="text-sm text-muted-foreground font-medium truncate px-4 mt-1">
-            {(user as any).student_code || user.email}
-          </p>
-
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <Badge
-              variant="secondary"
-              className="font-normal bg-slate-100 text-slate-700 hover:bg-slate-200"
-            >
+          <div className="mt-6 flex flex-col gap-2">
+            <Badge className="w-full justify-center py-1.5 bg-slate-900 text-white border-none rounded-xl text-[10px] font-black uppercase tracking-[0.1em]">
               {getRoleDisplayName(user.role)}
             </Badge>
 
-            {/* Hiển thị Verify Status */}
             {user.is_verified && (
-              <Badge
-                variant="outline"
-                className="border-green-200 text-green-700 bg-green-50 font-normal"
-              >
-                Đã xác thực
-              </Badge>
+              <div className="flex items-center justify-center gap-1.5 py-1 text-emerald-600">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="text-[9px] font-black uppercase tracking-widest">
+                  Verified_Account
+                </span>
+              </div>
             )}
           </div>
         </CardContent>
       </Card>
 
-      {/* CARD 2: CONTACT & SOCIAL */}
-      <Card className="border-slate-200 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-            Thông tin liên hệ
+      {/* CARD 2: CONTACT & METADATA */}
+      <Card className="border-slate-200/60 rounded-[32px] bg-white shadow-sm overflow-hidden">
+        <CardHeader className="pb-4 bg-slate-50/50 border-b border-slate-100">
+          <CardTitle className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+            <Fingerprint className="w-3.5 h-3.5 text-[#F27124]" />
+            Thông tin hệ thống
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="pt-6 space-y-5">
           {/* Email */}
-          <div className="flex items-center gap-3 text-sm group cursor-pointer overflow-hidden">
-            <div className="p-2 bg-orange-50 rounded-full group-hover:bg-orange-100 transition-colors flex-shrink-0">
-              <Mail className="h-4 w-4 text-orange-600" />
+          <div className="group space-y-1.5">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">
+              Email_Address
+            </p>
+            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-transparent group-hover:border-orange-100 group-hover:bg-white transition-all">
+              <Mail className="h-4 w-4 text-[#F27124]" />
+              <span className="text-[12px] font-bold text-slate-700 truncate lowercase">
+                {user.email}
+              </span>
             </div>
-            <span
-              className="text-muted-foreground group-hover:text-gray-900 transition-colors truncate"
-              title={user.email}
-            >
-              {user.email}
-            </span>
           </div>
 
-          {/* Major (Nếu có) */}
+          {/* Major */}
           {(user as any).major && (
-            <div className="flex items-center gap-3 text-sm group cursor-pointer">
-              <div className="p-2 bg-blue-50 rounded-full group-hover:bg-blue-100 transition-colors flex-shrink-0">
-                <UserIcon className="h-4 w-4 text-blue-600" />
+            <div className="group space-y-1.5">
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                Academic_Major
+              </p>
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-transparent group-hover:border-blue-100 group-hover:bg-white transition-all">
+                <UserIcon className="h-4 w-4 text-blue-500" />
+                <span className="text-[12px] font-bold text-slate-700 uppercase tracking-tight">
+                  {(user as any).major}
+                </span>
               </div>
-              <span className="text-muted-foreground group-hover:text-gray-900 transition-colors">
-                {(user as any).major}
-              </span>
             </div>
           )}
         </CardContent>
       </Card>
-    </aside>
+    </div>
   );
 }

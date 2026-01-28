@@ -5,41 +5,42 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Mail,
   Save,
   Loader2,
   User as UserIcon,
-  Badge,
   BookOpen,
   GraduationCap,
   Link as LinkIcon,
-  Image as ImageIcon,
+  ShieldCheck,
+  Hash,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUpdateProfile } from "@/features/auth/hooks/use-profile";
 
-// Import Hook đã chuẩn hóa
-import {
-  useProfile,
-  useUpdateProfile,
-} from "@/features/auth/hooks/use-profile";
+interface ProfileInfoTabProps {
+  user:
+    | {
+        _id: string;
+        full_name: string;
+        email: string;
+        avatar_url: string;
+        student_code: string;
+        role: string;
+        major?: string;
+        ent?: string;
+        is_verified: boolean;
+      }
+    | undefined;
+}
 
-export function ProfileInfoTab() {
+export function ProfileInfoTab({ user }: ProfileInfoTabProps) {
+  // Phân loại vai trò người dùng
+  const isStudent = user?.role === "STUDENT";
+  const isLecturer = user?.role === "LECTURER";
 
-  const { data: profileData, isLoading } = useProfile();
-  const user = profileData?.user;
-
-  // 2. Hook cập nhật
   const { mutate: updateProfile, isPending: isSaving } = useUpdateProfile();
 
-  // 3. State Form
   const [formData, setFormData] = useState({
     full_name: "",
     major: "",
@@ -47,7 +48,7 @@ export function ProfileInfoTab() {
     avatar_url: "",
   });
 
-  // 4. Sync dữ liệu từ API vào Form khi load xong
+  // Đồng bộ dữ liệu từ API vào form (Không bao gồm student_code vì không cho sửa)
   useEffect(() => {
     if (user) {
       setFormData({
@@ -59,189 +60,195 @@ export function ProfileInfoTab() {
     }
   }, [user]);
 
-  // Handle Input Change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // Handle Submit
   const handleSaveProfile = () => {
     updateProfile({
       user: {
         full_name: formData.full_name,
-        major: formData.major,
-        ent: formData.ent,
+        // Chỉ gửi dữ liệu học vấn nếu là sinh viên
+        major: isStudent ? formData.major : undefined,
+        ent: isStudent ? formData.ent : undefined,
         avatar_url: formData.avatar_url,
       },
     });
   };
 
-  // Loading Skeleton
-  if (isLoading) {
-    return (
-      <Card className="border-slate-200 shadow-sm">
-        <CardHeader>
-          <div className="h-6 w-48 bg-slate-100 animate-pulse rounded" />
-          <div className="h-4 w-72 bg-slate-100 animate-pulse rounded mt-2" />
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-10 w-full bg-slate-100 animate-pulse rounded"
-            />
-          ))}
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <Card className="border-slate-200 shadow-sm animate-in fade-in-50 slide-in-from-left-2 duration-300">
-      <CardHeader>
-        <CardTitle>Thông tin cơ bản</CardTitle>
-        <CardDescription>
-          Thông tin này sẽ được hiển thị công khai cho thành viên trong dự án.
-        </CardDescription>
-      </CardHeader>
+    <div className="space-y-10 font-mono animate-in fade-in slide-in-from-top-4 duration-700">
+      {/* --- PHẦN 1: QUẢN LÝ AVATAR --- */}
+      <div className="bg-white rounded-[32px] border border-slate-200/60 p-8 shadow-sm transition-all hover:shadow-md">
+        <div className="flex flex-col gap-2 mb-8 border-b border-slate-50 pb-4">
+          <h4 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-400">
+            01: QUẢN LÝ ẢNH ĐẠI DIỆN
+          </h4>
+        </div>
 
-      <CardContent className="space-y-6">
-        {/* --- SECTION 1: ẢNH ĐẠI DIỆN --- */}
-        <div className="space-y-3">
-          <Label
-            htmlFor="avatar_url"
-            className="text-sm font-medium text-slate-700"
-          >
-            Ảnh đại diện
-          </Label>
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-            {/* Avatar Preview */}
-            <Avatar className="h-16 w-16 border-2 border-slate-100 shadow-sm">
-              <AvatarImage
-                src={formData.avatar_url}
-                alt="Preview"
-                className="object-cover"
-              />
-              <AvatarFallback className="bg-slate-100">
-                <UserIcon className="h-8 w-8 text-slate-300" />
+        <div className="flex flex-col md:flex-row gap-10 items-center">
+          <div className="relative group">
+            <Avatar className="h-28 w-28 border-[6px] border-white shadow-2xl rounded-[32px]">
+              <AvatarImage src={formData.avatar_url} className="object-cover" />
+              <AvatarFallback className="bg-orange-50 text-[#F27124] text-3xl font-black">
+                {user?.full_name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
+            <div className="absolute -bottom-2 -right-2 p-2.5 bg-white rounded-2xl shadow-xl border border-slate-100">
+              <ShieldCheck className="w-5 h-5 text-emerald-500" />
+            </div>
+          </div>
 
-            {/* Input Link */}
-            <div className="flex-1 w-full space-y-1">
-              <div className="relative">
-                <Input
-                  id="avatar_url"
-                  value={formData.avatar_url}
-                  onChange={handleInputChange}
-                  placeholder="https://example.com/image.jpg"
-                  className="pl-9 h-10"
-                />
-                <LinkIcon className="h-4 w-4 absolute left-3 top-3 text-slate-400" />
-              </div>
-              <p className="text-[11px] text-muted-foreground pl-1">
-                *Dán đường dẫn ảnh trực tiếp (VD: Imgur, Google Photos).
-              </p>
+          <div className="flex-1 w-full space-y-4">
+            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+              Link Avatar Source
+            </Label>
+            <div className="relative">
+              <Input
+                id="avatar_url"
+                value={formData.avatar_url}
+                onChange={handleInputChange}
+                className="pl-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 font-bold text-xs"
+                placeholder="Dán link ảnh tại đây..."
+              />
+              <LinkIcon className="h-5 w-5 absolute left-4 top-4.5 text-slate-400" />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* --- SECTION 2: THÔNG TIN CÁ NHÂN --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Họ và tên */}
-          <div className="space-y-2">
-            <Label htmlFor="full_name">Họ và tên</Label>
+      {/* --- PHẦN 2: THÔNG TIN CHI TIẾT --- */}
+      <div className="bg-white rounded-[32px] border border-slate-200/60 p-8 shadow-sm transition-all hover:shadow-md">
+        <div className="flex flex-col gap-2 mb-10 border-b border-slate-50 pb-6">
+          <h4 className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-400">
+            02: DỮ LIỆU ĐỊNH DANH
+          </h4>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+          {/* Tên hiển thị (Dùng chung) */}
+          <div className={isLecturer ? "md:col-span-2 space-y-3" : "space-y-3"}>
+            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+              Họ Và Tên Đầy Đủ
+            </Label>
             <div className="relative">
               <Input
                 id="full_name"
                 value={formData.full_name}
                 onChange={handleInputChange}
-                className="pl-9"
-                placeholder="Nhập họ tên..."
+                className="pl-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 font-bold"
               />
-              <UserIcon className="h-4 w-4 absolute left-3 top-3 text-slate-400" />
+              <UserIcon className="h-5 w-5 absolute left-4 top-4.5 text-slate-400" />
             </div>
           </div>
 
-          {/* Mã số (Read-only) */}
-          <div className="space-y-2">
-            <Label>
-              Mã số ({user?.role === "LECTURER" ? "Giảng viên" : "Sinh viên"})
-            </Label>
-            <div className="relative">
-              <Input
-                value={user?.student_code || "Chưa cập nhật"}
-                disabled
-                className="pl-9 bg-slate-50 text-slate-500 font-mono"
-              />
-              <Badge className="h-4 w-4 absolute left-3 top-3 text-slate-400" />
+          {/* Nếu là SINH VIÊN: Hiện Mã số (Chỉ đọc) + Email (Chỉ đọc) */}
+          {isStudent && (
+            <>
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                  Mã Số Sinh Viên
+                </Label>
+                <div className="relative">
+                  <Input
+                    value={user?.student_code || "N/A"}
+                    disabled
+                    className="pl-12 h-14 rounded-2xl bg-slate-100 text-slate-400 border-none font-black tracking-widest cursor-not-allowed"
+                  />
+                  <Hash className="h-5 w-5 absolute left-4 top-4.5 text-slate-300" />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                  Email Fpt Academic
+                </Label>
+                <div className="relative">
+                  <Input
+                    value={user?.email}
+                    disabled
+                    className="pl-12 h-14 rounded-2xl bg-slate-100 text-slate-400 border-none font-bold cursor-not-allowed"
+                  />
+                  <Mail className="h-5 w-5 absolute left-4 top-4.5 text-slate-300" />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                  Chuyên Ngành
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="major"
+                    value={formData.major}
+                    onChange={handleInputChange}
+                    className="pl-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 font-bold uppercase"
+                  />
+                  <BookOpen className="h-5 w-5 absolute left-4 top-4.5 text-slate-400" />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                  Niên Khóa Kỳ Nhập Học
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="ent"
+                    value={formData.ent}
+                    onChange={handleInputChange}
+                    className="pl-12 h-14 rounded-2xl bg-slate-50/50 border-slate-200 font-bold uppercase"
+                  />
+                  <GraduationCap className="h-5 w-5 absolute left-4 top-4.5 text-slate-400" />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Nếu là GIẢNG VIÊN: Chỉ hiện Email (Chỉ đọc) */}
+          {isLecturer && (
+            <div className="md:col-span-2 space-y-3">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                Email Fpt Academic
+              </Label>
+              <div className="relative">
+                <Input
+                  value={user?.email}
+                  disabled
+                  className="pl-12 h-14 rounded-2xl bg-slate-100 text-slate-400 border-none font-bold cursor-not-allowed"
+                />
+                <Mail className="h-5 w-5 absolute left-4 top-4.5 text-slate-300" />
+              </div>
             </div>
-          </div>
+          )}
+        </div>
+      </div>
+
+      {/* --- ACTION BAR --- */}
+      <div className="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-[32px] border border-slate-200/60 shadow-lg">
+        <div className="flex items-center gap-3 mb-4 md:mb-0">
+          <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            Dữ liệu sẵn sàng đồng bộ
+          </span>
         </div>
 
-        {/* --- SECTION 3: EMAIL (Read-only) --- */}
-        <div className="space-y-2">
-          <Label>Email FPT</Label>
-          <div className="relative">
-            <Input
-              value={user?.email}
-              disabled
-              className="pl-9 bg-slate-50 text-slate-500"
-            />
-            <Mail className="h-4 w-4 absolute left-3 top-3 text-slate-400" />
-          </div>
-        </div>
-
-        {/* --- SECTION 4: HỌC VẤN --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="major">Chuyên ngành</Label>
-            <div className="relative">
-              <Input
-                id="major"
-                value={formData.major}
-                onChange={handleInputChange}
-                placeholder="VD: Kỹ thuật phần mềm"
-                className="pl-9"
-              />
-              <BookOpen className="h-4 w-4 absolute left-3 top-3 text-slate-400" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="ent">Khóa / Niên khóa (Ent)</Label>
-            <div className="relative">
-              <Input
-                id="ent"
-                value={formData.ent}
-                onChange={handleInputChange}
-                placeholder="VD: K18"
-                className="pl-9"
-              />
-              <GraduationCap className="h-4 w-4 absolute left-3 top-3 text-slate-400" />
-            </div>
-          </div>
-        </div>
-      </CardContent>
-
-      <CardFooter className="bg-slate-50/50 border-t border-slate-100 p-6 flex justify-end rounded-b-xl">
         <Button
           onClick={handleSaveProfile}
           disabled={isSaving}
-          className="bg-[#F27124] hover:bg-[#d65d1b] text-white shadow-md transition-all active:scale-95 min-w-[140px]"
+          className="h-16 bg-slate-900 hover:bg-[#F27124] text-white rounded-[20px] px-12 transition-all active:scale-95 shadow-2xl hover:shadow-[#F27124]/30 min-w-[240px]"
         >
           {isSaving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang lưu...
-            </>
+            <Loader2 className="h-6 w-6 animate-spin mr-3" />
           ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" /> Lưu thay đổi
-            </>
+            <Save className="h-5 w-5 mr-3" />
           )}
+          <span className="font-black uppercase tracking-[0.25em] text-xs">
+            {isSaving ? "ĐANG LƯU..." : "LƯU CẬP NHẬT"}
+          </span>
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }

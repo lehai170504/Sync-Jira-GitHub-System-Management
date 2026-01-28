@@ -57,7 +57,7 @@ export function UserMenuItems({
             asChild
             className="flex items-center gap-3 p-3 rounded-2xl cursor-pointer"
           >
-            <Link href="/lecturer/class-management">
+            <Link href="/lecturer/courses">
               <BookOpen className="h-5 w-5 text-slate-400" />
               <span className="text-sm font-semibold">Lớp đang dạy</span>
             </Link>

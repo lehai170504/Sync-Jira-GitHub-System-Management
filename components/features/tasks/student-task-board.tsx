@@ -11,12 +11,16 @@ import { toast } from "sonner";
 
 import { courses, initialSprints, initialTasks, members, statusColumns } from "./mock-data";
 import type { Sprint, Task } from "./types";
-import { isDateOverdue, isTaskOverdue, nextSprintId, nextTaskNumber } from "./utils";
+import { isDateOverdue, isTaskOverdue, nextTaskNumber } from "./utils";
 import { TaskBoardHeader } from "./task-board-header";
 import { KanbanView } from "./kanban-view";
 import { MemberTableView } from "./member-table-view";
 import { TaskDialog } from "./task-dialog";
 import { SprintDialog } from "./sprint-dialog";
+import { useClassTeams } from "@/features/student/hooks/use-class-teams";
+import { useMyClasses } from "@/features/student/hooks/use-my-classes";
+import { useTeamSprints } from "@/features/management/teams/hooks/use-team-sprints";
+import { useCreateSprint } from "@/features/management/teams/hooks/use-create-sprint";
 
 export function TaskBoard() {
   const [role, setRole] = useState<UserRole>("STUDENT");
@@ -24,7 +28,7 @@ export function TaskBoard() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [selectedCourse, setSelectedCourse] = useState<string>(courses[0]?.id ?? "");
   const [sprints, setSprints] = useState<Sprint[]>(initialSprints);
-  const [selectedPrint, setSelectedPrint] = useState<string>(initialSprints[0]?.id ?? "");
+  const [selectedPrint, setSelectedPrint] = useState<string>("");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -37,7 +41,7 @@ export function TaskBoard() {
     priority: "Medium",
     type: "General",
     courseId: courses[0]?.id ?? "",
-    printId: initialSprints[0]?.id ?? "",
+    printId: "",
     deadline: "",
   });
 
@@ -47,7 +51,93 @@ export function TaskBoard() {
     id: "",
     name: "",
     deadline: "",
+    start_date: "",
+    end_date: "",
   });
+
+  // Resolve teamId giống trang /commits và /config
+  const classId = Cookies.get("student_class_id") || "";
+  const myTeamName = Cookies.get("student_team_name");
+  const { data: teamsData } = useClassTeams(classId);
+  const myTeamInfo = teamsData?.teams?.find((t: any) => t.project_name === myTeamName);
+  const resolvedTeamId = myTeamInfo?._id || teamsData?.teams?.[0]?._id;
+
+  // Fetch sprints từ Jira
+  const { data: teamSprintsData, isLoading: isSprintsLoading } = useTeamSprints(resolvedTeamId);
+  
+  // Hook để tạo sprint mới
+  const { mutate: createSprint, isPending: isCreatingSprint } = useCreateSprint();
+
+  const formatDateVN_yyyyMMdd = (iso?: string) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    // en-CA gives YYYY-MM-DD
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(d);
+  };
+
+  const apiSprints: Sprint[] = useMemo(() => {
+    if (!teamSprintsData || teamSprintsData.length === 0) return [];
+    return teamSprintsData.map((s: any) => {
+      const id = s._id || s.id || `${s.name}-${s.start_date || ""}-${s.end_date || ""}`;
+      const deadline = typeof s.end_date === "string" ? formatDateVN_yyyyMMdd(s.end_date) : "";
+      return { id, name: s.name, deadline };
+    });
+  }, [teamSprintsData]);
+
+  // Map sprintId -> meta từ API (start_date, end_date, state)
+  const sprintMetaMap = useMemo(() => {
+    if (!teamSprintsData) return {} as Record<
+      string,
+      { start_date?: string; end_date?: string; state?: string }
+    >;
+    const map: Record<string, { start_date?: string; end_date?: string; state?: string }> = {};
+    teamSprintsData.forEach((s: any) => {
+      const id =
+        s._id ||
+        s.id ||
+        `${s.name}-${s.start_date || ""}-${s.end_date || ""}`;
+      map[id] = {
+        start_date: s.start_date,
+        end_date: s.end_date,
+        state: s.state,
+      };
+    });
+    return map;
+  }, [teamSprintsData]);
+
+  // Cập nhật sprints state từ API (fallback về mock nếu API rỗng)
+  useEffect(() => {
+    if (apiSprints.length > 0) {
+      setSprints(apiSprints);
+    } else {
+      setSprints(initialSprints);
+    }
+  }, [apiSprints]);
+
+  // Default chọn sprint: ưu tiên sprint active (nếu có), fallback sprint đầu tiên
+  useEffect(() => {
+    if (!sprints || sprints.length === 0) return;
+
+    const exists = !!selectedPrint && sprints.some((sp) => sp.id === selectedPrint);
+    if (exists) return;
+
+    const activeFromApi = teamSprintsData?.find((s: any) => s.state === "active");
+    const activeId = activeFromApi
+      ? activeFromApi._id ||
+        activeFromApi.id ||
+        `${activeFromApi.name}-${activeFromApi.start_date || ""}-${activeFromApi.end_date || ""}`
+      : undefined;
+
+    const nextSelected = activeId && sprints.some((sp) => sp.id === activeId) ? activeId : sprints[0].id;
+    setSelectedPrint(nextSelected);
+    setFormTask((prev) => ({ ...prev, printId: nextSelected }));
+  }, [sprints, selectedPrint, teamSprintsData]);
 
   // Lấy current user ID (giả sử MEMBER có ID "m2", LEADER có thể là "m1")
   const [currentUserId, setCurrentUserId] = useState<string>("m2");
@@ -146,22 +236,14 @@ export function TaskBoard() {
     toast.success("Đã xóa task");
   };
 
-  const visibleTasks = useMemo(
-    () =>
-      tasks.filter(
-        (t) => t.courseId === selectedCourse && t.printId === selectedPrint,
-      ),
-    [tasks, selectedCourse, selectedPrint],
-  );
-
-  const currentSprint = useMemo(
-    () => sprints.find((p) => p.id === selectedPrint),
-    [sprints, selectedPrint],
-  );
-  const sprintOverdue = isDateOverdue(currentSprint?.deadline);
-
   const resetSprintForm = () => {
-    setFormSprint({ id: "", name: "", deadline: "" });
+    setFormSprint({ 
+      id: "", 
+      name: "", 
+      deadline: "",
+      start_date: "",
+      end_date: "",
+    });
     setEditingSprint(null);
   };
 
@@ -170,11 +252,20 @@ export function TaskBoard() {
       toast.error("Vui lòng nhập tên sprint");
       return;
     }
-    if (!formSprint.deadline) {
-      toast.error("Vui lòng chọn deadline sprint");
+    if (!formSprint.start_date) {
+      toast.error("Vui lòng chọn ngày bắt đầu sprint");
+      return;
+    }
+    if (!formSprint.end_date) {
+      toast.error("Vui lòng chọn ngày kết thúc sprint");
+      return;
+    }
+    if (!resolvedTeamId) {
+      toast.error("Không tìm thấy team ID");
       return;
     }
 
+    // Nếu đang edit, giữ logic cũ (chưa có API update)
     if (editingSprint) {
       setSprints((prev) =>
         prev.map((s) =>
@@ -182,15 +273,27 @@ export function TaskBoard() {
         ),
       );
       toast.success("Đã cập nhật sprint");
-    } else {
-      const newId = nextSprintId(sprints);
-      setSprints((prev) => [...prev, { ...formSprint, id: newId }]);
-      if (!selectedPrint) setSelectedPrint(newId);
-      toast.success("Đã thêm sprint mới");
+      setSprintDialogOpen(false);
+      resetSprintForm();
+      return;
     }
 
-    setSprintDialogOpen(false);
-    resetSprintForm();
+    // Tạo sprint mới qua API
+    createSprint(
+      {
+        team_id: resolvedTeamId,
+        name: formSprint.name.trim(),
+        start_date: formSprint.start_date,
+        end_date: formSprint.end_date,
+      },
+      {
+        onSuccess: () => {
+          setSprintDialogOpen(false);
+          resetSprintForm();
+          // Sprints sẽ được refetch tự động sau khi tạo thành công
+        },
+      }
+    );
   };
 
   const handleDeleteSprint = (id: string) => {
@@ -206,6 +309,23 @@ export function TaskBoard() {
     }
     toast.success("Đã xóa sprint");
   };
+
+  const visibleTasks = useMemo(
+    () =>
+      tasks.filter(
+        (t) => t.courseId === selectedCourse && t.printId === selectedPrint,
+      ),
+    [tasks, selectedCourse, selectedPrint],
+  );
+
+  const currentSprint = useMemo(
+    () => sprints.find((p) => p.id === selectedPrint),
+    [sprints, selectedPrint],
+  );
+  const sprintOverdue = isDateOverdue(currentSprint?.deadline);
+  const currentSprintMeta = sprintMetaMap[selectedPrint] || undefined;
+
+  // NOTE: Sprints được lấy từ Jira nên không cho thao tác CRUD thủ công tại UI /tasks.
 
   // Trang này dành cho Sinh viên
   if (role !== "STUDENT" && role !== "LEADER" && role !== "MEMBER") {
@@ -239,9 +359,11 @@ export function TaskBoard() {
             setSelectedPrint(v);
             setFormTask((prev) => ({ ...prev, printId: v }));
           }}
+          isSprintsLoading={isSprintsLoading}
           currentSprint={currentSprint}
           sprintOverdue={sprintOverdue}
           isLeader={isLeader}
+          sprintMeta={currentSprintMeta}
           onAddSprint={() => {
             setEditingSprint(null);
             resetSprintForm();
@@ -351,7 +473,9 @@ export function TaskBoard() {
         formSprint={formSprint}
         setFormSprint={setFormSprint}
         onSave={handleSaveSprint}
+        isSaving={isCreatingSprint}
       />
+
     </div>
   );
 }

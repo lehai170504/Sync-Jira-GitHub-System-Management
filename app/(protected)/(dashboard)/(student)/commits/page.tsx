@@ -24,11 +24,6 @@ export default function LeaderCommitListPage() {
   if (!mounted) {
     return <div className="max-w-6xl mx-auto py-8 px-4 md:px-0" />;
   }
-
-  // Logic cũ: Chỉ LEADER và MEMBER mới được truy cập
-  // Logic mới: STUDENT (đã có role hệ thống) đều vào được, component con sẽ tự xử lý view
-  // Tuy nhiên, nếu muốn giữ UX cũ (chặn truy cập nếu role không phù hợp), ta có thể check role hệ thống.
-  // Ở đây giả sử STUDENT là role hệ thống cho cả Leader và Member.
   
   if (role !== "STUDENT") {
     return (

@@ -264,19 +264,22 @@ function ConnectionRow({ isConnected, label, icon: Icon, colorClass }: any) {
 }
 
 function MemberItem({ mem }: any) {
+  if (!mem?.student_id) return null;
+
+  const student = mem.student_id;
   return (
     <div className="group flex items-center justify-between p-4 bg-white rounded-3xl border border-slate-100 hover:border-orange-200 transition-all shadow-sm">
       <div className="flex items-center gap-4">
         <Avatar className="h-11 w-11 rounded-2xl border-2 border-white shadow-sm ring-1 ring-slate-100">
-          <AvatarImage src={mem.student_id.avatar_url} />
+          <AvatarImage src={student?.avatar_url} />
           <AvatarFallback className="bg-slate-50 text-slate-400 font-black">
-            {mem.student_id.full_name.charAt(0)}
+            {student?.full_name?.charAt(0) || "?"}
           </AvatarFallback>
         </Avatar>
         <div>
           <div className="flex items-center gap-2">
             <p className="text-sm font-black text-slate-900 tracking-tight leading-none">
-              {mem.student_id.full_name}
+              {student?.full_name || "N/A"}
             </p>
             {mem.role_in_team === "Leader" && (
               <Badge className="bg-yellow-400 text-yellow-900 hover:bg-yellow-400 border-none text-[9px] font-black uppercase px-2 py-0 h-4">
@@ -285,7 +288,7 @@ function MemberItem({ mem }: any) {
             )}
           </div>
           <p className="text-[11px] text-slate-400 font-medium mt-1.5">
-            {mem.student_id.email}
+            {student?.email || "No email"}
           </p>
         </div>
       </div>
@@ -293,7 +296,7 @@ function MemberItem({ mem }: any) {
         variant="outline"
         className="font-mono text-[10px] text-slate-400 border-slate-100 px-2"
       >
-        {mem.student_id.student_code}
+        {student?.student_code || "No ID"}
       </Badge>
     </div>
   );

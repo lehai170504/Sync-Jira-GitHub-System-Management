@@ -34,12 +34,10 @@ export interface UserProfile {
 }
 
 export interface UpdateProfilePayload {
-  user: {
-    full_name?: string;
-    major?: string;
-    ent?: string;
-    avatar_url?: string;
-  };
+  full_name?: string;
+  major?: string;
+  ent?: string;
+  avatar_url?: string;
 }
 
 export const getUserProfileApi = async (): Promise<UserProfile> => {
@@ -48,6 +46,6 @@ export const getUserProfileApi = async (): Promise<UserProfile> => {
 };
 
 export const updateProfileApi = async (payload: UpdateProfilePayload) => {
-  const { data } = await axiosClient.patch("/auth/me", payload);
+  const { data } = await axiosClient.put("/auth/me", payload);
   return data;
 };

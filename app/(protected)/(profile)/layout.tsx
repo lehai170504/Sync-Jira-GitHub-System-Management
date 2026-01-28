@@ -4,9 +4,9 @@ import { usePathname } from "next/navigation";
 import { UserNav } from "@/components/layouts/user-nav";
 import { NotificationsNav } from "@/components/layouts/notifications-nav";
 import { Footer } from "@/components/layouts/footer";
-import { useProfile } from "@/features/auth/hooks/use-profile";
 import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function SettingsLayout({
   children,
@@ -14,7 +14,7 @@ export default function SettingsLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { data: profile } = useProfile();
+  const router = useRouter();
 
   const translationMap: Record<string, string> = {
     profile: "HỒ SƠ CÁ NHÂN",
@@ -33,15 +33,12 @@ export default function SettingsLayout({
       {/* HEADER: Sticky & Glassmorphism */}
       <header className="sticky top-0 shrink-0 flex items-center justify-between px-8 border-b border-slate-200/60 h-20 bg-white/70 backdrop-blur-xl z-40">
         <div className="flex items-center gap-6">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2 text-slate-500 hover:text-[#F27124] transition-all group active:scale-95"
-          >
+          <Button type="button" onClick={() => router.back()}>
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-              QUAY_VỀ_HỆ_THỐNG
+              QUAY LẠI
             </span>
-          </Link>
+          </Button>
           <div className="h-6 w-[1.5px] bg-slate-200" />
           <span className="text-[11px] font-black uppercase tracking-[0.15em] text-[#F27124]">
             CÀI_ĐẶT_NGƯỜI_DÙNG // {vietnamesePath}

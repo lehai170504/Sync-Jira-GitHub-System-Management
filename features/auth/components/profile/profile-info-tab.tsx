@@ -35,7 +35,6 @@ interface ProfileInfoTabProps {
 }
 
 export function ProfileInfoTab({ user }: ProfileInfoTabProps) {
-  // Phân loại vai trò người dùng
   const isStudent = user?.role === "STUDENT";
   const isLecturer = user?.role === "LECTURER";
 
@@ -48,7 +47,6 @@ export function ProfileInfoTab({ user }: ProfileInfoTabProps) {
     avatar_url: "",
   });
 
-  // Đồng bộ dữ liệu từ API vào form (Không bao gồm student_code vì không cho sửa)
   useEffect(() => {
     if (user) {
       setFormData({
@@ -66,14 +64,14 @@ export function ProfileInfoTab({ user }: ProfileInfoTabProps) {
   };
 
   const handleSaveProfile = () => {
+    // FIX TẠI ĐÂY: Gửi object phẳng theo interface mới
     updateProfile({
-      user: {
-        full_name: formData.full_name,
-        // Chỉ gửi dữ liệu học vấn nếu là sinh viên
-        major: isStudent ? formData.major : undefined,
-        ent: isStudent ? formData.ent : undefined,
-        avatar_url: formData.avatar_url,
-      },
+      full_name: formData.full_name,
+      avatar_url: formData.avatar_url,
+      ...(isStudent && {
+        major: formData.major,
+        ent: formData.ent,
+      }),
     });
   };
 
@@ -101,7 +99,10 @@ export function ProfileInfoTab({ user }: ProfileInfoTabProps) {
           </div>
 
           <div className="flex-1 w-full space-y-4">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+            <Label
+              htmlFor="avatar_url"
+              className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"
+            >
               Link Avatar Source
             </Label>
             <div className="relative">
@@ -127,7 +128,6 @@ export function ProfileInfoTab({ user }: ProfileInfoTabProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-          {/* Tên hiển thị (Dùng chung) */}
           <div className={isLecturer ? "md:col-span-2 space-y-3" : "space-y-3"}>
             <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
               Họ Và Tên Đầy Đủ
@@ -143,7 +143,6 @@ export function ProfileInfoTab({ user }: ProfileInfoTabProps) {
             </div>
           </div>
 
-          {/* Nếu là SINH VIÊN: Hiện Mã số (Chỉ đọc) + Email (Chỉ đọc) */}
           {isStudent && (
             <>
               <div className="space-y-3">
@@ -206,7 +205,6 @@ export function ProfileInfoTab({ user }: ProfileInfoTabProps) {
             </>
           )}
 
-          {/* Nếu là GIẢNG VIÊN: Chỉ hiện Email (Chỉ đọc) */}
           {isLecturer && (
             <div className="md:col-span-2 space-y-3">
               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">

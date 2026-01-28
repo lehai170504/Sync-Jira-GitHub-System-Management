@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
 import { Separator } from "@/components/ui/separator";
-import { GitCommit, Loader2 } from "lucide-react";
+import { GitCommit, Loader2, AlertCircle } from "lucide-react";
 import { mockCommits, mockCommitDetails } from "./mock-data";
 import { CommitFilters } from "./commit-filters";
 import { CommitListTable } from "./commit-list-table";
@@ -14,378 +14,346 @@ import type { CommitItem } from "./types";
 import { useTeamMembers } from "@/features/student/hooks/use-team-members";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
-import { useTeamCommits, useMemberCommits } from "@/features/integration/hooks/use-team-commits";
+import {
+  useTeamCommits,
+  useMemberCommits,
+} from "@/features/integration/hooks/use-team-commits";
 import { useMyCommits } from "@/features/integration/hooks/use-my-commits";
 
 interface LeaderCommitsProps {
-  role?: UserRole; // Deprecated
+  role?: UserRole;
   isLeader?: boolean;
 }
 
-export function LeaderCommits({ role: propRole, isLeader: propIsLeader }: LeaderCommitsProps) {
-  const [role, setRole] = useState<UserRole>("STUDENT");
+export function LeaderCommits({
+  role: propRole,
+  isLeader: propIsLeader,
+}: LeaderCommitsProps) {
   const [isLeaderState, setIsLeaderState] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>("");
-  const [teamId, setTeamId] = useState<string | undefined>(undefined);
   const [selectedClassId, setSelectedClassId] = useState<string>("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [authorFilter, setAuthorFilter] = useState<string>("ALL");
   const [selectedCommitId, setSelectedCommitId] = useState<string | null>(null);
 
-  // API calls - Lấy danh sách classes
+  // 1. Lấy danh sách lớp học
   const { data: myClassesData, isLoading: isClassesLoading } = useMyClasses();
-  const currentStudentId = Cookies.get("student_id");
+  const currentStudentIdFromCookie = Cookies.get("student_id");
 
-  // Lấy classId từ selectedClassId hoặc cookie
-  const classId = selectedClassId || Cookies.get("student_class_id") || "";
-  const myTeamName = Cookies.get("student_team_name");
-  
-  const { data: teamsData, isLoading: isTeamLoading } = useClassTeams(classId);
-  const myTeamInfo = teamsData?.teams?.find(
-    (t: any) => t.project_name === myTeamName
-  );
-  const resolvedTeamId = myTeamInfo?._id;
-  
-  const { data: membersData, isLoading: isMembersLoading } = useTeamMembers(resolvedTeamId);
-
-  // Khởi tạo selectedClassId từ cookie hoặc class đầu tiên
+  // Khởi tạo selectedClassId
   useEffect(() => {
-    if (!selectedClassId && myClassesData?.classes && myClassesData.classes.length > 0) {
+    if (!selectedClassId && myClassesData?.classes?.length) {
       const cookieClassId = Cookies.get("student_class_id");
-      const foundClass = myClassesData.classes.find(
-        (c) => c.class._id === cookieClassId
+      const found = myClassesData.classes.find(
+        (c) => c.class._id === cookieClassId,
       );
-      if (foundClass) {
-        setSelectedClassId(foundClass.class._id);
-      } else {
-        // Nếu không tìm thấy class trong cookie, chọn class đầu tiên
-        setSelectedClassId(myClassesData.classes[0].class._id);
-      }
+      setSelectedClassId(
+        found?.class._id || myClassesData.classes[0].class._id,
+      );
     }
   }, [myClassesData, selectedClassId]);
 
-  // Set teamId khi đã có data
-  useEffect(() => {
-    if (resolvedTeamId) {
-      setTeamId(resolvedTeamId);
-    }
-  }, [resolvedTeamId]);
+  // 2. Lấy thông tin Team từ Class đã chọn
+  const classId = selectedClassId || Cookies.get("student_class_id") || "";
+  const myTeamName = Cookies.get("student_team_name");
 
-  // Lấy currentUserId và isLeader từ members data
+  const { data: teamsData, isLoading: isTeamLoading } = useClassTeams(classId);
+  const myTeamInfo = teamsData?.teams?.find(
+    (t: any) => t.project_name === myTeamName,
+  );
+  const resolvedTeamId = myTeamInfo?._id;
+
+  // 3. Lấy danh sách thành viên Team
+  const { data: membersData, isLoading: isMembersLoading } =
+    useTeamMembers(resolvedTeamId);
+
+  // Xử lý thông tin người dùng hiện tại và quyền Leader
   useEffect(() => {
-    if (membersData?.members && currentStudentId) {
+    if (membersData?.members && currentStudentIdFromCookie) {
       const currentMember = membersData.members.find(
-        (m) => m.student._id === currentStudentId
+        (m) => m?.student?._id === currentStudentIdFromCookie,
       );
-      if (currentMember?._id) {
+      if (currentMember) {
         setCurrentUserId(currentMember._id);
-        // Đánh dấu isLeader từ API data (role_in_team === "Leader")
-        const memberIsLeader = currentMember.role_in_team === "Leader";
         if (propIsLeader === undefined) {
-          setIsLeaderState(memberIsLeader);
+          setIsLeaderState(currentMember.role_in_team === "Leader");
         }
       }
     }
-  }, [membersData, currentStudentId, propIsLeader]);
+  }, [membersData, currentStudentIdFromCookie, propIsLeader]);
 
-  useEffect(() => {
-    const savedRole = Cookies.get("user_role") as UserRole;
-    const leaderCookie = Cookies.get("student_is_leader") === "true";
-    
-    // Ưu tiên prop truyền vào
-    if (propIsLeader !== undefined) {
-      setIsLeaderState(propIsLeader);
-    } else if (!membersData?.members) {
-      // Chỉ dùng cookie nếu chưa có API data
-      setIsLeaderState(leaderCookie);
-    }
+  const isLeader = propIsLeader !== undefined ? propIsLeader : isLeaderState;
 
-    if (savedRole) {
-      setRole(savedRole);
-    }
-  }, [propIsLeader, membersData]);
+  // Mapping dữ liệu thành viên an toàn
+  const validMembers = useMemo(
+    () => (membersData?.members || []).filter((m) => m && m.student),
+    [membersData],
+  );
 
-  const isLeader = isLeaderState;
-
-  // Tạo mapping từ author name sang memberId
   const authorToMemberIdMap = useMemo(() => {
-    if (!membersData?.members) return {};
     const map: Record<string, string> = {};
-    membersData.members.forEach((member) => {
-      map[member.student.full_name] = member._id; // Map tên thành viên sang memberId
+    validMembers.forEach((m) => {
+      map[m.student.full_name] = m._id;
     });
     return map;
-  }, [membersData]);
+  }, [validMembers]);
 
-  // Gọi API team commits khi isLeader và authorFilter === "ALL"
-  const shouldFetchTeamCommits = isLeader && authorFilter === "ALL" && !!resolvedTeamId;
-  const { data: teamCommitsData, isLoading: isTeamCommitsLoading } = useTeamCommits(
-    resolvedTeamId,
-    shouldFetchTeamCommits
-  );
+  // 4. Gọi các API Commits dựa trên quyền hạn
+  const shouldFetchTeamCommits =
+    isLeader && authorFilter === "ALL" && !!resolvedTeamId;
+  const { data: teamCommitsData, isLoading: isTeamCommitsLoading } =
+    useTeamCommits(resolvedTeamId, shouldFetchTeamCommits);
 
-  // Gọi API member commits khi isLeader và authorFilter !== "ALL"
-  const selectedMemberId = authorFilter !== "ALL" ? authorToMemberIdMap[authorFilter] : undefined;
-  const shouldFetchMemberCommits = isLeader && authorFilter !== "ALL" && !!resolvedTeamId && !!selectedMemberId;
-  const { data: memberCommitsData, isLoading: isMemberCommitsLoading } = useMemberCommits(
-    resolvedTeamId,
-    selectedMemberId,
-    shouldFetchMemberCommits
-  );
+  const selectedMemberId =
+    authorFilter !== "ALL" ? authorToMemberIdMap[authorFilter] : undefined;
+  const shouldFetchMemberCommits =
+    isLeader &&
+    authorFilter !== "ALL" &&
+    !!resolvedTeamId &&
+    !!selectedMemberId;
+  const { data: memberCommitsData, isLoading: isMemberCommitsLoading } =
+    useMemberCommits(
+      resolvedTeamId,
+      selectedMemberId,
+      shouldFetchMemberCommits,
+    );
 
-  // Gọi API my-commits khi không phải isLeader (MEMBER)
-  const shouldFetchMyCommits = !isLeader;
   const { data: myCommitsData, isLoading: isMyCommitsLoading } = useMyCommits();
 
-  // Tạo mapping từ API members data (giống /project)
-  const memberNameMap = useMemo(() => {
-    if (!membersData?.members) return {};
-    const map: Record<string, string> = {};
-    membersData.members.forEach((member) => {
-      // Map theo member._id (member ID) và student._id (student ID)
-      map[member._id] = member.student.full_name;
-      map[member.student._id] = member.student.full_name;
-    });
-    return map;
-  }, [membersData]);
-
-  const currentUserAuthorName = currentUserId ? memberNameMap[currentUserId] || "" : "";
-
-  // Lấy danh sách authors từ members data
-  const authors = useMemo(() => {
-    if (membersData?.members && membersData.members.length > 0) {
-      // Lấy tên từ members API
-      const memberNames = membersData.members.map((m) => m.student.full_name);
-      return memberNames.sort((a, b) => a.localeCompare(b, "vi"));
+  // Map dữ liệu Commits từ API về format chuẩn của UI
+  const allCommits: CommitItem[] = useMemo(() => {
+    let rawData = [];
+    if (isLeader) {
+      rawData =
+        authorFilter === "ALL"
+          ? teamCommitsData?.commits || []
+          : memberCommitsData?.commits || [];
+    } else {
+      rawData = myCommitsData?.commits || [];
     }
-    // Fallback về mock data nếu chưa có API data
-    const uniq = Array.from(new Set(mockCommits.map((c) => c.author)));
-    return uniq.sort((a, b) => a.localeCompare(b, "vi"));
-  }, [membersData]);
 
-  // Lấy danh sách tên các leader để đánh dấu
-  const leaderNames = useMemo(() => {
-    if (!membersData?.members) return [];
-    return membersData.members
-      .filter((m) => m.role_in_team === "Leader")
-      .map((m) => m.student.full_name);
-  }, [membersData]);
+    if (rawData.length === 0) return mockCommits; // Fallback
 
-  // Map API team commits sang format CommitItem
-  const apiTeamCommits: CommitItem[] = useMemo(() => {
-    if (!teamCommitsData?.commits) return [];
-    return teamCommitsData.commits.map((commit) => ({
-      id: commit._id,
-      message: commit.message,
-      author: commit.author,
-      branch: commit.branch,
-      date: commit.date,
+    return rawData.map((c: any) => ({
+      id: c._id || c.id,
+      message: c.message,
+      author: c.author,
+      branch: c.branch || "main",
+      date: c.date,
     }));
-  }, [teamCommitsData]);
+  }, [
+    isLeader,
+    authorFilter,
+    teamCommitsData,
+    memberCommitsData,
+    myCommitsData,
+  ]);
 
-  // Map API member commits sang format CommitItem
-  const apiMemberCommits: CommitItem[] = useMemo(() => {
-    if (!memberCommitsData?.commits) return [];
-    return memberCommitsData.commits.map((commit) => ({
-      id: commit._id,
-      message: commit.message,
-      author: commit.author,
-      branch: commit.branch,
-      date: commit.date,
-    }));
-  }, [memberCommitsData]);
-
-  // Map API my-commits sang format CommitItem (cho MEMBER)
-  const apiMyCommits: CommitItem[] = useMemo(() => {
-    if (!myCommitsData?.commits) return [];
-    return myCommitsData.commits.map((commit: any) => ({
-      id: commit._id,
-      message: commit.message,
-      author: commit.author,
-      branch: commit.branch,
-      date: commit.date,
-    }));
-  }, [myCommitsData]);
-
-  // Sử dụng commits từ API nếu có, fallback về mock data
-  const allCommits = useMemo(() => {
-    // Nếu là LEADER và filter "ALL", dùng API team commits
-    if (isLeader && authorFilter === "ALL" && apiTeamCommits.length > 0) {
-      return apiTeamCommits;
-    }
-    // Nếu là LEADER và filter theo author cụ thể, dùng API member commits
-    if (isLeader && authorFilter !== "ALL" && apiMemberCommits.length > 0) {
-      return apiMemberCommits;
-    }
-    // Nếu là MEMBER, dùng API my-commits
-    if (!isLeader && apiMyCommits.length > 0) {
-      return apiMyCommits;
-    }
-    // Fallback về mock
-    return mockCommits;
-  }, [isLeader, authorFilter, apiTeamCommits, apiMemberCommits, apiMyCommits]);
-
+  // Lọc dữ liệu hiển thị (Date range)
   const filteredCommits = useMemo(() => {
     const from = fromDate ? new Date(fromDate) : null;
     const to = toDate ? new Date(toDate) : null;
+    if (to) to.setHours(23, 59, 59, 999);
+
     return allCommits.filter((c) => {
-      // MEMBER chỉ xem commits của chính họ
-      if (!isLeader && c.author !== currentUserAuthorName) return false;
-      // LEADER có thể filter theo author (đã filter ở allCommits nếu dùng API)
-      if (isLeader && authorFilter !== "ALL" && c.author !== authorFilter) return false;
       const d = new Date(c.date);
       if (from && d < from) return false;
-      if (to) {
-        // include end date
-        const toEnd = new Date(to);
-        toEnd.setHours(23, 59, 59, 999);
-        if (d > toEnd) return false;
-      }
+      if (to && d > to) return false;
       return true;
     });
-  }, [fromDate, toDate, authorFilter, isLeader, currentUserAuthorName, allCommits]);
+  }, [fromDate, toDate, allCommits]);
 
-  const selectedCommit = useMemo(
-    () => (selectedCommitId ? allCommits.find((c) => c.id === selectedCommitId) : undefined),
-    [selectedCommitId, allCommits]
+  // Thông tin Header lọc
+  const authors = useMemo(
+    () =>
+      validMembers
+        .map((m) => m.student.full_name)
+        .sort((a, b) => a.localeCompare(b, "vi")),
+    [validMembers],
   );
-  const selectedDetail = selectedCommitId ? mockCommitDetails[selectedCommitId] : undefined;
+
+  const leaderNames = useMemo(
+    () =>
+      validMembers
+        .filter((m) => m.role_in_team === "Leader")
+        .map((m) => m.student.full_name),
+    [validMembers],
+  );
+
+  const classOptions = useMemo(
+    () =>
+      (myClassesData?.classes || []).map((item) => ({
+        id: item.class._id,
+        name: item.class.name,
+        code: item.class.class_code || "",
+      })),
+    [myClassesData],
+  );
 
   const handleResetFilters = () => {
     setFromDate("");
     setToDate("");
     setAuthorFilter("ALL");
-    // Reset class về class đầu tiên hoặc class từ cookie
-    if (myClassesData?.classes && myClassesData.classes.length > 0) {
-      const cookieClassId = Cookies.get("student_class_id");
-      const foundClass = myClassesData.classes.find(
-        (c) => c.class._id === cookieClassId
-      );
-      setSelectedClassId(foundClass?.class._id || myClassesData.classes[0].class._id);
-    }
   };
 
-  // Lấy danh sách classes để hiển thị trong dropdown
-  const classOptions = useMemo(() => {
-    if (!myClassesData?.classes) return [];
-    return myClassesData.classes.map((item) => ({
-      id: item.class._id,
-      name: item.class.name,
-      code: item.class.class_code || "",
-    }));
-  }, [myClassesData]);
-
-  const totalCommits = filteredCommits.length;
-  const validCommits = filteredCommits.filter((c) => getValidation(c.id).status === "valid").length;
-  const invalidCommits = totalCommits - validCommits;
-
-  // Loading state
-  if (
+  // Trạng thái Loading tổng hợp
+  const isLoading =
     isClassesLoading ||
     isTeamLoading ||
     isMembersLoading ||
     (shouldFetchTeamCommits && isTeamCommitsLoading) ||
     (shouldFetchMemberCommits && isMemberCommitsLoading) ||
-    (shouldFetchMyCommits && isMyCommitsLoading)
-  ) {
+    (!isLeader && isMyCommitsLoading);
+
+  if (isLoading) {
     return (
-      <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0">
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+      <div className="flex flex-col items-center justify-center h-96 gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
+        <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+          Đang đồng bộ dữ liệu Git...
+        </p>
+      </div>
+    );
+  }
+
+  // Nếu không có TeamId (User chưa vào nhóm)
+  if (!resolvedTeamId && !isClassesLoading) {
+    return (
+      <div className="p-12 text-center bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200">
+        <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+        <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">
+          Bạn chưa tham gia vào nhóm nào trong lớp học này.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0">
+    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0 animate-in fade-in duration-700">
       {/* HEADER */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-lg">
-            <GitCommit className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Lịch sử Commit
-            </h2>
-            <p className="text-muted-foreground mt-1">
-              Xem và quản lý tất cả các commit của nhóm theo thời gian
-            </p>
-          </div>
+      <div className="flex items-center gap-4">
+        <div className="p-4 bg-slate-900 rounded-[20px] shadow-xl shadow-slate-200 text-white">
+          <GitCommit className="h-6 w-6" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
+            Lịch sử Commit
+          </h2>
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+            {isLeader
+              ? "Quản lý đóng góp mã nguồn của toàn nhóm"
+              : "Xem lịch sử đóng góp cá nhân"}
+          </p>
         </div>
       </div>
 
-      <Separator className="bg-gradient-to-r from-transparent via-border to-transparent" />
+      <Separator className="bg-slate-100" />
 
       {/* STATS CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-lg border border-blue-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-blue-700 font-medium">Tổng số commit</p>
-              <p className="text-2xl font-bold text-blue-900 mt-1">{totalCommits}</p>
-            </div>
-            <div className="p-3 bg-blue-200 rounded-lg">
-              <GitCommit className="h-5 w-5 text-blue-700" />
-            </div>
-          </div>
-        </div>
-        <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg border border-emerald-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-emerald-700 font-medium">Commit hợp lệ</p>
-              <p className="text-2xl font-bold text-emerald-900 mt-1">{validCommits}</p>
-            </div>
-            <div className="p-3 bg-emerald-200 rounded-lg">
-              <GitCommit className="h-5 w-5 text-emerald-700" />
-            </div>
-          </div>
-        </div>
-        <div className="p-4 bg-gradient-to-br from-red-50 to-red-100/50 rounded-lg border border-red-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-red-700 font-medium">Commit bị loại</p>
-              <p className="text-2xl font-bold text-red-900 mt-1">{invalidCommits}</p>
-            </div>
-            <div className="p-3 bg-red-200 rounded-lg">
-              <GitCommit className="h-5 w-5 text-red-700" />
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatItem
+          label="Tổng commit"
+          value={filteredCommits.length}
+          color="blue"
+        />
+        <StatItem
+          label="Hợp lệ"
+          value={
+            filteredCommits.filter(
+              (c) => getValidation(c.id).status === "valid",
+            ).length
+          }
+          color="emerald"
+        />
+        <StatItem
+          label="Cần kiểm tra"
+          value={
+            filteredCommits.filter(
+              (c) => getValidation(c.id).status !== "valid",
+            ).length
+          }
+          color="red"
+        />
       </div>
 
       {/* FILTERS */}
-      <CommitFilters
-        authorFilter={authorFilter}
-        fromDate={fromDate}
-        toDate={toDate}
-        authors={authors}
-        onAuthorChange={setAuthorFilter}
-        onFromDateChange={setFromDate}
-        onToDateChange={setToDate}
-        onReset={handleResetFilters}
-        isLeader={isLeader}
-        currentUserAuthorName={currentUserAuthorName}
-        leaderNames={leaderNames}
-        classOptions={classOptions}
-        selectedClassId={selectedClassId}
-        onClassChange={setSelectedClassId}
-        teamId={resolvedTeamId}
+      <div className="bg-white p-2 rounded-[24px] border border-slate-200/60 shadow-sm">
+        <CommitFilters
+          authorFilter={authorFilter}
+          fromDate={fromDate}
+          toDate={toDate}
+          authors={authors}
+          onAuthorChange={setAuthorFilter}
+          onFromDateChange={setFromDate}
+          onToDateChange={setToDate}
+          onReset={handleResetFilters}
+          isLeader={isLeader}
+          currentUserAuthorName={
+            validMembers.find(
+              (m) => m.student._id === currentStudentIdFromCookie,
+            )?.student.full_name || ""
+          }
+          leaderNames={leaderNames}
+          classOptions={classOptions}
+          selectedClassId={selectedClassId}
+          onClassChange={setSelectedClassId}
+          teamId={resolvedTeamId}
+        />
+      </div>
+
+      {/* LIST */}
+      <CommitListTable
+        commits={filteredCommits}
+        onCommitClick={setSelectedCommitId}
       />
 
-      {/* COMMIT LIST */}
-      <CommitListTable commits={filteredCommits} onCommitClick={setSelectedCommitId} />
-
-      {/* COMMIT DETAIL MODAL */}
       <CommitDetailModal
         open={!!selectedCommitId}
         onOpenChange={(open) => !open && setSelectedCommitId(null)}
-        commit={selectedCommit}
-        detail={selectedDetail}
+        commit={
+          selectedCommitId
+            ? allCommits.find((c) => c.id === selectedCommitId)
+            : undefined
+        }
+        detail={
+          selectedCommitId ? mockCommitDetails[selectedCommitId] : undefined
+        }
       />
     </div>
   );
 }
 
+// Component phụ cho Stats để giao diện sạch hơn
+function StatItem({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) {
+  const colors: any = {
+    blue: "bg-blue-50 text-blue-600 border-blue-100",
+    emerald: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    red: "bg-red-50 text-red-600 border-red-100",
+  };
+  return (
+    <div
+      className={`p-6 rounded-[28px] border ${colors[color]} flex justify-between items-center bg-white shadow-sm`}
+    >
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">
+          {label}
+        </p>
+        <p className="text-3xl font-black tracking-tighter">{value}</p>
+      </div>
+      <div
+        className={`p-3 rounded-2xl ${colors[color]} border-none shadow-inner`}
+      >
+        <GitCommit className="h-5 w-5" />
+      </div>
+    </div>
+  );
+}

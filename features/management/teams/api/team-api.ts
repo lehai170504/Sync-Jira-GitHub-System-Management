@@ -1,6 +1,7 @@
 import { axiosClient } from "@/lib/axios-client";
 import {
   TeamDashboardResponse,
+  TeamTasksResponse,
   TeamSprintsResponse,
   UpdateTeamConfigPayload,
   UpdateTeamConfigResponse,
@@ -41,6 +42,21 @@ export const updateTeamConfigApi = async (
 export const getTeamSprintsApi = async (teamId: string): Promise<TeamSprintsResponse> => {
   const { data } = await axiosClient.get<TeamSprintsResponse>(
     `/teams/${teamId}/sprints`,
+  );
+  return data;
+};
+
+/**
+ * GET /api/teams/:teamId/tasks?sprintId=...
+ * Lấy danh sách tasks của team theo sprint từ Jira
+ */
+export const getTeamTasksApi = async (
+  teamId: string,
+  sprintId: string,
+): Promise<TeamTasksResponse> => {
+  const { data } = await axiosClient.get<TeamTasksResponse>(
+    `/teams/${teamId}/tasks`,
+    { params: { sprintId } },
   );
   return data;
 };

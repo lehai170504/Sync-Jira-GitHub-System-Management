@@ -53,3 +53,28 @@ export interface TeamSprintItem {
 /** GET /api/teams/:teamId/sprints */
 export type TeamSprintsResponse = TeamSprintItem[];
 
+export interface TeamTaskItem {
+  _id: string;
+  issue_id?: string;
+  issue_key: string;
+  sprint_id: string;
+  status_category: string; // e.g. "To Do" | "In Progress" | "Done"
+  story_point?: number;
+  updated_at?: string; // ISO date
+
+  // Assignee fields (can be null for unassigned tasks)
+  assignee_account_id?: string | null; // Jira account id
+  assignee_id?: string | null;
+  assignee_name?: string;
+
+  // Optional fields (BE may include them)
+  summary?: string;
+  title?: string;
+}
+
+/** GET /api/teams/:teamId/tasks?sprintId=... */
+export interface TeamTasksResponse {
+  total: number;
+  tasks: TeamTaskItem[];
+}
+

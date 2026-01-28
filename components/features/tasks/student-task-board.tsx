@@ -6,10 +6,10 @@ import { UserRole } from "@/components/layouts/sidebar-config";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { KanbanSquare, LayoutDashboard, ListChecks } from "lucide-react";
+import { KanbanSquare, LayoutDashboard, ListChecks, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { courses, initialSprints, initialTasks, members, statusColumns } from "./mock-data";
+import { courses, initialSprints, initialTasks, members as mockMembers, statusColumns } from "./mock-data";
 import type { Sprint, Task } from "./types";
 import { isDateOverdue, isTaskOverdue, nextTaskNumber } from "./utils";
 import { TaskBoardHeader } from "./task-board-header";
@@ -21,11 +21,13 @@ import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 import { useTeamSprints } from "@/features/management/teams/hooks/use-team-sprints";
 import { useCreateSprint } from "@/features/management/teams/hooks/use-create-sprint";
+import { useTeamTasks } from "@/features/management/teams/hooks/use-team-tasks";
+import { useTeamMembers } from "@/features/student/hooks/use-team-members";
 
 export function TaskBoard() {
   const [role, setRole] = useState<UserRole>("STUDENT");
   const [isLeaderState, setIsLeaderState] = useState(false);
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>(courses[0]?.id ?? "");
   const [sprints, setSprints] = useState<Sprint[]>(initialSprints);
   const [selectedPrint, setSelectedPrint] = useState<string>("");
@@ -35,7 +37,7 @@ export function TaskBoard() {
   const [formTask, setFormTask] = useState<Task>({
     id: "",
     title: "",
-    assigneeId: members[0]?.id ?? "",
+    assigneeId: mockMembers[0]?.id ?? "",
     status: "todo",
     storyPoints: 1,
     priority: "Medium",
@@ -64,6 +66,16 @@ export function TaskBoard() {
 
   // Fetch sprints từ Jira
   const { data: teamSprintsData, isLoading: isSprintsLoading } = useTeamSprints(resolvedTeamId);
+
+  // Fetch members của team (để map assignee -> tên/initials, và xác định user hiện tại)
+  const { data: teamMembersData } = useTeamMembers(resolvedTeamId);
+
+  // Fetch tasks theo sprint (khi chọn sprint từ API)
+  const {
+    data: teamTasksData,
+    isLoading: isTasksLoading,
+    isError: isTasksError,
+  } = useTeamTasks(resolvedTeamId, selectedPrint);
   
   // Hook để tạo sprint mới
   const { mutate: createSprint, isPending: isCreatingSprint } = useCreateSprint();
@@ -139,8 +151,8 @@ export function TaskBoard() {
     setFormTask((prev) => ({ ...prev, printId: nextSelected }));
   }, [sprints, selectedPrint, teamSprintsData]);
 
-  // Lấy current user ID (giả sử MEMBER có ID "m2", LEADER có thể là "m1")
-  const [currentUserId, setCurrentUserId] = useState<string>("m2");
+  // Resolve current user (ưu tiên mapping Jira account id để so sánh với assignee_account_id từ task API)
+  const [currentUserId, setCurrentUserId] = useState<string>("");
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
@@ -148,16 +160,86 @@ export function TaskBoard() {
     
     if (savedRole) setRole(savedRole);
     setIsLeaderState(leaderStatus);
-
-    // Mock logic user ID
-    if (leaderStatus) {
-      setCurrentUserId("m1");
-    } else {
-      setCurrentUserId("m2");
-    }
   }, []);
 
   const isLeader = isLeaderState;
+
+  // Nếu có mapping team members, dùng Jira account id của user hiện tại để check quyền edit cho MEMBER
+  useEffect(() => {
+    const studentId = Cookies.get("student_id") || "";
+    if (!studentId || !teamMembersData?.members) return;
+
+    const currentMember = teamMembersData.members.find((m: any) => m?.student?._id === studentId);
+    const jiraAccountId = currentMember?.jira_account_id || "";
+    setCurrentUserId(jiraAccountId);
+  }, [teamMembersData]);
+
+  const getInitials = (name?: string) => {
+    const s = (name || "").trim();
+    if (!s) return "NA";
+    const parts = s.split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  const members = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; initials: string }>();
+
+    // Special "Unassigned" bucket so table view can still show tasks without assignee
+    map.set("__unassigned", { id: "__unassigned", name: "Unassigned", initials: "NA" });
+
+    // Prefer team members (mapped Jira account id)
+    (teamMembersData?.members || []).forEach((m: any) => {
+      const jiraId = m?.jira_account_id;
+      if (!jiraId) return;
+      const fullName = m?.student?.full_name || m?.student?.student_code || "Member";
+      map.set(jiraId, { id: jiraId, name: fullName, initials: getInitials(fullName) });
+    });
+
+    // Fallback: create members from tasks response (so assignee_name still appears)
+    (teamTasksData?.tasks || []).forEach((t: any) => {
+      const jiraId = t?.assignee_account_id;
+      if (!jiraId) return;
+      if (map.has(jiraId)) return;
+      const name = t?.assignee_name || "Member";
+      map.set(jiraId, { id: jiraId, name, initials: getInitials(name) });
+    });
+
+    return Array.from(map.values());
+  }, [teamMembersData, teamTasksData]);
+
+  const mapStatusCategoryToStatus = (statusCategory?: string): Task["status"] => {
+    const s = (statusCategory || "").toLowerCase().trim();
+    if (s === "to do" || s === "todo") return "todo";
+    if (s === "in progress" || s === "in-progress") return "in-progress";
+    if (s === "in review" || s === "review") return "review";
+    if (s === "done") return "done";
+    return "todo";
+  };
+
+  // Đồng bộ tasks state từ API mỗi khi sprint thay đổi / refetch xong
+  useEffect(() => {
+    if (!teamTasksData) return;
+
+    const mapped: Task[] = (teamTasksData.tasks || []).map((t: any) => {
+      const id = t.issue_key || t._id;
+      const assigneeId = t.assignee_account_id || "__unassigned";
+      return {
+        id,
+        title: t.summary || t.title || t.issue_key || id,
+        assigneeId,
+        status: mapStatusCategoryToStatus(t.status_category),
+        storyPoints: Number(t.story_point ?? 0) || 0,
+        priority: "Medium",
+        type: "Jira",
+        courseId: selectedCourse || courses[0]?.id || "",
+        printId: t.sprint_id || selectedPrint,
+        deadline: "",
+      };
+    });
+
+    setTasks(mapped);
+  }, [teamTasksData, selectedCourse, selectedPrint]);
 
   const resetTaskForm = () => {
     const defaultAssigneeId = isLeader ? members[0]?.id ?? "" : currentUserId;
@@ -312,9 +394,8 @@ export function TaskBoard() {
 
   const visibleTasks = useMemo(
     () =>
-      tasks.filter(
-        (t) => t.courseId === selectedCourse && t.printId === selectedPrint,
-      ),
+      // API tasks không có courseId -> ưu tiên filter theo sprint; nếu task local thì vẫn filter theo course + sprint
+      tasks.filter((t) => t.printId === selectedPrint && (!t.courseId || t.courseId === selectedCourse)),
     [tasks, selectedCourse, selectedPrint],
   );
 
@@ -328,7 +409,7 @@ export function TaskBoard() {
   // NOTE: Sprints được lấy từ Jira nên không cho thao tác CRUD thủ công tại UI /tasks.
 
   // Trang này dành cho Sinh viên
-  if (role !== "STUDENT" && role !== "LEADER" && role !== "MEMBER") {
+  if (role !== "STUDENT") {
     // Logic cũ check LEADER/MEMBER
   }
 
@@ -416,39 +497,67 @@ export function TaskBoard() {
           value="board"
           className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-2"
         >
-          <KanbanView
-            statusColumns={statusColumns}
-            tasks={visibleTasks}
-            members={members}
-            isTaskOverdue={isTaskOverdue}
-            isLeader={isLeader}
-            currentUserId={currentUserId}
-            onEditTask={(task) => {
-              setEditingTask(task);
-              setFormTask(task);
-              setDialogOpen(true);
-            }}
-            onDeleteTask={handleDeleteTask}
-          />
+          {isTasksLoading ? (
+            <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Đang tải tasks...
+            </div>
+          ) : isTasksError ? (
+            <Alert className="bg-red-50 border-red-200 text-red-900">
+              <AlertTitle>Lỗi tải tasks</AlertTitle>
+              <AlertDescription>
+                Không thể lấy danh sách tasks từ server. Vui lòng thử lại.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <KanbanView
+              statusColumns={statusColumns}
+              tasks={visibleTasks}
+              members={members}
+              isTaskOverdue={isTaskOverdue}
+              isLeader={isLeader}
+              currentUserId={currentUserId}
+              onEditTask={(task) => {
+                setEditingTask(task);
+                setFormTask(task);
+                setDialogOpen(true);
+              }}
+              onDeleteTask={handleDeleteTask}
+            />
+          )}
         </TabsContent>
 
         <TabsContent
           value="table"
           className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-2"
         >
-          <MemberTableView
-            members={members}
-            tasks={visibleTasks}
-            isTaskOverdue={isTaskOverdue}
-            isLeader={isLeader}
-            currentUserId={currentUserId}
-            onEditTask={(task) => {
-              setEditingTask(task);
-              setFormTask(task);
-              setDialogOpen(true);
-            }}
-            onDeleteTask={handleDeleteTask}
-          />
+          {isTasksLoading ? (
+            <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Đang tải tasks...
+            </div>
+          ) : isTasksError ? (
+            <Alert className="bg-red-50 border-red-200 text-red-900">
+              <AlertTitle>Lỗi tải tasks</AlertTitle>
+              <AlertDescription>
+                Không thể lấy danh sách tasks từ server. Vui lòng thử lại.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <MemberTableView
+              members={members}
+              tasks={visibleTasks}
+              isTaskOverdue={isTaskOverdue}
+              isLeader={isLeader}
+              currentUserId={currentUserId}
+              onEditTask={(task) => {
+                setEditingTask(task);
+                setFormTask(task);
+                setDialogOpen(true);
+              }}
+              onDeleteTask={handleDeleteTask}
+            />
+          )}
         </TabsContent>
       </Tabs>
 

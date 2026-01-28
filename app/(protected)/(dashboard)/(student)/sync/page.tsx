@@ -23,8 +23,8 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useMyProject } from "@/features/projects/hooks/use-my-project";
-import { syncProjectApi } from "@/features/integration/api/sync-api";
-import { SyncResponse } from "@/features/integration/types";
+import { useClassTeams } from "@/features/student/hooks/use-class-teams";
+import { syncTeamApi, type TeamSyncResponse } from "@/features/integration/api/team-sync-api";
 
 export default function SyncPage() {
   const [role, setRole] = useState<UserRole>("STUDENT");
@@ -38,7 +38,19 @@ export default function SyncPage() {
     undefined,
   );
 
-  const [syncResult, setSyncResult] = useState<SyncResponse | null>(null);
+  const [syncResult, setSyncResult] = useState<TeamSyncResponse | null>(null);
+
+  // Lấy team hiện tại từ class + team name trong cookie
+  const classIdFromCookie = Cookies.get("student_class_id") || "";
+  const teamNameFromCookie = Cookies.get("student_team_name");
+  const {
+    data: teamsData,
+    isLoading: isLoadingTeams,
+  } = useClassTeams(classIdFromCookie);
+
+  const resolvedTeamId = teamsData?.teams?.find(
+    (t: any) => t.project_name === teamNameFromCookie,
+  )?._id as string | undefined;
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
@@ -57,9 +69,10 @@ export default function SyncPage() {
   const isLeader = isLeaderState;
 
   const handleSyncAll = async () => {
-    if (!project?._id) {
-      toast.error("Chưa có dự án", {
-        description: "Vui lòng tạo hoặc chọn dự án trước khi đồng bộ.",
+    if (!resolvedTeamId) {
+      toast.error("Chưa có team", {
+        description:
+          "Vui lòng tham gia nhóm hoặc kiểm tra lại thông tin lớp/nhóm trước khi đồng bộ.",
       });
       return;
     }
@@ -68,21 +81,13 @@ export default function SyncPage() {
     setSyncResult(null);
 
     try {
-      console.log("[Sync] Gửi xuống BE: POST /integrations/projects/:projectId/sync", {
-        projectId: project._id,
-        jiraProjectKey: project.jiraProjectKey,
-        githubRepoUrl: project.githubRepoUrl,
-        note: "Chỉ gửi projectId (path). BE tự lấy jiraProjectKey, githubRepoUrl từ project.",
+      console.log("[Sync] Gửi xuống BE: POST /teams/:teamId/sync", {
+        teamId: resolvedTeamId,
       });
-      const result = await syncProjectApi(project._id);
-      const gh = result?.stats?.github ?? 0;
-      const jr = result?.stats?.jira ?? 0;
-      const errors = result?.stats?.errors ?? [];
+      const result = await syncTeamApi(resolvedTeamId);
+      setSyncResult(result);
 
-      setSyncResult({
-        ...result,
-        stats: { github: gh, jira: jr, errors },
-      });
+      const { git, jira_sprints, jira_tasks, errors } = result.stats;
       const now = new Date().toISOString();
       setLastSyncTime(now);
 
@@ -90,29 +95,18 @@ export default function SyncPage() {
         window.localStorage.setItem("last_sync_time", now);
       }
 
-      const has410 = errors.some(
-        (e) => e.includes("410") || e.includes("không còn tồn tại"),
-      );
-
-      if (gh > 0) {
+      if (errors.length > 0) {
+        toast.warning(result.message ?? "Đồng bộ hoàn tất với một số lỗi", {
+          description: `Git: ${git} commits. Jira: ${jira_tasks} tasks, ${jira_sprints} sprints.`,
+        });
+      } else if (git > 0 || jira_tasks > 0 || jira_sprints > 0) {
         toast.success(result.message ?? "Đồng bộ hoàn tất", {
-          description: `GitHub: ${gh} commits. Jira: ${jr} issues.`,
+          description: `Git: ${git} commits. Jira: ${jira_tasks} tasks, ${jira_sprints} sprints.`,
         });
       } else {
-        toast.success(result.message ?? "Đồng bộ hoàn tất", {
-          description: `Jira: ${jr} issues.`,
-        });
-      }
-      if (has410) {
-        toast.warning("Jira project không còn tồn tại", {
+        toast.info(result.message ?? "Không có dữ liệu mới để đồng bộ", {
           description:
-            gh > 0
-              ? "GitHub đã đồng bộ bình thường."
-              : "Kiểm tra lại Jira Project Key của dự án.",
-        });
-      } else if (errors.length > 0 && !has410) {
-        toast.error("Lỗi đồng bộ", {
-          description: errors[0] ?? "Xem chi tiết trong kết quả.",
+            "Không phát hiện thêm commit Git hoặc task/sprint Jira mới.",
         });
       }
     } catch (error: any) {
@@ -192,7 +186,13 @@ export default function SyncPage() {
           <Button
             size="lg"
             onClick={handleSyncAll}
-            disabled={isSyncing || isLoadingProject || !project?._id}
+            disabled={
+              isSyncing ||
+              isLoadingProject ||
+              isLoadingTeams ||
+              !project?._id ||
+              !resolvedTeamId
+            }
             className="h-14 px-8 text-lg bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSyncing ? (
@@ -200,15 +200,20 @@ export default function SyncPage() {
                 <RefreshCw className="mr-3 h-6 w-6 animate-spin" />
                 Đang xử lý dữ liệu...
               </>
-            ) : isLoadingProject ? (
+            ) : isLoadingProject || isLoadingTeams ? (
               <>
                 <RefreshCw className="mr-3 h-6 w-6 animate-spin" />
-                Đang tải thông tin dự án...
+                Đang tải thông tin dự án/nhóm...
               </>
             ) : !project?._id ? (
               <>
                 <AlertTriangle className="mr-3 h-6 w-6" />
                 Chưa có dự án
+              </>
+            ) : !resolvedTeamId ? (
+              <>
+                <AlertTriangle className="mr-3 h-6 w-6" />
+                Chưa tìm thấy nhóm
               </>
             ) : (
               <>
@@ -265,7 +270,7 @@ export default function SyncPage() {
                     Trạng thái Jira
                   </CardTitle>
                 </div>
-                {syncResult.stats.jira > 0 ? (
+                {syncResult.stats.jira_tasks > 0 ? (
                   <Badge
                     variant="outline"
                     className="bg-green-50 text-green-700 border-green-200"
@@ -283,16 +288,27 @@ export default function SyncPage() {
               <div className="space-y-4">
                 <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
                   <p className="text-sm text-indigo-600 font-medium mb-1">
-                    Issues đã đồng bộ
+                    Tasks đã đồng bộ
                   </p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-bold text-indigo-700">
-                      {syncResult.stats.jira}
+                      {syncResult.stats.jira_tasks}
                     </span>
                     <TrendingUp className="h-4 w-4 text-indigo-500" />
                   </div>
                 </div>
-                {syncResult.stats.jira === 0 && (() => {
+                <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                  <p className="text-sm text-indigo-600 font-medium mb-1">
+                    Sprints đã đồng bộ
+                  </p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-indigo-700">
+                      {syncResult.stats.jira_sprints}
+                    </span>
+                    <TrendingUp className="h-4 w-4 text-indigo-500" />
+                  </div>
+                </div>
+                {syncResult.stats.jira_tasks === 0 && (() => {
                   const errs = syncResult.stats.errors ?? [];
                   const has410 = errs.some(
                     (e) => e.includes("410") || e.includes("không còn tồn tại"),
@@ -319,10 +335,7 @@ export default function SyncPage() {
                     </Alert>
                   );
                 })()}
-                {(syncResult.stats.errors ?? []).length > 0 &&
-                  !(syncResult.stats.errors ?? []).some(
-                    (e) => e.includes("410") || e.includes("không còn tồn tại"),
-                  ) && (
+                {(syncResult.stats.errors ?? []).length > 0 && (
                   <p className="text-sm text-amber-700 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200">
                     {(syncResult.stats.errors ?? [])[0]}
                   </p>
@@ -343,7 +356,7 @@ export default function SyncPage() {
                     Trạng thái GitHub
                   </CardTitle>
                 </div>
-                {syncResult.stats.github > 0 ? (
+                {syncResult.stats.git > 0 ? (
                   <Badge
                     variant="outline"
                     className="bg-green-50 text-green-700 border-green-200"
@@ -365,7 +378,7 @@ export default function SyncPage() {
                   </p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-bold text-emerald-700">
-                      {syncResult.stats.github}
+                      {syncResult.stats.git}
                     </span>
                     <TrendingUp className="h-4 w-4 text-emerald-500" />
                   </div>

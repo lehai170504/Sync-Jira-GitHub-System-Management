@@ -174,18 +174,6 @@ export function CommitFilters({
                 <X className="h-4 w-4 mr-2" />
                 Xóa lọc
               </Button>
-              <Button
-                onClick={handleSync}
-                disabled={isSyncing || !teamId}
-                size="sm"
-                className="border-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white h-9"
-              >
-                {isSyncing ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-3.5 w-3.5" />
-                )}
-              </Button>
             </div>
           </div>
         </div>

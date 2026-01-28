@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useRemoveStudents } from "@/features/management/classes/hooks/use-classes";
 import { ClassStudent } from "@/features/management/classes/types/class-types";
-import { Loader2, UserMinus } from "lucide-react"; // Thêm icon UserMinus cho hợp ngữ cảnh
+import { Loader2, UserMinus } from "lucide-react";
 
 interface DeleteStudentAlertProps {
   classId: string;

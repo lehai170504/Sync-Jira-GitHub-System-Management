@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createProjectApi } from "../api/project-api";
-import { CreateProjectPayload } from "../types";
+import { CreateProjectPayload } from "../types/types";
 import { useRouter } from "next/navigation";
 
 export const useCreateProject = () => {

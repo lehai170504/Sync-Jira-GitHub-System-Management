@@ -1,5 +1,6 @@
 import { axiosClient } from "@/lib/axios-client";
 import {
+  ClassProjectsResponse,
   CreateProjectPayload,
   CreateProjectResponse,
   MyProjectResponse,
@@ -8,7 +9,8 @@ import {
   ProjectsApiResponse,
   TeamConfigPayload,
   TeamConfigResponse,
-} from "../types";
+} from "../types/types";
+import { TeamDetailResponse } from "@/features/student/types/team-types";
 
 // POST /api/projects: Leader tạo Project mới cho nhóm
 export const createProjectApi = async (
@@ -43,5 +45,19 @@ export const updateTeamConfigApi = async (
   payload: TeamConfigPayload,
 ): Promise<TeamConfigResponse> => {
   const { data } = await axiosClient.put(`/teams/${teamId}/config`, payload);
+  return data;
+};
+
+export const getClassProjectsApi = async (
+  classId: string,
+): Promise<ClassProjectsResponse> => {
+  const { data } = await axiosClient.get(`/projects/classes/${classId}`);
+  return data;
+};
+
+export const getTeamProjectDetail = async (
+  teamId: string,
+): Promise<TeamDetailResponse> => {
+  const { data } = await axiosClient.get(`/projects/teams/${teamId}`);
   return data;
 };

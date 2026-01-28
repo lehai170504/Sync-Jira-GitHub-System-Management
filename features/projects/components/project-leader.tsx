@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ProjectMember } from "@/features/projects/types";
+import { ProjectMember } from "@/features/projects/types/types";
 
 interface ProjectLeaderProps {
   leader: ProjectMember;

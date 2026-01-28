@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getLecturerProjectsApi } from "../api/project-api";
-import { ProjectManagement } from "../types";
+import { ProjectManagement } from "../types/types";
 
 export const useLecturerProjects = (classId: string | undefined) => {
   return useQuery<ProjectManagement[]>({

@@ -7,7 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ProjectMember } from "@/features/projects/types";
+import { ProjectMember } from "@/features/projects/types/types";
 
 interface ProjectMemberStackProps {
   members: ProjectMember[];

@@ -5,9 +5,16 @@ interface StatCardProps {
   value: number | string;
   icon: ReactNode;
   color: "orange" | "blue" | "red";
+  subText?: string;
 }
 
-export function StatCard({ label, value, icon, color }: StatCardProps) {
+export function StatCard({
+  label,
+  value,
+  icon,
+  color,
+  subText,
+}: StatCardProps) {
   const colors = {
     orange: "bg-orange-50 text-[#F27124]",
     blue: "bg-blue-50 text-blue-600",
@@ -24,6 +31,12 @@ export function StatCard({ label, value, icon, color }: StatCardProps) {
         <p className="text-3xl font-black text-slate-900 tracking-tight">
           {value}
         </p>
+        {/* Hiển thị subText nếu có */}
+        {subText && (
+          <p className="text-[11px] text-slate-400 font-bold mt-1.5 line-clamp-1">
+            {subText}
+          </p>
+        )}
       </div>
     </div>
   );

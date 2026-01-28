@@ -1,8 +1,8 @@
 "use client";
 
 import { GraduationCap } from "lucide-react";
-import { StudentImport } from "./student-import";
-import { AddStudentDialog } from "./add-student-dialog";
+import { StudentImport } from "./lecturer/student-import";
+import { AddStudentDialog } from "./lecturer/add-student-dialog";
 
 interface ClassHeaderProps {
   className: string;

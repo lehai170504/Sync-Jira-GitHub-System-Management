@@ -88,3 +88,15 @@ export interface TeamConfigResponse {
   message: string;
   data: any; // Team object đã update
 }
+
+export interface ProjectClassInfo {
+  _id: string;
+  name: string;
+  class_code: string;
+}
+
+export interface ClassProjectsResponse {
+  class: ProjectClassInfo; //
+  total: number; //
+  projects: ProjectManagement[]; //
+}

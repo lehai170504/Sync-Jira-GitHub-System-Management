@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { updateTeamConfigApi } from "../api/project-api";
-import { TeamConfigPayload } from "../types";
+import { TeamConfigPayload } from "../types/types";
 
 export const useUpdateTeamConfig = (teamId: string) => {
   const queryClient = useQueryClient();

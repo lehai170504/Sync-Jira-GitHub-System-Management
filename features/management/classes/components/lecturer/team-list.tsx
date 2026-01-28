@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Github, Trello, Users, Eye } from "lucide-react";
+import { Users, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Team } from "@/features/student/types/team-types";
 import { TeamDetailSheet } from "./team-detail-sheet";
+import { SiGithub, SiJira } from "react-icons/si";
 
 interface TeamListProps {
   teams: Team[];
@@ -49,7 +50,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
           <Card
             key={team._id}
             className="group hover:border-orange-200 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 rounded-2xl border-gray-100 overflow-hidden relative cursor-pointer"
-            onClick={() => handleViewDetail(team._id)} // Click vào card để mở detail
+            onClick={() => handleViewDetail(team._id)}
           >
             {/* Hover overlay hint */}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/[0.02] transition-colors pointer-events-none" />
@@ -66,7 +67,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
                   variant="outline"
                   className="bg-white text-xs font-bold text-emerald-600 border-emerald-100"
                 >
-                  ACTIVE
+                  Đang hoạt động
                 </Badge>
               </div>
               <p className="text-[10px] text-gray-400 font-mono uppercase tracking-wider">
@@ -98,7 +99,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
                     className="flex-1 gap-2 border-gray-200 bg-white hover:bg-gray-50 hover:text-black h-9"
                     onClick={() => window.open(team.github_repo_url, "_blank")}
                   >
-                    <Github className="w-3.5 h-3.5" />
+                    <SiGithub className="w-3.5 h-3.5" />
                     <span className="text-xs">GitHub</span>
                   </Button>
                 ) : (
@@ -108,7 +109,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
                     className="flex-1 gap-2 border-dashed text-gray-400 h-9"
                     disabled
                   >
-                    <Github className="w-3.5 h-3.5" />{" "}
+                    <SiGithub className="w-3.5 h-3.5" />{" "}
                     <span className="text-xs">Link</span>
                   </Button>
                 )}
@@ -122,7 +123,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
                       team.jira_url && window.open(team.jira_url, "_blank")
                     }
                   >
-                    <Trello className="w-3.5 h-3.5" />
+                    <SiJira className="w-3.5 h-3.5" />
                     <span className="text-xs">{team.jira_project_key}</span>
                   </Button>
                 ) : (
@@ -132,7 +133,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
                     className="flex-1 gap-2 border-dashed text-gray-400 h-9"
                     disabled
                   >
-                    <Trello className="w-3.5 h-3.5" />{" "}
+                    <SiJira className="w-3.5 h-3.5" />{" "}
                     <span className="text-xs">Jira</span>
                   </Button>
                 )}

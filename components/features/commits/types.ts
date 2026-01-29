@@ -4,6 +4,8 @@ export type CommitItem = {
   author: string;
   branch: string;
   date: string; // ISO date
+  is_counted?: boolean;
+  rejection_reason?: string | null;
 };
 
 export type CommitFile = {

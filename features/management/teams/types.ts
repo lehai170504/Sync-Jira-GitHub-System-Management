@@ -99,3 +99,21 @@ export interface TeamTasksResponse {
   tasks: TeamTaskItem[];
 }
 
+export interface TeamCommitItem {
+  _id: string;
+  team_id: string;
+  hash: string;
+  author_email: string;
+  commit_date: string; // ISO date
+  is_counted: boolean;
+  message: string;
+  rejection_reason?: string | null;
+  __v?: number;
+}
+
+/** GET /api/teams/:teamId/commits */
+export interface TeamCommitsResponse {
+  total: number;
+  commits: TeamCommitItem[];
+}
+

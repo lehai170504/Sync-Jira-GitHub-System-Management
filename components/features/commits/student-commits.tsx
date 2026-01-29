@@ -19,6 +19,7 @@ import {
   useMemberCommits,
 } from "@/features/integration/hooks/use-team-commits";
 import { useMyCommits } from "@/features/integration/hooks/use-my-commits";
+import { useTeamCommitsFromTeam } from "@/features/management/teams/hooks/use-team-commits";
 
 interface LeaderCommitsProps {
   role?: UserRole;
@@ -100,10 +101,10 @@ export function LeaderCommits({
   }, [validMembers]);
 
   // 4. Gọi các API Commits dựa trên quyền hạn
-  const shouldFetchTeamCommits =
+  const shouldFetchTeamCommitsAll =
     isLeader && authorFilter === "ALL" && !!resolvedTeamId;
-  const { data: teamCommitsData, isLoading: isTeamCommitsLoading } =
-    useTeamCommits(resolvedTeamId, shouldFetchTeamCommits);
+  const { data: teamCommitsAllData, isLoading: isTeamCommitsAllLoading } =
+    useTeamCommitsFromTeam(resolvedTeamId, shouldFetchTeamCommitsAll);
 
   const selectedMemberId =
     authorFilter !== "ALL" ? authorToMemberIdMap[authorFilter] : undefined;
@@ -125,27 +126,40 @@ export function LeaderCommits({
   const allCommits: CommitItem[] = useMemo(() => {
     let rawData = [];
     if (isLeader) {
-      rawData =
-        authorFilter === "ALL"
-          ? teamCommitsData?.commits || []
-          : memberCommitsData?.commits || [];
+      rawData = authorFilter === "ALL" ? teamCommitsAllData?.commits || [] : memberCommitsData?.commits || [];
     } else {
       rawData = myCommitsData?.commits || [];
     }
 
     if (rawData.length === 0) return mockCommits; // Fallback
 
-    return rawData.map((c: any) => ({
-      id: c._id || c.id,
-      message: c.message,
-      author: c.author,
-      branch: c.branch || "main",
-      date: c.date,
-    }));
+    return rawData.map((c: any) => {
+      // Endpoint mới: GET /teams/:teamId/commits
+      if (c?.hash && c?.commit_date) {
+        return {
+          id: c.hash,
+          message: c.message,
+          author: c.author_email || "unknown",
+          branch: "main",
+          date: c.commit_date,
+          is_counted: c.is_counted,
+          rejection_reason: c.rejection_reason,
+        };
+      }
+
+      // Fallback cho các endpoint cũ (integrations/*)
+      return {
+        id: c._id || c.id,
+        message: c.message,
+        author: c.author,
+        branch: c.branch || "main",
+        date: c.date,
+      };
+    });
   }, [
     isLeader,
     authorFilter,
-    teamCommitsData,
+    teamCommitsAllData,
     memberCommitsData,
     myCommitsData,
   ]);
@@ -202,7 +216,7 @@ export function LeaderCommits({
     isClassesLoading ||
     isTeamLoading ||
     isMembersLoading ||
-    (shouldFetchTeamCommits && isTeamCommitsLoading) ||
+    (shouldFetchTeamCommitsAll && isTeamCommitsAllLoading) ||
     (shouldFetchMemberCommits && isMemberCommitsLoading) ||
     (!isLeader && isMyCommitsLoading);
 
@@ -261,7 +275,7 @@ export function LeaderCommits({
           label="Hợp lệ"
           value={
             filteredCommits.filter(
-              (c) => getValidation(c.id).status === "valid",
+              (c) => getValidation(c).status === "valid",
             ).length
           }
           color="emerald"
@@ -270,7 +284,7 @@ export function LeaderCommits({
           label="Cần kiểm tra"
           value={
             filteredCommits.filter(
-              (c) => getValidation(c.id).status !== "valid",
+              (c) => getValidation(c).status !== "valid",
             ).length
           }
           color="red"

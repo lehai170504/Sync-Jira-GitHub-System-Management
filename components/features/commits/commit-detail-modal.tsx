@@ -36,7 +36,7 @@ export function CommitDetailModal({
 }: CommitDetailModalProps) {
   if (!commit) return null;
 
-  const validation = getValidation(commit.id);
+  const validation = getValidation(commit);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

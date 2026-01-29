@@ -1,6 +1,7 @@
 import { axiosClient } from "@/lib/axios-client";
 import {
   TeamDashboardResponse,
+  TeamCommitsResponse,
   TeamTasksResponse,
   TeamSprintsResponse,
   UpdateTeamConfigPayload,
@@ -57,6 +58,19 @@ export const getTeamTasksApi = async (
   const { data } = await axiosClient.get<TeamTasksResponse>(
     `/teams/${teamId}/tasks`,
     { params: { sprintId } },
+  );
+  return data;
+};
+
+/**
+ * GET /api/teams/:teamId/commits
+ * Lấy danh sách commits của team (khi filter "Tất cả thành viên" ở /commits)
+ */
+export const getTeamCommitsFromTeamApi = async (
+  teamId: string,
+): Promise<TeamCommitsResponse> => {
+  const { data } = await axiosClient.get<TeamCommitsResponse>(
+    `/teams/${teamId}/commits`,
   );
   return data;
 };

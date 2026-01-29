@@ -61,7 +61,7 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                   </TableRow>
                 )}
                 {commits.map((c) => {
-                  const v = getValidation(c.id);
+                  const v = getValidation(c);
                   return (
                     <TableRow
                       key={c.id}

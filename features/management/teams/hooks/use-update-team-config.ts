@@ -18,9 +18,12 @@ export const useUpdateTeamConfig = (teamId: string | undefined) => {
     },
     onSuccess: (data) => {
       toast.success(data.message || "✅ Cập nhật cấu hình thành công!");
-      // Invalidate team-related queries để refetch data
+      // Invalidate team-related queries để refetch data sau khi config thay đổi
       queryClient.invalidateQueries({ queryKey: ["team-dashboard", teamId] });
       queryClient.invalidateQueries({ queryKey: ["team-members", teamId] });
+      queryClient.invalidateQueries({ queryKey: ["team-detail", teamId] });
+      queryClient.invalidateQueries({ queryKey: ["team-sprints", teamId] });
+      queryClient.invalidateQueries({ queryKey: ["team-tasks"] }); // Invalidate tất cả team-tasks queries
     },
     onError: (error: any) => {
       const errorMessage =

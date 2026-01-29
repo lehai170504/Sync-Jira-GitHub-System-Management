@@ -5,6 +5,11 @@ export interface TeamDashboardResponse {
     _id: string;
     project_name: string;
     last_sync_at: string | null;
+    // Optional config fields (có thể được BE trả về)
+    jira_url?: string;
+    jira_project_key?: string;
+    jira_board_id?: number;
+    github_repo_url?: string;
   };
   overview: {
     tasks: {
@@ -38,6 +43,22 @@ export interface UpdateTeamConfigPayload {
 
 export interface UpdateTeamConfigResponse {
   message: string;
+  team: {
+    _id: string;
+    class_id: string;
+    project_name: string;
+    jira_story_point_field?: string;
+    sync_history?: any[];
+    created_at: string;
+    __v?: number;
+    api_token_github: string;
+    api_token_jira: string;
+    github_repo_url: string;
+    jira_board_id: number;
+    jira_project_key: string;
+    jira_url: string;
+    last_sync_at?: string | null;
+  };
 }
 
 export interface TeamSprintItem {

@@ -1,12 +1,12 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertTriangle, Pencil, Trash2 } from "lucide-react";
-import type { Member, StatusColumn, Task } from "./types";
+import { AlertTriangle, GripVertical, Pencil, Trash2 } from "lucide-react";
+import type { Member, StatusColumn, Task, TaskStatus } from "./types";
 
 type Props = {
   statusColumns: StatusColumn[];
@@ -17,6 +17,7 @@ type Props = {
   currentUserId: string;
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
+  onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
 };
 
 export function KanbanView({
@@ -28,16 +29,61 @@ export function KanbanView({
   currentUserId,
   onEditTask,
   onDeleteTask,
+  onTaskStatusChange,
 }: Props) {
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  const [dragOverColumnId, setDragOverColumnId] = useState<TaskStatus | null>(null);
+
+  const handleDragStart = useCallback((e: React.DragEvent, taskId: string) => {
+    setDraggedTaskId(taskId);
+    e.dataTransfer.setData("text/plain", taskId);
+    e.dataTransfer.effectAllowed = "move";
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedTaskId(null);
+    setDragOverColumnId(null);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, columnId: TaskStatus) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverColumnId(columnId);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverColumnId(null);
+    }
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent, targetColumnId: TaskStatus) => {
+      e.preventDefault();
+      setDragOverColumnId(null);
+      const taskId = e.dataTransfer.getData("text/plain");
+      if (!taskId || !onTaskStatusChange) return;
+      const task = tasks.find((t) => t.id === taskId);
+      if (!task || task.status === targetColumnId) return;
+      onTaskStatusChange(taskId, targetColumnId);
+    },
+    [tasks, onTaskStatusChange],
+  );
+
   return (
-    <ScrollArea className="w-full whitespace-nowrap rounded-lg border bg-muted/30 p-4">
+    <div className="w-full overflow-x-auto overflow-y-visible rounded-lg border bg-muted/30 p-4">
       <div className="flex gap-4 min-w-max">
         {statusColumns.map((col) => {
           const columnTasks = tasks.filter((t) => t.status === col.id);
           return (
             <div
               key={col.id}
-              className={`w-[260px] shrink-0 rounded-xl bg-background border ${col.color} shadow-sm flex flex-col`}
+              className={`w-[260px] shrink-0 rounded-xl bg-background border ${col.color} shadow-sm flex flex-col transition-colors ${
+                dragOverColumnId === col.id ? "ring-2 ring-primary/50 bg-primary/5" : ""
+              }`}
+              onDragOver={(e) => handleDragOver(e, col.id)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, col.id)}
             >
               <div className="px-4 pt-3 pb-2 border-b flex items-center justify-between">
                 <div>
@@ -56,7 +102,7 @@ export function KanbanView({
                 </Badge>
               </div>
 
-              <div className="p-3 space-y-3">
+              <div className="p-3 space-y-3 min-h-[120px]">
                 {columnTasks.length === 0 && (
                   <p className="text-[11px] text-muted-foreground italic">
                     Chưa có task nào.
@@ -66,18 +112,37 @@ export function KanbanView({
                   const assignee = members.find((m) => m.id === task.assigneeId);
                   const overdue = isTaskOverdue(task);
                   const canEdit = isLeader || task.assigneeId === currentUserId;
+                  const isDragging = draggedTaskId === task.id;
                   return (
                     <Card
                       key={task.id}
+                      data-task-card
+                      draggable={!!onTaskStatusChange}
+                      onDragStart={(e) => {
+                        if (!onTaskStatusChange) return;
+                        handleDragStart(e, task.id);
+                        const card = e.currentTarget;
+                        if (card instanceof HTMLElement) {
+                          e.dataTransfer.setDragImage(card, 0, 0);
+                        }
+                      }}
+                      onDragEnd={handleDragEnd}
                       className={
-                        "shadow-xs hover:shadow-md transition-shadow " +
+                        "shadow-xs hover:shadow-md transition-shadow select-none " +
                         (overdue
                           ? "border border-red-300 bg-red-50"
-                          : "border border-slate-200")
+                          : "border border-slate-200") +
+                        (isDragging ? " opacity-50" : "") +
+                        (onTaskStatusChange ? " cursor-grab active:cursor-grabbing" : "")
                       }
                     >
                       <CardContent className="p-3 space-y-2">
                         <div className="flex items-center justify-between gap-2">
+                          {onTaskStatusChange && (
+                            <div className="text-muted-foreground shrink-0" aria-hidden>
+                              <GripVertical className="h-4 w-4" />
+                            </div>
+                          )}
                           <span className="text-[11px] font-mono text-muted-foreground">
                             {task.id}
                           </span>
@@ -146,7 +211,7 @@ export function KanbanView({
           );
         })}
       </div>
-    </ScrollArea>
+    </div>
   );
 }
 

@@ -46,7 +46,7 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                   <TableHead className="font-semibold">Tác giả</TableHead>
                   <TableHead className="font-semibold">Branch</TableHead>
                   <TableHead className="font-semibold">Ngày</TableHead>
-                  <TableHead className="text-right font-semibold">Loại</TableHead>
+                  <TableHead className="text-right font-semibold">Lý do loại</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -62,6 +62,8 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                 )}
                 {commits.map((c) => {
                   const v = getValidation(c);
+                  const rejectionReason =
+                    c.rejection_reason ?? (c.is_counted === false ? "Commit không được tính điểm." : null);
                   return (
                     <TableRow
                       key={c.id}
@@ -115,9 +117,31 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">{c.date}</TableCell>
                       <TableCell className="text-right">
-                        <Badge variant="secondary" className="text-[11px] bg-indigo-100 text-indigo-700 border-indigo-200">
-                          NEW
-                        </Badge>
+                        {rejectionReason ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge
+                                variant="outline"
+                                className="text-[11px] border-red-200 text-red-700 bg-red-50 max-w-[260px] truncate inline-block align-middle"
+                              >
+                                {rejectionReason}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-sm">
+                              <div className="text-xs">
+                                <div className="font-semibold">Lý do loại</div>
+                                <div className="mt-1">{rejectionReason}</div>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="text-[11px] border-emerald-200 text-emerald-700 bg-emerald-50"
+                          >
+                            —
+                          </Badge>
+                        )}
                       </TableCell>
                     </TableRow>
                   );

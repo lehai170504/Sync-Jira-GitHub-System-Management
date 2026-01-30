@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -12,11 +13,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Eye, EyeOff, Loader2, Save, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2, Save, AlertCircle, Zap, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useUpdateTeamConfig } from "@/features/management/teams/hooks/use-update-team-config";
 import { UpdateTeamConfigPayload } from "@/features/management/teams/types";
 import { useTeamDetail } from "@/features/student/hooks/use-team-detail";
+import { syncTeamApi, type TeamSyncResponse } from "@/features/integration/api/team-sync-api";
 
 interface TeamConfigFormProps {
   teamId: string | undefined;
@@ -123,6 +125,40 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
     }
     updateConfig(formData);
   };
+
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<TeamSyncResponse | null>(null);
+
+  const handleSyncAll = async () => {
+    if (!teamId) {
+      toast.error("Chưa có team", {
+        description: "Vui lòng đảm bảo bạn đã được gán vào một nhóm.",
+      });
+      return;
+    }
+    setIsSyncing(true);
+    setSyncResult(null);
+    try {
+      const result = await syncTeamApi(teamId);
+      setSyncResult(result);
+      const { git, jira_sprints, jira_tasks, errors } = result.stats;
+      if (errors.length > 0) {
+        toast.warning(result.message ?? "Đồng bộ hoàn tất với một số lỗi", {
+          description: `Git: ${git} commits. Jira: ${jira_tasks} tasks, ${jira_sprints} sprints.`,
+        });
+      } else {
+        toast.success(result.message ?? "Đồng bộ hoàn tất", {
+          description: `Git: ${git} commits. Jira: ${jira_tasks} tasks, ${jira_sprints} sprints.`,
+        });
+      }
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "Không thể đồng bộ dữ liệu.";
+      toast.error(msg);
+      setSyncResult(null);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
   if (isTeamDetailLoading && !existingConfig) {
     return (
       <div className="flex items-center justify-center h-48">
@@ -135,6 +171,46 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
   if (existingConfig) {
     return (
       <div className="space-y-6">
+        <Card className="border-2 border-violet-100 shadow-lg bg-gradient-to-br from-white to-violet-50/50 overflow-hidden">
+          <CardContent className="p-8 flex flex-col items-center justify-center text-center space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Sẵn sàng đồng bộ</h3>
+            <p className="text-sm text-gray-500 max-w-md">
+              Nhấn nút bên dưới để lấy dữ liệu task mới nhất từ Jira và commit từ GitHub về hệ thống.
+            </p>
+            <Button
+              size="lg"
+              onClick={handleSyncAll}
+              disabled={isSyncing || !teamId}
+              className="h-12 px-8 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white shadow-lg rounded-full"
+            >
+              {isSyncing ? (
+                <>
+                  <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
+                  Đang đồng bộ...
+                </>
+              ) : (
+                <>
+                  <Zap className="mr-2 h-5 w-5 fill-yellow-300 text-yellow-100" />
+                  Bắt đầu Đồng bộ Tất cả
+                </>
+              )}
+            </Button>
+            {syncResult && (
+              <div className="text-xs text-muted-foreground p-3 bg-violet-50 rounded-lg border border-violet-200 w-full max-w-md">
+                <p className="font-medium text-violet-700">{syncResult.message}</p>
+                <div className="flex gap-4 mt-1 justify-center">
+                  <span>Git: {syncResult.stats.git} commits</span>
+                  <span>Jira: {syncResult.stats.jira_tasks} tasks</span>
+                  <span>Sprints: {syncResult.stats.jira_sprints}</span>
+                </div>
+                {syncResult.stats.errors.length > 0 && (
+                  <p className="text-red-600 mt-1 text-left">{syncResult.stats.errors[0]}</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className="border-l-4 border-l-[#0052CC]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

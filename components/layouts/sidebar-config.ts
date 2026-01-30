@@ -12,7 +12,6 @@ import {
   FileText,
   Activity,
   Star,
-  LayoutList,
   Settings,
   LucideIcon,
   Users,
@@ -174,12 +173,6 @@ export const routeGroups: RouteGroup[] = [
     label: "Công cụ & Cài đặt",
     roles: ["STUDENT"],
     items: [
-      {
-        label: "Đồng bộ dữ liệu",
-        icon: LayoutList,
-        href: "/sync",
-        color: "text-sky-500",
-      },
       {
         label: "Cấu hình",
         icon: Settings,

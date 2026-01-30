@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 import { courses, initialSprints, initialTasks, members as mockMembers, statusColumns } from "./mock-data";
 import type { Sprint, Task } from "./types";
-import { isDateOverdue, isTaskOverdue, nextTaskNumber } from "./utils";
+import { isDateOverdue, isTaskOverdue, mapStatusCategoryToStatus, nextTaskNumber } from "./utils";
 import { TaskBoardHeader } from "./task-board-header";
 import { KanbanView } from "./kanban-view";
 import { MemberTableView } from "./member-table-view";
@@ -207,15 +207,6 @@ export function TaskBoard() {
 
     return Array.from(map.values());
   }, [teamMembersData, teamTasksData]);
-
-  const mapStatusCategoryToStatus = (statusCategory?: string): Task["status"] => {
-    const s = (statusCategory || "").toLowerCase().trim();
-    if (s === "to do" || s === "todo") return "todo";
-    if (s === "in progress" || s === "in-progress") return "in-progress";
-    if (s === "in review" || s === "review") return "review";
-    if (s === "done") return "done";
-    return "todo";
-  };
 
   // Đồng bộ tasks state từ API mỗi khi sprint thay đổi / refetch xong
   useEffect(() => {
@@ -523,6 +514,12 @@ export function TaskBoard() {
                 setDialogOpen(true);
               }}
               onDeleteTask={handleDeleteTask}
+              onTaskStatusChange={(taskId, newStatus) => {
+                setTasks((prev) =>
+                  prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
+                );
+                toast.success("Đã cập nhật trạng thái task");
+              }}
             />
           )}
         </TabsContent>

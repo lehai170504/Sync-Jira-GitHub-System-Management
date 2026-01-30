@@ -1,4 +1,30 @@
-import type { Sprint, Task } from "./types";
+import type { Sprint, Task, TaskStatus } from "./types";
+
+/** Map API status_category (Jira) -> internal TaskStatus */
+export function mapStatusCategoryToStatus(statusCategory?: string): TaskStatus {
+  const s = (statusCategory || "").toLowerCase().trim();
+  if (s === "to do" || s === "todo") return "todo";
+  if (s === "in progress" || s === "in-progress") return "in-progress";
+  if (s === "in review" || s === "review") return "review";
+  if (s === "done") return "done";
+  return "todo";
+}
+
+/** Map internal TaskStatus -> API status_category (Jira format) */
+export function mapStatusToStatusCategory(status: TaskStatus): string {
+  switch (status) {
+    case "todo":
+      return "To Do";
+    case "in-progress":
+      return "In Progress";
+    case "review":
+      return "In Review";
+    case "done":
+      return "Done";
+    default:
+      return "To Do";
+  }
+}
 
 export function isDateOverdue(dateStr: string | undefined | null) {
   if (!dateStr) return false;

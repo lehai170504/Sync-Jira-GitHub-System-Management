@@ -6,11 +6,6 @@ export type Member = {
   initials: string;
 };
 
-export type Course = {
-  id: string;
-  name: string;
-};
-
 export type Sprint = {
   id: string;
   name: string;

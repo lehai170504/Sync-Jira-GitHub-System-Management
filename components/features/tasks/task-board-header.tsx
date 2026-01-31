@@ -10,13 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Pencil, Plus, Trash2 } from "lucide-react";
-import type { Course, Sprint } from "./types";
+import type { Sprint } from "./types";
 
 type Props = {
-  courses: Course[];
-  selectedCourse: string;
-  onCourseChange: (courseId: string) => void;
-
   sprints: Sprint[];
   selectedSprint: string;
   onSprintChange: (sprintId: string) => void;
@@ -38,9 +34,6 @@ type Props = {
 };
 
 export function TaskBoardHeader({
-  courses,
-  selectedCourse,
-  onCourseChange,
   sprints,
   selectedSprint,
   onSprintChange,
@@ -68,19 +61,6 @@ export function TaskBoardHeader({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Select value={selectedCourse} onValueChange={onCourseChange}>
-        <SelectTrigger className="w-[240px]">
-          <SelectValue placeholder="Chọn môn học" />
-        </SelectTrigger>
-        <SelectContent className="mt-9 max-h-[320px] overflow-y-auto">
-          {courses.map((c) => (
-            <SelectItem key={c.id} value={c.id}>
-              {c.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
       <Select
         value={selectedSprint}
         onValueChange={onSprintChange}

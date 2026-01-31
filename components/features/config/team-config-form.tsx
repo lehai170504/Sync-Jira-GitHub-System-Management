@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Eye, EyeOff, Loader2, Save, AlertCircle, Zap, RefreshCw } from "lucide-react";
+import { Eye, EyeOff, Loader2, Save, AlertCircle, Zap, RefreshCw, Pencil } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useUpdateTeamConfig } from "@/features/management/teams/hooks/use-update-team-config";
 import { UpdateTeamConfigPayload } from "@/features/management/teams/types";
@@ -123,11 +123,16 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
     if (!teamId) {
       return;
     }
-    updateConfig(formData);
+    updateConfig(formData, {
+      onSuccess: () => {
+        if (isEditMode) setIsEditMode(false);
+      },
+    });
   };
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<TeamSyncResponse | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const handleSyncAll = async () => {
     if (!teamId) {
@@ -167,8 +172,8 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
     );
   }
 
-  // Nếu team đã có cấu hình thì chỉ hiển thị thông tin, không cho nhập lại
-  if (existingConfig) {
+  // Nếu team đã có cấu hình và không ở chế độ edit thì hiển thị thông tin read-only
+  if (existingConfig && !isEditMode) {
     return (
       <div className="space-y-6">
         <Card className="border-2 border-violet-100 shadow-lg bg-gradient-to-br from-white to-violet-50/50 overflow-hidden">
@@ -177,6 +182,7 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
             <p className="text-sm text-gray-500 max-w-md">
               Nhấn nút bên dưới để lấy dữ liệu task mới nhất từ Jira và commit từ GitHub về hệ thống.
             </p>
+            <div className="flex flex-wrap gap-3 justify-center">
             <Button
               size="lg"
               onClick={handleSyncAll}
@@ -195,6 +201,29 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
                 </>
               )}
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                if (existingConfig) {
+                  setFormData({
+                    jira_url: existingConfig.jira_url,
+                    jira_project_key: existingConfig.jira_project_key,
+                    jira_board_id: existingConfig.jira_board_id,
+                    api_token_jira: existingConfig.api_token_jira,
+                    github_repo_url: existingConfig.github_repo_url,
+                    api_token_github: existingConfig.api_token_github,
+                  });
+                }
+                setIsEditMode(true);
+              }}
+              className="h-12 px-6"
+            >
+              <Pencil className="mr-2 h-5 w-5" />
+              Chỉnh sửa cấu hình
+            </Button>
+            </div>
             {syncResult && (
               <div className="text-xs text-muted-foreground p-3 bg-violet-50 rounded-lg border border-violet-200 w-full max-w-md">
                 <p className="font-medium text-violet-700">{syncResult.message}</p>
@@ -213,18 +242,44 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
 
         <Card className="border-l-4 border-l-[#0052CC]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <img
-                src="https://cdn.iconscout.com/icon/free/png-256/free-jira-3628861-3030021.png"
-                alt="Jira"
-                className="w-6 h-6"
-              />
-              Jira Software Configuration
-            </CardTitle>
-            <CardDescription>
-              Cấu hình Jira hiện tại đang được sử dụng để đồng bộ tasks và
-              sprints.
-            </CardDescription>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <img
+                    src="https://cdn.iconscout.com/icon/free/png-256/free-jira-3628861-3030021.png"
+                    alt="Jira"
+                    className="w-6 h-6"
+                  />
+                  Jira Software Configuration
+                </CardTitle>
+                <CardDescription>
+                  Cấu hình Jira hiện tại đang được sử dụng để đồng bộ tasks và
+                  sprints.
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (existingConfig) {
+                    setFormData({
+                      jira_url: existingConfig.jira_url,
+                      jira_project_key: existingConfig.jira_project_key,
+                      jira_board_id: existingConfig.jira_board_id,
+                      api_token_jira: existingConfig.api_token_jira,
+                      github_repo_url: existingConfig.github_repo_url,
+                      api_token_github: existingConfig.api_token_github,
+                    });
+                  }
+                  setIsEditMode(true);
+                }}
+                className="shrink-0"
+              >
+                <Pencil className="h-4 w-4 mr-2" />
+                Chỉnh sửa
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div>
@@ -313,8 +368,7 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Cấu hình đã được thiết lập. Nếu cần thay đổi, vui lòng liên hệ giảng
-            viên hoặc admin để được hỗ trợ cập nhật.
+            Cấu hình đã được thiết lập. Nhấn nút <strong>Chỉnh sửa</strong> ở trên để thay đổi thông tin cấu hình.
           </AlertDescription>
         </Alert>
       </div>
@@ -477,6 +531,15 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
 
       {/* SUBMIT BUTTON */}
       <div className="flex justify-end gap-3">
+        {isEditMode && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsEditMode(false)}
+          >
+            Hủy
+          </Button>
+        )}
         <Button
           type="submit"
           disabled={isPending || !teamId}
@@ -490,7 +553,7 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              Lưu cấu hình
+              {isEditMode ? "Cập nhật cấu hình" : "Lưu cấu hình"}
             </>
           )}
         </Button>

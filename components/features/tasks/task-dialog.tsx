@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Course, Member, Sprint, Task } from "./types";
+import type { Member, Sprint, Task } from "./types";
 
 type Props = {
   open: boolean;
@@ -30,7 +30,6 @@ type Props = {
   onSave: () => void;
 
   members: Member[];
-  courses: Course[];
   sprints: Sprint[];
   isLeader: boolean;
   currentUserId: string;
@@ -44,7 +43,6 @@ export function TaskDialog({
   setFormTask,
   onSave,
   members,
-  courses,
   sprints,
   isLeader,
   currentUserId,
@@ -170,24 +168,6 @@ export function TaskDialog({
               onChange={(e) => setFormTask({ ...formTask, type: e.target.value })}
               placeholder="Frontend / Backend / DevOps / Testing"
             />
-          </div>
-          <div className="space-y-2">
-            <Label>Môn học</Label>
-            <Select
-              value={formTask.courseId}
-              onValueChange={(v) => setFormTask({ ...formTask, courseId: v })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn môn học" />
-              </SelectTrigger>
-              <SelectContent>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           <div className="space-y-2">
             <Label>Sprint</Label>

@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import Cookies from "js-cookie";
 import { UserRole } from "@/components/layouts/sidebar-config";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { KanbanSquare, LayoutDashboard, ListChecks, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { KanbanSquare, LayoutDashboard, ListChecks, Loader2, RefreshCw, Plus } from "lucide-react";
 import { toast } from "sonner";
 
-import { courses, initialSprints, initialTasks, members as mockMembers, statusColumns } from "./mock-data";
+import { statusColumns } from "./mock-data";
 import type { Sprint, Task } from "./types";
 import { isDateOverdue, isTaskOverdue, mapStatusCategoryToStatus, nextTaskNumber } from "./utils";
 import { TaskBoardHeader } from "./task-board-header";
@@ -18,7 +20,6 @@ import { MemberTableView } from "./member-table-view";
 import { TaskDialog } from "./task-dialog";
 import { SprintDialog } from "./sprint-dialog";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
-import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 import { useTeamSprints } from "@/features/management/teams/hooks/use-team-sprints";
 import { useCreateSprint } from "@/features/management/teams/hooks/use-create-sprint";
 import { useTeamTasks } from "@/features/management/teams/hooks/use-team-tasks";
@@ -28,8 +29,7 @@ export function TaskBoard() {
   const [role, setRole] = useState<UserRole>("STUDENT");
   const [isLeaderState, setIsLeaderState] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<string>(courses[0]?.id ?? "");
-  const [sprints, setSprints] = useState<Sprint[]>(initialSprints);
+  const [sprints, setSprints] = useState<Sprint[]>([]);
   const [selectedPrint, setSelectedPrint] = useState<string>("");
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -37,12 +37,12 @@ export function TaskBoard() {
   const [formTask, setFormTask] = useState<Task>({
     id: "",
     title: "",
-    assigneeId: mockMembers[0]?.id ?? "",
+    assigneeId: "",
     status: "todo",
     storyPoints: 1,
     priority: "Medium",
     type: "General",
-    courseId: courses[0]?.id ?? "",
+    courseId: "",
     printId: "",
     deadline: "",
   });
@@ -123,13 +123,9 @@ export function TaskBoard() {
     return map;
   }, [teamSprintsData]);
 
-  // Cập nhật sprints state từ API (fallback về mock nếu API rỗng)
+  // Cập nhật sprints state từ API
   useEffect(() => {
-    if (apiSprints.length > 0) {
-      setSprints(apiSprints);
-    } else {
-      setSprints(initialSprints);
-    }
+    setSprints(apiSprints);
   }, [apiSprints]);
 
   // Default chọn sprint: ưu tiên sprint active (nếu có), fallback sprint đầu tiên
@@ -223,14 +219,14 @@ export function TaskBoard() {
         storyPoints: Number(t.story_point ?? 0) || 0,
         priority: "Medium",
         type: "Jira",
-        courseId: selectedCourse || courses[0]?.id || "",
+        courseId: "",
         printId: t.sprint_id || selectedPrint,
         deadline: "",
       };
     });
 
     setTasks(mapped);
-  }, [teamTasksData, selectedCourse, selectedPrint]);
+  }, [teamTasksData, selectedPrint]);
 
   const resetTaskForm = () => {
     const defaultAssigneeId = isLeader ? members[0]?.id ?? "" : currentUserId;
@@ -242,7 +238,7 @@ export function TaskBoard() {
       storyPoints: 1,
       priority: "Medium",
       type: "General",
-      courseId: selectedCourse || courses[0]?.id || "",
+      courseId: "",
       printId: selectedPrint || sprints[0]?.id || "",
       deadline: "",
     });
@@ -256,10 +252,6 @@ export function TaskBoard() {
     }
     if (!formTask.assigneeId) {
       toast.error("Vui lòng chọn người phụ trách");
-      return;
-    }
-    if (!formTask.courseId) {
-      toast.error("Vui lòng chọn môn học");
       return;
     }
     if (!formTask.printId) {
@@ -384,10 +376,8 @@ export function TaskBoard() {
   };
 
   const visibleTasks = useMemo(
-    () =>
-      // API tasks không có courseId -> ưu tiên filter theo sprint; nếu task local thì vẫn filter theo course + sprint
-      tasks.filter((t) => t.printId === selectedPrint && (!t.courseId || t.courseId === selectedCourse)),
-    [tasks, selectedCourse, selectedPrint],
+    () => tasks.filter((t) => t.printId === selectedPrint),
+    [tasks, selectedPrint],
   );
 
   const currentSprint = useMemo(
@@ -419,12 +409,6 @@ export function TaskBoard() {
         </div>
 
         <TaskBoardHeader
-          courses={courses}
-          selectedCourse={selectedCourse}
-          onCourseChange={(v) => {
-            setSelectedCourse(v);
-            setFormTask((prev) => ({ ...prev, courseId: v }));
-          }}
           sprints={sprints}
           selectedSprint={selectedPrint}
           onSprintChange={(v) => {
@@ -460,6 +444,20 @@ export function TaskBoard() {
       </div>
 
       <Separator />
+
+      {sprints.length === 0 && !isSprintsLoading && (
+        <Alert className="bg-amber-50 border-amber-200 text-amber-900">
+          <RefreshCw className="h-4 w-4" />
+          <AlertTitle>Chưa có sprint</AlertTitle>
+          <AlertDescription>
+            Vui lòng đồng bộ Jira tại trang{" "}
+            <Link href="/config" className="font-medium underline hover:no-underline">
+              Cấu hình
+            </Link>{" "}
+            để lấy danh sách sprint từ Jira.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {currentSprint && sprintOverdue && (
         <Alert className="bg-red-50 border-red-200 text-red-900">
@@ -500,6 +498,24 @@ export function TaskBoard() {
                 Không thể lấy danh sách tasks từ server. Vui lòng thử lại.
               </AlertDescription>
             </Alert>
+          ) : visibleTasks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-muted/20">
+              <p className="text-muted-foreground text-center mb-4">
+                Chưa có tasks. Vui lòng đồng bộ Jira tại trang Cấu hình hoặc thêm task mới.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Button variant="outline" asChild>
+                  <Link href="/config">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Đồng bộ Jira
+                  </Link>
+                </Button>
+                <Button onClick={() => { setEditingTask(null); resetTaskForm(); setDialogOpen(true); }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Thêm task
+                </Button>
+              </div>
+            </div>
           ) : (
             <KanbanView
               statusColumns={statusColumns}
@@ -540,6 +556,24 @@ export function TaskBoard() {
                 Không thể lấy danh sách tasks từ server. Vui lòng thử lại.
               </AlertDescription>
             </Alert>
+          ) : visibleTasks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-muted/20">
+              <p className="text-muted-foreground text-center mb-4">
+                Chưa có tasks. Vui lòng đồng bộ Jira tại trang Cấu hình hoặc thêm task mới.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Button variant="outline" asChild>
+                  <Link href="/config">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Đồng bộ Jira
+                  </Link>
+                </Button>
+                <Button onClick={() => { setEditingTask(null); resetTaskForm(); setDialogOpen(true); }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Thêm task
+                </Button>
+              </div>
+            </div>
           ) : (
             <MemberTableView
               members={members}
@@ -566,7 +600,6 @@ export function TaskBoard() {
         setFormTask={setFormTask}
         onSave={handleSaveTask}
         members={members}
-        courses={courses}
         sprints={sprints}
         isLeader={isLeader}
         currentUserId={currentUserId}

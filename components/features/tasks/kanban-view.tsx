@@ -3,9 +3,15 @@
 import { useCallback, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { AlertTriangle, GripVertical, Pencil, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AlertTriangle, Calendar, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { Member, StatusColumn, Task, TaskStatus } from "./types";
 
 type Props = {
@@ -70,6 +76,17 @@ export function KanbanView({
     [tasks, onTaskStatusChange],
   );
 
+  const formatDueDate = (dateStr?: string) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return "";
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(d);
+  };
+
   return (
     <div className="w-full overflow-x-auto overflow-y-visible rounded-lg border bg-muted/30 p-4">
       <div className="flex gap-4 min-w-max">
@@ -113,6 +130,7 @@ export function KanbanView({
                   const overdue = isTaskOverdue(task);
                   const canEdit = isLeader || task.assigneeId === currentUserId;
                   const isDragging = draggedTaskId === task.id;
+                  const isDone = task.status === "done";
                   return (
                     <Card
                       key={task.id}
@@ -136,71 +154,79 @@ export function KanbanView({
                         (onTaskStatusChange ? " cursor-grab active:cursor-grabbing" : "")
                       }
                     >
-                      <CardContent className="p-3 space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          {onTaskStatusChange && (
-                            <div className="text-muted-foreground shrink-0" aria-hidden>
-                              <GripVertical className="h-4 w-4" />
-                            </div>
-                          )}
+                      <CardContent className="p-3 space-y-2.5">
+                        {/* Row 1: Title + Edit + Menu */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                            <p className="text-sm font-semibold leading-snug truncate">
+                              {task.title}
+                            </p>
+                            {canEdit && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); onEditTask(task); }}
+                                className="shrink-0 p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                                aria-label="Chỉnh sửa"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={(e) => e.stopPropagation()}
+                                className="shrink-0 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                                aria-label="Tùy chọn"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {canEdit && (
+                                <DropdownMenuItem onClick={() => onEditTask(task)}>
+                                  <Pencil className="h-4 w-4 mr-2" />
+                                  Chỉnh sửa
+                                </DropdownMenuItem>
+                              )}
+                              {isLeader && (
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  onClick={() => onDeleteTask(task.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Xóa
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+
+                        {/* Row 2: Due date pill */}
+                        {task.deadline && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/80 text-muted-foreground text-[11px]">
+                              <Calendar className="h-3 w-3" />
+                              {formatDueDate(task.deadline)}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Row 3: Checkbox + Task key + Story points + Assignee */}
+                        <div className="flex items-center gap-2 pt-0.5">
                           <span className="text-[11px] font-mono text-muted-foreground">
                             {task.id}
                           </span>
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] px-1.5 py-0.5"
-                          >
-                            {task.type}
-                          </Badge>
-                        </div>
-                        <p className="text-sm font-semibold leading-snug">
-                          {task.title}
-                        </p>
-                        {overdue && (
-                          <div className="flex items-center gap-1 text-[11px] text-red-600">
-                            <AlertTriangle className="h-3 w-3" />
-                            <span>Quá hạn deadline</span>
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between pt-1">
-                          <div className="flex items-center gap-2">
-                            <Avatar className="h-6 w-6 border">
-                              <AvatarFallback className="text-[9px] bg-primary/10 text-primary font-semibold">
-                                {assignee?.initials ?? "NA"}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-xs text-muted-foreground">
-                              {assignee?.name ?? "Unassigned"}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] px-1.5 py-0.5"
-                            >
-                              {task.storyPoints} SP
-                            </Badge>
-                            {canEdit && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => onEditTask(task)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            )}
-                            {isLeader && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className={canEdit ? "-ml-3 h-7 w-7" : "h-7 w-7 text-red-600 hover:text-red-700"}
-                                onClick={() => onDeleteTask(task.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
+                          <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded bg-muted text-[11px] font-medium">
+                            {task.storyPoints}
+                          </span>
+                          <span className="text-muted-foreground mx-0.5">=</span>
+                          <Avatar className="h-6 w-6 shrink-0 border">
+                            <AvatarFallback className="text-[9px] bg-teal-500/20 text-teal-700 dark:bg-teal-400/20 dark:text-teal-300 font-semibold">
+                              {assignee?.initials ?? "NA"}
+                            </AvatarFallback>
+                          </Avatar>
                         </div>
                       </CardContent>
                     </Card>

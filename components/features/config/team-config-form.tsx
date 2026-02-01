@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -15,10 +15,15 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Loader2, Save, AlertCircle, Zap, RefreshCw, Pencil } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useQueryClient } from "@tanstack/react-query";
 import { useUpdateTeamConfig } from "@/features/management/teams/hooks/use-update-team-config";
 import { UpdateTeamConfigPayload } from "@/features/management/teams/types";
 import { useTeamDetail } from "@/features/student/hooks/use-team-detail";
-import { syncTeamApi, type TeamSyncResponse } from "@/features/integration/api/team-sync-api";
+import {
+  syncTeamApi,
+  getSyncHistoryApi,
+  type TeamSyncResponse,
+} from "@/features/integration/api/team-sync-api";
 
 interface TeamConfigFormProps {
   teamId: string | undefined;
@@ -76,6 +81,7 @@ function SecretInput({
 }
 
 export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
+  const queryClient = useQueryClient();
   const { mutate: updateConfig, isPending } = useUpdateTeamConfig(teamId);
 
   const { data: teamDetailData, isLoading: isTeamDetailLoading } =
@@ -101,6 +107,18 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
       last_sync_at: team.last_sync_at,
     };
   }, [teamDetailData]);
+
+  // Reset lastSyncAt khi đổi team
+  useEffect(() => {
+    setLastSyncAt(null);
+  }, [teamId]);
+
+  // Đồng bộ lastSyncAt từ existingConfig khi load
+  useEffect(() => {
+    if (existingConfig?.last_sync_at) {
+      setLastSyncAt((prev) => prev ?? existingConfig!.last_sync_at ?? null);
+    }
+  }, [existingConfig?.last_sync_at]);
 
   const [formData, setFormData] = useState<UpdateTeamConfigPayload>({
     jira_url: "",
@@ -133,6 +151,7 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<TeamSyncResponse | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
 
   const handleSyncAll = async () => {
     if (!teamId) {
@@ -155,6 +174,16 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
         toast.success(result.message ?? "Đồng bộ hoàn tất", {
           description: `Git: ${git} commits. Jira: ${jira_tasks} tasks, ${jira_sprints} sprints.`,
         });
+      }
+      // Sau khi đồng bộ thành công, ghi lại lịch sử sync qua API
+      try {
+        const history = await getSyncHistoryApi(teamId);
+        if (history.last_sync_at) {
+          setLastSyncAt(history.last_sync_at);
+        }
+        queryClient.invalidateQueries({ queryKey: ["team-detail", teamId] });
+      } catch {
+        // Bỏ qua nếu sync-history API lỗi
       }
     } catch (error: any) {
       const msg = error?.response?.data?.message || "Không thể đồng bộ dữ liệu.";
@@ -181,6 +210,18 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
             <h3 className="text-lg font-bold text-gray-900">Sẵn sàng đồng bộ</h3>
             <p className="text-sm text-gray-500 max-w-md">
               Nhấn nút bên dưới để lấy dữ liệu task mới nhất từ Jira và commit từ GitHub về hệ thống.
+            </p>
+            <p className="text-sm">
+              <span className="font-medium text-gray-700">Lần đồng bộ gần nhất:</span>{" "}
+              <span className="text-muted-foreground">
+                {lastSyncAt ?? existingConfig?.last_sync_at ? (
+                  new Date(
+                    lastSyncAt ?? existingConfig?.last_sync_at ?? "",
+                  ).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
+                ) : (
+                  "Chưa đồng bộ"
+                )}
+              </span>
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
             <Button
@@ -315,14 +356,18 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
                 disabled
               />
             </div>
-            {existingConfig.last_sync_at && (
-              <div>
-                <span className="font-medium">Lần đồng bộ gần nhất:</span>{" "}
-                <span className="text-muted-foreground">
-                  {new Date(existingConfig.last_sync_at).toLocaleString("vi-VN")}
-                </span>
-              </div>
-            )}
+            <div>
+              <span className="font-medium">Lần đồng bộ gần nhất:</span>{" "}
+              <span className="text-muted-foreground">
+                {lastSyncAt ?? existingConfig.last_sync_at ? (
+                  new Date(
+                    lastSyncAt ?? existingConfig.last_sync_at ?? "",
+                  ).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
+                ) : (
+                  "Chưa đồng bộ"
+                )}
+              </span>
+            </div>
           </CardContent>
         </Card>
 

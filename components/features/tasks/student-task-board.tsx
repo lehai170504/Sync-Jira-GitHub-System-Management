@@ -13,16 +13,23 @@ import { toast } from "sonner";
 
 import { statusColumns } from "./mock-data";
 import type { Sprint, Task } from "./types";
-import { isDateOverdue, isTaskOverdue, mapStatusCategoryToStatus, nextTaskNumber } from "./utils";
+import { isDateOverdue, isTaskOverdue, mapStatusCategoryToStatus } from "./utils";
 import { TaskBoardHeader } from "./task-board-header";
 import { KanbanView } from "./kanban-view";
 import { MemberTableView } from "./member-table-view";
 import { TaskDialog } from "./task-dialog";
 import { SprintDialog } from "./sprint-dialog";
+import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useTeamSprints } from "@/features/management/teams/hooks/use-team-sprints";
 import { useCreateSprint } from "@/features/management/teams/hooks/use-create-sprint";
+import { useUpdateSprint } from "@/features/management/teams/hooks/use-update-sprint";
+import { useDeleteSprint } from "@/features/management/teams/hooks/use-delete-sprint";
 import { useTeamTasks } from "@/features/management/teams/hooks/use-team-tasks";
+import { useCreateTask } from "@/features/management/teams/hooks/use-create-task";
+import { useUpdateTask } from "@/features/management/teams/hooks/use-update-task";
+import { useDeleteTask } from "@/features/management/teams/hooks/use-delete-task";
+import { useJiraUsers } from "@/features/management/teams/hooks/use-jira-users";
 import { useTeamMembers } from "@/features/student/hooks/use-team-members";
 
 export function TaskBoard() {
@@ -37,6 +44,7 @@ export function TaskBoard() {
   const [formTask, setFormTask] = useState<Task>({
     id: "",
     title: "",
+    description: "",
     assigneeId: "",
     status: "todo",
     storyPoints: 1,
@@ -45,10 +53,19 @@ export function TaskBoard() {
     courseId: "",
     printId: "",
     deadline: "",
+    startDate: "",
   });
 
   const [sprintDialogOpen, setSprintDialogOpen] = useState(false);
   const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
+
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    type: "task" | "sprint";
+    id: string;
+    name: string;
+    subtitle?: string; // task key (e.g. PROJ-123) cho task
+  } | null>(null);
   const [formSprint, setFormSprint] = useState<Sprint>({
     id: "",
     name: "",
@@ -70,6 +87,9 @@ export function TaskBoard() {
   // Fetch members của team (để map assignee -> tên/initials, và xác định user hiện tại)
   const { data: teamMembersData } = useTeamMembers(resolvedTeamId);
 
+  // Fetch Jira users của team (dùng cho assignee dropdown khi thêm task)
+  const { data: jiraUsersData } = useJiraUsers(resolvedTeamId);
+
   // Fetch tasks theo sprint (khi chọn sprint từ API)
   const {
     data: teamTasksData,
@@ -79,6 +99,19 @@ export function TaskBoard() {
   
   // Hook để tạo sprint mới
   const { mutate: createSprint, isPending: isCreatingSprint } = useCreateSprint();
+  // Hook để cập nhật sprint
+  const { mutate: updateSprint, isPending: isUpdatingSprint } = useUpdateSprint();
+  // Hook để xóa sprint
+  const { mutate: deleteSprint, isPending: isDeletingSprint } = useDeleteSprint();
+
+  // Hook để tạo task mới
+  const { mutate: createTask, isPending: isCreatingTask } = useCreateTask(resolvedTeamId);
+
+  // Hook để cập nhật task
+  const { mutate: updateTask, isPending: isUpdatingTask } = useUpdateTask(resolvedTeamId);
+
+  // Hook để xóa task
+  const { mutate: deleteTask, isPending: isDeletingTask } = useDeleteTask();
 
   const formatDateVN_yyyyMMdd = (iso?: string) => {
     if (!iso) return "";
@@ -138,7 +171,6 @@ export function TaskBoard() {
     const activeFromApi = teamSprintsData?.find((s: any) => s.state === "active");
     const activeId = activeFromApi
       ? activeFromApi._id ||
-        activeFromApi.id ||
         `${activeFromApi.name}-${activeFromApi.start_date || ""}-${activeFromApi.end_date || ""}`
       : undefined;
 
@@ -193,7 +225,7 @@ export function TaskBoard() {
     });
 
     // Fallback: create members from tasks response (so assignee_name still appears)
-    (teamTasksData?.tasks || []).forEach((t: any) => {
+    (Array.isArray(teamTasksData) ? teamTasksData : []).forEach((t: any) => {
       const jiraId = t?.assignee_account_id;
       if (!jiraId) return;
       if (map.has(jiraId)) return;
@@ -204,16 +236,36 @@ export function TaskBoard() {
     return Array.from(map.values());
   }, [teamMembersData, teamTasksData]);
 
+  // Assignee options từ Jira users (dùng cho dropdown khi thêm task) - dùng display_name từ API
+  const assigneeOptions = useMemo(() => {
+    const jiraUsers = jiraUsersData?.users || [];
+    const teamMembers = teamMembersData?.members || [];
+    const options = jiraUsers.map((u: { jira_account_id: string; display_name?: string }) => {
+      const jiraId = u.jira_account_id;
+      const name = u.display_name || jiraId;
+      return { id: jiraId, name };
+    });
+    // Đảm bảo currentUserId có trong options khi MEMBER (để form luôn có giá trị hợp lệ)
+    if (currentUserId && !options.some((o) => o.id === currentUserId)) {
+      const member = teamMembers.find((m: any) => m?.jira_account_id === currentUserId);
+      const name = member?.student?.full_name || member?.student?.student_code || currentUserId;
+      options.push({ id: currentUserId, name });
+    }
+    return options;
+  }, [jiraUsersData, teamMembersData, currentUserId]);
+
   // Đồng bộ tasks state từ API mỗi khi sprint thay đổi / refetch xong
   useEffect(() => {
     if (!teamTasksData) return;
 
-    const mapped: Task[] = (teamTasksData.tasks || []).map((t: any) => {
+    const taskList = Array.isArray(teamTasksData) ? teamTasksData : [];
+    const mapped: Task[] = taskList.map((t: any) => {
       const id = t.issue_key || t._id;
       const assigneeId = t.assignee_account_id || "__unassigned";
       return {
         id,
         title: t.summary || t.title || t.issue_key || id,
+        description: t.description,
         assigneeId,
         status: mapStatusCategoryToStatus(t.status_category),
         storyPoints: Number(t.story_point ?? 0) || 0,
@@ -221,7 +273,8 @@ export function TaskBoard() {
         type: "Jira",
         courseId: "",
         printId: t.sprint_id || selectedPrint,
-        deadline: "",
+        deadline: t.due_date ? formatDateVN_yyyyMMdd(t.due_date) : "",
+        startDate: t.start_date ? formatDateVN_yyyyMMdd(t.start_date) : undefined,
       };
     });
 
@@ -229,10 +282,13 @@ export function TaskBoard() {
   }, [teamTasksData, selectedPrint]);
 
   const resetTaskForm = () => {
-    const defaultAssigneeId = isLeader ? members[0]?.id ?? "" : currentUserId;
+    const defaultAssigneeId = isLeader
+      ? (assigneeOptions[0]?.id ?? members[0]?.id ?? "")
+      : currentUserId;
     setFormTask({
       id: "",
       title: "",
+      description: "",
       assigneeId: defaultAssigneeId,
       status: "todo",
       storyPoints: 1,
@@ -241,6 +297,7 @@ export function TaskBoard() {
       courseId: "",
       printId: selectedPrint || sprints[0]?.id || "",
       deadline: "",
+      startDate: "",
     });
     setEditingTask(null);
   };
@@ -259,7 +316,15 @@ export function TaskBoard() {
       return;
     }
     if (!formTask.deadline) {
-      toast.error("Vui lòng chọn deadline cho task");
+      toast.error("Vui lòng chọn hạn chót (due date)");
+      return;
+    }
+    if (!formTask.startDate) {
+      toast.error("Vui lòng chọn ngày bắt đầu (start date)");
+      return;
+    }
+    if (!resolvedTeamId) {
+      toast.error("Không tìm thấy team ID");
       return;
     }
 
@@ -276,29 +341,76 @@ export function TaskBoard() {
     }
 
     if (editingTask) {
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.id === editingTask.id ? { ...formTask, id: editingTask.id } : t,
-        ),
+      updateTask(
+        {
+          taskId: editingTask.id,
+          payload: {
+            team_id: resolvedTeamId!,
+            summary: formTask.title.trim(),
+            description: formTask.description ?? "",
+            assignee_account_id: formTask.assigneeId,
+            story_point: formTask.storyPoints,
+            start_date: formTask.startDate!,
+            due_date: formTask.deadline,
+            sprint_id: formTask.printId,
+          },
+        },
+        {
+          onSuccess: () => {
+            setDialogOpen(false);
+            resetTaskForm();
+          },
+        }
       );
-      toast.success("Đã cập nhật task");
     } else {
-      const newId = `T-${nextTaskNumber(tasks)}`;
-      setTasks((prev) => [...prev, { ...formTask, id: newId }]);
-      toast.success("Đã thêm task mới");
+      createTask(
+        {
+          summary: formTask.title.trim(),
+          description: formTask.description ?? "",
+          assignee_account_id: formTask.assigneeId,
+          story_point: formTask.storyPoints,
+          start_date: formTask.startDate!,
+          due_date: formTask.deadline,
+          sprint_id: formTask.printId,
+        },
+        {
+          onSuccess: () => {
+            setDialogOpen(false);
+            resetTaskForm();
+          },
+        }
+      );
     }
-
-    setDialogOpen(false);
-    resetTaskForm();
   };
 
   const handleDeleteTask = (id: string) => {
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
-    const ok = window.confirm(`Bạn chắc chắn muốn xóa task ${task.id}?`);
-    if (!ok) return;
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-    toast.success("Đã xóa task");
+    setDeleteTarget({ type: "task", id, name: task.title, subtitle: task.id });
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.type === "task") {
+      deleteTask(deleteTarget.id, {
+        onSuccess: () => {
+          setDeleteConfirmOpen(false);
+          setDeleteTarget(null);
+        },
+      });
+    } else {
+      deleteSprint(deleteTarget.id, {
+        onSuccess: () => {
+          if (selectedPrint === deleteTarget.id) {
+            const next = sprints.find((s) => s.id !== deleteTarget.id);
+            setSelectedPrint(next?.id ?? "");
+          }
+          setDeleteConfirmOpen(false);
+          setDeleteTarget(null);
+        },
+      });
+    }
   };
 
   const resetSprintForm = () => {
@@ -330,16 +442,24 @@ export function TaskBoard() {
       return;
     }
 
-    // Nếu đang edit, giữ logic cũ (chưa có API update)
+    // Nếu đang edit, gọi API PUT /sprints/:id
     if (editingSprint) {
-      setSprints((prev) =>
-        prev.map((s) =>
-          s.id === editingSprint.id ? { ...formSprint, id: editingSprint.id } : s,
-        ),
+      updateSprint(
+        {
+          sprintId: editingSprint.id,
+          payload: {
+            name: formSprint.name.trim(),
+            start_date: formSprint.start_date,
+            end_date: formSprint.end_date,
+          },
+        },
+        {
+          onSuccess: () => {
+            setSprintDialogOpen(false);
+            resetSprintForm();
+          },
+        }
       );
-      toast.success("Đã cập nhật sprint");
-      setSprintDialogOpen(false);
-      resetSprintForm();
       return;
     }
 
@@ -364,15 +484,8 @@ export function TaskBoard() {
   const handleDeleteSprint = (id: string) => {
     const sprint = sprints.find((s) => s.id === id);
     if (!sprint) return;
-    const ok = window.confirm(`Bạn chắc chắn muốn xóa sprint "${sprint.name}"?`);
-    if (!ok) return;
-
-    setSprints((prev) => prev.filter((s) => s.id !== id));
-    if (selectedPrint === id) {
-      const next = sprints.find((s) => s.id !== id);
-      setSelectedPrint(next?.id ?? "");
-    }
-    toast.success("Đã xóa sprint");
+    setDeleteTarget({ type: "sprint", id, name: sprint.name });
+    setDeleteConfirmOpen(true);
   };
 
   const visibleTasks = useMemo(
@@ -427,8 +540,13 @@ export function TaskBoard() {
           }}
           onEditSprint={() => {
             if (!currentSprint) return;
+            const meta = sprintMetaMap[currentSprint.id];
             setEditingSprint(currentSprint);
-            setFormSprint(currentSprint);
+            setFormSprint({
+              ...currentSprint,
+              start_date: meta?.start_date ?? "",
+              end_date: meta?.end_date ?? "",
+            });
             setSprintDialogOpen(true);
           }}
           onDeleteSprint={() => {
@@ -599,7 +717,9 @@ export function TaskBoard() {
         formTask={formTask}
         setFormTask={setFormTask}
         onSave={handleSaveTask}
+        isSaving={isCreatingTask || isUpdatingTask}
         members={members}
+        assigneeOptions={assigneeOptions}
         sprints={sprints}
         isLeader={isLeader}
         currentUserId={currentUserId}
@@ -612,9 +732,29 @@ export function TaskBoard() {
         formSprint={formSprint}
         setFormSprint={setFormSprint}
         onSave={handleSaveSprint}
-        isSaving={isCreatingSprint}
+        isSaving={isCreatingSprint || isUpdatingSprint}
       />
 
+      <DeleteConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={(open) => {
+          setDeleteConfirmOpen(open);
+          if (!open) setDeleteTarget(null);
+        }}
+        title={deleteTarget?.type === "sprint" ? "Xóa sprint" : "Xóa task"}
+        description={
+          deleteTarget?.type === "sprint"
+            ? "Bạn chắc chắn muốn xóa sprint này? Các task trong sprint có thể bị ảnh hưởng."
+            : "Bạn chắc chắn muốn xóa task này? Hành động này không thể hoàn tác."
+        }
+        itemName={deleteTarget?.name}
+        subtitle={deleteTarget?.subtitle}
+        onConfirm={handleConfirmDelete}
+        isLoading={
+          (deleteTarget?.type === "task" && isDeletingTask) ||
+          (deleteTarget?.type === "sprint" && isDeletingSprint)
+        }
+      />
     </div>
   );
 }

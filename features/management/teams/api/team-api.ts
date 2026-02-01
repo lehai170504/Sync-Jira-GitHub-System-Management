@@ -2,8 +2,6 @@ import { axiosClient } from "@/lib/axios-client";
 import {
   TeamDashboardResponse,
   TeamCommitsResponse,
-  TeamTasksResponse,
-  TeamSprintsResponse,
   UpdateTeamConfigPayload,
   UpdateTeamConfigResponse,
 } from "../types";
@@ -37,27 +35,24 @@ export const updateTeamConfigApi = async (
 };
 
 /**
- * GET /api/teams/:teamId/sprints
- * Lấy danh sách sprints của team từ Jira
+ * GET /api/teams/:teamId/jira-users
+ * Lấy danh sách Jira users của team (dùng cho assignee khi tạo task)
  */
-export const getTeamSprintsApi = async (teamId: string): Promise<TeamSprintsResponse> => {
-  const { data } = await axiosClient.get<TeamSprintsResponse>(
-    `/teams/${teamId}/sprints`,
-  );
-  return data;
-};
+export interface JiraUserItem {
+  jira_account_id: string;
+  display_name?: string;
+}
 
-/**
- * GET /api/teams/:teamId/tasks?sprintId=...
- * Lấy danh sách tasks của team theo sprint từ Jira
- */
-export const getTeamTasksApi = async (
+export interface JiraUsersResponse {
+  total: number;
+  users: JiraUserItem[];
+}
+
+export const getJiraUsersApi = async (
   teamId: string,
-  sprintId: string,
-): Promise<TeamTasksResponse> => {
-  const { data } = await axiosClient.get<TeamTasksResponse>(
-    `/teams/${teamId}/tasks`,
-    { params: { sprintId } },
+): Promise<JiraUsersResponse> => {
+  const { data } = await axiosClient.get<JiraUsersResponse>(
+    `/teams/${teamId}/jira-users`,
   );
   return data;
 };

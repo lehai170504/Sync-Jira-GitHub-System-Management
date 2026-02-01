@@ -40,6 +40,23 @@ export async function syncTeamApi(teamId: string): Promise<TeamSyncResponse> {
   return data;
 }
 
+/**
+ * Lịch sử đồng bộ của team.
+ * GET /teams/:teamId/sync-history
+ */
+export interface SyncHistoryResponse {
+  last_sync_at: string; // ISO date string
+}
+
+export async function getSyncHistoryApi(
+  teamId: string,
+): Promise<SyncHistoryResponse> {
+  const { data } = await axiosClient.get<SyncHistoryResponse>(
+    `/teams/${teamId}/sync-history`,
+  );
+  return data;
+}
+
 /** Kiểm tra response lỗi có phải 410 (Jira project không còn tồn tại) không. */
 export function isSyncLeader410(err: unknown): err is { response: { status: 410; data: SyncLeader410Body } } {
   const e = err as { response?: { status?: number; data?: SyncLeader410Body } };

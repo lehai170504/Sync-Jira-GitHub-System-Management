@@ -60,7 +60,8 @@ export function TaskBoardHeader({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-2">
       <Select
         value={selectedSprint}
         onValueChange={onSprintChange}
@@ -69,7 +70,7 @@ export function TaskBoardHeader({
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Chọn sprint" />
         </SelectTrigger>
-        <SelectContent className="mt-9 max-h-[320px] overflow-y-auto">
+        <SelectContent className="mt-25 max-h-[320px] overflow-y-auto">
           {isSprintsLoading ? (
             <SelectItem value="__loading" disabled>
               Đang tải sprint...
@@ -137,9 +138,10 @@ export function TaskBoardHeader({
         <Plus className="h-4 w-4 mr-1" />
         Thêm task
       </Button>
+      </div>
 
       {currentSprint && sprintMeta && (
-        <div className="flex flex-col gap-1 text-xs text-muted-foreground ml-2">
+        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <span className="font-medium">Trạng thái:</span>
             <Badge

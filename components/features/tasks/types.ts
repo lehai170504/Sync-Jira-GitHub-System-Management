@@ -17,6 +17,7 @@ export type Sprint = {
 export type Task = {
   id: string;
   title: string;
+  description?: string;
   assigneeId: string;
   status: TaskStatus;
   storyPoints: number;
@@ -24,7 +25,8 @@ export type Task = {
   type: string;
   courseId: string;
   printId: string; // sprint id (legacy naming kept for compatibility)
-  deadline: string; // yyyy-MM-dd
+  deadline: string; // yyyy-MM-dd (due_date)
+  startDate?: string; // yyyy-MM-dd (start_date)
 };
 
 export type StatusColumn = {

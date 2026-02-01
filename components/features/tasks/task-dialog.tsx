@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -28,8 +29,11 @@ type Props = {
   formTask: Task;
   setFormTask: (t: Task) => void;
   onSave: () => void;
+  isSaving?: boolean;
 
   members: Member[];
+  /** Danh sách assignee từ Jira users (dùng cho dropdown khi thêm task) */
+  assigneeOptions?: { id: string; name: string }[];
   sprints: Sprint[];
   isLeader: boolean;
   currentUserId: string;
@@ -42,13 +46,16 @@ export function TaskDialog({
   formTask,
   setFormTask,
   onSave,
+  isSaving = false,
   members,
+  assigneeOptions,
   sprints,
   isLeader,
   currentUserId,
 }: Props) {
   // MEMBER chỉ có thể assign task cho chính mình
   const canChangeAssignee = isLeader;
+  const assigneeList = assigneeOptions && assigneeOptions.length > 0 ? assigneeOptions : members;
   
   // Đảm bảo MEMBER luôn assign cho chính mình khi mở dialog
   React.useEffect(() => {
@@ -68,16 +75,26 @@ export function TaskDialog({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Tiêu đề</Label>
+            <Label>Tiêu đề (Summary) <span className="text-red-500">*</span></Label>
             <Input
               value={formTask.title}
               onChange={(e) => setFormTask({ ...formTask, title: e.target.value })}
               placeholder="Ví dụ: Thiết kế trang thanh toán"
             />
           </div>
+          <div className="space-y-2">
+            <Label>Mô tả (Description)</Label>
+            <Textarea
+              value={formTask.description ?? ""}
+              onChange={(e) => setFormTask({ ...formTask, description: e.target.value })}
+              placeholder="Ví dụ: Phân tích yêu cầu và thiết kế chi tiết"
+              rows={3}
+              className="resize-none"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Assignee</Label>
+              <Label>Assignee <span className="text-red-500">*</span></Label>
               <Select
                 value={formTask.assigneeId}
                 onValueChange={(v) => setFormTask({ ...formTask, assigneeId: v })}
@@ -87,7 +104,7 @@ export function TaskDialog({
                   <SelectValue placeholder="Chọn thành viên" />
                 </SelectTrigger>
                 <SelectContent>
-                  {members.map((m) => (
+                  {assigneeList.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
                       {m.name}
                     </SelectItem>
@@ -101,7 +118,7 @@ export function TaskDialog({
               )}
             </div>
             <div className="space-y-2">
-              <Label>Story Points</Label>
+              <Label>Story Points <span className="text-red-500">*</span></Label>
               <Input
                 type="number"
                 min={1}
@@ -115,62 +132,8 @@ export function TaskDialog({
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label>Trạng thái</Label>
-              <Select
-                value={formTask.status}
-                onValueChange={(v) =>
-                  setFormTask({
-                    ...formTask,
-                    status: v as Task["status"],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn trạng thái" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todo">To Do</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="review">In Review</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Độ ưu tiên</Label>
-              <Select
-                value={formTask.priority}
-                onValueChange={(v) =>
-                  setFormTask({
-                    ...formTask,
-                    priority: v as Task["priority"],
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn độ ưu tiên" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Critical">Critical</SelectItem>
-                  <SelectItem value="High">High</SelectItem>
-                  <SelectItem value="Medium">Medium</SelectItem>
-                  <SelectItem value="Low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
           <div className="space-y-2">
-            <Label>Loại công việc</Label>
-            <Input
-              value={formTask.type}
-              onChange={(e) => setFormTask({ ...formTask, type: e.target.value })}
-              placeholder="Frontend / Backend / DevOps / Testing"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Sprint</Label>
+            <Label>Sprint <span className="text-red-500">*</span></Label>
             <Select
               value={formTask.printId}
               onValueChange={(v) => setFormTask({ ...formTask, printId: v })}
@@ -187,26 +150,43 @@ export function TaskDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label>Deadline</Label>
-            <Input
-              type="date"
-              value={formTask.deadline}
-              onChange={(e) =>
-                setFormTask({
-                  ...formTask,
-                  deadline: e.target.value,
-                })
-              }
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label>Ngày bắt đầu (Start date) <span className="text-red-500">*</span></Label>
+              <Input
+                type="date"
+                value={formTask.startDate ?? ""}
+                onChange={(e) =>
+                  setFormTask({
+                    ...formTask,
+                    startDate: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Hạn chót (Due date) <span className="text-red-500">*</span></Label>
+              <Input
+                type="date"
+                value={formTask.deadline}
+                onChange={(e) =>
+                  setFormTask({
+                    ...formTask,
+                    deadline: e.target.value,
+                  })
+                }
+              />
+            </div>
           </div>
         </div>
 
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
             Hủy
           </Button>
-          <Button onClick={onSave}>{editing ? "Lưu thay đổi" : "Thêm task"}</Button>
+          <Button onClick={onSave} disabled={isSaving}>
+            {isSaving ? "Đang xử lý..." : editing ? "Lưu thay đổi" : "Thêm task"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

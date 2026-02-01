@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { getTeamSprintsApi } from "../api/team-api";
+import { getSprintsApi } from "../api/sprint-api";
 
 /**
- * Hook để lấy danh sách sprints của team từ Jira
- * GET /teams/:teamId/sprints
+ * Hook để lấy danh sách sprints của team
+ * GET /sprints/:teamId
  */
 export const useTeamSprints = (teamId: string | undefined) => {
   return useQuery({
     queryKey: ["team-sprints", teamId],
-    queryFn: () => getTeamSprintsApi(teamId!),
+    queryFn: () => getSprintsApi(teamId!),
     enabled: !!teamId,
     staleTime: 30 * 1000,
     refetchOnWindowFocus: true,

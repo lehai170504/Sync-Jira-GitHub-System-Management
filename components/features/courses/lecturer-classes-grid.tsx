@@ -5,58 +5,41 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import { LecturerClassItem } from "@/features/management/lecturers/types/lecturer-classes-types";
+import type { LecturerClassItem } from "@/features/management/lecturers/types/lecturer-classes-types";
 
-// Type CourseItem: hỗ trợ cả LecturerClassItem (lecturer) và Student format (student)
-export interface CourseItem extends Partial<LecturerClassItem> {
-  _id?: string;
-  id?: string;
-  name?: string;
-  className?: string;
-  class_code?: string;
-  subjectCode?: string;
-  subjectName?: string;
-  semester?: string;
-  semester_id?: { name?: string };
-  subject_id?: { code?: string; name?: string };
-  contributionConfig?: { jiraWeight?: number; gitWeight?: number };
-  gradeStructure?: unknown[];
-  status?: "Active" | "Archived" | "Completed";
+export interface LecturerClassDisplayItem extends LecturerClassItem {
   color: string;
-  role?: string;
-  teamName?: string;
-  isLeader?: boolean;
 }
 
-interface CourseGridProps {
-  classes: CourseItem[];
-  onSelectClass: (cls: CourseItem) => void;
+interface LecturerClassesGridProps {
+  classes: LecturerClassDisplayItem[];
+  onSelectClass: (cls: LecturerClassDisplayItem) => void;
   onClearFilter: () => void;
 }
 
-export function CourseGrid({
+export function LecturerClassesGrid({
   classes,
   onSelectClass,
   onClearFilter,
-}: CourseGridProps) {
+}: LecturerClassesGridProps) {
   if (classes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-center animate-fade-up font-mono">
         <div className="relative mb-6">
-          <div className="absolute -inset-4 border border-dashed border-slate-200 rounded-full animate-orbit-slow opacity-50"></div>
+          <div className="absolute -inset-4 border border-dashed border-slate-200 rounded-full animate-orbit-slow opacity-50" />
           <div className="bg-white p-6 rounded-full shadow-xl relative z-10">
             <Search className="h-10 w-10 text-slate-300" />
           </div>
         </div>
         <h3 className="text-xl font-black text-slate-900 italic tracking-tighter">
-          không tìm thấy lớp học
+          Không tìm thấy lớp học
         </h3>
         <Button
           variant="outline"
           className="mt-8 rounded-xl border-slate-200 font-black text-[10px] tracking-widest uppercase hover:bg-slate-50 active:scale-95 transition-all"
           onClick={onClearFilter}
         >
-          xóa bộ lọc
+          Xóa bộ lọc
         </Button>
       </div>
     );
@@ -67,7 +50,7 @@ export function CourseGrid({
       <AnimatePresence mode="popLayout">
         {classes.map((cls, index) => (
           <motion.div
-            key={cls._id ?? cls.id ?? index}
+            key={cls._id}
             layout
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -78,7 +61,7 @@ export function CourseGrid({
               className="group overflow-hidden border-slate-100 rounded-[32px] shadow-2xl shadow-slate-200/50 hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer flex flex-col h-full bg-white relative hover:-translate-y-2 active:scale-[0.98]"
               onClick={() => onSelectClass(cls)}
             >
-              {/* --- HEADER --- */}
+              {/* HEADER */}
               <div
                 className={`h-36 ${cls.color} relative p-6 flex flex-col justify-between overflow-hidden`}
               >
@@ -88,7 +71,7 @@ export function CourseGrid({
 
                 <div className="flex justify-between items-start relative z-10">
                   <Badge className="bg-black/20 text-white text-[9px] font-black px-3 py-1 rounded-full backdrop-blur-md border-0 tracking-widest uppercase">
-                    {cls.semester_id?.name ?? cls.semester ?? "N/A"}
+                    {cls.semester_id?.name ?? "N/A"}
                   </Badge>
                   <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
                     <ArrowRight className="text-white w-4 h-4" />
@@ -97,29 +80,28 @@ export function CourseGrid({
 
                 <div className="relative z-10">
                   <h3 className="text-3xl font-black text-white leading-none tracking-tighter italic">
-                    {cls.name ?? cls.className ?? "N/A"}
+                    {cls.name}
                   </h3>
                   <p className="text-white/80 text-[10px] font-black tracking-widest mt-1 opacity-70 uppercase">
-                    {cls.subject_id?.code ?? cls.subjectCode ?? cls.class_code ?? "N/A"}
+                    {cls.subject_id?.code ?? cls.class_code ?? "N/A"}
                   </p>
                 </div>
               </div>
 
-              {/* --- BODY --- */}
+              {/* BODY */}
               <CardContent className="flex-1 p-6 flex flex-col">
                 <h4 className="font-bold text-slate-800 text-sm leading-tight mb-4 group-hover:text-[#F27124] transition-colors line-clamp-2 italic">
-                  {cls.subjectName ?? cls.subject_id?.name ?? cls.className}
+                  {cls.subjectName ?? cls.subject_id?.name}
                 </h4>
 
                 <div className="space-y-3 mt-auto pt-4 border-t border-slate-50">
-                  {/* CONFIG INFO */}
                   <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                     <div className="flex items-center gap-1.5">
                       <Target className="w-3 h-3 text-blue-500" />
                       <span>
                         Jira:{" "}
                         {Math.round(
-                          (cls.contributionConfig?.jiraWeight || 0) * 100,
+                          (cls.contributionConfig?.jiraWeight ?? 0) * 100,
                         )}
                         %
                       </span>
@@ -129,26 +111,25 @@ export function CourseGrid({
                       <span>
                         Git:{" "}
                         {Math.round(
-                          (cls.contributionConfig?.gitWeight || 0) * 100,
+                          (cls.contributionConfig?.gitWeight ?? 0) * 100,
                         )}
                         %
                       </span>
                     </div>
                   </div>
 
-                  {/* GRADE INFO */}
                   <div className="flex items-center gap-2">
                     <BarChart3 className="w-3.5 h-3.5 text-slate-300" />
                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                      {cls.gradeStructure?.length > 0
+                      {cls.gradeStructure?.length
                         ? `${cls.gradeStructure.length} cột điểm`
-                        : "chưa cấu hình điểm"}
+                        : "Chưa cấu hình điểm"}
                     </span>
                   </div>
                 </div>
               </CardContent>
 
-              {/* --- FOOTER --- */}
+              {/* FOOTER */}
               <CardFooter className="px-6 py-4 bg-slate-50/50 flex justify-between items-center group-hover:bg-[#F27124]/5 transition-colors">
                 <div className="flex items-center gap-2">
                   <div
@@ -159,7 +140,7 @@ export function CourseGrid({
                     }`}
                   />
                   <span className="text-[9px] font-black text-slate-400 group-hover:text-[#F27124] uppercase tracking-[0.2em]">
-                    {cls.status ?? (cls.teamName ? "Active" : "N/A")}
+                    {cls.status}
                   </span>
                 </div>
                 <div className="h-7 w-7 rounded-lg bg-white border border-slate-100 flex items-center justify-center group-hover:border-[#F27124] group-hover:rotate-12 transition-all shadow-sm">

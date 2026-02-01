@@ -1,28 +1,19 @@
 "use client";
 
-import { ArrowRight, Users, Filter, Search, Crown } from "lucide-react";
+import { ArrowRight, Search, Sparkles, Target, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge"; // 👇 Import Badge
+import { Badge } from "@/components/ui/badge";
+import { motion, AnimatePresence } from "framer-motion";
+import { LecturerClassItem } from "@/features/management/lecturers/types/lecturer-classes-types";
 
-// Định nghĩa lại Type cho chuẩn xác hơn
-export interface CourseItem {
-  id: string;
-  className: string;
-  subjectCode: string;
-  subjectName: string;
+// Type CourseItem kế thừa trực tiếp từ BE + thuộc tính UI color
+export interface CourseItem extends LecturerClassItem {
   color: string;
-  semester?: string;
-  // Dành cho Giảng viên
-  students?: number;
-  // Dành cho Sinh viên
-  role?: "Leader" | "Member";
-  teamName?: string;
-  isLeader?: boolean;
 }
 
 interface CourseGridProps {
-  classes: CourseItem[]; // Sử dụng Type CourseItem thay vì any[]
+  classes: CourseItem[];
   onSelectClass: (cls: CourseItem) => void;
   onClearFilter: () => void;
 }
@@ -34,113 +25,135 @@ export function CourseGrid({
 }: CourseGridProps) {
   if (classes.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="bg-gray-100 p-4 rounded-full mb-4">
-          <Search className="h-8 w-8 text-gray-400" />
+      <div className="flex flex-col items-center justify-center py-32 text-center animate-fade-up font-mono">
+        <div className="relative mb-6">
+          <div className="absolute -inset-4 border border-dashed border-slate-200 rounded-full animate-orbit-slow opacity-50"></div>
+          <div className="bg-white p-6 rounded-full shadow-xl relative z-10">
+            <Search className="h-10 w-10 text-slate-300" />
+          </div>
         </div>
-        <h3 className="text-lg font-bold text-gray-900">
-          Không tìm thấy lớp học nào
+        <h3 className="text-xl font-black text-slate-900 italic tracking-tighter">
+          không tìm thấy lớp học
         </h3>
-        <p className="text-gray-500 text-sm max-w-md mt-1">
-          Thử thay đổi bộ lọc học kỳ hoặc từ khóa tìm kiếm của bạn.
-        </p>
         <Button
           variant="outline"
-          className="mt-6 border-dashed"
+          className="mt-8 rounded-xl border-slate-200 font-black text-[10px] tracking-widest uppercase hover:bg-slate-50 active:scale-95 transition-all"
           onClick={onClearFilter}
         >
-          Xóa bộ lọc
+          xóa bộ lọc
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-10">
-      {classes.map((cls) => (
-        <Card
-          key={cls.id}
-          className="group overflow-hidden border-0 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full bg-white ring-1 ring-gray-200 hover:ring-[#F27124]/50"
-          onClick={() => onSelectClass(cls)}
-        >
-          {/* Card Header Color */}
-          <div
-            className={`h-32 ${cls.color} relative p-6 flex flex-col justify-between`}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 pb-20 font-mono">
+      <AnimatePresence mode="popLayout">
+        {classes.map((cls, index) => (
+          <motion.div
+            key={cls._id}
+            layout
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.4, delay: index * 0.05 }}
           >
-            <div className="absolute top-4 right-4 bg-white/20 p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:scale-110 duration-300">
-              <ArrowRight className="text-white w-4 h-4" />
-            </div>
+            <Card
+              className="group overflow-hidden border-slate-100 rounded-[32px] shadow-2xl shadow-slate-200/50 hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer flex flex-col h-full bg-white relative hover:-translate-y-2 active:scale-[0.98]"
+              onClick={() => onSelectClass(cls)}
+            >
+              {/* --- HEADER --- */}
+              <div
+                className={`h-36 ${cls.color} relative p-6 flex flex-col justify-between overflow-hidden`}
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-150 transition-transform duration-700">
+                  <Sparkles className="w-20 h-20 text-white" />
+                </div>
 
-            <span className="bg-black/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full w-fit backdrop-blur-md uppercase tracking-wide border border-white/10">
-              {cls.semester || "N/A"}
-            </span>
+                <div className="flex justify-between items-start relative z-10">
+                  <Badge className="bg-black/20 text-white text-[9px] font-black px-3 py-1 rounded-full backdrop-blur-md border-0 tracking-widest uppercase">
+                    {cls.semester_id?.name || "N/A"}
+                  </Badge>
+                  <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                    <ArrowRight className="text-white w-4 h-4" />
+                  </div>
+                </div>
 
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-0.5 tracking-tight group-hover:underline decoration-2 underline-offset-4 decoration-white/50">
-                {cls.className}
-              </h3>
-              <p className="text-white/90 text-xs font-bold uppercase tracking-wider opacity-80">
-                {cls.subjectCode}
-              </p>
-            </div>
-          </div>
+                <div className="relative z-10">
+                  <h3 className="text-3xl font-black text-white leading-none tracking-tighter italic">
+                    {cls.name}
+                  </h3>
+                  <p className="text-white/80 text-[10px] font-black tracking-widest mt-1 opacity-70 uppercase">
+                    {cls.subject_id?.code || "N/A"}
+                  </p>
+                </div>
+              </div>
 
-          {/* Card Body */}
-          <CardContent className="flex-1 p-5 flex flex-col">
-            <h4 className="font-bold text-gray-800 line-clamp-2 h-10 text-base mb-4 group-hover:text-[#F27124] transition-colors">
-              {cls.subjectName}
-            </h4>
+              {/* --- BODY --- */}
+              <CardContent className="flex-1 p-6 flex flex-col">
+                <h4 className="font-bold text-slate-800 text-sm leading-tight mb-4 group-hover:text-[#F27124] transition-colors line-clamp-2 italic">
+                  {cls.subjectName || cls.subject_id?.name}
+                </h4>
 
-            <div className="mt-auto space-y-2.5 pt-3 border-t border-dashed border-gray-100">
-              {/* 👇 LOGIC HIỂN THỊ ĐA DẠNG */}
-              {cls.role ? (
-                // --- GIAO DIỆN CHO SINH VIÊN (Hiển thị Role & Team) ---
-                <div className="flex items-center justify-between">
+                <div className="space-y-3 mt-auto pt-4 border-t border-slate-50">
+                  {/* CONFIG INFO */}
+                  <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                    <div className="flex items-center gap-1.5">
+                      <Target className="w-3 h-3 text-blue-500" />
+                      <span>
+                        Jira:{" "}
+                        {Math.round(
+                          (cls.contributionConfig?.jiraWeight || 0) * 100,
+                        )}
+                        %
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3 text-orange-500" />
+                      <span>
+                        Git:{" "}
+                        {Math.round(
+                          (cls.contributionConfig?.gitWeight || 0) * 100,
+                        )}
+                        %
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* GRADE INFO */}
                   <div className="flex items-center gap-2">
-                    <Badge
-                      variant="outline"
-                      className={`gap-1 pr-2.5 shadow-none border ${
-                        cls.isLeader
-                          ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-                          : "bg-blue-50 text-blue-700 border-blue-200"
-                      }`}
-                    >
-                      {cls.isLeader && (
-                        <Crown className="w-3 h-3 fill-yellow-500 text-yellow-600" />
-                      )}
-                      {cls.role}
-                    </Badge>
+                    <BarChart3 className="w-3.5 h-3.5 text-slate-300" />
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                      {cls.gradeStructure?.length > 0
+                        ? `${cls.gradeStructure.length} cột điểm`
+                        : "chưa cấu hình điểm"}
+                    </span>
                   </div>
-                  <span className="text-xs font-medium text-gray-500">
-                    {cls.teamName || "Chưa có nhóm"}
-                  </span>
                 </div>
-              ) : (
-                // --- GIAO DIỆN CHO GIẢNG VIÊN (Hiển thị số lượng SV) ---
-                <div className="flex items-center text-sm text-gray-600">
-                  <div className="w-6 flex justify-center mr-2">
-                    <Users className="w-4 h-4 text-gray-400" />
-                  </div>
-                  <span className="font-medium text-gray-900 mr-1">
-                    {cls.students || 0}
-                  </span>
-                  <span className="text-gray-500 text-xs">sinh viên</span>
-                </div>
-              )}
-            </div>
-          </CardContent>
+              </CardContent>
 
-          {/* Card Footer */}
-          <CardFooter className="px-5 py-3 bg-gray-50 border-t flex justify-between items-center group-hover:bg-[#FFF8F3] transition-colors">
-            <span className="text-[10px] font-bold text-gray-400 group-hover:text-[#F27124] uppercase tracking-wider flex items-center gap-1">
-              <Filter className="h-3 w-3" /> Dashboard
-            </span>
-            <div className="h-6 w-6 rounded-full bg-white border flex items-center justify-center group-hover:border-[#F27124] transition-colors shadow-sm">
-              <ArrowRight className="h-3 w-3 text-[#F27124]" />
-            </div>
-          </CardFooter>
-        </Card>
-      ))}
+              {/* --- FOOTER --- */}
+              <CardFooter className="px-6 py-4 bg-slate-50/50 flex justify-between items-center group-hover:bg-[#F27124]/5 transition-colors">
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`h-1.5 w-1.5 rounded-full animate-pulse ${
+                      cls.status === "Active"
+                        ? "bg-emerald-500"
+                        : "bg-slate-300"
+                    }`}
+                  />
+                  <span className="text-[9px] font-black text-slate-400 group-hover:text-[#F27124] uppercase tracking-[0.2em]">
+                    {cls.status}
+                  </span>
+                </div>
+                <div className="h-7 w-7 rounded-lg bg-white border border-slate-100 flex items-center justify-center group-hover:border-[#F27124] group-hover:rotate-12 transition-all shadow-sm">
+                  <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#F27124]" />
+                </div>
+              </CardFooter>
+            </Card>
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

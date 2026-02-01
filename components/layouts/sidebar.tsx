@@ -16,6 +16,7 @@ import {
   Badge,
   PanelLeftOpen,
   PanelLeftClose,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +25,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { routeGroups, UserRole } from "./sidebar-config";
 import { NavItem } from "./nav-item";
@@ -87,18 +89,38 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
     [currentRole],
   );
 
+  // Animation Variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { x: -20, opacity: 0 },
+    visible: { x: 0, opacity: 1, transition: { duration: 0.3 } },
+  };
+
   if (!mounted) return <div className="w-full h-full bg-[#0B0F1A]" />;
 
   return (
-    <div className="flex flex-col h-full bg-[#0B0F1A] text-slate-300 border-r border-slate-800/40 relative overflow-hidden transition-all duration-300 shadow-2xl">
-      {/* 1. TOGGLE BUTTON - Glassmorphism style */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex flex-col h-full bg-[#0B0F1A] text-slate-300 border-r border-slate-800/40 relative overflow-hidden transition-all duration-300 shadow-2xl font-mono"
+    >
+      {/* 1. TOGGLE BUTTON */}
       <Button
         onClick={toggleSidebar}
         variant="ghost"
         size="icon"
         className={cn(
           "absolute -right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full",
-
           "bg-white border border-slate-200 text-[#F27124] shadow-md z-[100]",
           "hover:bg-orange-50 hover:scale-110 active:scale-95 transition-all duration-300",
           "hidden md:flex items-center justify-center",
@@ -122,30 +144,36 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
           href={
             currentRole === "LECTURER" ? "/dashboard" : "/student/dashboard"
           }
-          className="flex items-center gap-3.5 group"
+          className="flex items-center gap-3.5 group relative"
         >
-          <div
-            className={cn(
-              "relative w-10 h-10 shrink-0 flex items-center justify-center rounded-2xl transition-all duration-500 group-hover:rotate-12 group-active:scale-90",
-              classDisplayInfo?.type === "STUDENT"
-                ? "bg-gradient-to-br from-[#F27124] to-[#ff8c42] shadow-[0_0_20px_rgba(242,113,36,0.3)]"
-                : "bg-gradient-to-br from-blue-600 to-indigo-500 shadow-[0_0_20px_rgba(37,99,235,0.3)]",
-              !classDisplayInfo && "bg-slate-700",
+          {/* Logo Container with Orbit Effect */}
+          <div className="relative">
+            {!isCollapsed && (
+              <div className="absolute -inset-3 border border-dashed border-slate-700/50 rounded-full animate-orbit-slow opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             )}
-          >
-            {classDisplayInfo ? (
-              <BookOpen className="w-5 h-5 text-white" />
-            ) : (
-              <LayoutDashboard className="w-5 h-5 text-white" />
-            )}
+            <div
+              className={cn(
+                "relative w-10 h-10 shrink-0 flex items-center justify-center rounded-2xl transition-all duration-500 group-hover:rotate-6 group-active:scale-90",
+                classDisplayInfo?.type === "STUDENT"
+                  ? "bg-gradient-to-br from-[#F27124] to-[#ff8c42] shadow-[0_0_20px_rgba(242,113,36,0.3)]"
+                  : "bg-gradient-to-br from-blue-600 to-indigo-500 shadow-[0_0_20px_rgba(37,99,235,0.3)]",
+                !classDisplayInfo && "bg-slate-700",
+              )}
+            >
+              {classDisplayInfo ? (
+                <BookOpen className="w-5 h-5 text-white" />
+              ) : (
+                <LayoutDashboard className="w-5 h-5 text-white" />
+              )}
+            </div>
           </div>
 
           {!isCollapsed && (
             <div className="flex flex-col overflow-hidden animate-in fade-in slide-in-from-left-2">
-              <h1 className="text-sm font-black tracking-tight leading-none text-white truncate uppercase">
+              <h1 className="text-sm font-black tracking-tight leading-none text-white truncate uppercase italic">
                 {classDisplayInfo ? classDisplayInfo.main : "SyncSystem"}
               </h1>
-              <span className="text-[10px] text-[#F27124] font-black uppercase tracking-widest mt-1.5 truncate">
+              <span className="text-[10px] text-[#F27124] font-bold tracking-widest mt-1.5 truncate">
                 {classDisplayInfo ? classDisplayInfo.sub : "FPT Academic"}
               </span>
             </div>
@@ -153,59 +181,72 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         </Link>
       </div>
 
-      {/* 3. USER CONTEXT BLOCK - Bento style */}
-      {!isCollapsed && (
-        <div className="px-4 py-6 shrink-0">
-          <div className="p-4 rounded-[24px] bg-[#161B2A]/50 border border-slate-800/60 relative overflow-hidden group hover:border-[#F27124]/30 transition-colors">
-            <div className="flex items-center gap-3.5 relative z-10">
-              <div className="p-2 bg-slate-800 rounded-xl group-hover:bg-[#F27124]/10 transition-colors">
-                <UserCircle className="w-5 h-5 text-slate-400 group-hover:text-[#F27124]" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[9px] text-slate-500 uppercase font-black tracking-[0.2em] leading-none mb-1.5">
-                  Nhận diện
-                </span>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={cn(
-                      "text-[11px] font-black uppercase tracking-tight",
-                      currentRole === "ADMIN"
-                        ? "text-violet-400"
-                        : currentRole === "LECTURER"
-                          ? "text-blue-400"
-                          : "text-[#F27124]",
-                    )}
-                  >
-                    {currentRole}
+      {/* 3. USER CONTEXT BLOCK - Bento style 3D */}
+      <AnimatePresence>
+        {!isCollapsed && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+            className="px-4 py-6 shrink-0"
+          >
+            <div className="p-4 rounded-[24px] bg-[#161B2A]/50 border border-slate-800/60 relative overflow-hidden group hover:border-[#F27124]/30 transition-all duration-500 hover:shadow-lg hover:shadow-orange-900/10 hover:-translate-y-1">
+              <div className="flex items-center gap-3.5 relative z-10">
+                <div className="p-2 bg-slate-800 rounded-xl group-hover:bg-[#F27124]/10 transition-colors duration-300">
+                  <UserCircle className="w-5 h-5 text-slate-400 group-hover:text-[#F27124]" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] text-slate-500 font-black tracking-[0.2em] leading-none mb-1.5 uppercase">
+                    Nhận diện
                   </span>
-                  {classDisplayInfo?.isLeader && (
-                    <Badge className="bg-[#F27124] text-white hover:bg-[#F27124] border-none text-[8px] font-black uppercase h-4 px-1.5 tracking-tighter animate-pulse shadow-[0_0_10px_rgba(242,113,36,0.4)]">
-                      <Crown className="w-2 h-2 mr-1 fill-white" /> Nhóm trưởng
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        "text-[11px] font-bold capitalize tracking-tight", // Chuyển uppercase -> capitalize
+                        currentRole === "ADMIN"
+                          ? "text-violet-400"
+                          : currentRole === "LECTURER"
+                            ? "text-blue-400"
+                            : "text-[#F27124]",
+                      )}
+                    >
+                      {currentRole.toLowerCase()}
+                    </span>
+                    {classDisplayInfo?.isLeader && (
+                      <Badge className="bg-[#F27124] text-white hover:bg-[#F27124] border-none text-[8px] font-black uppercase h-4 px-1.5 tracking-tighter animate-pulse shadow-[0_0_10px_rgba(242,113,36,0.4)]">
+                        <Crown className="w-2 h-2 mr-1 fill-white" /> Leader
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
+              {/* Background pattern */}
+              <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.07] transition-all duration-500 group-hover:rotate-12 group-hover:scale-110">
+                <MonitorCheck className="w-20 h-20 text-white" />
+              </div>
             </div>
-            {/* Background pattern decoration */}
-            <div className="absolute -right-2 -bottom-2 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
-              <MonitorCheck className="w-16 h-16 text-white" />
-            </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* 4. NAVIGATION LIST - Optimized Scrollbar */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide py-2 px-3 space-y-8">
+      {/* 4. NAVIGATION LIST - Staggered Animation */}
+      <motion.div
+        className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide py-2 px-3 space-y-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <TooltipProvider delayDuration={0}>
           {filteredRoutes.map((group, index) => (
-            <div
+            <motion.div
               key={index}
-              className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-500"
-              style={{ animationDelay: `${index * 100}ms` }}
+              variants={itemVariants}
+              className="space-y-2"
             >
               {!isCollapsed && (
-                <h3 className="px-4 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600">
+                <h3 className="px-4 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600 flex items-center gap-2">
                   {group.label}
+                  <div className="h-px bg-slate-800 flex-1" />
                 </h3>
               )}
               <div className="space-y-1">
@@ -218,10 +259,10 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                   />
                 ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </TooltipProvider>
-      </div>
+      </motion.div>
 
       {/* 5. FOOTER: CLASS SWITCHER & SYSTEM STATUS */}
       <div className="shrink-0 p-4 mt-auto border-t border-slate-800/80 bg-[#0B0F1A] z-20 space-y-4">
@@ -236,19 +277,22 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                       : "/lecturer/courses"
                   }
                   className={cn(
-                    "flex items-center gap-3 rounded-2xl bg-[#161B2A] border border-slate-800/60 text-slate-300 hover:border-[#F27124]/40 hover:text-white transition-all group overflow-hidden relative active:scale-95",
+                    "flex items-center gap-3 rounded-2xl bg-[#161B2A] border border-slate-800/60 text-slate-300 hover:border-[#F27124]/40 hover:text-white transition-all group overflow-hidden relative active:scale-95 duration-300",
                     isCollapsed
                       ? "justify-center h-12 w-full"
                       : "px-4 py-3.5 shadow-lg",
                   )}
                 >
-                  <ArrowLeft className="w-4 h-4 text-[#F27124] group-hover:-translate-x-1 transition-transform" />
+                  {/* Hover gradient effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#F27124]/0 via-[#F27124]/5 to-[#F27124]/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+
+                  <ArrowLeft className="w-4 h-4 text-[#F27124] group-hover:-translate-x-1 transition-transform relative z-10" />
                   {!isCollapsed && (
-                    <div className="flex flex-col text-left">
+                    <div className="flex flex-col text-left relative z-10">
                       <span className="text-xs font-black text-white leading-none">
                         Đổi lớp học
                       </span>
-                      <span className="text-[9px] text-slate-500 mt-1 font-bold uppercase tracking-wider">
+                      <span className="text-[9px] text-slate-500 mt-1 font-bold tracking-wider">
                         Chọn học phần khác
                       </span>
                     </div>
@@ -268,25 +312,30 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         )}
 
         {!isCollapsed && (
-          <div className="p-3.5 rounded-2xl bg-[#F27124]/5 border border-[#F27124]/10 group cursor-default">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="p-3.5 rounded-2xl bg-[#F27124]/5 border border-[#F27124]/10 group cursor-default hover:bg-[#F27124]/10 transition-colors"
+          >
             <div className="flex items-center gap-3">
               <div className="relative h-2 w-2">
                 <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75"></span>
-                <span className="relative block h-2 w-2 rounded-full bg-emerald-500"></span>
+                <span className="relative block h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
               </div>
               <div className="flex flex-col">
                 <p className="text-[10px] font-black text-slate-300 uppercase tracking-tighter group-hover:text-[#F27124] transition-colors">
-                  Phiên bản hệ thống
+                  Trạng thái hệ thống
                 </p>
-                <p className="text-[8px] text-slate-600 font-bold">
-                  FPT_NODE_V1.2.0
+                <p className="text-[8px] text-slate-500 font-bold tracking-widest mt-0.5">
+                  FPT Node v1.2.0
                 </p>
               </div>
-              <Zap className="w-3 h-3 text-[#F27124] ml-auto opacity-40 group-hover:opacity-100 transition-opacity" />
+              <Zap className="w-3 h-3 text-[#F27124] ml-auto opacity-40 group-hover:opacity-100 transition-opacity animate-pulse" />
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

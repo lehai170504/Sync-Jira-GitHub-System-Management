@@ -5,248 +5,245 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
-  Github,
-  Trello, // Icon đại diện cho Jira
   ShieldCheck,
   Sparkles,
-  BookOpen,
+  Users,
+  Activity,
+  Zap,
+  ChevronDown,
 } from "lucide-react";
+import { SiGithub, SiJira } from "react-icons/si";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen bg-white font-mono selection:bg-orange-100 overflow-hidden">
-      {/* --- BACKGROUND EFFECTS --- */}
-      <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-200/40 blur-[100px] mix-blend-multiply animate-blob"></div>
-        <div className="absolute top-[10%] right-[-15%] w-[400px] h-[400px] rounded-full bg-purple-200/40 blur-[100px] mix-blend-multiply animate-blob animation-delay-2000"></div>
-      </div>
-
-      {/* --- 1. NAVBAR --- */}
-      <header className="px-6 h-20 flex items-center justify-between fixed w-full top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-slate-100/50 transition-all">
+    <div className="flex flex-col min-h-screen bg-[#FDFDFD] font-mono selection:bg-orange-100 overflow-x-hidden">
+      {/* 1. NAVBAR - Hiện mờ dần khi load */}
+      <header className="px-8 h-20 flex items-center justify-between fixed w-full top-0 z-50 bg-white/60 backdrop-blur-2xl border-b border-slate-200/40 animate-fade-in">
         <div className="flex items-center gap-6">
-          {/* Logo Hệ thống */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#F27124] to-[#d65d1b] shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform">
-              <span className="text-white font-black text-xl tracking-tighter">
-                S
-              </span>
+            <div className="relative h-10 w-auto transition-all duration-500 group-hover:scale-110 active:scale-95 group-hover:rotate-[-5deg]">
+              <Image
+                src="/images/logo-sync.png"
+                alt="SyncSystem Logo"
+                width={160}
+                height={40}
+                priority
+                className="h-10 w-auto object-contain"
+              />
             </div>
-            <span className="font-bold text-xl tracking-tight text-slate-900">
-              Sync<span className="text-[#F27124]">System</span>
-            </span>
           </Link>
-
           <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
-
-          {/* Logo FPT University */}
-          <div className="hidden sm:block opacity-90 hover:opacity-100 transition-opacity">
-            <Image
-              src="/images/Logo_Trường_Đại_học_FPT.svg.png"
-              alt="FPT University Logo"
-              width={120}
-              height={36}
-              className="h-9 w-auto object-contain"
-            />
-          </div>
+          <Image
+            src="/images/Logo_Trường_Đại_học_FPT.svg.png"
+            alt="FPT"
+            width={100}
+            height={30}
+            className="h-7 w-auto grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100"
+          />
         </div>
 
-        <div className="flex items-center gap-4">
-          <Link
-            href="/subjects"
-            className="text-sm font-medium text-slate-600 hover:text-[#F27124] transition-colors hidden md:block"
-          >
-            Các môn hỗ trợ
-          </Link>
+        <div className="flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-8">
+            <Link
+              href="#features"
+              className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all hover:translate-y-[-2px]"
+            >
+              Tính năng
+            </Link>
+            <Link
+              href="/subjects"
+              className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-[#F27124] transition-all hover:translate-y-[-2px]"
+            >
+              Môn học hỗ trợ
+            </Link>
+          </nav>
           <Link href="/login">
-            <Button className="bg-[#0F172A] hover:bg-[#1e293b] text-white px-6 rounded-full shadow-md transition-all hover:shadow-lg">
-              Đăng nhập
+            <Button className="bg-slate-900 hover:bg-[#F27124] text-white h-11 px-8 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-2xl transition-all active:scale-95 hover:shadow-orange-500/20">
+              Bắt đầu ngay
             </Button>
           </Link>
         </div>
       </header>
 
-      {/* --- 2. HERO SECTION --- */}
-      <main className="flex-1 pt-32 pb-20 px-4">
-        <div className="container mx-auto grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Column: Text Content */}
-          <div className="text-center lg:text-left space-y-8">
-            {/* Badge thông báo */}
-            <div className="inline-flex items-center rounded-full border border-orange-200 bg-orange-50/80 backdrop-blur-sm px-4 py-1.5 text-sm font-semibold text-[#F27124] shadow-sm">
-              <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
-              Nền tảng đào tạo Project-based Learning
+      <main className="flex-1">
+        {/* 2. HERO SECTION - Hiệu ứng load từng phần */}
+        <section className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center pt-52 pb-32">
+          <div className="space-y-10">
+            {/* Badge - Delay 0.2s */}
+            <div className="inline-flex items-center rounded-full bg-slate-900 px-4 py-1.5 shadow-2xl animate-fade-up [animation-delay:200ms] opacity-0 [animation-fill-mode:forwards]">
+              <Sparkles className="h-3 w-3 mr-2 text-orange-400 animate-pulse" />
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white">
+                Version 4.0 - Active
+              </span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-              Quản lý Môn học <br className="hidden lg:block" />
+            {/* H1 - Delay 0.4s */}
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 leading-[0.9] animate-fade-up [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
+              CODE.
+              <br />
+              SYNC.
+              <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F27124] to-orange-600">
-                & Dự án Thực hành.
+                GRADED.
               </span>
             </h1>
 
-            <p className="text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              Giải pháp tối ưu cho các môn chuyên ngành (SWP, PRN, SWR...).
-              Giảng viên theo dõi tiến độ Labs/Assignments tự động qua kết nối{" "}
-              <strong>Jira</strong> và <strong>GitHub</strong>.
+            {/* Paragraph - Delay 0.6s */}
+            <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-lg border-l-4 border-orange-100 pl-6 animate-fade-up [animation-delay:600ms] opacity-0 [animation-fill-mode:forwards]">
+              Đưa quy trình làm việc chuyên nghiệp (Agile/DevOps) vào môi trường
+              học tập. Tự động hóa việc đánh giá qua dữ liệu thực tế.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-              <Link href="/login" className="w-full sm:w-auto">
-                <Button
-                  size="lg"
-                  className="w-full h-14 px-10 text-lg font-bold bg-[#F27124] hover:bg-[#d65d1b] shadow-xl shadow-orange-500/30 rounded-full transition-transform hover:-translate-y-1"
-                >
-                  Vào Lớp học <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="/subjects" className="w-full sm:w-auto">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full h-14 px-10 text-lg font-medium border-slate-300 text-slate-700 hover:bg-slate-50 rounded-full"
-                >
-                  <BookOpen className="mr-2 h-5 w-5 text-slate-500" />
-                  Danh sách môn
-                </Button>
-              </Link>
+            {/* Buttons - Delay 0.8s */}
+            <div className="flex flex-wrap gap-4 animate-fade-up [animation-delay:800ms] opacity-0 [animation-fill-mode:forwards]">
+              <Button
+                size="lg"
+                className="h-16 px-10 bg-[#F27124] hover:bg-black text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl hover:shadow-[#F27124]/40 active:scale-95 group"
+              >
+                Vào lớp học{" "}
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-2 transition-transform" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-16 px-10 border-2 border-slate-200 hover:bg-slate-50 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all"
+              >
+                Tài liệu hướng dẫn
+              </Button>
             </div>
-
-            <p className="text-sm text-slate-400 font-medium pt-4">
-              Hệ thống LMS tích hợp dành riêng cho sinh viên FPT.
-            </p>
           </div>
 
-          {/* Right Column: Abstract Visual Visualization */}
-          <div className="hidden lg:flex justify-center items-center relative h-[500px]">
-            {/* Vòng tròn trung tâm */}
-            <div className="relative z-10 bg-white p-6 rounded-3xl shadow-2xl shadow-orange-500/10 border border-slate-100 flex flex-col items-center gap-4 animate-float-slow">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#F27124] to-[#d65d1b] shadow-inner">
-                <span className="text-white font-black text-3xl">S</span>
-              </div>
-              <div className="text-center">
-                <h3 className="font-bold text-xl text-slate-900">
-                  Subject Core
-                </h3>
-                <p className="text-sm text-slate-500">Dữ liệu Môn học</p>
-              </div>
-              {/* Các đường nối */}
-              <div className="absolute top-1/2 left-full w-24 h-px bg-gradient-to-r from-orange-300 to-transparent"></div>
-              <div className="absolute top-1/2 right-full w-24 h-px bg-gradient-to-l from-orange-300 to-transparent"></div>
-            </div>
-
-            {/* Jira Node */}
-            <div className="absolute top-[20%] left-[5%] bg-[#0052CC]/10 p-4 rounded-2xl backdrop-blur-md border border-[#0052CC]/20 shadow-lg animate-float-medium">
-              <div className="flex items-center gap-3">
-                <Trello className="h-10 w-10 text-[#0052CC]" />
-                <div>
-                  <h4 className="font-bold text-[#0052CC]">Jira Sync</h4>
-                  <p className="text-xs text-[#0052CC]/80">
-                    Labs & Assignments
-                  </p>
+          {/* 3D VISUAL - Delay 1s + Chuyển động lơ lửng */}
+          <div className="hidden lg:flex justify-center items-center relative h-[600px] [perspective:2000px] animate-reveal opacity-0 [animation-delay:1s] [animation-fill-mode:forwards]">
+            <div className="relative w-96 h-96 animate-tilt-3d [transform-style:preserve-3d]">
+              {/* CORE BENTO */}
+              <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl rounded-[60px] border border-white/50 shadow-2xl flex items-center justify-center [transform:translateZ(40px)] group/main hover:[transform:translateZ(60px)] transition-transform duration-500">
+                <div className="relative flex h-32 w-32 items-center justify-center rounded-[40px] bg-slate-900 shadow-3xl overflow-hidden p-6">
+                  <Image
+                    src="/images/logo-sync.png"
+                    alt="Core Logo"
+                    width={120}
+                    height={120}
+                    priority
+                    className="w-full h-full object-contain animate-pulse-slow"
+                  />
+                  <div className="absolute -inset-4 border-2 border-orange-500/20 rounded-[50px] animate-orbit-slow">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#F27124] rounded-full shadow-[0_0_15px_#F27124]"></div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* GitHub Node (UPDATED COLORS) */}
-            <div className="absolute bottom-[25%] right-[5%] bg-[#6e5494]/10 p-4 rounded-2xl backdrop-blur-md border border-[#6e5494]/20 shadow-lg animate-float-fast">
-              <div className="flex items-center gap-3">
-                <Github className="h-10 w-10 text-purple-600" />
-                <div>
-                  <h4 className="font-bold text-purple-600">GitHub Repo</h4>
-                  <p className="text-xs text-purple-600/80">
-                    Source Code Môn học
-                  </p>
+              {/* JIRA CARD 3D */}
+              <div className="absolute -top-10 -left-16 w-56 bg-white/80 backdrop-blur-xl p-6 rounded-[32px] shadow-2xl border border-white [transform:translateZ(150px)_rotateY(-20deg)] hover:[transform:translateZ(250px)_rotateY(-10deg)] transition-all duration-700 cursor-pointer group/jira">
+                <div className="flex items-center gap-3 mb-4">
+                  <SiJira className="w-5 h-5 text-[#0052CC] group-hover/jira:rotate-[360ms] transition-transform duration-1000" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#0052CC]">
+                    Jira Sync
+                  </span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full w-[75%] bg-[#0052CC] animate-shimmer bg-[length:200%_100%]"></div>
                 </div>
               </div>
-            </div>
 
-            {/* Background Connections */}
-            <svg
-              className="absolute inset-0 pointer-events-none -z-10"
-              width="100%"
-              height="100%"
-            >
-              <path
-                d="M 100 150 Q 300 250 500 150"
-                stroke="#0052CC"
-                strokeWidth="2"
-                fill="none"
-                strokeDasharray="6 6"
-                className="opacity-30 animate-pulse-slow"
-              />
-              {/* Updated Stroke Color */}
-              <path
-                d="M 150 350 Q 350 250 550 350"
-                stroke="#6e5494"
-                strokeWidth="2"
-                fill="none"
-                strokeDasharray="6 6"
-                className="opacity-30 animate-pulse-slow delay-700"
-              />
-            </svg>
+              {/* GITHUB CARD 3D */}
+              <div className="absolute -bottom-8 -right-16 w-60 bg-slate-900/95 backdrop-blur-2xl p-6 rounded-[32px] shadow-2xl border border-white/10 [transform:translateZ(100px)_rotateY(15deg)] text-white hover:[transform:translateZ(180px)_rotateY(5deg)] transition-all duration-700 cursor-pointer group/git">
+                <div className="flex items-center gap-3 mb-4">
+                  <SiGithub className="w-5 h-5 text-orange-400 group-hover/git:scale-125 transition-transform" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-orange-400">
+                    Git Hub
+                  </span>
+                </div>
+                <p className="text-[10px] font-mono text-emerald-400">
+                  verified_commit: "feat/core"
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* --- 3. FEATURE GRID --- */}
-        <div id="features" className="mt-32 container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Mô hình lớp học hiện đại
+        {/* 3. METRICS SECTION - Hiện ra khi cuộn xuống */}
+        <section className="py-24 bg-slate-50/50 border-y border-slate-100 overflow-hidden">
+          <div className="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+            <MetricBox
+              icon={Users}
+              label="Sinh viên"
+              value="1,200+"
+              delay="100ms"
+            />
+            <MetricBox
+              icon={Activity}
+              label="Lớp học"
+              value="45"
+              delay="200ms"
+            />
+            <MetricBox icon={Zap} label="Đồng bộ" value="250k" delay="300ms" />
+            <MetricBox
+              icon={ShieldCheck}
+              label="Bảo vệ"
+              value="180+"
+              delay="400ms"
+            />
+          </div>
+        </section>
+
+        {/* 4. FEATURE SECTION - Staggered Slide In */}
+        <section id="features" className="py-32 container mx-auto px-6">
+          <div className="max-w-2xl mb-20 animate-fade-up opacity-0 [animation-fill-mode:forwards]">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-[#F27124] mb-4">
+              Mô hình đào tạo
+            </h4>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-slate-900 leading-none uppercase">
+              Tự động hóa
+              <br />
+              quy trình học tập.
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Không còn việc nộp bài thủ công. Mọi đóng góp của sinh viên được
-              ghi nhận tự động từ công cụ thực tế.
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1: Jira */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             <FeatureCard
-              icon={<Trello className="h-8 w-8 text-white" />}
+              icon={<SiJira className="h-6 w-6" />}
               iconBg="bg-[#0052CC]"
-              title="Quản lý Task Môn học"
-              desc="Sinh viên tạo và cập nhật trạng thái bài tập, bài Lab trên Jira. Hệ thống tự động đồng bộ về lớp học."
+              title="Jira Management"
+              desc="Quản lý backlog, sprint và task như một team dev chuyên nghiệp."
+              index={1}
             />
-            {/* Feature 2: GitHub (UPDATED COLOR) */}
             <FeatureCard
-              icon={<Github className="h-8 w-8 text-white" />}
-              iconBg="bg-purple-600"
-              title="Nộp bài qua Code"
-              desc="Giảng viên Review code trực tiếp qua Pull Request. Tính điểm dựa trên chất lượng commit vào Repository môn học."
+              icon={<SiGithub className="h-6 w-6" />}
+              iconBg="bg-slate-900"
+              title="GitHub DevOps"
+              desc="Hệ thống tự động quét Commit để phân tích mức độ đóng góp."
+              index={2}
             />
-            {/* Feature 3: Grading */}
             <FeatureCard
-              icon={<ShieldCheck className="h-8 w-8 text-white" />}
-              iconBg="bg-green-600"
-              title="Tổng hợp Điểm số"
-              desc="Bảng điểm thời gian thực được tính toán dựa trên dữ liệu hoàn thành từ Jira và GitHub của từng sinh viên."
+              icon={<Activity className="h-6 w-6" />}
+              iconBg="bg-emerald-500"
+              title="Real-time Tracking"
+              desc="Báo cáo tiến độ trực quan theo biểu đồ Burndown chuẩn quốc tế."
+              index={3}
             />
           </div>
-        </div>
+        </section>
       </main>
 
-      {/* --- 4. FOOTER --- */}
-      <footer className="border-t border-slate-100 py-10 bg-white relative z-10">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500 gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-              <span className="text-[#F27124] font-bold">S</span>
+      {/* 5. FOOTER */}
+      <footer className="bg-white border-t border-slate-100 py-12">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex flex-col gap-2 opacity-50 hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-2 font-black text-sm uppercase tracking-tighter">
+              <div className="h-6 w-6 bg-slate-900 rounded flex items-center justify-center text-white text-[10px]">
+                S
+              </div>
+              SyncSystem
             </div>
-            <p>© 2026 SyncSystem. Hỗ trợ đào tạo FPT University.</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Build for FPT University
+            </p>
           </div>
-
-          <div className="flex gap-8 font-medium">
-            <Link
-              href="/support"
-              className="hover:text-[#F27124] transition-colors"
-            >
-              Sổ tay Sinh viên
-            </Link>
-            <Link
-              href="/support"
-              className="hover:text-[#F27124] transition-colors"
-            >
-              Liên hệ IT
-            </Link>
+          <div className="flex gap-10">
+            <FooterLink label="Hỗ trợ" href="/support" />
+            <FooterLink label="Quy định" href="/support" />
+            <FooterLink label="Liên hệ" href="/support" />
           </div>
         </div>
       </footer>
@@ -254,31 +251,55 @@ export default function HomePage() {
   );
 }
 
-// Component phụ cho Card tính năng
-function FeatureCard({
-  icon,
-  iconBg,
-  title,
-  desc,
-}: {
-  icon: any;
-  iconBg: string;
-  title: string;
-  desc: string;
-}) {
-  return (
-    <div className="group p-8 rounded-3xl bg-white border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:border-orange-100 transition-all duration-300 hover:-translate-y-2 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+/* COMPONENT PHỤ VỚI ANIMATION */
 
+function MetricBox({ icon: Icon, label, value, delay }: any) {
+  return (
+    <div
+      className="text-center space-y-2 opacity-0 animate-fade-up [animation-fill-mode:forwards]"
+      style={{ animationDelay: delay }}
+    >
+      <div className="flex items-center justify-center hover:scale-125 transition-transform duration-500">
+        <Icon className="h-5 w-5 text-[#F27124]" />
+      </div>
+      <p className="text-3xl font-black text-slate-900 tracking-tighter tabular-nums">
+        {value}
+      </p>
+      <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+function FeatureCard({ icon, iconBg, title, desc, index }: any) {
+  return (
+    <div
+      className="group p-10 rounded-[40px] bg-white border border-slate-200/60 shadow-xl hover:shadow-[#F27124]/10 hover:border-[#F27124]/30 transition-all duration-700 hover:-translate-y-4 opacity-0 animate-fade-up [animation-fill-mode:forwards]"
+      style={{ animationDelay: `${index * 150}ms` }}
+    >
       <div
-        className={`h-16 w-16 rounded-2xl ${iconBg} flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform duration-300`}
+        className={`h-14 w-14 rounded-2xl ${iconBg} text-white flex items-center justify-center mb-8 shadow-2xl group-hover:rotate-[15deg] group-hover:scale-110 transition-all duration-500`}
       >
         {icon}
       </div>
-      <h3 className="font-bold text-2xl text-slate-900 mb-3 relative z-10">
+      <h3 className="font-black text-2xl text-slate-900 mb-4 uppercase tracking-tighter italic group-hover:text-[#F27124] transition-colors">
         {title}
       </h3>
-      <p className="text-slate-600 leading-relaxed relative z-10">{desc}</p>
+      <p className="text-slate-500 text-sm font-medium leading-relaxed">
+        {desc}
+      </p>
     </div>
+  );
+}
+
+function FooterLink({ label, href }: any) {
+  return (
+    <Link
+      href={href}
+      className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all hover:pl-2"
+    >
+      {label}
+    </Link>
   );
 }

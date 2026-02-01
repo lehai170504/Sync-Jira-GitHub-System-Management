@@ -173,3 +173,34 @@
     scrollbar-width: none;
   }
 }
+
+@theme {
+  /* Các keyframes cơ bản */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes reveal {
+    from { opacity: 0; clip-path: inset(45% 20% 45% 20%); }
+    to { opacity: 1; clip-path: inset(0% 0% 0% 0%); }
+  }
+  @keyframes tilt {
+    0%, 100% { transform: rotate3d(1, 1, 0, 10deg); }
+    50% { transform: rotate3d(1, 1, 0, -10deg); }
+  }
+  @keyframes orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Đăng ký Animation Class */
+  --animate-fade-up: fade-up 0.8s ease-out forwards;
+  --animate-reveal: reveal 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+  --animate-tilt-3d: tilt 10s infinite linear;
+  --animate-orbit-slow: orbit 25s linear infinite;
+}
+
+/* Hiệu ứng mượt mà khi cuộn trang */
+html {
+  scroll-behavior: smooth;
+}

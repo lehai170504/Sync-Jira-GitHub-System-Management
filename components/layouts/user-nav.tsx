@@ -1,7 +1,6 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,10 +8,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Loader2, Sparkles } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useLogout } from "@/features/auth/hooks/use-logout";
+import { motion } from "framer-motion";
 
 // Import Menu Items chung
 import { UserMenuItems } from "../common/user-menu-items";
@@ -32,17 +32,21 @@ export function UserNav() {
   const getRoleStyle = (role?: string) => {
     switch (role) {
       case "ADMIN":
-        return "text-purple-600 bg-purple-50 border-purple-100";
+        return "bg-purple-50 text-purple-600 border-purple-100 shadow-purple-500/20";
       case "LECTURER":
-        return "text-blue-600 bg-blue-50 border-blue-100";
+        return "bg-blue-50 text-blue-600 border-blue-100 shadow-blue-500/20";
       default:
-        return "text-emerald-600 bg-emerald-50 border-emerald-100";
+        return "bg-emerald-50 text-emerald-600 border-emerald-100 shadow-emerald-500/20";
     }
   };
 
+  // --- LOADING STATE 3D ---
   if (isProfileLoading) {
     return (
-      <div className="w-10 h-10 bg-slate-100 rounded-full animate-pulse border border-slate-200" />
+      <div className="relative w-10 h-10 flex items-center justify-center">
+        <div className="absolute inset-0 border-2 border-dashed border-slate-300 rounded-full animate-spin-slow"></div>
+        <div className="w-8 h-8 bg-slate-100 rounded-full animate-pulse"></div>
+      </div>
     );
   }
 
@@ -51,57 +55,90 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="relative h-10 w-10 rounded-full ring-offset-2 hover:ring-2 hover:ring-slate-200 transition-all p-0"
-        >
-          <Avatar className="h-9 w-9 border border-slate-200">
-            <AvatarImage
-              src={user.avatar_url}
-              alt={user.full_name}
-              className="object-cover"
-            />
-            <AvatarFallback className="text-[10px] font-bold bg-slate-100 text-slate-600">
-              {user.full_name?.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
+        <button className="group relative focus:outline-none [perspective:1000px]">
+          <div className="relative rounded-full p-0.5 transition-all duration-500 group-hover:bg-gradient-to-tr group-hover:from-[#F27124] group-hover:to-orange-300 group-hover:shadow-lg group-hover:shadow-orange-500/20 group-hover:scale-105 active:scale-95">
+            {/* Vòng quay Orbit 3D */}
+            <div className="absolute -inset-3 border border-orange-500/0 rounded-full group-hover:border-orange-500/20 group-hover:animate-orbit-slow transition-all pointer-events-none">
+              <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-[#F27124] rounded-full opacity-0 group-hover:opacity-100 shadow-[0_0_10px_#F27124]"></div>
+            </div>
+
+            <Avatar className="h-10 w-10 border-2 border-white shadow-sm transition-transform duration-500 font-mono">
+              <AvatarImage
+                src={user.avatar_url}
+                alt={user.full_name}
+                className="object-cover"
+              />
+              <AvatarFallback className="text-[10px] font-black bg-slate-900 text-white italic">
+                {user.full_name?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+
+            {/* Status Dot */}
+            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-white shadow-sm group-hover:animate-pulse"></span>
+          </div>
+        </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="w-64 mt-2 p-1 shadow-xl border-slate-200"
+        className="w-72 mt-3 p-2 rounded-[32px] shadow-2xl border-slate-100 bg-white/80 backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 font-mono"
         align="end"
         forceMount
       >
-        <DropdownMenuLabel className="font-normal p-3 bg-slate-50/50 rounded-t-md mb-1">
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-bold text-slate-900 truncate max-w-[160px]">
-                {user.full_name}
-              </p>
-              {user.is_verified && (
-                <BadgeCheck className="w-3.5 h-3.5 text-blue-500 fill-current" />
-              )}
+        {/* --- USER INFO BENTO CARD --- */}
+        <DropdownMenuLabel className="font-normal p-2 mb-2">
+          <div className="flex flex-col space-y-3 bg-white/50 p-4 rounded-[24px] border border-slate-100 shadow-sm relative overflow-hidden group">
+            {/* Decorative BG */}
+            <div className="absolute top-0 right-0 p-4 opacity-10 -rotate-12 transition-transform duration-500 group-hover:rotate-0">
+              <Sparkles className="w-12 h-12 text-slate-900" />
             </div>
-            <p className="text-xs text-slate-500 truncate">{user.email}</p>
-            <div className="pt-1">
+
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="relative">
+                <Avatar className="h-10 w-10 rounded-xl border border-slate-100">
+                  <AvatarImage src={user.avatar_url} className="object-cover" />
+                  <AvatarFallback className="bg-orange-100 text-[#F27124] font-black">
+                    {user.full_name?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                {user.is_verified && (
+                  <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white p-0.5 rounded-full border-2 border-white">
+                    <BadgeCheck className="w-2.5 h-2.5" />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col">
+                <p className="text-sm font-black text-slate-900 truncate max-w-[140px] leading-tight">
+                  {user.full_name}
+                </p>
+                <p className="text-[9px] text-slate-400 truncate font-bold lowercase tracking-tight">
+                  {user.email}
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-1 relative z-10">
               <span
-                className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider ${getRoleStyle(user.role)}`}
+                className={`inline-flex items-center text-[9px] font-black px-3 py-1 rounded-lg border shadow-sm uppercase tracking-widest ${getRoleStyle(
+                  user.role,
+                )}`}
               >
-                {user.role}
+                {user.role} ACCOUNT
               </span>
             </div>
           </div>
         </DropdownMenuLabel>
 
-        <DropdownMenuSeparator className="mx-1" />
+        <DropdownMenuSeparator className="mx-2 bg-slate-100" />
 
-        {/* 👇 GỌI LẠI MENU ITEMS CHUNG */}
-        <UserMenuItems
-          role={user.role}
-          isLogoutPending={isLogoutPending}
-          onLogout={handleLogout}
-        />
+        {/* --- MENU ITEMS --- */}
+        <div className="text-[11px] font-bold lowercase tracking-tight px-1 pb-1">
+          <UserMenuItems
+            role={user.role}
+            isLogoutPending={isLogoutPending}
+            onLogout={handleLogout}
+          />
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

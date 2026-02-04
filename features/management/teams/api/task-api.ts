@@ -77,17 +77,24 @@ export const createTaskApi = async (
 
 /**
  * Payload để cập nhật task
- * PUT /api/tasks/:id
+ * PUT /tasks/:id
+ *
+ * API BE KHÔNG bắt buộc phải gửi đầy đủ tất cả field,
+ * nhưng field team_id là BẮT BUỘC.
+ * Các field còn lại có thể gửi partial; BE sẽ chỉ cập nhật
+ * những field được gửi lên, các field khác giữ nguyên.
  */
 export interface UpdateTaskPayload {
   team_id: string;
-  summary: string;
-  description: string;
-  assignee_account_id: string;
-  story_point: number;
-  start_date: string; // yyyy-MM-dd
-  due_date: string; // yyyy-MM-dd
-  sprint_id: string;
+  summary?: string;
+  description?: string;
+  status?: string;
+  sprint_id?: string;
+  assignee_account_id?: string;
+  story_point?: number;
+  start_date?: string; // yyyy-MM-dd
+  due_date?: string; // yyyy-MM-dd
+  reporter_account_id?: string;
 }
 
 /**

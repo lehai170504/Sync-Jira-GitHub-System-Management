@@ -13,7 +13,12 @@ import { toast } from "sonner";
 
 import { statusColumns } from "./mock-data";
 import type { Sprint, Task } from "./types";
-import { isDateOverdue, isTaskOverdue, mapStatusCategoryToStatus } from "./utils";
+import {
+  isDateOverdue,
+  isTaskOverdue,
+  mapStatusCategoryToStatus,
+  mapStatusToStatusCategory,
+} from "./utils";
 import { TaskBoardHeader } from "./task-board-header";
 import { KanbanView } from "./kanban-view";
 import { MemberTableView } from "./member-table-view";
@@ -123,6 +128,21 @@ export function TaskBoard() {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
+    }).format(d);
+  };
+
+  const formatDateVN_ddMMyyyy = (dateStr?: string) => {
+    if (!dateStr) return "";
+    // Nếu là ISO string, parse thành Date
+    const d = dateStr.includes("T") || dateStr.includes("Z")
+      ? new Date(dateStr)
+      : new Date(dateStr + "T00:00:00"); // Nếu là yyyy-MM-dd, thêm time để parse đúng
+    if (Number.isNaN(d.getTime())) return dateStr; // Fallback về string gốc nếu parse lỗi
+    return new Intl.DateTimeFormat("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     }).format(d);
   };
 
@@ -260,10 +280,12 @@ export function TaskBoard() {
 
     const taskList = Array.isArray(teamTasksData) ? teamTasksData : [];
     const mapped: Task[] = taskList.map((t: any) => {
-      const id = t.issue_key || t._id;
+      // id dùng cho API (PUT/DELETE) → ưu tiên _id từ BE
+      const id = t._id || t.issue_id || t.issue_key;
       const assigneeId = t.assignee_account_id || "__unassigned";
       return {
         id,
+        key: t.issue_key || id,
         title: t.summary || t.title || t.issue_key || id,
         description: t.description,
         assigneeId,
@@ -348,11 +370,13 @@ export function TaskBoard() {
             team_id: resolvedTeamId!,
             summary: formTask.title.trim(),
             description: formTask.description ?? "",
+            status: formTask.status,
+            sprint_id: formTask.printId,
             assignee_account_id: formTask.assigneeId,
             story_point: formTask.storyPoints,
             start_date: formTask.startDate!,
             due_date: formTask.deadline,
-            sprint_id: formTask.printId,
+            // reporter_account_id: optional - BE có thể suy ra từ context
           },
         },
         {
@@ -581,8 +605,7 @@ export function TaskBoard() {
         <Alert className="bg-red-50 border-red-200 text-red-900">
           <AlertTitle>Đã quá hạn deadline sprint</AlertTitle>
           <AlertDescription>
-            Sprint <b>{currentSprint.name}</b> đã quá hạn ngày{" "}
-            <b>{currentSprint.deadline}</b>. Vui lòng rà soát lại các task chưa hoàn thành.
+            <b>{currentSprint.name} ngày {formatDateVN_ddMMyyyy(currentSprint.deadline)}.</b> Vui lòng rà soát lại các task chưa hoàn thành.
           </AlertDescription>
         </Alert>
       )}
@@ -649,10 +672,40 @@ export function TaskBoard() {
               }}
               onDeleteTask={handleDeleteTask}
               onTaskStatusChange={(taskId, newStatus) => {
+                const task = tasks.find((t) => t.id === taskId);
+                if (!task || !resolvedTeamId) {
+                  toast.error("Không tìm thấy task hoặc team ID");
+                  return;
+                }
+
+                // Map TaskStatus -> API status string
+                const apiStatus = mapStatusToStatusCategory(newStatus);
+
+                // Optimistic update UI ngay
                 setTasks((prev) =>
                   prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
                 );
-                toast.success("Đã cập nhật trạng thái task");
+
+                // Gọi API PUT /tasks/{id} để cập nhật status
+                updateTask(
+                  {
+                    taskId: task.id,
+                    payload: {
+                      team_id: resolvedTeamId,
+                      status: apiStatus,
+                    },
+                  },
+                  {
+                    onError: () => {
+                      // Rollback nếu API lỗi
+                      setTasks((prev) =>
+                        prev.map((t) =>
+                          t.id === taskId ? { ...t, status: task.status } : t,
+                        ),
+                      );
+                    },
+                  }
+                );
               }}
             />
           )}

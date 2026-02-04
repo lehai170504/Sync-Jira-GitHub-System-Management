@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, Calendar, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { AlertTriangle, Calendar, CheckCircle2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Member, StatusColumn, Task, TaskStatus } from "./types";
 
@@ -155,7 +155,7 @@ export function KanbanView({
                       }
                     >
                       <CardContent className="p-3 space-y-2.5">
-                        {/* Row 1: Title + Edit + Menu */}
+                        {/* Row 1: Title + Edit + Delete */}
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-center gap-1.5 min-w-0 flex-1">
                             <p className="text-sm font-semibold leading-snug truncate">
@@ -171,36 +171,17 @@ export function KanbanView({
                                 <Pencil className="h-3.5 w-3.5" />
                               </button>
                             )}
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
+                            {isLeader && (
                               <button
                                 type="button"
-                                onClick={(e) => e.stopPropagation()}
-                                className="shrink-0 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
-                                aria-label="Tùy chọn"
+                                onClick={(e) => { e.stopPropagation(); onDeleteTask(task.id); }}
+                                className="shrink-0 p-0.5 rounded hover:bg-red-50 text-red-600 hover:text-red-700"
+                                aria-label="Xóa"
                               >
-                                <MoreHorizontal className="h-4 w-4" />
+                                <Trash2 className="h-3.5 w-3.5" />
                               </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {canEdit && (
-                                <DropdownMenuItem onClick={() => onEditTask(task)}>
-                                  <Pencil className="h-4 w-4 mr-2" />
-                                  Chỉnh sửa
-                                </DropdownMenuItem>
-                              )}
-                              {isLeader && (
-                                <DropdownMenuItem
-                                  variant="destructive"
-                                  onClick={() => onDeleteTask(task.id)}
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Xóa
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                            )}
+                          </div>
                         </div>
 
                         {/* Row 2: Due date pill */}
@@ -215,8 +196,8 @@ export function KanbanView({
 
                         {/* Row 3: Checkbox + Task key + Story points + Assignee */}
                         <div className="flex items-center gap-2 pt-0.5">
-                          <span className="text-[11px] font-mono text-muted-foreground">
-                            {task.id}
+                          <span className={`text-[11px] font-mono text-muted-foreground ${task.status === "done" ? "line-through" : ""}`}>
+                            {task.key ?? task.id}
                           </span>
                           <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded bg-muted text-[11px] font-medium">
                             {task.storyPoints}
@@ -227,6 +208,9 @@ export function KanbanView({
                               {assignee?.initials ?? "NA"}
                             </AvatarFallback>
                           </Avatar>
+                          {task.status === "done" && (
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                          )}
                         </div>
                       </CardContent>
                     </Card>

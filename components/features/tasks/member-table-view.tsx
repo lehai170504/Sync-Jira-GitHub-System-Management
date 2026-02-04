@@ -86,8 +86,8 @@ export function MemberTableView({
                       }
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[11px] text-muted-foreground">
-                          {task.id}
+                        <span className={`font-mono text-[11px] text-muted-foreground ${task.status === "done" ? "line-through" : ""}`}>
+                          {task.key ?? task.id}
                         </span>
                         <span className="font-medium">{task.title}</span>
                         {overdue && (

@@ -33,7 +33,7 @@ export default function SettingsLayout({
       {/* HEADER: Sticky & Glassmorphism */}
       <header className="sticky top-0 shrink-0 flex items-center justify-between px-8 border-b border-slate-200/60 h-20 bg-white/70 backdrop-blur-xl z-40">
         <div className="flex items-center gap-6">
-          <Button type="button" onClick={() => router.back()}>
+          <Button type="button" onClick={() => router.push("/dashboard")}>
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em]">
               QUAY LẠI

@@ -15,7 +15,14 @@ export type Sprint = {
 };
 
 export type Task = {
+  /**
+   * id: dùng cho API (PUT/DELETE /tasks/{id}) -> nên là _id từ BE
+   */
   id: string;
+  /**
+   * key: Jira issue key (VD: SCRUM-10) để hiển thị
+   */
+  key?: string;
   title: string;
   description?: string;
   assigneeId: string;

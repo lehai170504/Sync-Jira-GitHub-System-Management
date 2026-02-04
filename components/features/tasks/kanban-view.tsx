@@ -129,6 +129,7 @@ export function KanbanView({
                   const assignee = members.find((m) => m.id === task.assigneeId);
                   const overdue = isTaskOverdue(task);
                   const canEdit = isLeader || task.assigneeId === currentUserId;
+                  const canDelete = isLeader || task.assigneeId === currentUserId;
                   const isDragging = draggedTaskId === task.id;
                   const isDone = task.status === "done";
                   return (
@@ -171,7 +172,7 @@ export function KanbanView({
                                 <Pencil className="h-3.5 w-3.5" />
                               </button>
                             )}
-                            {isLeader && (
+                            {canDelete && (
                               <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); onDeleteTask(task.id); }}

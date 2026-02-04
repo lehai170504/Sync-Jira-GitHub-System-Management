@@ -8,6 +8,13 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { KanbanSquare, LayoutDashboard, ListChecks, Loader2, RefreshCw, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -36,6 +43,9 @@ import { useUpdateTask } from "@/features/management/teams/hooks/use-update-task
 import { useDeleteTask } from "@/features/management/teams/hooks/use-delete-task";
 import { useJiraUsers } from "@/features/management/teams/hooks/use-jira-users";
 import { useTeamMembers } from "@/features/student/hooks/use-team-members";
+import { useMemberTasks } from "@/features/integration/hooks/use-member-tasks";
+import { useTeamAllTasks } from "@/features/integration/hooks/use-team-all-tasks";
+import { useMyTasks } from "@/features/integration/hooks/use-my-tasks";
 
 export function TaskBoard() {
   const [role, setRole] = useState<UserRole>("STUDENT");
@@ -43,6 +53,10 @@ export function TaskBoard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [selectedPrint, setSelectedPrint] = useState<string>("");
+  // Bộ lọc theo thành viên (dropdown)
+  const [selectedAssigneeFilter, setSelectedAssigneeFilter] = useState<string>("all");
+  // Tab hiện tại (board hoặc table)
+  const [currentTab, setCurrentTab] = useState<string>("board");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -95,12 +109,83 @@ export function TaskBoard() {
   // Fetch Jira users của team (dùng cho assignee dropdown khi thêm task)
   const { data: jiraUsersData } = useJiraUsers(resolvedTeamId);
 
-  // Fetch tasks theo sprint (khi chọn sprint từ API)
+  // Map jira_account_id -> member._id để gọi API member tasks
+  const memberIdMap = useMemo(() => {
+    const map = new Map<string, string>();
+    (teamMembersData?.members || []).forEach((m: any) => {
+      const jiraId = m?.jira_account_id;
+      const memberId = m?._id;
+      if (jiraId && memberId) {
+        map.set(jiraId, memberId);
+      }
+    });
+    return map;
+  }, [teamMembersData]);
+
+  // Xác định memberId từ selectedAssigneeFilter
+  const selectedMemberId = useMemo(() => {
+    if (selectedAssigneeFilter === "all" || selectedAssigneeFilter === "__unassigned") {
+      return undefined;
+    }
+    return memberIdMap.get(selectedAssigneeFilter);
+  }, [selectedAssigneeFilter, memberIdMap]);
+
+  // Fetch tasks theo sprint (chỉ Leader) - dùng khi chọn "Tất cả thành viên"
+  const shouldFetchTeamTasks = selectedAssigneeFilter === "all" || selectedAssigneeFilter === "__unassigned";
   const {
     data: teamTasksData,
-    isLoading: isTasksLoading,
-    isError: isTasksError,
-  } = useTeamTasks(resolvedTeamId, selectedPrint);
+    isLoading: isTeamTasksLoading,
+    isError: isTeamTasksError,
+  } = useTeamTasks(
+    isLeaderState && shouldFetchTeamTasks ? resolvedTeamId : undefined,
+    isLeaderState && shouldFetchTeamTasks ? selectedPrint : undefined
+  );
+
+  // Fetch tasks theo member (chỉ Leader khi chọn một thành viên cụ thể)
+  const {
+    data: memberTasksData,
+    isLoading: isMemberTasksLoading,
+    isError: isMemberTasksError,
+  } = useMemberTasks(
+    isLeaderState ? resolvedTeamId : undefined,
+    isLeaderState ? selectedMemberId : undefined
+  );
+
+  // Fetch my-tasks (chỉ Member, không phải Leader) - GET /integrations/my-tasks
+  const {
+    data: myTasksData,
+    isLoading: isMyTasksLoading,
+    isError: isMyTasksError,
+  } = useMyTasks(!isLeaderState);
+
+  // Kết hợp dữ liệu tasks cho board: Leader dùng team/member tasks, Member dùng my-tasks
+  const teamTasksDataFinal = useMemo(() => {
+    if (isLeaderState) {
+      if (selectedAssigneeFilter !== "all" && selectedAssigneeFilter !== "__unassigned") {
+        return memberTasksData;
+      }
+      return teamTasksData;
+    }
+    return myTasksData ?? [];
+  }, [isLeaderState, selectedAssigneeFilter, memberTasksData, teamTasksData, myTasksData]);
+
+  const isTasksLoading = isLeaderState
+    ? (selectedAssigneeFilter !== "all" && selectedAssigneeFilter !== "__unassigned"
+        ? isMemberTasksLoading
+        : isTeamTasksLoading)
+    : isMyTasksLoading;
+  const isTasksError = isLeaderState
+    ? (selectedAssigneeFilter !== "all" && selectedAssigneeFilter !== "__unassigned"
+        ? isMemberTasksError
+        : isTeamTasksError)
+    : isMyTasksError;
+
+  // Fetch tasks cho tab "Bảng tất cả thành viên" - chỉ fetch khi tab "table" được chọn
+  const {
+    data: teamAllTasksData,
+    isLoading: isTeamAllTasksLoading,
+    isError: isTeamAllTasksError,
+  } = useTeamAllTasks(currentTab === "table" ? resolvedTeamId : undefined);
   
   // Hook để tạo sprint mới
   const { mutate: createSprint, isPending: isCreatingSprint } = useCreateSprint();
@@ -212,6 +297,13 @@ export function TaskBoard() {
 
   const isLeader = isLeaderState;
 
+  // Đảm bảo nếu không phải Leader thì không thể ở tab "table"
+  useEffect(() => {
+    if (!isLeader && currentTab === "table") {
+      setCurrentTab("board");
+    }
+  }, [isLeader, currentTab]);
+
   // Nếu có mapping team members, dùng Jira account id của user hiện tại để check quyền edit cho MEMBER
   useEffect(() => {
     const studentId = Cookies.get("student_id") || "";
@@ -236,16 +328,20 @@ export function TaskBoard() {
     // Special "Unassigned" bucket so table view can still show tasks without assignee
     map.set("__unassigned", { id: "__unassigned", name: "Unassigned", initials: "NA" });
 
-    // Prefer team members (mapped Jira account id)
+    // Prefer team members (mapped Jira account id) - chỉ lấy student.full_name
     (teamMembersData?.members || []).forEach((m: any) => {
       const jiraId = m?.jira_account_id;
-      if (!jiraId) return;
-      const fullName = m?.student?.full_name || m?.student?.student_code || "Member";
+      const fullName = m?.student?.full_name;
+      // Chỉ hiển thị member khi có cả jira_account_id và full_name
+      if (!jiraId || !fullName) return;
       map.set(jiraId, { id: jiraId, name: fullName, initials: getInitials(fullName) });
     });
 
-    // Fallback: create members from tasks response (so assignee_name still appears)
-    (Array.isArray(teamTasksData) ? teamTasksData : []).forEach((t: any) => {
+    // Fallback: create members from tasks response (Leader: team/member tasks; Member: my-tasks)
+    const tasksForMembers = isLeaderState
+      ? (selectedAssigneeFilter !== "all" && selectedAssigneeFilter !== "__unassigned" ? memberTasksData : teamTasksData)
+      : myTasksData;
+    (Array.isArray(tasksForMembers) ? tasksForMembers : []).forEach((t: any) => {
       const jiraId = t?.assignee_account_id;
       if (!jiraId) return;
       if (map.has(jiraId)) return;
@@ -254,7 +350,7 @@ export function TaskBoard() {
     });
 
     return Array.from(map.values());
-  }, [teamMembersData, teamTasksData]);
+  }, [teamMembersData, teamTasksData, memberTasksData, myTasksData, selectedAssigneeFilter, isLeaderState]);
 
   // Assignee options từ Jira users (dùng cho dropdown khi thêm task) - dùng display_name từ API
   const assigneeOptions = useMemo(() => {
@@ -274,15 +370,71 @@ export function TaskBoard() {
     return options;
   }, [jiraUsersData, teamMembersData, currentUserId]);
 
-  // Đồng bộ tasks state từ API mỗi khi sprint thay đổi / refetch xong
-  useEffect(() => {
-    if (!teamTasksData) return;
+  // Map dữ liệu từ API team-all-tasks cho tab "Bảng tất cả thành viên"
+  const tableMembers = useMemo(() => {
+    if (!teamAllTasksData?.members_tasks) return [];
+    
+    return teamAllTasksData.members_tasks.map((mt: any) => {
+      const member = mt.member;
+      const jiraId = member?.jira_account_id || `__member_${member?._id}`;
+      const fullName = member?.student?.full_name || `Member ${member?._id?.slice(-4)}`;
+      return {
+        id: jiraId,
+        name: fullName,
+        initials: getInitials(fullName),
+      };
+    });
+  }, [teamAllTasksData]);
 
-    const taskList = Array.isArray(teamTasksData) ? teamTasksData : [];
+  const tableTasks = useMemo(() => {
+    if (!teamAllTasksData?.members_tasks) return [];
+    
+    const allTasks: Task[] = [];
+    teamAllTasksData.members_tasks.forEach((mt: any) => {
+      const member = mt.member;
+      const jiraId = member?.jira_account_id || `__member_${member?._id}`;
+      
+      mt.tasks.forEach((t: any) => {
+        const id = t._id || t.issue_id || t.issue_key;
+        // Xử lý sprint_id: có thể là string hoặc object { _id, name, state }
+        const sprintId = typeof t.sprint_id === "object" && t.sprint_id?._id
+          ? t.sprint_id._id
+          : t.sprint_id || selectedPrint;
+        allTasks.push({
+          id,
+          key: t.issue_key || id,
+          title: t.summary || t.title || t.issue_key || id,
+          description: t.description,
+          assigneeId: jiraId,
+          status: mapStatusCategoryToStatus(t.status_category),
+          storyPoints: Number(t.story_point ?? 0) || 0,
+          priority: "Medium",
+          type: "Jira",
+          courseId: "",
+          printId: sprintId,
+          deadline: t.due_date ? formatDateVN_yyyyMMdd(t.due_date) : "",
+          startDate: t.start_date ? formatDateVN_yyyyMMdd(t.start_date) : undefined,
+        });
+      });
+    });
+    
+    return allTasks;
+  }, [teamAllTasksData, selectedPrint]);
+
+  // Đồng bộ tasks state từ API mỗi khi sprint thay đổi / refetch xong (cho tab board)
+  useEffect(() => {
+    // Chỉ update tasks state khi đang ở tab board
+    if (currentTab !== "board" || !teamTasksDataFinal) return;
+
+    const taskList = Array.isArray(teamTasksDataFinal) ? teamTasksDataFinal : [];
     const mapped: Task[] = taskList.map((t: any) => {
       // id dùng cho API (PUT/DELETE) → ưu tiên _id từ BE
       const id = t._id || t.issue_id || t.issue_key;
       const assigneeId = t.assignee_account_id || "__unassigned";
+      // Xử lý sprint_id: có thể là string hoặc object { _id, name, state }
+      const sprintId = typeof t.sprint_id === "object" && t.sprint_id?._id
+        ? t.sprint_id._id
+        : t.sprint_id || selectedPrint;
       return {
         id,
         key: t.issue_key || id,
@@ -294,14 +446,14 @@ export function TaskBoard() {
         priority: "Medium",
         type: "Jira",
         courseId: "",
-        printId: t.sprint_id || selectedPrint,
+        printId: sprintId,
         deadline: t.due_date ? formatDateVN_yyyyMMdd(t.due_date) : "",
         startDate: t.start_date ? formatDateVN_yyyyMMdd(t.start_date) : undefined,
       };
     });
 
     setTasks(mapped);
-  }, [teamTasksData, selectedPrint]);
+  }, [teamTasksDataFinal, selectedPrint, currentTab]);
 
   const resetTaskForm = () => {
     const defaultAssigneeId = isLeader
@@ -513,8 +665,13 @@ export function TaskBoard() {
   };
 
   const visibleTasks = useMemo(
-    () => tasks.filter((t) => t.printId === selectedPrint),
-    [tasks, selectedPrint],
+    () =>
+      tasks
+        .filter((t) => t.printId === selectedPrint)
+        .filter((t) =>
+          selectedAssigneeFilter === "all" ? true : t.assigneeId === selectedAssigneeFilter,
+        ),
+    [tasks, selectedPrint, selectedAssigneeFilter],
   );
 
   const currentSprint = useMemo(
@@ -545,44 +702,76 @@ export function TaskBoard() {
           </p>
         </div>
 
-        <TaskBoardHeader
-          sprints={sprints}
-          selectedSprint={selectedPrint}
-          onSprintChange={(v) => {
-            setSelectedPrint(v);
-            setFormTask((prev) => ({ ...prev, printId: v }));
-          }}
-          isSprintsLoading={isSprintsLoading}
-          currentSprint={currentSprint}
-          sprintOverdue={sprintOverdue}
-          isLeader={isLeader}
-          sprintMeta={currentSprintMeta}
-          onAddSprint={() => {
-            setEditingSprint(null);
-            resetSprintForm();
-            setSprintDialogOpen(true);
-          }}
-          onEditSprint={() => {
-            if (!currentSprint) return;
-            const meta = sprintMetaMap[currentSprint.id];
-            setEditingSprint(currentSprint);
-            setFormSprint({
-              ...currentSprint,
-              start_date: meta?.start_date ?? "",
-              end_date: meta?.end_date ?? "",
-            });
-            setSprintDialogOpen(true);
-          }}
-          onDeleteSprint={() => {
-            if (!currentSprint) return;
-            handleDeleteSprint(currentSprint.id);
-          }}
-          onAddTask={() => {
-            setEditingTask(null);
-            resetTaskForm();
-            setDialogOpen(true);
-          }}
-        />
+        <div className="flex flex-col items-end gap-2">
+          <TaskBoardHeader
+            sprints={sprints}
+            selectedSprint={selectedPrint}
+            onSprintChange={(v) => {
+              setSelectedPrint(v);
+              setFormTask((prev) => ({ ...prev, printId: v }));
+            }}
+            isSprintsLoading={isSprintsLoading}
+            currentSprint={currentSprint}
+            sprintOverdue={sprintOverdue}
+            isLeader={isLeader}
+            sprintMeta={currentSprintMeta}
+            onAddSprint={() => {
+              setEditingSprint(null);
+              resetSprintForm();
+              setSprintDialogOpen(true);
+            }}
+            onEditSprint={() => {
+              if (!currentSprint) return;
+              const meta = sprintMetaMap[currentSprint.id];
+              setEditingSprint(currentSprint);
+              setFormSprint({
+                ...currentSprint,
+                start_date: meta?.start_date ?? "",
+                end_date: meta?.end_date ?? "",
+              });
+              setSprintDialogOpen(true);
+            }}
+            onDeleteSprint={() => {
+              if (!currentSprint) return;
+              handleDeleteSprint(currentSprint.id);
+            }}
+            onAddTask={() => {
+              setEditingTask(null);
+              resetTaskForm();
+              setDialogOpen(true);
+            }}
+          />
+
+          {/* Dropdown lọc theo thành viên (chỉ hiển thị khi ở tab board và là Leader) */}
+          {currentTab === "board" && isLeader && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="font-medium">Lọc theo thành viên:</span>
+              <Select
+                value={selectedAssigneeFilter}
+                onValueChange={setSelectedAssigneeFilter}
+              >
+                <SelectTrigger className="h-8 w-[200px] text-xs">
+                  <SelectValue placeholder="Tất cả thành viên" />
+                </SelectTrigger>
+                <SelectContent className="mt-15">
+                  <SelectItem value="all" className="text-xs">
+                    Tất cả thành viên
+                  </SelectItem>
+                  {members
+                    .filter((m) => m.id !== "__unassigned")
+                    .map((m) => (
+                      <SelectItem key={m.id} value={m.id} className="text-xs">
+                        {m.name}
+                      </SelectItem>
+                    ))}
+                  <SelectItem value="__unassigned" className="text-xs">
+                    Unassigned
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
       </div>
 
       <Separator />
@@ -611,16 +800,18 @@ export function TaskBoard() {
       )}
 
       {/* VIEW SWITCHER: TABLE / KANBAN */}
-      <Tabs defaultValue="board" className="space-y-4">
+      <Tabs defaultValue="board" value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
         <TabsList className="h-9">
           <TabsTrigger value="board" className="flex items-center gap-2">
             <KanbanSquare className="h-4 w-4" />
             Board
           </TabsTrigger>
-          <TabsTrigger value="table" className="flex items-center gap-2">
-            <ListChecks className="h-4 w-4" />
-            Bảng theo thành viên
-          </TabsTrigger>
+          {isLeader && (
+            <TabsTrigger value="table" className="flex items-center gap-2">
+              <ListChecks className="h-4 w-4" />
+              Bảng tất cả thành viên
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent
@@ -711,23 +902,24 @@ export function TaskBoard() {
           )}
         </TabsContent>
 
-        <TabsContent
-          value="table"
-          className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-2"
-        >
-          {isTasksLoading ? (
+        {isLeader && (
+          <TabsContent
+            value="table"
+            className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-2"
+          >
+          {isTeamAllTasksLoading ? (
             <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               Đang tải tasks...
             </div>
-          ) : isTasksError ? (
+          ) : isTeamAllTasksError ? (
             <Alert className="bg-red-50 border-red-200 text-red-900">
               <AlertTitle>Lỗi tải tasks</AlertTitle>
               <AlertDescription>
                 Không thể lấy danh sách tasks từ server. Vui lòng thử lại.
               </AlertDescription>
             </Alert>
-          ) : visibleTasks.length === 0 ? (
+          ) : !teamAllTasksData || tableTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-muted/20">
               <p className="text-muted-foreground text-center mb-4">
                 Chưa có tasks. Vui lòng đồng bộ Jira tại trang Cấu hình hoặc thêm task mới.
@@ -747,8 +939,8 @@ export function TaskBoard() {
             </div>
           ) : (
             <MemberTableView
-              members={members}
-              tasks={visibleTasks}
+              members={tableMembers}
+              tasks={tableTasks}
               isTaskOverdue={isTaskOverdue}
               isLeader={isLeader}
               currentUserId={currentUserId}
@@ -758,9 +950,11 @@ export function TaskBoard() {
                 setDialogOpen(true);
               }}
               onDeleteTask={handleDeleteTask}
+              disableActions={true}
             />
           )}
-        </TabsContent>
+          </TabsContent>
+        )}
       </Tabs>
 
       <TaskDialog

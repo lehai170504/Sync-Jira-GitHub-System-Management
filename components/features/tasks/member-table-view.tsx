@@ -15,6 +15,7 @@ type Props = {
   currentUserId: string;
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
+  disableActions?: boolean; // Nếu true, sẽ ẩn các nút edit và delete
 };
 
 export function MemberTableView({
@@ -25,12 +26,13 @@ export function MemberTableView({
   currentUserId,
   onEditTask,
   onDeleteTask,
+  disableActions = false,
 }: Props) {
   return (
     <Card className="shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          Task theo thành viên
+          Bảng tất cả thành viên
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -75,6 +77,7 @@ export function MemberTableView({
                 {memberTasks.map((task) => {
                   const overdue = isTaskOverdue(task);
                   const canEdit = isLeader || task.assigneeId === currentUserId;
+                  const canDelete = isLeader || task.assigneeId === currentUserId;
                   return (
                     <div
                       key={task.id}
@@ -115,7 +118,7 @@ export function MemberTableView({
                         <span className="text-[11px] text-muted-foreground">
                           {task.storyPoints} SP
                         </span>
-                        {canEdit && (
+                        {!disableActions && canEdit && (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -125,7 +128,7 @@ export function MemberTableView({
                             <Pencil className="h-4 w-4" />
                           </Button>
                         )}
-                        {isLeader && (
+                        {!disableActions && canDelete && (
                           <Button
                             variant="ghost"
                             size="icon"

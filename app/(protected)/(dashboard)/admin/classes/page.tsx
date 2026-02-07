@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import {
-  GraduationCap,
-  Search,
-  Plus,
-  FilterX,
-  LayoutGrid,
-  ListFilter,
-} from "lucide-react";
+import { GraduationCap, LayoutGrid, FilterX } from "lucide-react";
 
 // Components
 import { ClassStats } from "@/features/management/classes/components/class-stats";
@@ -22,8 +15,12 @@ import { useClasses } from "@/features/management/classes/hooks/use-classes";
 import { Class } from "@/features/management/classes/types/class-types";
 
 export default function ClassManagementPage() {
-  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [selectedClassId, setSelectedClassId] = useState<{
+    _id: string;
+  } | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Filter States
   const [searchTerm, setSearchTerm] = useState("");
   const [semesterFilter, setSemesterFilter] = useState<string>("all");
   const [lecturerFilter, setLecturerFilter] = useState<string>("all");
@@ -31,6 +28,7 @@ export default function ClassManagementPage() {
   const apiSemesterId = semesterFilter === "all" ? undefined : semesterFilter;
   const apiLecturerId = lecturerFilter === "all" ? undefined : lecturerFilter;
 
+  // Fetch Data
   const { data, isLoading } = useClasses({
     semester_id: apiSemesterId,
     lecturer_id: apiLecturerId,
@@ -38,15 +36,22 @@ export default function ClassManagementPage() {
 
   const classes = data?.classes || [];
 
+  // Filter Logic (Client-side search text)
   const filteredClasses = useMemo(() => {
-    return classes.filter((cls) => {
+    // Thêm ": Class" vào sau cls
+    return classes.filter((cls: Class) => {
       const searchLower = searchTerm.toLowerCase();
-      return (
-        cls.name.toLowerCase().includes(searchLower) ||
-        cls.class_code.toLowerCase().includes(searchLower) ||
-        cls.lecturer_id?.full_name?.toLowerCase().includes(searchLower) ||
-        cls.lecturer_id?.email?.toLowerCase().includes(searchLower)
-      );
+
+      const nameMatch = cls.name?.toLowerCase().includes(searchLower);
+      const codeMatch = cls.class_code?.toLowerCase().includes(searchLower);
+      const lecturerNameMatch = cls.lecturer_id?.full_name
+        ?.toLowerCase()
+        .includes(searchLower);
+      const lecturerEmailMatch = cls.lecturer_id?.email
+        ?.toLowerCase()
+        .includes(searchLower);
+
+      return nameMatch || codeMatch || lecturerNameMatch || lecturerEmailMatch;
     });
   }, [classes, searchTerm]);
 
@@ -56,8 +61,9 @@ export default function ClassManagementPage() {
     setLecturerFilter("all");
   };
 
+  // Handler mở Drawer
   const handleViewDetails = (cls: Class) => {
-    setSelectedClass(cls);
+    setSelectedClassId({ _id: cls._id }); // Chỉ lấy ID truyền vào Drawer
     setIsDrawerOpen(true);
   };
 
@@ -129,7 +135,7 @@ export default function ClassManagementPage() {
             <ClassList
               classes={filteredClasses}
               isLoading={isLoading}
-              onEditClass={(cls) =>
+              onEditClass={(cls: Class) =>
                 console.log("Edit functionality pending", cls)
               }
               onClearFilters={clearFilters}
@@ -142,8 +148,7 @@ export default function ClassManagementPage() {
         <ClassDetailDrawer
           isOpen={isDrawerOpen}
           onOpenChange={setIsDrawerOpen}
-          selectedClass={selectedClass}
-          students={[]}
+          selectedClass={selectedClassId} // Truyền object { _id }
         />
       </div>
     </div>

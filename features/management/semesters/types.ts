@@ -1,5 +1,3 @@
-// 1. Các Sub-types (Dùng chung)
-
 export interface AdminShort {
   _id: string;
   email: string;
@@ -10,7 +8,7 @@ export interface LecturerShort {
   _id: string;
   email: string;
   full_name: string;
-  avatar_url: string;
+  avatar_url?: string;
 }
 
 export interface SubjectShort {
@@ -19,57 +17,49 @@ export interface SubjectShort {
   code: string;
 }
 
-// 2. Cấu hình điểm & Đóng góp (Contribution)
+// Cấu hình đóng góp (Contribution)
 export interface ContributionConfig {
-  jiraWeight: number; // VD: 0.4
-  gitWeight: number; // VD: 0.4
-  reviewWeight: number; // VD: 0.2
-  allowOverCeiling: boolean; // VD: false
+  jiraWeight: number;
+  gitWeight: number;
+  reviewWeight: number;
+  allowOverCeiling: boolean;
 }
 
+// Cấu trúc điểm (Grade Structure)
 export interface GradeStructureItem {
   _id: string;
-  name: string; // VD: "Assignment 1"
-  weight: number; // VD: 0.2
-  isGroupGrade: boolean; // VD: false
+  name: string;
+  weight: number;
+  isGroupGrade: boolean;
 }
 
-// 3. Chi tiết một Lớp học trong Học kỳ
+// Chi tiết Lớp học
 export interface ClassInSemester {
   _id: string;
-  name: string; // VD: "IA1080"
-  class_code: string; // VD: "IA1080"
-  subjectName: string; // VD: "Database Systems"
-
-  // Thông tin môn học
+  name: string;
+  class_code: string;
+  subjectName: string;
   subject_id: SubjectShort;
-
-  // Trạng thái lớp
-  status: "Active" | "Archived" | "Completed";
-
-  // Giảng viên (Có thể null nếu chưa assign)
-  lecturer_id: LecturerShort | null;
-
-  // Cấu hình chi tiết của lớp
-  contributionConfig: ContributionConfig;
-  gradeStructure: GradeStructureItem[];
+  status: string;
+  lecturer_id?: LecturerShort;
+  contributionConfig?: ContributionConfig;
+  gradeStructure?: GradeStructureItem[];
 }
 
-// 4. Thông tin chi tiết Học kỳ (Metadata)
+// Thông tin Học kỳ
 export interface SemesterInfo {
   _id: string;
-  name: string; // VD: "Spring 2026"
-  code: string; // VD: "SP2026"
-  start_date: string; // ISO Date string
-  end_date: string; // ISO Date string
-  status: "Open" | "Closed" | "Ended"; // Dựa trên response "Open"
-
-  created_by_admin?: AdminShort;
+  name: string;
+  code: string;
+  created_by_admin: AdminShort;
+  start_date: string;
+  end_date: string;
+  status: string;
   created_at: string;
-  __v?: number;
+  __v: number;
 }
 
-// 5. Thống kê Học kỳ
+// Thống kê
 export interface SemesterDetailStats {
   total_classes: number;
   active_classes: number;
@@ -77,7 +67,7 @@ export interface SemesterDetailStats {
   total_lecturers: number;
 }
 
-// --- MAIN RESPONSE TYPE ---
+// Response đầy đủ
 export interface SemesterDetailResponse {
   semester: SemesterInfo;
   classes: ClassInSemester[];

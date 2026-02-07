@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, AlertCircle } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +15,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -18,8 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 
 // Hooks
 import { useCreateClass } from "../hooks/use-classes";
@@ -27,72 +29,70 @@ import { useSemesters } from "@/features/management/semesters/hooks/use-semester
 import { useUsers } from "@/features/management/users/hooks/use-users";
 import { useSubjects } from "@/features/management/subjects/hooks/use-subjects";
 
+// Import Schema
+import {
+  createClassSchema,
+  CreateClassFormValues,
+} from "@/features/management/classes/schemas/class-schema";
+
 interface ClassDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
-  // 1. Lấy dữ liệu Select options
+  // 1. Data Fetching
   const { data: semesters } = useSemesters();
   const { data: lecturersData } = useUsers({ role: "LECTURER", limit: 100 });
-  const { data: subjectsData } = useSubjects("Active"); // Lấy môn học đang Active
+  const { data: subjectsData } = useSubjects("Active");
 
   const lecturers = lecturersData?.users || [];
   const subjects = subjectsData?.subjects || [];
 
-  // 2. Hook Create
   const { mutate: createClass, isPending } = useCreateClass();
 
-  // 3. Form State
-  const [formData, setFormData] = useState({
-    name: "",
-    semester_id: "",
-    lecturer_id: "",
-    subject_id: "",
-    subjectName: "",
+  // 2. Setup React Hook Form
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(createClassSchema),
+    defaultValues: {
+      name: "",
+      subject_id: "",
+      semester_id: "",
+      lecturer_id: "",
+      subjectName: "",
+    },
   });
 
   // Reset form khi mở dialog
   useEffect(() => {
     if (open) {
-      setFormData({
-        name: "",
-        semester_id: "",
-        lecturer_id: "",
-        subject_id: "",
-        subjectName: "",
-      });
+      reset();
     }
-  }, [open]);
+  }, [open, reset]);
 
-  // Xử lý chọn môn học (Cần lấy cả ID và Name)
+  // Xử lý khi chọn môn học -> Tự động điền subjectName và gợi ý tên lớp
   const handleSubjectChange = (subjectId: string) => {
     const selectedSubject = subjects.find((s) => s._id === subjectId);
     if (selectedSubject) {
-      setFormData((prev) => ({
-        ...prev,
-        subject_id: subjectId,
-        subjectName: selectedSubject.name,
-        // Có thể tự động điền tên lớp gợi ý nếu muốn: prev.name || selectedSubject.code + "_"
-      }));
+      setValue("subject_id", subjectId, { shouldValidate: true });
+      setValue("subjectName", selectedSubject.name);
+
+      const currentName = watch("name");
+      if (!currentName) {
+        setValue("name", `${selectedSubject.code}_`);
+      }
     }
   };
 
-  const handleSubmit = () => {
-    // Validate
-    if (
-      !formData.name ||
-      !formData.semester_id ||
-      !formData.lecturer_id ||
-      !formData.subject_id
-    ) {
-      toast.warning("Vui lòng điền đầy đủ thông tin!");
-      return;
-    }
-
-    // Call API
-    createClass(formData, {
+  const onSubmit = (data: CreateClassFormValues) => {
+    createClass(data, {
       onSuccess: () => {
         onOpenChange(false);
       },
@@ -106,17 +106,20 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
           <DialogTitle>Tạo Lớp học mới</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-5">
-          {/* 1. CHỌN MÔN HỌC (Quan trọng) */}
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
+          {/* 1. MÔN HỌC */}
           <div className="grid gap-2">
             <Label>
               Môn học <span className="text-red-500">*</span>
             </Label>
             <Select
-              value={formData.subject_id}
               onValueChange={handleSubjectChange}
+              // Dùng value từ watch để sync với form state
+              value={watch("subject_id")}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className={errors.subject_id ? "border-red-500" : ""}
+              >
                 <SelectValue placeholder="Chọn môn học" />
               </SelectTrigger>
               <SelectContent>
@@ -127,6 +130,11 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
                 ))}
               </SelectContent>
             </Select>
+            {errors.subject_id && (
+              <span className="text-[10px] text-red-500 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> {errors.subject_id.message}
+              </span>
+            )}
           </div>
 
           {/* 2. TÊN LỚP */}
@@ -136,25 +144,30 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
             </Label>
             <Input
               placeholder="VD: SE1943-A"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              className={errors.name ? "border-red-500 focus:ring-red-200" : ""}
+              {...register("name")}
             />
+            {errors.name && (
+              <span className="text-[10px] text-red-500 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> {errors.name.message}
+              </span>
+            )}
           </div>
 
-          {/* 3. CHỌN HỌC KỲ */}
+          {/* 3. HỌC KỲ */}
           <div className="grid gap-2">
             <Label>
               Học kỳ <span className="text-red-500">*</span>
             </Label>
             <Select
-              value={formData.semester_id}
               onValueChange={(val) =>
-                setFormData({ ...formData, semester_id: val })
+                setValue("semester_id", val, { shouldValidate: true })
               }
+              value={watch("semester_id")}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className={errors.semester_id ? "border-red-500" : ""}
+              >
                 <SelectValue placeholder="Chọn học kỳ" />
               </SelectTrigger>
               <SelectContent>
@@ -165,20 +178,27 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
                 ))}
               </SelectContent>
             </Select>
+            {errors.semester_id && (
+              <span className="text-[10px] text-red-500 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> {errors.semester_id.message}
+              </span>
+            )}
           </div>
 
-          {/* 4. CHỌN GIẢNG VIÊN */}
+          {/* 4. GIẢNG VIÊN */}
           <div className="grid gap-2">
             <Label>
               Giảng viên phụ trách <span className="text-red-500">*</span>
             </Label>
             <Select
-              value={formData.lecturer_id}
               onValueChange={(val) =>
-                setFormData({ ...formData, lecturer_id: val })
+                setValue("lecturer_id", val, { shouldValidate: true })
               }
+              value={watch("lecturer_id")}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className={errors.lecturer_id ? "border-red-500" : ""}
+              >
                 <SelectValue placeholder="Chọn giảng viên" />
               </SelectTrigger>
               <SelectContent>
@@ -189,25 +209,37 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Hủy bỏ
-          </Button>
-          <Button
-            className="bg-[#F27124] hover:bg-[#d65d1b] text-white"
-            onClick={handleSubmit}
-            disabled={isPending}
-          >
-            {isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              "Tạo lớp học"
+            {errors.lecturer_id && (
+              <span className="text-[10px] text-red-500 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> {errors.lecturer_id.message}
+              </span>
             )}
-          </Button>
-        </DialogFooter>
+          </div>
+
+          <DialogFooter className="mt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              disabled={isPending}
+            >
+              Hủy bỏ
+            </Button>
+            <Button
+              type="submit"
+              className="bg-[#F27124] hover:bg-[#d65d1b] text-white"
+              disabled={isPending}
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang tạo...
+                </>
+              ) : (
+                "Tạo lớp học"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

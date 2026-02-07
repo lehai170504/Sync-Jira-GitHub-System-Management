@@ -1,4 +1,9 @@
-// Định nghĩa các sub-interface cho gọn
+// features/management/classes/types/class-types.ts
+
+// ==========================================
+// 1. SUB-INTERFACES (Các object con)
+// ==========================================
+
 export interface SemesterInfo {
   _id: string;
   name: string;
@@ -18,26 +23,47 @@ export interface ContributionConfig {
   allowOverCeiling: boolean;
 }
 
-export interface Class {
+export interface GradeStructureItem {
   _id: string;
   name: string;
-  class_code: string;
-  subjectName: string;
-  subject_id: string | null;
-  status: "Active" | "Finished" | string;
-  semester_id: SemesterInfo;
-  lecturer_id: LecturerInfo;
-
-  contributionConfig?: ContributionConfig;
-  gradeStructure?: any[];
-  createdAt?: string;
-  updatedAt?: string;
+  weight: number;
+  isGroupGrade: boolean;
 }
 
-export interface ClassResponse {
+// ==========================================
+// 2. CLASS TYPE (Dùng cho List)
+// ==========================================
+
+export interface Class {
+  _id: string;
+  name: string; // VD: SE1943-A
+  class_code: string; // VD: SE1943-A
+  subjectName: string; // VD: Software Engineering Project
+  status: "Active" | "Finished" | string;
+
+  // subject_id: string; // Chỉ trả về string ID trong list
+  subject_id: string | null; // Cập nhật theo response mẫu (có thể null hoặc string ID)
+
+  semester_id: SemesterInfo;
+  lecturer_id: LecturerInfo | null; // Có thể null
+
+  contributionConfig: ContributionConfig;
+  gradeStructure: GradeStructureItem[]; // Mảng grade structure
+
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+}
+
+// Response trả về từ API lấy danh sách
+export interface ClassListResponse {
   total: number;
   classes: Class[];
 }
+
+// ==========================================
+// 3. TYPES CHO FILTER & CREATE (Giữ nguyên)
+// ==========================================
 
 export interface CreateClassPayload {
   name: string;
@@ -47,24 +73,27 @@ export interface CreateClassPayload {
   lecturer_id: string;
 }
 
-// 👇 CẬP NHẬT FILTER THEO HÌNH ẢNH (image_2696cd.png)
 export interface ClassFilters {
-  semester_id?: string; // Lọc theo học kỳ
-  lecturer_id?: string; // Lọc theo giảng viên
+  semester_id?: string;
+  lecturer_id?: string;
   page?: number;
   limit?: number;
 }
 
+// ==========================================
+// 4. STUDENT TYPES (Giữ nguyên)
+// ==========================================
+
 export interface ClassStudent {
-  _id: string; // ID chính (MongoDB ID)
+  _id: string;
   student_code: string;
-  pending_id?: string; // ID Pending (Có thể null nếu đã Enrolled)
+  pending_id?: string;
   full_name: string;
   email: string;
   avatar_url?: string;
   team?: string;
   role?: string;
-  status: string; // "Enrolled" | "Pending"
+  status: string;
 }
 
 export interface ClassStudentsResponse {
@@ -76,18 +105,17 @@ export interface ClassStudentsResponse {
 
 export interface ImportStudentDto {
   Class?: string;
-  RollNumber: string; // Required based on image description (K19+) or Email (K18-)
+  RollNumber: string;
   Email: string;
   MemberCode?: string;
   FullName?: string;
   Group?: number | string;
-  Leader?: string; // "x" or empty
+  Leader?: string;
 }
 
-// Payload for the API call
 export interface ImportStudentsPayload {
-  classId: string; // Path parameter
-  students: ImportStudentDto[]; // Body
+  classId: string;
+  students: ImportStudentDto[];
 }
 
 export interface AddStudentPayload {
@@ -99,20 +127,16 @@ export interface AddStudentPayload {
   is_leader?: boolean;
 }
 
-// Payload for Deleting Students (DELETE)
 export interface RemoveStudentsPayload {
   classId: string;
   student_id: string;
   pending_id: string;
 }
 
-// Payload for Updating Students (PUT)
 export interface UpdateStudentsPayload {
   classId: string;
-
-  // Body params (theo hình ảnh API Swagger)
-  student_id?: string; // Dành cho Enrolled Student
-  pending_id?: string; // Dành cho Pending Student
-  group?: number; // Số nhóm (VD: 1, 2)
-  is_leader?: boolean; // Trạng thái nhóm trưởng
+  student_id?: string;
+  pending_id?: string;
+  group?: number;
+  is_leader?: boolean;
 }

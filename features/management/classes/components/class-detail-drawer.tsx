@@ -6,50 +6,65 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Users,
-  GraduationCap,
   CalendarDays,
   Settings2,
   Clock,
-  BookOpen,
   Hash,
   GitCommit,
   Trello,
   MessageSquare,
   CheckCircle2,
   AlertCircle,
+  Briefcase,
+  Layers,
+  GraduationCap,
+  LayoutGrid,
+  Loader2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// Import Type chuẩn từ file types
-import { Class } from "@/features/management/classes/types/class-types";
+// 1. IMPORT HOOK LẤY CHI TIẾT (Giả định bạn đã tạo hook này tương tự useSubjectDetail)
+import { useClassDetails } from "@/features/management/classes/hooks/use-class-details";
 
-export interface Student {
-  id: number;
-  name: string;
-  roll: string;
-  email: string;
-  team: string;
-}
+// 2. IMPORT TYPES
+import { ClassDetailInfo } from "@/features/management/classes/types/class-details-types";
 
 interface ClassDetailDrawerProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedClass: Class | null;
-  students: Student[];
+  selectedClass: { _id: string } | null;
 }
 
 export function ClassDetailDrawer({
   isOpen,
   onOpenChange,
   selectedClass,
-  students,
 }: ClassDetailDrawerProps) {
-  if (!selectedClass) return null;
+  const { data: detailData, isLoading } = useClassDetails(
+    isOpen && selectedClass?._id ? selectedClass._id : undefined,
+  );
+
+  const classInfo = detailData?.class;
+  const teams = detailData?.teams || [];
+  const stats = detailData?.stats;
+  if (!classInfo) return null;
+
+  if (isLoading && !classInfo) {
+    return (
+      <Sheet open={isOpen} onOpenChange={onOpenChange}>
+        <SheetContent className="w-full sm:max-w-[700px] bg-white flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#F27124]" />
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  if (!classInfo) return null;
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
@@ -62,245 +77,353 @@ export function ClassDetailDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      {/* Tăng độ rộng max-width lên chút để thoáng hơn */}
-      <SheetContent className="w-full sm:max-w-[700px] p-0 bg-white flex flex-col h-full border-l shadow-2xl">
-        {/* --- 1. HEADER (STICKY & MODERN) --- */}
+      <SheetContent className="w-full sm:max-w-[700px] p-0 bg-white flex flex-col h-full border-l shadow-2xl font-sans">
+        {/* --- 1. HEADER (STICKY) --- */}
         <div className="px-6 py-6 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-20">
-          <SheetHeader className="space-y-4">
-            {/* Breadcrumb & Status Row */}
+          <SheetHeader className="space-y-4 text-left">
+            {/* Breadcrumb & Status */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 text-slate-600 border border-slate-200">
-                  <CalendarDays className="h-3.5 w-3.5" />
-                  {selectedClass.semester_id?.code}
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 text-slate-600 border border-slate-200 font-mono text-xs">
+                  <CalendarDays className="h-3 w-3" />
+                  {classInfo.semester_id?.code}
                 </span>
                 <span className="text-slate-300">/</span>
-                <span className="truncate max-w-[200px]">
-                  {selectedClass.subjectName}
+                <span className="truncate max-w-[200px] font-semibold text-slate-700">
+                  {classInfo.subjectName}
                 </span>
               </div>
 
               <Badge
-                className={`px-3 py-1 rounded-full font-semibold border ${
-                  selectedClass.status === "Active"
-                    ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
-                    : "bg-slate-100 text-slate-600 border-slate-200"
-                }`}
+                className={cn(
+                  "px-3 py-1 rounded-full font-semibold border",
+                  classInfo.status === "Active"
+                    ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                    : "bg-slate-100 text-slate-600 border-slate-200",
+                )}
                 variant="outline"
               >
-                {selectedClass.status === "Active" && (
+                {classInfo.status === "Active" && (
                   <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
                 )}
-                {selectedClass.status || "Unknown"}
+                {classInfo.status || "Unknown"}
               </Badge>
             </div>
 
-            {/* Main Title Area */}
+            {/* Title & Info */}
             <div className="space-y-1">
-              <SheetTitle className="text-3xl font-bold text-slate-900 tracking-tight">
-                {selectedClass.name}
+              <SheetTitle className="text-3xl font-black text-slate-900 tracking-tight">
+                {classInfo.name}
               </SheetTitle>
               <div className="flex items-center gap-4 text-sm text-slate-500">
                 <div className="flex items-center gap-1.5">
                   <Hash className="h-4 w-4 text-slate-400" />
-                  <span className="font-mono text-slate-700">
-                    {selectedClass.class_code}
+                  <span className="font-mono text-slate-700 font-bold">
+                    {classInfo.class_code}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4 text-slate-400" />
-                  <span>Tạo ngày {formatDate(selectedClass.createdAt)}</span>
+                  <span className="text-xs">
+                    Tạo: {formatDate(classInfo.createdAt)}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Lecturer Card - Compact */}
+            {/* Lecturer Card */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
+                  <AvatarImage src={classInfo.lecturer_id?.avatar_url} />
                   <AvatarFallback className="bg-gradient-to-br from-[#F27124] to-orange-600 text-white font-bold">
-                    {selectedClass.lecturer_id?.full_name?.charAt(0)}
+                    {classInfo.lecturer_id?.full_name?.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                     Giảng viên
                   </p>
                   <p className="text-sm font-bold text-slate-900">
-                    {selectedClass.lecturer_id?.full_name}
+                    {classInfo.lecturer_id?.full_name}
                   </p>
                 </div>
               </div>
               <div className="text-right px-2">
                 <p className="text-xs font-medium text-slate-500">
-                  {selectedClass.lecturer_id?.email}
+                  {classInfo.lecturer_id?.email}
                 </p>
               </div>
             </div>
           </SheetHeader>
         </div>
 
-        {/* --- 2. SCROLLABLE BODY --- */}
-        <ScrollArea className="flex-1 bg-white">
-          <div className="p-6 space-y-8">
-            {/* SECTION: KPI / WEIGHTS */}
-            <section>
-              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
-                <Settings2 className="h-5 w-5 text-[#F27124]" />
-                Cấu hình đánh giá
-              </h3>
-
-              {selectedClass.contributionConfig ? (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {/* JIRA CARD */}
-                  <div className="group p-4 rounded-2xl border border-slate-100 bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] hover:shadow-md transition-all relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-3 opacity-[0.08] group-hover:opacity-15 transition-opacity">
-                      <Trello className="h-16 w-16 text-blue-600" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
-                        Jira Tracking
-                      </span>
-                      <span className="text-4xl font-black text-slate-900 tracking-tighter">
-                        {selectedClass.contributionConfig.jiraWeight * 100}
-                        <span className="text-lg text-slate-400 font-medium">
-                          %
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* GIT CARD */}
-                  <div className="group p-4 rounded-2xl border border-slate-100 bg-white shadow-[0_2px_10px_-3px_rgba(147,51,234,0.1)] hover:shadow-md transition-all relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-3 opacity-[0.08] group-hover:opacity-15 transition-opacity">
-                      <GitCommit className="h-16 w-16 text-purple-600" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">
-                        Git Commits
-                      </span>
-                      <span className="text-4xl font-black text-slate-900 tracking-tighter">
-                        {selectedClass.contributionConfig.gitWeight * 100}
-                        <span className="text-lg text-slate-400 font-medium">
-                          %
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* REVIEW CARD */}
-                  <div className="group p-4 rounded-2xl border border-slate-100 bg-white shadow-[0_2px_10px_-3px_rgba(249,115,22,0.1)] hover:shadow-md transition-all relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-3 opacity-[0.08] group-hover:opacity-15 transition-opacity">
-                      <MessageSquare className="h-16 w-16 text-orange-600" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-orange-600 uppercase tracking-wider mb-1">
-                        Code Review
-                      </span>
-                      <span className="text-4xl font-black text-slate-900 tracking-tighter">
-                        {selectedClass.contributionConfig.reviewWeight * 100}
-                        <span className="text-lg text-slate-400 font-medium">
-                          %
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Extra Config */}
-                  <div className="sm:col-span-3 mt-1 flex items-center justify-between px-1">
-                    <span className="text-sm text-slate-500 font-medium flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4" />
-                      Điểm thưởng vượt trần (Over Ceiling)
-                    </span>
-                    <Badge
-                      variant={
-                        selectedClass.contributionConfig.allowOverCeiling
-                          ? "default"
-                          : "secondary"
-                      }
-                      className="rounded-full px-4"
-                    >
-                      {selectedClass.contributionConfig.allowOverCeiling
-                        ? "Cho phép"
-                        : "Không cho phép"}
-                    </Badge>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400">
-                  <Settings2 className="h-10 w-10 mb-2 opacity-50" />
-                  <p className="text-sm font-medium">
-                    Chưa thiết lập cấu hình trọng số
-                  </p>
+        {/* --- 2. BODY CONTENT --- */}
+        <div className="flex-1 overflow-y-auto scrollbar-hide bg-white">
+          {isLoading ? (
+            <div className="h-60 flex flex-col items-center justify-center gap-4">
+              <Loader2 className="w-8 h-8 animate-spin text-[#F27124]" />
+              <p className="text-xs font-bold text-slate-400 uppercase">
+                Đang tải dữ liệu...
+              </p>
+            </div>
+          ) : (
+            <div className="p-6 space-y-8 pb-20">
+              {/* A. THỐNG KÊ (STATS) */}
+              {stats && (
+                <div className="grid grid-cols-3 gap-4">
+                  <StatBox
+                    icon={Users}
+                    label="Sinh viên"
+                    value={stats.total_students}
+                    color="blue"
+                  />
+                  <StatBox
+                    icon={Layers}
+                    label="Nhóm"
+                    value={stats.total_teams}
+                    color="purple"
+                  />
+                  <StatBox
+                    icon={Briefcase}
+                    label="Dự án"
+                    value={stats.total_projects}
+                    color="orange"
+                  />
                 </div>
               )}
-            </section>
 
-            <Separator className="bg-slate-100" />
-
-            {/* SECTION: STUDENTS LIST */}
-            <section>
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <Users className="h-5 w-5 text-[#F27124]" />
-                  Danh sách Sinh viên
+              {/* B. CẤU HÌNH ĐIỂM */}
+              <section>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
+                  <Settings2 className="h-5 w-5 text-[#F27124]" />
+                  Cấu hình đánh giá
                 </h3>
-                <span className="bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-md text-xs font-bold">
-                  {students.length} thành viên
-                </span>
-              </div>
 
-              <div className="space-y-3">
-                {students.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 text-slate-400">
-                    <Users className="h-12 w-12 mb-3 opacity-20" />
-                    <p className="text-sm">
-                      Chưa có sinh viên nào trong lớp này.
-                    </p>
+                {classInfo.contributionConfig ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <WeightCard
+                      icon={Trello}
+                      label="Jira Tracking"
+                      value={classInfo.contributionConfig.jiraWeight}
+                      color="blue"
+                    />
+                    <WeightCard
+                      icon={GitCommit}
+                      label="Git Commits"
+                      value={classInfo.contributionConfig.gitWeight}
+                      color="purple"
+                    />
+                    <WeightCard
+                      icon={MessageSquare}
+                      label="Code Review"
+                      value={classInfo.contributionConfig.reviewWeight}
+                      color="orange"
+                    />
+
+                    {/* Config Extra */}
+                    <div className="sm:col-span-3 mt-2 flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <span className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4" />
+                        Cho phép vượt trần điểm (Over Ceiling)
+                      </span>
+                      <Badge
+                        variant={
+                          classInfo.contributionConfig.allowOverCeiling
+                            ? "default"
+                            : "secondary"
+                        }
+                        className="rounded-full"
+                      >
+                        {classInfo.contributionConfig.allowOverCeiling
+                          ? "Cho phép"
+                          : "Không"}
+                      </Badge>
+                    </div>
                   </div>
                 ) : (
-                  students.map((std) => (
-                    <div
-                      key={std.id}
-                      className="group flex items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-white hover:border-orange-200 hover:shadow-md hover:shadow-orange-500/5 transition-all duration-300"
-                    >
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-10 w-10 border border-slate-100 bg-slate-50">
-                          <AvatarFallback className="bg-slate-100 text-slate-600 font-bold text-sm group-hover:bg-[#F27124] group-hover:text-white transition-colors">
-                            {std.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-bold text-slate-900 group-hover:text-[#F27124] transition-colors">
-                            {std.name}
-                          </p>
-                          <p className="text-xs text-slate-500 font-medium">
-                            {std.email}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-bold font-mono mb-1">
-                          {std.roll}
-                        </div>
-                        <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
-                          {std.team}
-                        </p>
-                      </div>
-                    </div>
-                  ))
+                  <div className="py-8 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                    Chưa cấu hình trọng số
+                  </div>
                 )}
-              </div>
-            </section>
-          </div>
-        </ScrollArea>
+              </section>
+
+              <Separator className="bg-slate-100" />
+
+              {/* C. CẤU TRÚC ĐIỂM (GRADE STRUCTURE) */}
+              {classInfo.gradeStructure &&
+                classInfo.gradeStructure.length > 0 && (
+                  <section>
+                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
+                      <GraduationCap className="h-5 w-5 text-[#F27124]" />
+                      Cấu trúc đầu điểm
+                    </h3>
+                    <div className="space-y-2">
+                      {classInfo.gradeStructure.map((item) => (
+                        <div
+                          key={item._id}
+                          className="flex justify-between items-center p-3 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-orange-200 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`h-2 w-2 rounded-full ${item.isGroupGrade ? "bg-indigo-500" : "bg-emerald-500"}`}
+                            />
+                            <span className="text-sm font-bold text-slate-700">
+                              {item.name}
+                            </span>
+                            {item.isGroupGrade ? (
+                              <Badge
+                                variant="secondary"
+                                className="text-[10px] px-1.5 h-5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border-indigo-100"
+                              >
+                                Group
+                              </Badge>
+                            ) : (
+                              <Badge
+                                variant="secondary"
+                                className="text-[10px] px-1.5 h-5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border-emerald-100"
+                              >
+                                Individual
+                              </Badge>
+                            )}
+                          </div>
+                          <span className="font-mono text-sm font-black text-slate-900 bg-slate-50 px-2 py-1 rounded-md">
+                            {item.weight * 100}%
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <Separator className="bg-slate-100 mt-6" />
+                  </section>
+                )}
+
+              {/* D. DANH SÁCH NHÓM (TEAMS) */}
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <Briefcase className="h-5 w-5 text-[#F27124]" />
+                    Danh sách Nhóm ({teams.length})
+                  </h3>
+                </div>
+
+                <div className="space-y-3">
+                  {teams.length === 0 ? (
+                    <div className="text-center py-10 bg-slate-50/50 rounded-xl border border-dashed border-slate-200 text-slate-400">
+                      <LayoutGrid className="h-10 w-10 mx-auto mb-2 opacity-20" />
+                      <p className="text-sm">Chưa có nhóm nào được tạo.</p>
+                    </div>
+                  ) : (
+                    teams.map((team) => (
+                      <div
+                        key={team._id}
+                        className="group flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-white hover:border-orange-200 hover:shadow-md hover:shadow-orange-500/5 transition-all"
+                      >
+                        <div className="flex items-center gap-4">
+                          {/* Avatar Nhóm (Ký tự đầu) */}
+                          <div className="h-12 w-12 bg-slate-100 rounded-xl flex items-center justify-center font-black text-slate-500 text-lg group-hover:bg-[#F27124] group-hover:text-white transition-colors">
+                            {team.project_name.substring(0, 1).toUpperCase()}
+                          </div>
+
+                          <div className="flex flex-col">
+                            <p className="text-sm font-bold text-slate-900 group-hover:text-[#F27124] transition-colors">
+                              {team.project_name}
+                            </p>
+
+                            {/* Trạng thái kết nối (Optional) */}
+                            <div className="flex flex-wrap gap-2 text-[10px] text-slate-400 mt-1 font-medium">
+                              {team.github_repo_url ? (
+                                <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                  <GitCommit className="w-3 h-3" /> Connected
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded opacity-60">
+                                  <GitCommit className="w-3 h-3" /> No Git
+                                </span>
+                              )}
+
+                              {team.jira_project_key ? (
+                                <span className="flex items-center gap-1 text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                                  <Trello className="w-3 h-3" /> Jira Linked
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded opacity-60">
+                                  <Trello className="w-3 h-3" /> No Jira
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Team ID */}
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] text-slate-400 font-mono bg-slate-50"
+                        >
+                          {team._id.slice(-4)}
+                        </Badge>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+            </div>
+          )}
+        </div>
 
         {/* --- 3. FOOTER INFO --- */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50/50 text-[10px] text-slate-400 font-mono flex justify-between items-center">
-          <span>ID: {selectedClass._id}</span>
-          <span>Last Updated: {formatDate(selectedClass.updatedAt)}</span>
+        <div className="p-4 border-t border-slate-100 bg-slate-50/50 text-[10px] text-slate-400 font-mono flex justify-between items-center shrink-0">
+          <span>ID: {classInfo._id}</span>
+          <span>Last Updated: {formatDate(classInfo.updatedAt)}</span>
         </div>
       </SheetContent>
     </Sheet>
+  );
+}
+
+// --- SUB COMPONENTS (GIỮ NGUYÊN) ---
+function StatBox({ icon: Icon, label, value, color }: any) {
+  const colors = {
+    blue: "text-blue-600 bg-blue-50 border-blue-100",
+    purple: "text-purple-600 bg-purple-50 border-purple-100",
+    orange: "text-orange-600 bg-orange-50 border-orange-100",
+  };
+  const style = colors[color as keyof typeof colors] || colors.blue;
+  return (
+    <div
+      className={`p-4 rounded-2xl border flex flex-col items-center justify-center text-center ${style.split(" ")[2]} ${style.split(" ")[1]}`}
+    >
+      <Icon className={`h-6 w-6 mb-2 ${style.split(" ")[0]}`} />
+      <span className="text-2xl font-black text-slate-900">{value || 0}</span>
+      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function WeightCard({ icon: Icon, label, value, color }: any) {
+  const colors = {
+    blue: "text-blue-600 bg-blue-50",
+    purple: "text-purple-600 bg-purple-50",
+    orange: "text-orange-600 bg-orange-50",
+  };
+  const colorClass = colors[color as keyof typeof colors] || colors.blue;
+  return (
+    <div className="p-4 rounded-2xl border border-slate-100 bg-white shadow-sm flex flex-col items-center text-center hover:shadow-md transition-all group">
+      <div
+        className={`p-3 rounded-full mb-3 transition-colors ${colorClass.split(" ")[1]} group-hover:bg-opacity-80`}
+      >
+        <Icon className={`h-6 w-6 ${colorClass.split(" ")[0]}`} />
+      </div>
+      <span
+        className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${colorClass.split(" ")[0]}`}
+      >
+        {label}
+      </span>
+      <span className="text-3xl font-black text-slate-900 tracking-tighter">
+        {Math.round((value || 0) * 100)}
+        <span className="text-sm text-slate-400 font-medium">%</span>
+      </span>
+    </div>
   );
 }

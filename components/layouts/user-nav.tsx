@@ -8,11 +8,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BadgeCheck, Loader2, Sparkles } from "lucide-react";
+import { BadgeCheck, Sparkles } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useLogout } from "@/features/auth/hooks/use-logout";
-import { motion } from "framer-motion";
 
 // Import Menu Items chung
 import { UserMenuItems } from "../common/user-menu-items";
@@ -80,7 +79,7 @@ export function UserNav() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="w-72 mt-3 p-2 rounded-[32px] shadow-2xl border-slate-100 bg-white/80 backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 font-mono"
+        className="w-72 mt-3 p-2 rounded-[32px] shadow-2xl border-slate-100 bg-white/80 backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 font-sans" // Đổi font-mono thành font-sans cho dễ đọc hơn
         align="end"
         forceMount
       >
@@ -108,18 +107,20 @@ export function UserNav() {
               </div>
 
               <div className="flex flex-col">
-                <p className="text-sm font-black text-slate-900 truncate max-w-[140px] leading-tight">
-                  {user.full_name}
+                <p className="text-sm font-bold text-slate-900 truncate max-w-[140px] leading-tight capitalize">
+                  {/* Thêm capitalize để viết hoa chữ cái đầu */}
+                  {user.full_name.toLowerCase()}
                 </p>
-                <p className="text-[9px] text-slate-400 truncate font-bold lowercase tracking-tight">
-                  {user.email}
+                <p className="text-[10px] text-slate-500 truncate font-medium tracking-tight">
+                  {/* Bỏ lowercase/uppercase để email hiển thị tự nhiên hoặc để thường hoàn toàn */}
+                  {user.email.toLowerCase()}
                 </p>
               </div>
             </div>
 
             <div className="pt-1 relative z-10">
               <span
-                className={`inline-flex items-center text-[9px] font-black px-3 py-1 rounded-lg border shadow-sm uppercase tracking-widest ${getRoleStyle(
+                className={`inline-flex items-center text-[9px] font-bold px-3 py-1 rounded-lg border shadow-sm uppercase tracking-widest ${getRoleStyle(
                   user.role,
                 )}`}
               >
@@ -132,7 +133,7 @@ export function UserNav() {
         <DropdownMenuSeparator className="mx-2 bg-slate-100" />
 
         {/* --- MENU ITEMS --- */}
-        <div className="text-[11px] font-bold lowercase tracking-tight px-1 pb-1">
+        <div className="text-[12px] font-medium px-1 pb-1">
           <UserMenuItems
             role={user.role}
             isLogoutPending={isLogoutPending}

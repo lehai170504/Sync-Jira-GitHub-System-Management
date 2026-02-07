@@ -10,20 +10,30 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { ScrollArea } from "@/components/ui/scroll-area"; // ❌ Bỏ ScrollArea của Shadcn vì nó tự custom scrollbar
 import { Separator } from "@/components/ui/separator";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Loader2,
   Calendar,
   BookOpen,
   GraduationCap,
-  User,
   LayoutGrid,
   Info,
-  ChevronRight,
+  User,
+  GitBranch,
+  Trello,
+  MessageSquare,
+  Users,
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { ClassInSemester } from "@/features/management/semesters/types";
 
 interface SemesterDetailSheetProps {
   semesterId: string | null;
@@ -46,114 +56,104 @@ export function SemesterDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl p-0 bg-white flex flex-col h-[100dvh] font-mono overflow-hidden border-l border-slate-200 shadow-2xl">
-        {/* --- STICKY HEADER --- */}
-        <SheetHeader className="px-6 py-6 border-b border-slate-100 bg-white z-20 shrink-0 shadow-sm">
-          <div className="space-y-3 text-left">
-            {" "}
-            {/* Thêm text-left vì Header mặc định hay bị center */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-[#F27124]/10 rounded-lg">
-                  <Calendar className="w-5 h-5 text-[#F27124]" />
-                </div>
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-[10px] font-black uppercase tracking-widest px-2 py-0.5",
-                    semester?.status === "Open"
-                      ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                      : "bg-slate-50 text-slate-500 border-slate-200",
-                  )}
-                >
-                  {semester?.status === "Open" ? "Đang diễn ra" : "Đã kết thúc"}
-                </Badge>
+      <SheetContent className="w-full sm:max-w-xl p-0 bg-white flex flex-col h-[100dvh] font-sans overflow-hidden border-l border-slate-200 shadow-2xl">
+        {/* --- 1. HEADER --- */}
+        <SheetHeader className="px-6 py-6 border-b border-slate-100 bg-white z-20 shrink-0 shadow-sm text-left">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-orange-50 rounded-lg">
+                <Calendar className="w-5 h-5 text-[#F27124]" />
               </div>
-              {semester && (
-                <span className="text-[10px] font-bold text-slate-400 font-mono bg-slate-50 px-2 py-1 rounded">
-                  ID: {semester.code}
-                </span>
-              )}
-            </div>
-            <div className="space-y-1">
-              <SheetTitle className="text-3xl font-black text-slate-900 tracking-tighter leading-none">
-                {isLoading ? (
-                  <div className="h-8 w-48 bg-slate-100 animate-pulse rounded" />
-                ) : (
-                  semester?.name
+              <Badge
+                variant="outline"
+                className={cn(
+                  "text-[10px] font-black uppercase tracking-widest px-2 py-0.5",
+                  semester?.status === "Open"
+                    ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                    : "bg-slate-50 text-slate-500 border-slate-200",
                 )}
-              </SheetTitle>
-              {semester && (
-                <SheetDescription className="text-sm text-slate-500 font-medium flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-slate-400" />
-                  Thời gian:{" "}
-                  {format(new Date(semester.start_date), "dd/MM/yyyy")} —{" "}
-                  {format(new Date(semester.end_date), "dd/MM/yyyy")}
-                </SheetDescription>
-              )}
+              >
+                {semester?.status === "Open" ? "Đang diễn ra" : "Đã kết thúc"}
+              </Badge>
             </div>
+            {semester && (
+              <span className="text-[10px] font-bold text-slate-400 font-mono bg-slate-50 px-2 py-1 rounded">
+                CODE: {semester.code}
+              </span>
+            )}
           </div>
+
+          <SheetTitle className="text-3xl font-black text-slate-900 tracking-tighter leading-none">
+            {isLoading ? (
+              <div className="h-8 w-48 bg-slate-100 animate-pulse rounded" />
+            ) : (
+              semester?.name
+            )}
+          </SheetTitle>
+
+          {semester && (
+            <SheetDescription className="text-sm text-slate-500 font-medium flex items-center gap-2 mt-1">
+              Thời gian: {format(new Date(semester.start_date), "dd/MM/yyyy")} —{" "}
+              {format(new Date(semester.end_date), "dd/MM/yyyy")}
+            </SheetDescription>
+          )}
         </SheetHeader>
 
-        {/* VÙNG CUỘN:
-           - flex-1: Nó sẽ chiếm hết phần diện tích còn lại của Sheet sau khi trừ đi Header.
-           - viewport của ScrollArea cần chiều cao 100% để tính toán thanh cuộn.
-        */}
-        <ScrollArea className="flex-1 w-full bg-slate-50/10">
-          <div className="p-6 space-y-10 pb-24">
-            {" "}
-            {/* Thêm padding bottom lớn để không bị che bởi nút bấm dưới cùng nếu có */}
+        {/* --- 2. SCROLLABLE CONTENT (ĐÃ SỬA) --- */}
+        {/* Thay thế ScrollArea bằng div thường + class scrollbar-hide */}
+        <div className="flex-1 w-full bg-slate-50/30 overflow-y-auto scrollbar-hide">
+          <div className="p-6 space-y-8 pb-24">
             {isLoading ? (
-              <div className="h-full min-h-[400px] flex flex-col items-center justify-center gap-4">
-                <Loader2 className="w-10 h-10 animate-spin text-[#F27124] opacity-20" />
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">
-                  Đang nạp dữ liệu...
+              <div className="h-60 flex flex-col items-center justify-center gap-4">
+                <Loader2 className="w-8 h-8 animate-spin text-[#F27124]" />
+                <p className="text-xs font-bold text-slate-400 uppercase">
+                  Đang tải dữ liệu...
                 </p>
               </div>
             ) : !semester ? (
               <div className="p-12 text-center flex flex-col items-center gap-4">
                 <Info className="w-12 h-12 text-slate-200" />
-                <p className="text-slate-500 font-bold tracking-tight text-lg">
-                  Không tìm thấy thông tin học kỳ.
+                <p className="text-slate-500 font-medium">
+                  Không tìm thấy thông tin.
                 </p>
               </div>
             ) : (
               <>
-                {/* 1. THỐNG KÊ */}
+                {/* A. THỐNG KÊ (STATS) */}
                 <section className="grid grid-cols-2 gap-4">
                   <StatCard
                     icon={BookOpen}
-                    label="Tổng lớp học"
+                    label="Lớp học"
                     value={stats?.total_classes}
-                    subText={`${stats?.active_classes} lớp hoạt động`}
+                    subText={`${stats?.active_classes} Active`}
                     color="blue"
                   />
                   <StatCard
                     icon={GraduationCap}
                     label="Giảng viên"
                     value={stats?.total_lecturers}
-                    subText="Tham gia giảng dạy"
+                    subText="Đang giảng dạy"
                     color="orange"
                   />
                 </section>
 
-                {/* 2. NGƯỜI TẠO */}
+                {/* B. NGƯỜI TẠO (ADMIN) */}
                 {semester.created_by_admin && (
-                  <section className="space-y-3 text-left">
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 text-left">
-                      Người phụ trách tạo
+                  <section>
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">
+                      Quản trị viên
                     </h3>
-                    <div className="flex items-center gap-4 p-4 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                      <Avatar className="h-12 w-12 rounded-2xl border-2 border-white shadow-sm ring-1 ring-slate-100">
-                        <AvatarFallback className="bg-slate-50 text-slate-400 font-black uppercase">
+                    <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                      <Avatar className="h-10 w-10 border border-white shadow-sm bg-slate-100">
+                        <AvatarFallback className="text-slate-500 font-bold">
                           {semester.created_by_admin.full_name.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-sm font-black text-slate-900 leading-none">
+                        <p className="text-sm font-bold text-slate-900">
                           {semester.created_by_admin.full_name}
                         </p>
-                        <p className="text-xs text-slate-400 font-medium mt-1.5">
+                        <p className="text-xs text-slate-500 font-medium">
                           {semester.created_by_admin.email}
                         </p>
                       </div>
@@ -161,81 +161,197 @@ export function SemesterDetailSheet({
                   </section>
                 )}
 
-                <Separator className="bg-slate-100" />
+                <Separator />
 
-                {/* 3. DANH SÁCH LỚP */}
-                <section className="space-y-4">
-                  <div className="flex items-center justify-between px-1">
+                {/* C. DANH SÁCH LỚP (CLASSES) - ACCORDION */}
+                <section>
+                  <div className="flex items-center justify-between mb-4 px-1">
                     <div className="flex items-center gap-2">
                       <LayoutGrid className="w-4 h-4 text-slate-400" />
                       <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
-                        Danh mục lớp học
+                        Danh sách lớp học
                       </h3>
                     </div>
-                    <Badge className="rounded-full bg-slate-900 text-white font-bold px-3">
+                    <Badge className="bg-slate-900 text-white hover:bg-slate-800">
                       {classes.length}
                     </Badge>
                   </div>
 
-                  <div className="grid gap-3">
+                  <Accordion type="single" collapsible className="space-y-3">
                     {classes.map((cls) => (
-                      <ClassItem key={cls._id} cls={cls} />
+                      <ClassItemAccordion key={cls._id} cls={cls} />
                     ))}
-                  </div>
+                  </Accordion>
                 </section>
               </>
             )}
           </div>
-        </ScrollArea>
+        </div>
       </SheetContent>
     </Sheet>
   );
 }
 
-// Sub-components giữ nguyên logic nhưng ép kiểu căn lề trái
+// ... (Giữ nguyên các sub-components StatCard, ClassItemAccordion, WeightBox)
 function StatCard({ icon: Icon, label, value, subText, color }: any) {
   const colors = {
-    blue: "bg-blue-50 text-blue-600 ring-blue-100",
-    orange: "bg-orange-50 text-[#F27124] ring-orange-100",
+    blue: "bg-blue-50 text-blue-600",
+    orange: "bg-orange-50 text-[#F27124]",
   };
   return (
-    <div className="bg-white p-5 rounded-[28px] border border-slate-100 shadow-sm text-left">
+    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
       <div
         className={cn(
-          "inline-flex p-2.5 rounded-xl mb-3 ring-4",
+          "inline-flex p-2 rounded-lg mb-3",
           colors[color as keyof typeof colors],
         )}
       >
         <Icon className="w-5 h-5" />
       </div>
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
         {label}
       </p>
-      <p className="text-3xl font-black text-slate-900 tracking-tighter leading-none">
-        {value || 0}
-      </p>
-      <p className="text-[10px] text-slate-400 font-bold mt-2">{subText}</p>
+      <div className="flex items-baseline gap-2 mt-1">
+        <span className="text-2xl font-black text-slate-900">{value || 0}</span>
+        <span className="text-[10px] text-slate-400 font-medium truncate">
+          {subText}
+        </span>
+      </div>
     </div>
   );
 }
 
-function ClassItem({ cls }: { cls: any }) {
+function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
   return (
-    <div className="group flex items-center justify-between p-4 bg-white rounded-3xl border border-slate-100 transition-all hover:border-[#F27124]/30">
-      <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 font-black text-sm group-hover:bg-[#F27124] group-hover:text-white transition-all">
-          {cls.name.substring(0, 2).toUpperCase()}
+    <AccordionItem
+      value={cls._id}
+      className="border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-sm"
+    >
+      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-slate-50 transition-colors">
+        <div className="flex items-center gap-4 text-left">
+          <div className="h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center font-black text-slate-500 text-xs shrink-0">
+            {cls.name.substring(0, 2)}
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-900">{cls.name}</p>
+            <p className="text-[11px] text-slate-500 font-medium">
+              {cls.subjectName}
+            </p>
+          </div>
         </div>
-        <div className="text-left">
-          <p className="text-sm font-black text-slate-900 leading-tight">
-            {cls.name}
-          </p>
-          <p className="text-[11px] text-slate-400 font-bold truncate max-w-[200px]">
-            {cls.subjectName}
-          </p>
+      </AccordionTrigger>
+
+      <AccordionContent className="px-4 pb-4 bg-slate-50/50 border-t border-slate-100">
+        <div className="pt-4 space-y-6">
+          {/* 1. GIẢNG VIÊN */}
+          {cls.lecturer_id ? (
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8 border border-white shadow-sm">
+                <AvatarImage src={cls.lecturer_id.avatar_url} />
+                <AvatarFallback>
+                  {cls.lecturer_id.full_name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-xs font-bold text-slate-900">
+                  {cls.lecturer_id.full_name}
+                </p>
+                <p className="text-[10px] text-slate-500">
+                  {cls.lecturer_id.email}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-slate-400 text-xs italic">
+              <User className="w-4 h-4" /> Chưa phân công giảng viên
+            </div>
+          )}
+
+          {/* 2. CẤU HÌNH ĐÓNG GÓP (CONTRIBUTION) */}
+          {cls.contributionConfig && (
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Contribution Weights
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                <WeightBox
+                  icon={Trello}
+                  label="Jira"
+                  value={cls.contributionConfig.jiraWeight * 100}
+                  color="blue"
+                />
+                <WeightBox
+                  icon={GitBranch}
+                  label="Git"
+                  value={cls.contributionConfig.gitWeight * 100}
+                  color="orange"
+                />
+                <WeightBox
+                  icon={MessageSquare}
+                  label="Review"
+                  value={cls.contributionConfig.reviewWeight * 100}
+                  color="purple"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* 3. CẤU TRÚC ĐIỂM */}
+          {cls.gradeStructure && cls.gradeStructure.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Grade Structure
+              </h4>
+              <div className="space-y-1.5">
+                {cls.gradeStructure.map((grade) => (
+                  <div
+                    key={grade._id}
+                    className="flex justify-between items-center text-xs bg-white p-2 rounded-lg border border-slate-100"
+                  >
+                    <span className="font-medium text-slate-700 flex items-center gap-2">
+                      {grade.isGroupGrade ? (
+                        <Users className="w-3 h-3 text-indigo-500" />
+                      ) : (
+                        <User className="w-3 h-3 text-slate-400" />
+                      )}
+                      {grade.name}
+                    </span>
+                    <Badge
+                      variant="secondary"
+                      className="font-mono text-[10px]"
+                    >
+                      {grade.weight * 100}%
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-      <ChevronRight className="w-4 h-4 text-slate-200 group-hover:text-[#F27124]" />
+      </AccordionContent>
+    </AccordionItem>
+  );
+}
+
+function WeightBox({ icon: Icon, label, value, color }: any) {
+  const colorStyles = {
+    blue: "text-blue-600 bg-blue-50",
+    orange: "text-orange-600 bg-orange-50",
+    purple: "text-purple-600 bg-purple-50",
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white border border-slate-100">
+      <Icon
+        className={cn(
+          "w-4 h-4 mb-1",
+          colorStyles[color as keyof typeof colorStyles].split(" ")[0],
+        )}
+      />
+      <span className="text-[10px] text-slate-400 font-medium uppercase">
+        {label}
+      </span>
+      <span className="text-xs font-black text-slate-900">{value}%</span>
     </div>
   );
 }

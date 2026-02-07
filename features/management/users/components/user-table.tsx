@@ -108,6 +108,7 @@ export function UserTable({
                 key={user._id}
                 className="hover:bg-orange-50/30 transition-colors group border-gray-100"
               >
+                {/* Cột 1: Thông tin User */}
                 <TableCell className="pl-6 py-3">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border border-gray-100 shadow-sm">
@@ -132,11 +133,21 @@ export function UserTable({
                     </div>
                   </div>
                 </TableCell>
+
+                {/* Cột 2: Mã số (Logic chỉnh sửa tại đây) */}
                 <TableCell className="hidden sm:table-cell">
-                  <span className="font-mono text-sm text-gray-600">
-                    {user.student_code || "---"}
-                  </span>
+                  {user.role === "LECTURER" ? (
+                    // Nếu là Lecturer -> Hiển thị gạch ngang mờ
+                    <span className="text-gray-300 text-xs select-none">—</span>
+                  ) : (
+                    // Nếu là Student -> Hiển thị mã số
+                    <span className="font-mono text-sm text-gray-600 font-medium">
+                      {user.student_code || "Chưa cấp"}
+                    </span>
+                  )}
                 </TableCell>
+
+                {/* Cột 3: Vai trò */}
                 <TableCell>
                   <Badge
                     variant="outline"
@@ -149,6 +160,8 @@ export function UserTable({
                     {user.role === "LECTURER" ? "Giảng viên" : "Sinh viên"}
                   </Badge>
                 </TableCell>
+
+                {/* Cột 4: Trạng thái */}
                 <TableCell>
                   {(user.status || "Active") === "Active" ? (
                     <div className="flex items-center gap-1.5">
@@ -173,6 +186,8 @@ export function UserTable({
                     </Badge>
                   )}
                 </TableCell>
+
+                {/* Cột 5: Thao tác */}
                 <TableCell className="text-right pr-6">
                   <UserRowActions user={user} onToggleStatus={onToggleStatus} />
                 </TableCell>

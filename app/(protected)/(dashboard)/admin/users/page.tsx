@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { UserStats } from "@/features/management/users/components/user-stats";
 import { UserTable } from "@/features/management/users/components/user-table";
 import { UserToolbar } from "@/features/management/users/components/user-toolbar";
-import { CreateUserModal } from "@/features/management/users/components/create-user-modal";
 import { Button } from "@/components/ui/button";
 
 // Hooks & Types
@@ -84,18 +83,6 @@ export default function UserManagementPage() {
               Kiểm soát trạng thái tài khoản, phân quyền hệ thống và theo dõi
               nhật ký hoạt động của thành viên.
             </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => refetch()}
-              className="rounded-2xl h-12 w-12 border-slate-200 text-slate-400 hover:text-blue-600 transition-all shadow-sm"
-            >
-              <RefreshCcw className="h-5 w-5" />
-            </Button>
-            <CreateUserModal />
           </div>
         </div>
 

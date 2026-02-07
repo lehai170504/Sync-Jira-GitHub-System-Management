@@ -18,7 +18,7 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
-  // --- RIVE ANIMATION SETUP ---
+  // --- RIVE SETUP ---
   const { rive, RiveComponent } = useRive({
     src: "/login_bear_v2.riv",
     stateMachines: "Login Machine",
@@ -44,15 +44,12 @@ export function LoginForm() {
   const trigFail = useStateMachineInput(rive, "Login Machine", "trigFail");
 
   useEffect(() => {
-    if (isHandsUpInput) {
+    if (isHandsUpInput)
       isHandsUpInput.value = isPasswordFocused && !showPassword;
-    }
   }, [isPasswordFocused, showPassword, isHandsUpInput]);
 
   useEffect(() => {
-    if (numLookInput) {
-      numLookInput.value = email.length * 2;
-    }
+    if (numLookInput) numLookInput.value = email.length * 2;
   }, [email, numLookInput]);
 
   // --- LOGIC ---
@@ -77,24 +74,25 @@ export function LoginForm() {
   };
 
   return (
-    <div className="max-w-[400px] w-full mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 font-mono flex flex-col items-stretch">
-      {/* 1. LINH VẬT TEDDY - Tự co giãn theo chiều cao màn hình (max h-40) */}
-      <div className="h-[20vh] max-h-[160px] min-h-[120px] w-full relative mb-1 drop-shadow-xl">
-        <RiveComponent className="w-full h-full scale-100 md:scale-110" />
+    <div className="w-full max-w-[400px] mx-auto font-mono flex flex-col items-center">
+      {/* 1. LINH VẬT TEDDY - Chỉnh sửa ở đây */}
+      {/* Thêm mb-8 để đẩy tiêu đề xuống xa hơn */}
+      <div className="h-[180px] w-[180px] relative mb-4 drop-shadow-xl flex-shrink-0">
+        <RiveComponent className="w-full h-full object-contain" />
       </div>
 
-      {/* 2. TIÊU ĐỀ - Thu nhỏ margin */}
-      <div className="text-center mb-4 space-y-1">
+      {/* 2. TIÊU ĐỀ */}
+      <div className="text-center mb-8 space-y-1 w-full relative z-10">
         <h1 className="text-xl font-black tracking-tighter text-slate-900 uppercase italic">
-          Hệ thống đồng bộ
+          Đăng nhập hệ thống
         </h1>
         <div className="h-0.5 w-10 bg-[#F27124] mx-auto rounded-full" />
       </div>
 
-      {/* 3. THÂN FORM - Giảm padding từ p-8 xuống p-6 */}
-      <div className="bg-white p-5 md:p-6 rounded-[32px] border border-slate-100 shadow-2xl shadow-orange-500/10 space-y-4 transition-all">
+      {/* 3. FORM */}
+      <div className="w-full space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* --- EMAIL INPUT --- */}
+          {/* EMAIL */}
           <div className="relative group">
             <Input
               id="email"
@@ -109,16 +107,14 @@ export function LoginForm() {
             />
             <Label
               htmlFor="email"
-              className="absolute left-10 top-3.5 text-slate-400 text-[11px] font-bold pointer-events-none transition-all duration-300
-                         peer-focus:-translate-y-2.5 peer-focus:text-[9px] peer-focus:text-[#F27124]
-                         peer-[:not(:placeholder-shown)]:-translate-y-2.5 peer-[:not(:placeholder-shown)]:text-[9px]"
+              className="absolute left-10 top-3.5 text-slate-400 text-[11px] font-bold pointer-events-none transition-all duration-300 peer-focus:-translate-y-2.5 peer-focus:text-[9px] peer-focus:text-[#F27124] peer-[:not(:placeholder-shown)]:-translate-y-2.5 peer-[:not(:placeholder-shown)]:text-[9px]"
             >
               Địa chỉ Email
             </Label>
             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-[#F27124] transition-colors" />
           </div>
 
-          {/* --- PASSWORD INPUT --- */}
+          {/* PASSWORD */}
           <div className="relative group">
             <Input
               id="password"
@@ -133,25 +129,31 @@ export function LoginForm() {
             />
             <Label
               htmlFor="password"
-              className="absolute left-10 top-3.5 text-slate-400 text-[11px] font-bold pointer-events-none transition-all duration-300
-                         peer-focus:-translate-y-2.5 peer-focus:text-[9px] peer-focus:text-[#F27124]
-                         peer-[:not(:placeholder-shown)]:-translate-y-2.5 peer-[:not(:placeholder-shown)]:text-[9px]"
+              className="absolute left-10 top-3.5 text-slate-400 text-[11px] font-bold pointer-events-none transition-all duration-300 peer-focus:-translate-y-2.5 peer-focus:text-[9px] peer-focus:text-[#F27124] peer-[:not(:placeholder-shown)]:-translate-y-2.5 peer-[:not(:placeholder-shown)]:text-[9px]"
             >
               Mật khẩu
             </Label>
             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-[#F27124] transition-colors" />
-
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 transition-colors z-10"
             >
               {showPassword ? (
-                <EyeOff className="h-4 w-4 text-[#F27124]" />
+                <EyeOff className="h-4 w-4" />
               ) : (
                 <Eye className="h-4 w-4" />
               )}
             </button>
+          </div>
+
+          <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="text-[9px] font-bold text-slate-400 hover:text-[#F27124] transition-colors uppercase tracking-tight"
+            >
+              Quên mật khẩu?
+            </Link>
           </div>
 
           <Button
@@ -170,7 +172,7 @@ export function LoginForm() {
         <div className="relative flex items-center py-1">
           <div className="flex-grow border-t border-slate-100"></div>
           <span className="flex-shrink mx-3 text-[8px] font-black uppercase text-slate-300 tracking-widest">
-            Hoặc
+            Hoặc đăng nhập với
           </span>
           <div className="flex-grow border-t border-slate-100"></div>
         </div>
@@ -191,27 +193,8 @@ export function LoginForm() {
               alt="Google"
             />
           )}
-          Google
+          Google Workspace
         </Button>
-      </div>
-
-      {/* 4. FOOTER - Thu gọn khoảng cách */}
-      <div className="text-center mt-4 space-y-1">
-        <Link
-          href="/forgot-password"
-          className="text-[9px] font-bold text-slate-400 hover:text-[#F27124] block uppercase tracking-tighter transition-colors"
-        >
-          Quên thông tin bảo mật?
-        </Link>
-        <p className="text-[9px] font-bold text-slate-400 tracking-widest uppercase">
-          Chưa có tài khoản?{" "}
-          <Link
-            href="/register"
-            className="text-[#F27124] hover:underline underline-offset-4 decoration-2"
-          >
-            Đăng ký
-          </Link>
-        </p>
       </div>
     </div>
   );

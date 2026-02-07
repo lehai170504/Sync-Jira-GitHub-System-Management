@@ -1,151 +1,105 @@
 "use client";
 
-import { useState } from "react"; // 1. Import useState
+import { useState } from "react";
+import { Loader2, Plus, Archive } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+// Import Hooks
 import {
   useSemesters,
   useCreateSemester,
 } from "@/features/management/semesters/hooks/use-semesters";
-// 👇 Import Hook chi tiết (dùng cho phần Active trên màn hình chính)
-import { useSemesterDetails } from "@/features/management/semesters/hooks/use-semester-details";
-// 👇 Import Component Drawer Mới
+
+// Import Components đã tách
 import { SemesterDetailSheet } from "@/features/management/semesters/components/semester-detail-sheet";
-import { SemesterForm } from "./semester-form";
-import { SemesterHistory } from "./semester-history";
-import { Loader2, BookOpen, Users, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CreateSemesterModal } from "./create-semester-modal"; // File vừa tách
+import { SemesterCard } from "./semester-card"; // File vừa tách
 
 export function SemesterTab() {
-  // State quản lý việc mở Drawer
   const [selectedSemesterId, setSelectedSemesterId] = useState<string | null>(
     null,
   );
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // 1. Fetch List Data
   const { data: semesters, isLoading } = useSemesters();
   const { mutate: createSemester, isPending: isCreating } = useCreateSemester();
 
-  const activeSemester = semesters?.find((s) => s.status === "OPEN");
-  const pastSemesters = semesters?.filter((s) => s.status !== "OPEN") || [];
+  // Sắp xếp: Active lên đầu, sau đó đến mới nhất
+  const sortedSemesters = semesters?.sort((a, b) => {
+    if (a.status === "OPEN") return -1;
+    if (b.status === "OPEN") return 1;
+    return new Date(b.start_date).getTime() - new Date(a.start_date).getTime();
+  });
 
-  // 2. Fetch chi tiết cho Active Semester (để hiển thị tóm tắt trên UI chính)
-  const { data: activeSemesterDetail, isLoading: isDetailLoading } =
-    useSemesterDetails(activeSemester?._id);
-
-  if (isLoading)
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F8F9FC] p-10 flex items-center justify-center">
-        <div className="h-32 w-32 bg-slate-200 animate-pulse rounded-full"></div>
+      <div className="flex h-[400px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#F27124]" />
       </div>
     );
+  }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FC] p-6 md:p-10 font-sans">
-      <div className="max-w-7xl mx-auto space-y-10">
-        {/* HEADER */}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-            Quản lý Học kỳ
-          </h1>
-          <p className="text-slate-500 text-lg">
-            Thiết lập thời gian và theo dõi tiến độ các kỳ học tại FPT
-            University.
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* 1. TOP BAR */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-black text-slate-900">
+            Danh sách Học kỳ
+          </h2>
+          <p className="text-sm text-slate-500 font-medium">
+            Quản lý và theo dõi tiến độ các kỳ học.
           </p>
         </div>
-
-        {/* LAYOUT GRID */}
-        <div className="grid gap-8 lg:grid-cols-12 items-start relative">
-          {/* LEFT: FORM & ACTIVE SEMESTER SUMMARY */}
-          <div className="lg:col-span-8 space-y-8">
-            <SemesterForm
-              activeSemester={activeSemester}
-              isCreating={isCreating}
-              onCreate={createSemester}
-            />
-
-            {/* Active Semester Summary Card */}
-            {activeSemester && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-blue-600" />
-                    Lớp học trong kỳ {activeSemester.name}
-                  </h3>
-                  {/* Nút Xem Chi Tiết -> Mở Drawer */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                    onClick={() => setSelectedSemesterId(activeSemester._id)}
-                  >
-                    Xem tất cả <ArrowRight className="w-3 h-3 ml-1" />
-                  </Button>
-                </div>
-
-                {/* Phần hiển thị tóm tắt (Preview 4 lớp) */}
-                {isDetailLoading ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {activeSemesterDetail?.classes &&
-                    activeSemesterDetail.classes.length > 0 ? (
-                      activeSemesterDetail.classes.slice(0, 4).map(
-                        (
-                          cls, // Chỉ hiện 4 lớp đầu tiên
-                        ) => (
-                          <div
-                            key={cls._id}
-                            className="p-3 rounded-xl border border-gray-100 bg-gray-50/50 flex justify-between items-center"
-                          >
-                            <div>
-                              <p className="font-bold text-sm text-gray-800">
-                                {cls.name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {cls.subjectName}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              {cls.lecturer_id ? (
-                                <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                                  <Users className="w-3 h-3" />
-                                  <span className="truncate max-w-[80px]">
-                                    {cls.lecturer_id.full_name}
-                                  </span>
-                                </div>
-                              ) : (
-                                <span className="text-[10px] text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
-                                  No Lecturer
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ),
-                      )
-                    ) : (
-                      <p className="text-sm text-gray-400 col-span-2 text-center py-4">
-                        Chưa có lớp nào trong kỳ này.
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* RIGHT: HISTORY */}
-          <div className="lg:col-span-4 lg:sticky lg:top-6 self-start space-y-6">
-            <SemesterHistory
-              activeSemester={activeSemester}
-              pastSemesters={pastSemesters}
-              onSelect={(id) => setSelectedSemesterId(id)}
-            />
-          </div>
-        </div>
+        <Button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="bg-slate-800 hover:bg-[#F27124] text-white rounded-xl font-bold shadow-xl transition-all active:scale-95 h-11 px-6"
+        >
+          <Plus className="mr-1 h-4 w-4" /> Tạo Học Kỳ
+        </Button>
       </div>
 
-      {/* 👇 DRAWER HIỂN THỊ CHI TIẾT */}
+      {/* 2. GRID LIST */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {sortedSemesters?.map((semester) => (
+          <SemesterCard
+            key={semester._id}
+            semester={semester}
+            onClick={() => setSelectedSemesterId(semester._id)}
+          />
+        ))}
+
+        {/* Empty State */}
+        {sortedSemesters?.length === 0 && (
+          <div className="col-span-full py-20 flex flex-col items-center justify-center text-center border-2 border-dashed border-slate-200 rounded-[32px] bg-slate-50/50">
+            <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+              <Archive className="h-8 w-8 text-slate-300" />
+            </div>
+            <h3 className="text-slate-900 font-bold text-lg">
+              Chưa có dữ liệu
+            </h3>
+            <p className="text-slate-500 text-sm max-w-xs mt-1">
+              Bắt đầu bằng cách tạo một học kỳ mới cho hệ thống.
+            </p>
+            <Button
+              variant="link"
+              className="text-[#F27124] font-bold mt-2"
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              Tạo ngay &rarr;
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* 3. MODALS & DRAWERS */}
+      <CreateSemesterModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        onCreate={createSemester}
+        isCreating={isCreating}
+      />
+
       <SemesterDetailSheet
         semesterId={selectedSemesterId}
         open={!!selectedSemesterId}

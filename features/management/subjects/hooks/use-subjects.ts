@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getSubjectsApi, createSubjectApi } from "../api/subject-api";
-import { CreateSubjectDto } from "../types/subject-types.ts";
+import { CreateSubjectDto } from "../types/subject-types";
 
 // --- Hook Lấy danh sách (GET) ---
 export const useSubjects = (status: string = "Active") => {

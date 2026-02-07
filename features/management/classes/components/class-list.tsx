@@ -9,7 +9,6 @@ interface ClassListProps {
   classes: Class[];
   isLoading: boolean;
   onEditClass: (cls: Class) => void;
-  // 👇 1. Thêm prop này để nhận hàm mở Drawer từ cha
   onViewClassDetails: (cls: Class) => void;
   onClearFilters: () => void;
 }
@@ -65,7 +64,7 @@ export function ClassList({
         ))}
       </div>
 
-      {/* Pagination Footer */}
+      {/* Pagination Footer (Demo UI) */}
       <div className="flex items-center justify-between border-t border-gray-100 pt-4">
         <p className="text-sm text-muted-foreground">
           Hiển thị {classes.length} kết quả
@@ -77,7 +76,7 @@ export function ClassList({
           <Button
             variant="outline"
             size="sm"
-            className="bg-[#F27124] text-white border-[#F27124]"
+            className="bg-[#F27124] text-white border-[#F27124] hover:bg-orange-600 hover:text-white"
           >
             1
           </Button>

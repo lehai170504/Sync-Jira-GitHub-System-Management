@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
+// 1. Thêm các imports cần thiết
+import { useClassDetails } from "@/features/management/classes/hooks/use-class-details";
 import {
   Users,
   Layers,
@@ -14,19 +13,20 @@ import {
   MapPin,
   ChevronRight,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { cn } from "@/lib/utils";
 
-// 👇 IMPORT COMPONENT GỬI THÔNG BÁO
+// Component con
 import { SendClassNotification } from "@/features/notifications/components/SendClassNotification";
 
-// --- MOCK DATA ---
+// --- MOCK DATA (Giữ nguyên hoặc thay bằng API thật sau này) ---
 const PERFORMANCE_DATA = [
   { name: "Excellent", value: 45, color: "#4f46e5" },
-  { name: "Good", value: 35, color: "#f27124" }, // Đổi màu orange đồng bộ thương hiệu
+  { name: "Good", value: 35, color: "#f27124" },
   { name: "Average", value: 20, color: "#10b981" },
 ];
 
@@ -36,27 +36,40 @@ const SCHEDULE = [
   { time: "13:30", class: "SE1802", room: "Google Meet", type: "Online" },
 ];
 
-export function LecturerDashboard() {
-  const router = useRouter();
-  const [className, setClassName] = useState("Loading...");
-  const [subjectCode, setSubjectCode] = useState("...");
-  const [classId, setClassId] = useState("");
+// 2. Định nghĩa Props
+interface LecturerDashboardProps {
+  classId?: string; // Nhận classId từ cha
+}
 
-  useEffect(() => {
-    const savedClassId = Cookies.get("lecturer_class_id");
-    const savedClass = Cookies.get("lecturer_class_name");
-    const savedSubject = Cookies.get("lecturer_subject");
+export function LecturerDashboard({ classId }: LecturerDashboardProps) {
+  // 3. Sử dụng Hook lấy chi tiết lớp (Tự động chạy khi có classId)
+  const { data: classDetails, isLoading } = useClassDetails(classId);
 
-    if (!savedClass) {
-      setClassName("SE1783");
-      setSubjectCode("SWP391");
-      setClassId("mock-class-id");
-    } else {
-      setClassName(savedClass);
-      setSubjectCode(savedSubject || "");
-      setClassId(savedClassId || "");
-    }
-  }, []);
+  // Fallback data nếu chưa load xong hoặc không có classId
+  const className = classDetails?.class?.name || "Đang tải...";
+  const subjectCode = classDetails?.class?.subject_id?.code || "...";
+  const studentCount = classDetails?.stats?.total_students || 0;
+  const teamCount = classDetails?.stats?.total_teams || 0;
+
+  // --- LOADING STATE ---
+  if (!classId) {
+    return (
+      <div className="flex h-[60vh] flex-col items-center justify-center text-slate-400">
+        <Sparkles className="w-16 h-16 mb-4 opacity-20" />
+        <p className="font-medium">
+          Vui lòng chọn một lớp học để xem tổng quan.
+        </p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700 pb-10 font-sans">
@@ -84,6 +97,7 @@ export function LecturerDashboard() {
           </div>
 
           <div className="shrink-0 transition-all hover:scale-105 active:scale-95">
+            {/* Truyền đúng classId vào component con */}
             <SendClassNotification classId={classId} className={className} />
           </div>
         </div>
@@ -94,28 +108,28 @@ export function LecturerDashboard() {
         {[
           {
             label: "Sĩ số",
-            value: "30",
+            value: studentCount, // Dữ liệu thật từ API
             icon: Users,
             color: "bg-indigo-50 text-indigo-600",
-            trend: "+2 mới",
+            trend: "+Ổn định", // Có thể logic hóa sau
           },
           {
             label: "Số Nhóm",
-            value: "06",
+            value: teamCount, // Dữ liệu thật từ API
             icon: Layers,
             color: "bg-blue-50 text-blue-600",
             trend: "Đã chốt",
           },
           {
             label: "Đang làm",
-            value: "18",
+            value: "18", // Mock data (cần API task để fill)
             icon: BarChart3,
             color: "bg-orange-50 text-orange-600",
             trend: "Cần review",
           },
           {
             label: "Hoàn thành",
-            value: "23",
+            value: "23", // Mock data
             icon: CheckCircle2,
             color: "bg-emerald-50 text-emerald-600",
             trend: "Đạt chỉ tiêu",
@@ -155,7 +169,7 @@ export function LecturerDashboard() {
 
       {/* 3. ANALYTICS & BROADCAST SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Kết quả học tập - Biểu đồ tập trung vào Typography và Khoảng trắng */}
+        {/* Kết quả học tập */}
         <Card className="lg:col-span-4 border-none shadow-xl shadow-slate-200/40 bg-white rounded-[32px] overflow-hidden">
           <CardHeader className="px-8 pt-8 pb-0">
             <CardTitle className="text-xl font-black text-slate-900 tracking-tight">
@@ -163,6 +177,7 @@ export function LecturerDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center p-8">
+            {/* Chart giữ nguyên logic mock data vì chưa có API điểm số */}
             <div className="relative w-64 h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -219,7 +234,7 @@ export function LecturerDashboard() {
           </CardContent>
         </Card>
 
-        {/* Lịch trình dạy học - Hiện đại hóa List Item */}
+        {/* Lịch trình dạy học */}
         <Card className="lg:col-span-4 border-none shadow-xl shadow-slate-200/40 bg-white rounded-[32px] overflow-hidden">
           <CardHeader className="px-8 pt-8 flex flex-row items-center justify-between">
             <CardTitle className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-3">
@@ -265,7 +280,7 @@ export function LecturerDashboard() {
           </CardContent>
         </Card>
 
-        {/* Cột 3: Broadcast Center - Glassmorphism Card */}
+        {/* Cột 3: Broadcast Center */}
         <Card className="lg:col-span-4 border-none shadow-2xl shadow-orange-600/20 bg-[#F27124] rounded-[32px] overflow-hidden relative group">
           <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-125 transition-transform duration-700 pointer-events-none">
             <Clock className="w-48 h-48 text-white" />
@@ -285,6 +300,7 @@ export function LecturerDashboard() {
                 , báo nghỉ hoặc gửi link họp trực tuyến ngay bây giờ?
               </p>
               <div className="w-full transition-transform hover:-translate-y-1">
+                {/* Truyền classId vào component con */}
                 <SendClassNotification
                   classId={classId}
                   className={className}

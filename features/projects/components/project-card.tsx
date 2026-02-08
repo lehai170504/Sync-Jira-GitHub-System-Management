@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+// 1. Thêm imports điều hướng
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { FolderGit2, LayoutDashboard, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SiGithub, SiJira } from "react-icons/si";
@@ -16,12 +17,36 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  // 2. Setup Hooks điều hướng
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // 3. Logic kiểm tra xem Card này có đang được chọn trên URL không
+  const isDetailOpen = searchParams.get("teamId") === project._id;
+
+  // 4. Handler mở chi tiết: Push ID lên URL
+  const handleOpenDetail = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("teamId", project._id);
+
+    // scroll: false để không bị nhảy trang khi mở
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // 5. Handler đóng chi tiết: Xóa ID khỏi URL
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("teamId");
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  };
 
   return (
     <>
       <div
-        onClick={() => setIsDetailOpen(true)}
+        onClick={handleOpenDetail} // Thay đổi handler tại đây
         className="group bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm hover:shadow-2xl hover:border-[#F27124]/30 transition-all duration-500 flex flex-col h-full cursor-pointer relative overflow-hidden"
       >
         {/* Hiệu ứng hover giả lập link chi tiết */}
@@ -87,11 +112,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </div>
       </div>
 
-      {/* 4. Drawer chi tiết gọi API /api/projects/teams/{teamId} */}
+      {/* 4. Drawer chi tiết */}
       <TeamDetailSheet
         teamId={project._id}
         open={isDetailOpen}
-        onOpenChange={setIsDetailOpen}
+        onOpenChange={handleOpenChange}
       />
     </>
   );

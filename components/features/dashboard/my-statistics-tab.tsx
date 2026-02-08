@@ -2,11 +2,15 @@
 
 import { ScoreBreakdown } from "./score-breakdown";
 
-export function MyStatisticsTab() {
+// 1. Định nghĩa Props
+interface MyStatisticsTabProps {
+  classId?: string;
+}
+
+export function MyStatisticsTab({ classId }: MyStatisticsTabProps) {
   return (
     <div className="space-y-6">
-      <ScoreBreakdown />
+      <ScoreBreakdown classId={classId} />
     </div>
   );
 }
-

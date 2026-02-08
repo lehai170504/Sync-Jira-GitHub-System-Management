@@ -1,45 +1,130 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { BarChart3, GitBranch, Users, CheckCircle2 } from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  BarChart3,
+  GitBranch,
+  Users,
+  CheckCircle2,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Mock data cho Score Breakdown
-const scoreBreakdownData = [
-  { 
-    name: "Jira", 
-    value: 35, 
+// Hooks
+import { useTeamDashboard } from "@/features/management/teams/hooks/use-team-dashboard";
+import { useMyClasses } from "@/features/student/hooks/use-my-classes";
+
+// --- Types & Interfaces ---
+interface ScoreBreakdownProps {
+  classId?: string;
+}
+
+// Mock Data mặc định (dùng khi chưa có API hoặc data rỗng)
+const DEFAULT_SCORE_DATA = [
+  {
+    name: "Jira",
+    value: 0,
     color: "#3B82F6",
+    icon: CheckCircle2,
+    description: "Tasks hoàn thành",
     gradientFrom: "from-blue-500",
     gradientTo: "to-blue-600",
-    icon: CheckCircle2,
-    description: "Tasks hoàn thành"
   },
-  { 
-    name: "Git", 
-    value: 40, 
+  {
+    name: "Git",
+    value: 0,
     color: "#10B981",
+    icon: GitBranch,
+    description: "Code commits",
     gradientFrom: "from-emerald-500",
     gradientTo: "to-emerald-600",
-    icon: GitBranch,
-    description: "Code commits"
   },
-  { 
-    name: "Peer", 
-    value: 25, 
+  {
+    name: "Peer",
+    value: 0,
     color: "#F59E0B",
+    icon: Users,
+    description: "Đánh giá chéo",
     gradientFrom: "from-amber-500",
     gradientTo: "to-amber-600",
-    icon: Users,
-    description: "Đánh giá chéo"
   },
 ];
 
-const COLORS = scoreBreakdownData.map((item) => item.color);
-const TOTAL_SCORE = scoreBreakdownData.reduce((sum, item) => sum + item.value, 0);
+export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
+  // 1. Logic lấy Team ID (Tái sử dụng logic từ MemberOverviewTab)
+  const [teamId, setTeamId] = useState<string | undefined>(undefined);
+  const { data: myClasses, isLoading: isClassesLoading } = useMyClasses();
 
-export function ScoreBreakdown() {
+  // Hook lấy dữ liệu dashboard (chứa thông tin điểm số nếu có)
+  const { data: dashboardData, isLoading: isDashboardLoading } =
+    useTeamDashboard(teamId);
+
+  useEffect(() => {
+    if (!myClasses?.classes) return;
+
+    if (classId) {
+      const currentClass = myClasses.classes.find(
+        (cls) => cls.class._id === classId,
+      );
+      setTeamId(currentClass?.team_id);
+    } else if (myClasses.classes.length > 0) {
+      setTeamId(myClasses.classes[0].team_id);
+    }
+  }, [myClasses, classId]);
+
+  // --- Data Transformation ---
+  // Lưu ý: Logic này giả định dashboardData trả về cấu trúc điểm tương tự.
+  // Nếu API chưa có, ta dùng Mock Data tạm thời nhưng vẫn giữ flow fetch API.
+
+  // Ví dụ transform data thật (nếu có):
+  const realScoreData = dashboardData?.overview
+    ? [
+        {
+          ...DEFAULT_SCORE_DATA[0],
+          value: dashboardData.overview.tasks?.done_percent || 0,
+        }, // Jira lấy % task done
+        {
+          ...DEFAULT_SCORE_DATA[1],
+          value: dashboardData.overview.commits?.total || 0,
+        }, // Git lấy tổng commit (cần chuẩn hóa thang điểm sau)
+        { ...DEFAULT_SCORE_DATA[2], value: 85 }, // Peer Review (giả định chưa có API thì mock 85)
+      ]
+    : DEFAULT_SCORE_DATA; // Fallback về mặc định nếu chưa có data
+
+  // Tính tổng điểm (Ví dụ đơn giản là cộng lại, thực tế cần công thức trọng số)
+  const totalScore = realScoreData.reduce((sum, item) => sum + item.value, 0);
+
+  // --- Loading State ---
+  if (isClassesLoading || (teamId && isDashboardLoading)) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#F27124]" />
+      </div>
+    );
+  }
+
+  // --- Empty State ---
+  if (!teamId) {
+    return (
+      <Card className="border-dashed border-2 shadow-none bg-slate-50">
+        <CardContent className="flex flex-col items-center justify-center py-12 text-slate-400">
+          <AlertCircle className="h-10 w-10 mb-2 opacity-50" />
+          <p>Bạn chưa tham gia nhóm nào trong lớp này.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Main Chart Card */}
@@ -56,7 +141,7 @@ export function ScoreBreakdown() {
               </p>
             </div>
             <div className="px-4 py-2 bg-gradient-to-br from-[#F27124] to-orange-600 rounded-xl shadow-md">
-              <div className="text-2xl font-bold text-white">{TOTAL_SCORE}</div>
+              <div className="text-2xl font-bold text-white">{totalScore}</div>
               <div className="text-xs text-white/90">Tổng điểm</div>
             </div>
           </div>
@@ -66,32 +151,30 @@ export function ScoreBreakdown() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={scoreBreakdownData}
+                  data={realScoreData} // Dùng data đã transform
                   cx="50%"
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent, value }) => {
-                    const item = scoreBreakdownData.find((d) => d.name === name);
-                    return `${name}\n${value} điểm (${(percent * 100).toFixed(0)}%)`;
+                    return `${name}\n${value} (${(percent * 100).toFixed(0)}%)`;
                   }}
                   outerRadius={140}
                   innerRadius={70}
                   paddingAngle={3}
-                  fill="#8884d8"
                   dataKey="value"
                 >
-                  {scoreBreakdownData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={COLORS[index % COLORS.length]}
-                      stroke={COLORS[index % COLORS.length]}
+                  {realScoreData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      stroke={entry.color}
                       strokeWidth={2}
                     />
                   ))}
                 </Pie>
                 <Tooltip
                   formatter={(value: number, name: string) => {
-                    const item = scoreBreakdownData.find((d) => d.name === name);
+                    const item = realScoreData.find((d) => d.name === name);
                     return [`${value} điểm (${item?.description})`, name];
                   }}
                   contentStyle={{
@@ -111,13 +194,13 @@ export function ScoreBreakdown() {
                   iconType="circle"
                   wrapperStyle={{ paddingTop: "24px" }}
                   formatter={(value) => {
-                    const item = scoreBreakdownData.find((d) => d.name === value);
+                    const item = realScoreData.find((d) => d.name === value);
                     return (
-                      <span 
-                        style={{ 
-                          color: item?.color, 
+                      <span
+                        style={{
+                          color: item?.color,
                           fontWeight: 600,
-                          fontSize: "13px"
+                          fontSize: "13px",
                         }}
                       >
                         {value}
@@ -133,16 +216,17 @@ export function ScoreBreakdown() {
 
       {/* Summary Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {scoreBreakdownData.map((item) => {
+        {realScoreData.map((item) => {
           const Icon = item.icon;
-          const percentage = ((item.value / TOTAL_SCORE) * 100).toFixed(1);
-          
+          const percentage =
+            totalScore > 0 ? ((item.value / totalScore) * 100).toFixed(1) : "0";
+
           return (
             <Card
               key={item.name}
               className={cn(
                 "group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1",
-                "bg-gradient-to-br from-white to-gray-50/30"
+                "bg-gradient-to-br from-white to-gray-50/30",
               )}
             >
               {/* Gradient Background Effect */}
@@ -150,10 +234,10 @@ export function ScoreBreakdown() {
                 className={cn(
                   "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300",
                   item.gradientFrom,
-                  item.gradientTo
+                  item.gradientTo,
                 )}
               />
-              
+
               {/* Decorative Circle */}
               <div
                 className="absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-10 group-hover:opacity-20 transition-opacity duration-300"
@@ -174,7 +258,7 @@ export function ScoreBreakdown() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div
                     className="text-3xl font-bold"
@@ -208,4 +292,3 @@ export function ScoreBreakdown() {
     </div>
   );
 }
-

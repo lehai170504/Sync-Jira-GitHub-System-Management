@@ -5,10 +5,17 @@ import { getLecturerClassesApi } from "../api/lecturer-classes-api";
 
 export const useLecturerClasses = (lecturerId: string | undefined) => {
   return useQuery({
-    queryKey: ["lecturer-classes", lecturerId], // Cache key theo ID giảng viên
-    queryFn: () => getLecturerClassesApi(lecturerId!),
-    enabled: !!lecturerId, // Chỉ gọi API khi đã có ID (từ useProfile)
-    staleTime: 1000 * 60 * 5, // Cache dữ liệu trong 5 phút
+    queryKey: ["lecturer-classes", lecturerId],
+
+    queryFn: async () => {
+      if (!lecturerId) throw new Error("Lecturer ID is missing");
+      return getLecturerClassesApi(lecturerId);
+    },
+
+    enabled: !!lecturerId,
+    staleTime: 1000 * 60 * 5,
     retry: 1,
+
+    placeholderData: (previousData) => previousData,
   });
 };

@@ -1,17 +1,14 @@
-// features/management/classes/types/class-types.ts
-
 // ==========================================
-// 1. SUB-INTERFACES (Các object con)
+// 1. SUB-INTERFACES
 // ==========================================
 
 export interface ContributionConfig {
-  jiraWeight: number; // VD: 0.4
-  gitWeight: number; // VD: 0.4
-  reviewWeight: number; // VD: 0.2
-  allowOverCeiling: boolean; // VD: false
+  jiraWeight: number;
+  gitWeight: number;
+  reviewWeight: number;
+  allowOverCeiling: boolean;
 }
 
-// Cấu trúc Grade Structure (Dù mảng rỗng [] nhưng vẫn cần định nghĩa type để tránh lỗi khi có dữ liệu)
 export interface GradeStructureItem {
   _id: string;
   name: string;
@@ -21,26 +18,26 @@ export interface GradeStructureItem {
 
 export interface SubjectInfo {
   _id: string;
-  name: string; // VD: "Software Requirement"
-  code: string; // VD: "SWR302"
-  description: string; // VD: "Môn học về quản lý..."
-  credits: number; // VD: 3
+  name: string;
+  code: string;
+  description: string;
+  credits: number;
 }
 
 export interface SemesterInfo {
   _id: string;
-  name: string; // VD: "Spring 2026"
-  code: string; // VD: "SP2026"
-  start_date: string; // ISO Date
-  end_date: string; // ISO Date
-  status: string; // VD: "Open"
+  name: string;
+  code: string;
+  start_date: string;
+  end_date: string;
+  status: string;
 }
 
 export interface LecturerInfo {
   _id: string;
   email: string;
   full_name: string;
-  avatar_url: string; // URL ảnh
+  avatar_url: string;
 }
 
 // ==========================================
@@ -49,18 +46,17 @@ export interface LecturerInfo {
 
 export interface ClassDetailInfo {
   _id: string;
-  name: string; // VD: "SE1832"
-  class_code: string; // VD: "SE1832"
-  subjectName: string; // VD: "Software Requirement"
-  status: string; // VD: "Active"
+  name: string;
+  class_code: string;
+  subjectName: string;
+  status: string;
 
-  // Các trường đã Populated (Chi tiết object)
   subject_id: SubjectInfo;
   semester_id: SemesterInfo;
   lecturer_id: LecturerInfo;
 
   contributionConfig: ContributionConfig;
-  gradeStructure: GradeStructureItem[]; // Có thể là mảng rỗng []
+  gradeStructure: GradeStructureItem[];
 
   createdAt: string;
   updatedAt: string;
@@ -73,11 +69,12 @@ export interface ClassDetailInfo {
 
 export interface TeamInClass {
   _id: string;
-  project_name: string; // VD: "Group 1"
+  project_name: string;
 
-  // Các trường optional (có thể chưa có trong response mẫu nhưng thường sẽ cần sau này)
+  // Các trường optional dựa trên JSON response
   github_repo_url?: string;
   jira_project_key?: string;
+  last_sync_at?: string; // Mới thêm từ JSON
 }
 
 // ==========================================
@@ -85,13 +82,13 @@ export interface TeamInClass {
 // ==========================================
 
 export interface ClassStats {
-  total_teams: number; // VD: 1
-  total_students: number; // VD: 1
-  total_projects: number; // VD: 0
+  total_teams: number;
+  total_students: number;
+  total_projects: number;
 }
 
 // ==========================================
-// 5. MAIN RESPONSE (Type trả về từ API)
+// 5. MAIN RESPONSE
 // ==========================================
 
 export interface ClassDetailResponse {

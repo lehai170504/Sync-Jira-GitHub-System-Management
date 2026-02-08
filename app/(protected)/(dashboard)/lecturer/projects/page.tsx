@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+// 1. Import useSearchParams
+import { useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import {
   Search,
@@ -14,17 +16,37 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { useClassProjects } from "@/features/projects/hooks/use-class-projects";
-
-// Import Components
+// Components
 import { ProjectCard } from "@/features/projects/components/project-card";
 import { StatCard } from "@/features/projects/components/stat-card";
 
-export default function LecturerProjectManagementPage() {
-  const classId = Cookies.get("lecturer_class_id");
-  const className = Cookies.get("lecturer_class_name");
+// Hooks
+import { useClassProjects } from "@/features/projects/hooks/use-class-projects";
+import { useClassDetails } from "@/features/management/classes/hooks/use-class-details";
 
-  const { data, isLoading } = useClassProjects(classId);
+export default function LecturerProjectManagementPage() {
+  // 2. Logic lấy Class ID (Hybrid Strategy)
+  const searchParams = useSearchParams();
+  const urlClassId = searchParams.get("classId");
+
+  // Fallback Cookie
+  const cookieClassId =
+    typeof window !== "undefined"
+      ? Cookies.get("lecturer_class_id")
+      : undefined;
+
+  // ID chốt hạ
+  const classId = urlClassId || cookieClassId;
+
+  // 3. Data Fetching
+  // A. Lấy danh sách Projects
+  const { data, isLoading: isProjectsLoading } = useClassProjects(classId);
+
+  // B. Lấy tên lớp (Thay vì đọc từ Cookie lecturer_class_name có thể bị cũ)
+  const { data: classDetailData, isLoading: isClassDetailLoading } =
+    useClassDetails(classId);
+  const className = classDetailData?.class?.name || "Lớp học";
+
   const [searchTerm, setSearchTerm] = useState("");
 
   const projects = data?.projects || [];
@@ -37,6 +59,8 @@ export default function LecturerProjectManagementPage() {
         .includes(searchTerm.toLowerCase()) ||
       p.jiraProjectKey?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  const isLoading = isProjectsLoading || isClassDetailLoading;
 
   // --- Render Loading ---
   if (isLoading) {

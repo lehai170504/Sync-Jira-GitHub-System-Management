@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area"; // Nếu chưa có component này thì dùng div overflow-auto
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Users,
   FileCheck,
@@ -15,14 +15,15 @@ import {
   Coffee,
   CalendarDays,
 } from "lucide-react";
-import { format, isSameDay, parseISO } from "date-fns";
+import { format, isSameDay, parseISO, isToday } from "date-fns";
 import { vi } from "date-fns/locale";
 
 interface AgendaViewProps {
   events: any[];
+  date: Date; // Nhận ngày cần hiển thị từ cha
 }
 
-// 1. Helper Config cho Trạng thái (Status)
+// ... (Giữ nguyên các hàm getStatusConfig và getTypeConfig) ...
 const getStatusConfig = (status: string) => {
   switch (status) {
     case "COMPLETED":
@@ -47,7 +48,6 @@ const getStatusConfig = (status: string) => {
   }
 };
 
-// 2. Helper Config cho Loại sự kiện (Type) - Để tô màu nền card
 const getTypeConfig = (type: string) => {
   switch (type) {
     case "Teaching":
@@ -77,12 +77,14 @@ const getTypeConfig = (type: string) => {
   }
 };
 
-export function AgendaView({ events }: AgendaViewProps) {
-  const today = new Date();
-  const todayEvents = events.filter((e) => isSameDay(parseISO(e.date), today));
+export function AgendaView({ events, date }: AgendaViewProps) {
+  // Lọc sự kiện theo ngày được truyền vào (date) thay vì luôn là today
+  const dailyEvents = events.filter((e) => isSameDay(parseISO(e.date), date));
 
   // Sắp xếp sự kiện theo giờ
-  todayEvents.sort((a, b) => a.time.localeCompare(b.time));
+  dailyEvents.sort((a, b) => a.time.localeCompare(b.time));
+
+  const isViewToday = isToday(date);
 
   return (
     <Card className="border border-slate-200 shadow-sm h-full flex flex-col overflow-hidden bg-white">
@@ -91,23 +93,24 @@ export function AgendaView({ events }: AgendaViewProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
             <CalendarDays className="h-4 w-4 text-[#F27124]" />
-            Lịch hôm nay
+            {isViewToday
+              ? "Lịch hôm nay"
+              : `Lịch ngày ${format(date, "dd/MM")}`}
           </CardTitle>
           <Badge
             variant="secondary"
             className="font-normal text-xs bg-white border border-slate-200 text-slate-600"
           >
-            {format(today, "EEEE, dd/MM", { locale: vi })}
+            {format(date, "EEEE, dd/MM", { locale: vi })}
           </Badge>
         </div>
       </CardHeader>
 
       <CardContent className="p-0 flex-1">
-        {/* ScrollArea giúp danh sách dài không phá vỡ layout */}
         <ScrollArea className="h-[400px] p-4">
           <div className="space-y-3">
-            {todayEvents.length > 0 ? (
-              todayEvents.map((ev) => {
+            {dailyEvents.length > 0 ? (
+              dailyEvents.map((ev) => {
                 const statusConfig = getStatusConfig(ev.status);
                 const typeConfig = getTypeConfig(ev.type);
                 const TypeIcon = typeConfig.icon;
@@ -118,17 +121,15 @@ export function AgendaView({ events }: AgendaViewProps) {
                     key={ev.id}
                     className={`group relative flex flex-col gap-2 p-3 rounded-xl border border-slate-100 transition-all duration-300 ${typeConfig.bg}`}
                   >
-                    {/* Hàng 1: Thời gian & Trạng thái */}
+                    {/* ... (Nội dung item giữ nguyên) ... */}
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-white/80 px-2 py-1 rounded-md shadow-sm border border-slate-100">
                         <Clock className="h-3 w-3 text-[#F27124]" />
-                        {ev.time.split(" ")[0]}{" "}
-                        {/* Chỉ lấy giờ bắt đầu cho gọn */}
+                        {ev.time.split(" ")[0]}
                         <span className="text-slate-400 font-normal ml-1">
                           - {ev.time.split("-")[1]?.trim() || "..."}
                         </span>
                       </div>
-
                       <Badge
                         variant="outline"
                         className={`text-[10px] px-1.5 py-0 h-5 gap-1 border ${statusConfig.color}`}
@@ -138,7 +139,6 @@ export function AgendaView({ events }: AgendaViewProps) {
                       </Badge>
                     </div>
 
-                    {/* Hàng 2: Nội dung chính */}
                     <div className="flex gap-3 items-start mt-1">
                       <div
                         className={`p-2 rounded-lg shrink-0 ${typeConfig.iconBg}`}
@@ -149,8 +149,6 @@ export function AgendaView({ events }: AgendaViewProps) {
                         <h4 className="text-sm font-bold text-slate-800 line-clamp-2 leading-snug group-hover:text-[#F27124] transition-colors">
                           {ev.title}
                         </h4>
-
-                        {/* Địa điểm */}
                         {ev.location && (
                           <div className="flex items-center gap-1 mt-1.5 text-xs text-slate-500">
                             <MapPin className="h-3 w-3 shrink-0" />
@@ -160,7 +158,6 @@ export function AgendaView({ events }: AgendaViewProps) {
                       </div>
                     </div>
 
-                    {/* Hàng 3: Note (nếu có) */}
                     {ev.note && (
                       <div className="mt-1 pt-2 border-t border-slate-200/60">
                         <p className="text-[10px] text-slate-500 italic line-clamp-1">
@@ -182,8 +179,9 @@ export function AgendaView({ events }: AgendaViewProps) {
                     Trống lịch!
                   </p>
                   <p className="text-xs text-slate-500 mt-1 px-4">
-                    Hôm nay bạn không có lịch dạy hay deadline nào. Hãy tận
-                    hưởng ngày nghỉ nhé! ☕
+                    {isViewToday
+                      ? "Hôm nay bạn không có lịch dạy hay deadline nào. Hãy tận hưởng ngày nghỉ nhé! ☕"
+                      : "Ngày này không có lịch trình nào được ghi nhận."}
                   </p>
                 </div>
               </div>

@@ -24,9 +24,16 @@ import { CalendarEvent } from "../../types/schedule-type";
 interface CalendarViewProps {
   events: CalendarEvent[];
   onAddClick: (date: Date) => void;
+  onDateSelect: (date: Date) => void; // Thêm prop này để báo cho cha biết ngày nào được chọn
+  selectedDate?: Date; // Optional: Để highlight ngày đang chọn
 }
 
-export function CalendarView({ events, onAddClick }: CalendarViewProps) {
+export function CalendarView({
+  events,
+  onAddClick,
+  onDateSelect,
+  selectedDate,
+}: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const monthStart = startOfMonth(currentMonth);
@@ -38,11 +45,15 @@ export function CalendarView({ events, onAddClick }: CalendarViewProps) {
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
-  const jumpToToday = () => setCurrentMonth(new Date());
+  const jumpToToday = () => {
+    const now = new Date();
+    setCurrentMonth(now);
+    onDateSelect(now); // Khi bấm "Hôm nay", cũng select ngày đó luôn
+  };
 
   return (
     <Card className="lg:col-span-2 border border-slate-200 shadow-sm h-full flex flex-col bg-white overflow-hidden">
-      {/* HEADER HIỆN ĐẠI */}
+      {/* HEADER (Giữ nguyên) */}
       <CardHeader className="flex flex-row items-center justify-between py-4 px-6 border-b border-slate-100 bg-white">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-orange-50 rounded-lg">
@@ -71,7 +82,7 @@ export function CalendarView({ events, onAddClick }: CalendarViewProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 rounded-md hover:bg-white hover:shadow-sm text-slate-500"
+              className="h-6 w-6 rounded-md hover:bg-white text-slate-500"
               onClick={prevMonth}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -79,7 +90,7 @@ export function CalendarView({ events, onAddClick }: CalendarViewProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 rounded-md hover:bg-white hover:shadow-sm text-slate-500"
+              className="h-6 w-6 rounded-md hover:bg-white text-slate-500"
               onClick={nextMonth}
             >
               <ChevronRight className="h-4 w-4" />
@@ -103,6 +114,10 @@ export function CalendarView({ events, onAddClick }: CalendarViewProps) {
           {calendarDays.map((day) => {
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isDayToday = isToday(day);
+            const isSelected = selectedDate
+              ? isSameDay(day, selectedDate)
+              : false;
+
             const dayEvents = events.filter((ev) =>
               isSameDay(parseISO(ev.date), day),
             );
@@ -110,9 +125,12 @@ export function CalendarView({ events, onAddClick }: CalendarViewProps) {
             return (
               <div
                 key={day.toString()}
-                className={`group relative flex flex-col border-b border-r border-slate-100 p-2 transition-all duration-200 min-h-[100px]
-                  ${!isCurrentMonth ? "bg-slate-50/50" : "bg-white hover:bg-orange-50/10"} 
-                  ${isDayToday ? "bg-orange-50/20" : ""}`}
+                onClick={() => onDateSelect(day)} // Thêm sự kiện click để xem chi tiết
+                className={`group relative flex flex-col border-b border-r border-slate-100 p-2 transition-all duration-200 min-h-[100px] cursor-pointer
+                  ${!isCurrentMonth ? "bg-slate-50/50 text-slate-300" : "bg-white hover:bg-orange-50/10"} 
+                  ${isDayToday ? "bg-orange-50/20" : ""}
+                  ${isSelected ? "ring-2 ring-inset ring-[#F27124]/50 z-10" : ""}
+                `}
               >
                 {/* Header Ngày */}
                 <div className="flex justify-between items-center mb-1">
@@ -121,19 +139,21 @@ export function CalendarView({ events, onAddClick }: CalendarViewProps) {
                     ${
                       isDayToday
                         ? "bg-[#F27124] text-white shadow-md shadow-orange-200"
-                        : isCurrentMonth
-                          ? "text-slate-700 group-hover:text-[#F27124]"
-                          : "text-slate-300"
+                        : isSelected
+                          ? "bg-slate-900 text-white"
+                          : isCurrentMonth
+                            ? "text-slate-700 group-hover:text-[#F27124]"
+                            : "text-slate-300"
                     }`}
                   >
                     {format(day, "d")}
                   </span>
 
-                  {/* Nút thêm nhanh (chỉ hiện khi hover) */}
+                  {/* Nút thêm nhanh (chỉ hiện khi hover và đúng tháng) */}
                   {isCurrentMonth && (
                     <button
                       onClick={(e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); // Chặn sự kiện click vào ô ngày
                         onAddClick(day);
                       }}
                       className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-full hover:bg-orange-100 text-orange-500 transition-all transform hover:scale-110"
@@ -148,13 +168,13 @@ export function CalendarView({ events, onAddClick }: CalendarViewProps) {
                   {dayEvents.slice(0, 3).map((ev) => (
                     <div
                       key={ev.id}
-                      className={`text-[10px] px-1.5 py-1 rounded-md truncate font-medium cursor-pointer border transition-all hover:shadow-sm
+                      className={`text-[10px] px-1.5 py-1 rounded-md truncate font-medium border transition-all hover:shadow-sm
                       ${
                         ev.type === "Teaching"
-                          ? "bg-blue-50 text-blue-700 border-blue-100 hover:border-blue-300"
+                          ? "bg-blue-50 text-blue-700 border-blue-100"
                           : ev.type === "Grading"
-                            ? "bg-red-50 text-red-700 border-red-100 hover:border-red-300"
-                            : "bg-purple-50 text-purple-700 border-purple-100 hover:border-purple-300"
+                            ? "bg-red-50 text-red-700 border-red-100"
+                            : "bg-purple-50 text-purple-700 border-purple-100"
                       }`}
                       title={`${ev.time} - ${ev.title}`}
                     >
@@ -165,10 +185,9 @@ export function CalendarView({ events, onAddClick }: CalendarViewProps) {
                     </div>
                   ))}
 
-                  {/* Indicator xem thêm */}
                   {dayEvents.length > 3 && (
-                    <span className="text-[9px] font-medium text-slate-400 pl-1 hover:text-slate-600 cursor-pointer">
-                      +{dayEvents.length - 3} sự kiện khác
+                    <span className="text-[9px] font-medium text-slate-400 pl-1">
+                      +{dayEvents.length - 3} khác
                     </span>
                   )}
                 </div>

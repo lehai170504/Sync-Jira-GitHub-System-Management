@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -8,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BadgeCheck, Sparkles } from "lucide-react";
+import { BadgeCheck, Sparkles } from "lucide-react"; 
 import { useQueryClient } from "@tanstack/react-query";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useLogout } from "@/features/auth/hooks/use-logout";
@@ -24,7 +25,7 @@ export function UserNav() {
 
   const handleLogout = () => {
     if (isLogoutPending) return;
-    queryClient.removeQueries();
+    queryClient.clear();
     logout();
   };
 
@@ -39,13 +40,18 @@ export function UserNav() {
     }
   };
 
-  // --- LOADING STATE 3D ---
+  // Safe Name Handling
+  const displayName = useMemo(() => user?.full_name || "Unknown User", [user]);
+  const displayEmail = useMemo(() => user?.email || "No Email", [user]);
+  const userInitial = useMemo(
+    () => displayName.charAt(0).toUpperCase(),
+    [displayName],
+  );
+
+  // --- 1. LOADING STATE: SKELETON
   if (isProfileLoading) {
     return (
-      <div className="relative w-10 h-10 flex items-center justify-center">
-        <div className="absolute inset-0 border-2 border-dashed border-slate-300 rounded-full animate-spin-slow"></div>
-        <div className="w-8 h-8 bg-slate-100 rounded-full animate-pulse"></div>
-      </div>
+      <div className="h-10 w-10 rounded-full bg-slate-200 animate-pulse border-2 border-white shadow-sm" />
     );
   }
 
@@ -56,7 +62,6 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <button className="group relative focus:outline-none [perspective:1000px]">
           <div className="relative rounded-full p-0.5 transition-all duration-500 group-hover:bg-gradient-to-tr group-hover:from-[#F27124] group-hover:to-orange-300 group-hover:shadow-lg group-hover:shadow-orange-500/20 group-hover:scale-105 active:scale-95">
-            {/* Vòng quay Orbit 3D */}
             <div className="absolute -inset-3 border border-orange-500/0 rounded-full group-hover:border-orange-500/20 group-hover:animate-orbit-slow transition-all pointer-events-none">
               <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-[#F27124] rounded-full opacity-0 group-hover:opacity-100 shadow-[0_0_10px_#F27124]"></div>
             </div>
@@ -64,11 +69,11 @@ export function UserNav() {
             <Avatar className="h-10 w-10 border-2 border-white shadow-sm transition-transform duration-500 font-mono">
               <AvatarImage
                 src={user.avatar_url}
-                alt={user.full_name}
+                alt={displayName}
                 className="object-cover"
               />
               <AvatarFallback className="text-[10px] font-black bg-slate-900 text-white italic">
-                {user.full_name?.charAt(0).toUpperCase()}
+                {userInitial}
               </AvatarFallback>
             </Avatar>
 
@@ -79,7 +84,7 @@ export function UserNav() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="w-72 mt-3 p-2 rounded-[32px] shadow-2xl border-slate-100 bg-white/80 backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 font-sans" // Đổi font-mono thành font-sans cho dễ đọc hơn
+        className="w-72 mt-3 p-2 rounded-[32px] shadow-2xl border-slate-100 bg-white/80 backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 font-sans"
         align="end"
         forceMount
       >
@@ -96,7 +101,7 @@ export function UserNav() {
                 <Avatar className="h-10 w-10 rounded-xl border border-slate-100">
                   <AvatarImage src={user.avatar_url} className="object-cover" />
                   <AvatarFallback className="bg-orange-100 text-[#F27124] font-black">
-                    {user.full_name?.charAt(0)}
+                    {userInitial}
                   </AvatarFallback>
                 </Avatar>
                 {user.is_verified && (
@@ -108,12 +113,10 @@ export function UserNav() {
 
               <div className="flex flex-col">
                 <p className="text-sm font-bold text-slate-900 truncate max-w-[140px] leading-tight capitalize">
-                  {/* Thêm capitalize để viết hoa chữ cái đầu */}
-                  {user.full_name.toLowerCase()}
+                  {displayName.toLowerCase()}
                 </p>
                 <p className="text-[10px] text-slate-500 truncate font-medium tracking-tight">
-                  {/* Bỏ lowercase/uppercase để email hiển thị tự nhiên hoặc để thường hoàn toàn */}
-                  {user.email.toLowerCase()}
+                  {displayEmail.toLowerCase()}
                 </p>
               </div>
             </div>

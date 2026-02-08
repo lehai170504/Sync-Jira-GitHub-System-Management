@@ -3,10 +3,6 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { Loader2, Sparkles } from "lucide-react";
-
-import { useProfile } from "@/features/auth/hooks/use-profile";
-import { useLecturerClasses } from "@/features/management/lecturers/hooks/use-lecturer-classes";
 import type { LecturerClassItem } from "@/features/management/lecturers/types/lecturer-classes-types";
 import {
   LecturerClassesGrid,
@@ -22,84 +18,66 @@ const CLASS_COLORS = [
   "bg-gradient-to-br from-cyan-500 to-blue-600",
 ];
 
-const getClassColor = (index: number) =>
-  CLASS_COLORS[index % CLASS_COLORS.length];
+// FIX: Hàm lấy màu dựa trên ID (hash) để màu cố định
+const getStableColor = (id: string) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % CLASS_COLORS.length;
+  return CLASS_COLORS[index];
+};
 
 interface LecturerClassesSectionProps {
+  classes: LecturerClassItem[]; // Nhận data từ props
   searchTerm: string;
   selectedSemester: string;
   onClearFilter: () => void;
 }
 
-/**
- * Component lấy lớp học của giảng viên qua API và hiển thị grid
- */
 export function LecturerClassesSection({
+  classes,
   searchTerm,
   selectedSemester,
   onClearFilter,
 }: LecturerClassesSectionProps) {
   const router = useRouter();
-  const { data: profile } = useProfile();
-  const lecturerId = profile?.user?._id;
-  const { data: lecturerData, isLoading } =
-    useLecturerClasses(lecturerId);
 
+  // Logic lọc dữ liệu (Client-side filtering)
   const processedClasses = useMemo<LecturerClassDisplayItem[]>(() => {
-    const classesList = lecturerData?.classes ?? [];
+    if (!classes || classes.length === 0) return [];
 
-    if (classesList.length === 0) return [];
+    // 1. Map màu sắc trước khi filter để đảm bảo màu không đổi
+    let result: LecturerClassDisplayItem[] = classes.map((cls) => ({
+      ...cls,
+      color: getStableColor(cls._id), // Dùng ID để lấy màu
+      subjectName: cls.subjectName ?? cls.subject_id?.name ?? "Môn học",
+    }));
 
-    let result: LecturerClassDisplayItem[] = classesList.map(
-      (cls: LecturerClassItem, index: number) => ({
-        ...cls,
-        color: getClassColor(index),
-        subjectName: cls.subjectName ?? cls.subject_id?.name ?? "Môn học",
-      }),
-    );
-
+    // 2. Filter theo kỳ
     if (selectedSemester !== "all") {
-      result = result.filter(
-        (c) => c.semester_id?.name === selectedSemester,
-      );
+      result = result.filter((c) => c.semester_id?.name === selectedSemester);
     }
 
+    // 3. Filter theo từ khóa
     if (searchTerm) {
-      const lowerTerm = searchTerm.toLowerCase();
+      const lowerTerm = searchTerm.toLowerCase().trim();
       result = result.filter((c) => {
-        const classNameMatch = c.name?.toLowerCase().includes(lowerTerm);
-        const subjectCodeMatch = c.subject_id?.code
-          ?.toLowerCase()
-          .includes(lowerTerm);
-        const subjectNameMatch = c.subjectName
-          ?.toLowerCase()
-          .includes(lowerTerm);
-        return classNameMatch || subjectCodeMatch || subjectNameMatch;
+        return (
+          c.name?.toLowerCase().includes(lowerTerm) ||
+          c.subject_id?.code?.toLowerCase().includes(lowerTerm) ||
+          c.subjectName?.toLowerCase().includes(lowerTerm)
+        );
       });
     }
 
     return result;
-  }, [lecturerData, searchTerm, selectedSemester]);
+  }, [classes, searchTerm, selectedSemester]);
 
   const handleSelectClass = (cls: LecturerClassDisplayItem) => {
     Cookies.set("lecturer_class_id", cls._id);
-    Cookies.set("lecturer_class_name", cls.name);
-    Cookies.set("lecturer_subject", cls.subjectName ?? "");
-    router.push("/dashboard");
+    router.push(`/dashboard?classId=${cls._id}`);
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col h-96 items-center justify-center animate-fade-up">
-        <div className="flex flex-col items-center gap-4">
-          <Sparkles className="h-8 w-8 text-slate-200 animate-pulse" />
-          <p className="text-slate-400 text-[10px] font-bold tracking-widest">
-            Đang lấy dữ liệu lớp học...
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="animate-fade-up">

@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
-import { Loader2, Plus, CalendarDays, LayoutDashboard } from "lucide-react";
+import { Loader2, Plus, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Components
 import { AgendaView } from "@/features/lecturer/components/schedule/agenda-view";
 import { CalendarView } from "@/features/lecturer/components/schedule/calendar-view";
-import { DeadlineView } from "@/features/lecturer/components/schedule/deadline-view";
 import { EventDialog } from "@/features/lecturer/components/schedule/event-dialog";
+import { Card, CardContent } from "@/components/ui/card";
 
 // Hooks & Types
 import { useClassSchedules } from "@/features/lecturer/hooks/use-schedules";
@@ -17,9 +18,7 @@ import {
   CalendarEvent,
   Schedule,
 } from "@/features/lecturer/types/schedule-type";
-import { Card, CardContent } from "@/components/ui/card";
 
-// Helper map Slot sang Giờ
 const getSlotTime = (slot: number) => {
   const slots: Record<number, string> = {
     1: "07:30 - 09:00",
@@ -33,15 +32,27 @@ const getSlotTime = (slot: number) => {
 };
 
 export default function SchedulePage() {
-  const classId = Cookies.get("lecturer_class_id");
+  const searchParams = useSearchParams();
+  const urlClassId = searchParams.get("classId");
+  const cookieClassId =
+    typeof window !== "undefined"
+      ? Cookies.get("lecturer_class_id")
+      : undefined;
 
-  // State quản lý Dialog
+  const classId = urlClassId || cookieClassId;
+
+  // --- State & Hooks ---
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+
+  // State quản lý ngày đang được chọn để xem (Mặc định là hôm nay)
+  const [viewDate, setViewDate] = useState<Date>(new Date());
+
+  // State quản lý ngày được chọn để thêm sự kiện (cho Dialog)
+  const [dialogDate, setDialogDate] = useState<Date | undefined>(undefined);
 
   const { data: schedules = [], isLoading } = useClassSchedules(classId);
 
-  // Transform Data
+  // --- Data Transformation ---
   const events: CalendarEvent[] = schedules.map((s: Schedule) => {
     let type: "Teaching" | "Meeting" | "Grading" = "Teaching";
     const lowerTopic = s.topic?.toLowerCase() || "";
@@ -71,17 +82,34 @@ export default function SchedulePage() {
     };
   });
 
-  // Handler: Click vào ô ngày trên lịch
+  // --- Handlers ---
+
+  // 1. Click vào nút "+" trên Calendar để thêm sự kiện
   const handleCalendarAddClick = (date: Date) => {
-    setSelectedDate(date);
+    setDialogDate(date);
     setIsDialogOpen(true);
   };
 
-  // Handler: Click nút to ở Header
-  const handleHeaderAddClick = () => {
-    setSelectedDate(new Date());
-    setIsDialogOpen(true); // 👈 Đã fix: Phải set true mới mở dialog
+  // 2. Click vào ô ngày trên Calendar để xem chi tiết (Agenda)
+  const handleDateSelect = (date: Date) => {
+    setViewDate(date);
   };
+
+  // 3. Click nút to ở Header để thêm sự kiện (Mặc định hôm nay)
+  const handleHeaderAddClick = () => {
+    setDialogDate(new Date());
+    setIsDialogOpen(true);
+  };
+
+  if (!classId) {
+    return (
+      <div className="flex h-[80vh] flex-col items-center justify-center gap-4">
+        <p className="text-slate-400 text-sm font-medium">
+          Vui lòng chọn lớp học để xem lịch trình.
+        </p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -125,20 +153,21 @@ export default function SchedulePage() {
 
       {/* --- MAIN CONTENT GRID --- */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
-        {/* LEFT COLUMN: CALENDAR (Chiếm 2 phần) */}
+        {/* LEFT COLUMN: CALENDAR */}
         <div className="xl:col-span-2 shadow-sm rounded-2xl overflow-hidden border border-slate-200">
-          <CalendarView events={events} onAddClick={handleCalendarAddClick} />
+          <CalendarView
+            events={events}
+            onAddClick={handleCalendarAddClick}
+            onDateSelect={handleDateSelect}
+            selectedDate={viewDate}
+          />
         </div>
 
-        {/* RIGHT COLUMN: SIDEBAR (Chiếm 1 phần) */}
+        {/* RIGHT COLUMN: SIDEBAR */}
         <div className="space-y-6 xl:sticky xl:top-4">
-          {/* 1. Agenda (Lịch hôm nay) */}
-          <AgendaView events={events} />
+          <AgendaView events={events} date={viewDate} />
 
-          {/* 2. Deadlines */}
-          <DeadlineView events={events} />
-
-          {/* 3. Legend (Chú thích) - UI Mới */}
+          {/* Legend */}
           <Card className="border-none shadow-sm bg-slate-50">
             <CardContent className="p-4">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
@@ -174,7 +203,7 @@ export default function SchedulePage() {
         classId={classId}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        defaultDate={selectedDate}
+        defaultDate={dialogDate}
       />
     </div>
   );

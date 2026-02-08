@@ -1,45 +1,57 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+// Bỏ import Cookies
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Code2, TrendingUp, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useTeamDashboard } from "@/features/management/teams/hooks/use-team-dashboard";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 
-export function MemberOverviewTab() {
+// 1. Định nghĩa Props
+interface MemberOverviewTabProps {
+  classId?: string;
+}
+
+export function MemberOverviewTab({ classId }: MemberOverviewTabProps) {
   const [teamId, setTeamId] = useState<string | undefined>(undefined);
   const { data: myClasses } = useMyClasses();
+
+  // Hook này sẽ tự động chạy lại khi teamId thay đổi
   const { data: dashboardData, isLoading, error } = useTeamDashboard(teamId);
 
-  // Lấy teamId từ class hiện tại hoặc từ myClasses
+  // 2. Logic lấy Team ID dựa trên classId được truyền vào
   useEffect(() => {
-    const classId = Cookies.get("student_class_id");
-    if (classId && myClasses?.classes) {
+    if (!myClasses?.classes) return;
+
+    if (classId) {
+      // Tìm team ID tương ứng với classId hiện tại
       const currentClass = myClasses.classes.find(
-        (cls) => cls.class._id === classId
+        (cls) => cls.class._id === classId,
       );
       if (currentClass?.team_id) {
         setTeamId(currentClass.team_id);
+      } else {
+        setTeamId(undefined); // Reset nếu không tìm thấy team trong class này
       }
-    } else if (myClasses?.classes && myClasses.classes.length > 0) {
-      // Nếu không có classId trong cookie, lấy class đầu tiên
+    } else if (myClasses.classes.length > 0) {
+      // Fallback: Lấy team đầu tiên nếu không có classId
       setTeamId(myClasses.classes[0].team_id);
     }
-  }, [myClasses]);
+  }, [myClasses, classId]);
 
   // Loading state
   if (isLoading || !teamId) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        {/* Chỉ hiện loading nếu đã có teamId mà đang fetch data */}
+        {teamId ? (
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        ) : (
+          <p className="text-slate-400 text-sm">
+            Chưa tham gia nhóm nào trong lớp này.
+          </p>
+        )}
       </div>
     );
   }
@@ -117,7 +129,8 @@ export function MemberOverviewTab() {
           <CardContent>
             <div className="text-2xl font-bold">{tasks.done}</div>
             <p className="text-xs text-green-600 mt-1 flex items-center">
-              <CheckCircle className="h-3 w-3 mr-1" /> Đã hoàn thành / {tasks.total} tổng
+              <CheckCircle className="h-3 w-3 mr-1" /> Đã hoàn thành /{" "}
+              {tasks.total} tổng
             </p>
           </CardContent>
         </Card>
@@ -183,8 +196,9 @@ export function MemberOverviewTab() {
         </Card>
       </div>
 
-      {/* MY TASKS */}
+      {/* MY TASKS & TEAM INFO */}
       <div className="grid gap-6 md:grid-cols-3">
+        {/* ... (Phần hiển thị Tasks giữ nguyên) ... */}
         <div className="md:col-span-2 space-y-4">
           <h3 className="font-semibold text-lg">Tổng quan công việc</h3>
           <Card>
@@ -261,13 +275,17 @@ export function MemberOverviewTab() {
               {commits.last_commit_date && (
                 <p className="text-xs text-blue-600">
                   Commit gần nhất:{" "}
-                  {new Date(commits.last_commit_date).toLocaleDateString("vi-VN")}
+                  {new Date(commits.last_commit_date).toLocaleDateString(
+                    "vi-VN",
+                  )}
                 </p>
               )}
               {dashboardData?.team.last_sync_at && (
                 <p className="text-xs text-blue-600 mt-1">
                   Đồng bộ lần cuối:{" "}
-                  {new Date(dashboardData.team.last_sync_at).toLocaleString("vi-VN")}
+                  {new Date(dashboardData.team.last_sync_at).toLocaleString(
+                    "vi-VN",
+                  )}
                 </p>
               )}
             </CardContent>
@@ -277,4 +295,3 @@ export function MemberOverviewTab() {
     </div>
   );
 }
-

@@ -1,3 +1,4 @@
+// app/lecturer/courses/page.tsx
 "use client";
 
 import { useState, useMemo } from "react";
@@ -14,11 +15,15 @@ export default function LecturerCoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("all");
 
+  // 1. DATA FETCHING (Tập trung tại đây)
   const { data: profile, isLoading: isProfileLoading } = useProfile();
   const lecturerId = profile?.user?._id;
-  const { data: lecturerData } = useLecturerClasses(lecturerId);
+
+  const { data: lecturerData, isLoading: isClassesLoading } =
+    useLecturerClasses(lecturerId);
   const { data: semestersData } = useSemesters();
 
+  // Tạo danh sách học kỳ cho bộ lọc
   const semesterOptions = useMemo(
     () => semestersData?.map((s) => s.name) ?? [],
     [semestersData],
@@ -29,21 +34,24 @@ export default function LecturerCoursesPage() {
     setSelectedSemester("all");
   };
 
-  if (isProfileLoading) {
+  // 2. LOADING STATE (Gộp chung để tránh layout shift)
+  if (isProfileLoading || (!lecturerData && isClassesLoading)) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#FDFDFD] font-mono">
         <div className="flex flex-col items-center gap-4 animate-fade-up">
           <Loader2 className="h-12 w-12 animate-spin text-[#F27124]" />
           <p className="text-slate-400 text-[10px] font-bold tracking-widest">
-            Đang xác thực hồ sơ...
+            Đang tải dữ liệu...
           </p>
         </div>
       </div>
     );
   }
 
+  // 3. RENDER
   return (
     <div className="min-h-screen bg-[#FDFDFD] flex flex-col font-mono selection:bg-orange-100 relative overflow-x-hidden">
+      {/* Background Decoration */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-orange-100/30 blur-[120px] animate-pulse" />
         <div className="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-blue-50/20 blur-[120px]" />
@@ -65,7 +73,9 @@ export default function LecturerCoursesPage() {
           />
         </div>
 
+        {/* Truyền dữ liệu xuống Component con (Presentational) */}
         <LecturerClassesSection
+          classes={lecturerData?.classes ?? []} // Quan trọng: Truyền mảng classes xuống
           searchTerm={searchTerm}
           selectedSemester={selectedSemester}
           onClearFilter={handleClearFilter}

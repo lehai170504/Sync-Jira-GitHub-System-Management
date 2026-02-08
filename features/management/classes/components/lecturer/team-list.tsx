@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+// 1. Import các hook điều hướng
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Users, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,18 +17,44 @@ interface TeamListProps {
 }
 
 export function TeamList({ teams, isLoading }: TeamListProps) {
-  // State quản lý Dialog
-  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // 2. Lấy teamId từ URL
+  // URL sẽ có dạng: /.../teams?teamId=123
+  const selectedTeamId = searchParams.get("teamId");
+
+  // 3. State mở dialog phụ thuộc vào việc có teamId trên URL hay không
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Sync URL -> State (Mở dialog khi URL có ID)
+  useEffect(() => {
+    setIsDialogOpen(!!selectedTeamId);
+  }, [selectedTeamId]);
+
+  // 4. Handler: Chọn Team -> Đẩy ID lên URL
   const handleViewDetail = (teamId: string) => {
-    setSelectedTeamId(teamId);
-    setIsDialogOpen(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("teamId", teamId);
+
+    // Dùng scroll: false để giữ vị trí màn hình
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // 5. Handler: Đóng Dialog -> Xóa ID khỏi URL
+  const handleCloseDialog = (open: boolean) => {
+    if (!open) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("teamId");
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+    setIsDialogOpen(open);
   };
 
   if (isLoading) {
     return (
-      <div className="text-center py-10 text-gray-400">
+      <div className="text-center py-10 text-gray-400 font-medium animate-pulse">
         Đang tải danh sách nhóm...
       </div>
     );
@@ -49,7 +77,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
         {teams.map((team) => (
           <Card
             key={team._id}
-            className="group hover:border-orange-200 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 rounded-2xl border-gray-100 overflow-hidden relative cursor-pointer"
+            className="group hover:border-orange-200 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 rounded-2xl border-gray-100 overflow-hidden relative cursor-pointer bg-white"
             onClick={() => handleViewDetail(team._id)}
           >
             {/* Hover overlay hint */}
@@ -65,7 +93,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
                 </CardTitle>
                 <Badge
                   variant="outline"
-                  className="bg-white text-xs font-bold text-emerald-600 border-emerald-100"
+                  className="bg-white text-xs font-bold text-emerald-600 border-emerald-100 shadow-sm"
                 >
                   Đang hoạt động
                 </Badge>
@@ -78,7 +106,11 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
             <CardContent className="pt-4 space-y-4">
               <div className="flex items-center gap-2">
                 <div
-                  className={`w-2 h-2 rounded-full ${team.github_repo_url ? "bg-green-500" : "bg-gray-300"}`}
+                  className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${
+                    team.github_repo_url
+                      ? "bg-green-500 text-green-500"
+                      : "bg-gray-300 text-gray-300"
+                  }`}
                 />
                 <span className="text-xs text-gray-500 font-medium">
                   {team.github_repo_url
@@ -87,7 +119,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
                 </span>
               </div>
 
-              {/* Action Buttons (ngăn sự kiện click lan ra Card cha) */}
+              {/* Action Buttons (ngăn sự kiện click lan ra Card cha bằng e.stopPropagation) */}
               <div
                 className="flex gap-2 pt-2"
                 onClick={(e) => e.stopPropagation()}
@@ -106,7 +138,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 gap-2 border-dashed text-gray-400 h-9"
+                    className="flex-1 gap-2 border-dashed text-gray-400 h-9 bg-gray-50/50"
                     disabled
                   >
                     <SiGithub className="w-3.5 h-3.5" />{" "}
@@ -130,7 +162,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 gap-2 border-dashed text-gray-400 h-9"
+                    className="flex-1 gap-2 border-dashed text-gray-400 h-9 bg-gray-50/50"
                     disabled
                   >
                     <SiJira className="w-3.5 h-3.5" />{" "}
@@ -140,7 +172,7 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
               </div>
 
               <div className="pt-2 border-t border-gray-50 flex justify-center">
-                <span className="text-[10px] text-gray-400 flex items-center gap-1 group-hover:text-[#F27124] transition-colors">
+                <span className="text-[10px] text-gray-400 flex items-center gap-1 group-hover:text-[#F27124] transition-colors font-medium">
                   <Eye className="w-3 h-3" /> Xem chi tiết
                 </span>
               </div>
@@ -149,11 +181,11 @@ export function TeamList({ teams, isLoading }: TeamListProps) {
         ))}
       </div>
 
-      {/* Dialog Chi Tiết */}
+      {/* Sheet Chi Tiết - Nhận ID từ URL */}
       <TeamDetailSheet
         teamId={selectedTeamId}
         open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        onOpenChange={handleCloseDialog}
       />
     </>
   );

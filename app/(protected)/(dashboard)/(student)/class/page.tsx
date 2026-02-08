@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 // Components
 import { StudentClassList } from "@/features/management/classes/components/student-class-list";
-import { AddProjectDialog } from "@/features/projects/components/AddProjectDialog";
+import { AddProjectDialog } from "@/features/projects/components/add-project-dialog";
 
 // Hooks
 import { useClassStudents } from "@/features/management/classes/hooks/use-classes";

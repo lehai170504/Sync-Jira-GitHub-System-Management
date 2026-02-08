@@ -48,11 +48,14 @@ export function StudentList({
     notify: false,
   });
 
+  // Tối ưu hóa việc nhóm và lọc dữ liệu
   const { grouped, groupKeys } = useMemo(() => {
+    const lowerFilter = filterTerm.toLowerCase();
+
     const filtered = students.filter(
       (s) =>
-        s.full_name?.toLowerCase().includes(filterTerm.toLowerCase()) ||
-        s.student_code?.toLowerCase().includes(filterTerm.toLowerCase()),
+        (s.full_name && s.full_name.toLowerCase().includes(lowerFilter)) ||
+        (s.student_code && s.student_code.toLowerCase().includes(lowerFilter)),
     );
 
     const groupedData = filtered.reduce(
@@ -68,6 +71,11 @@ export function StudentList({
     const keys = Object.keys(groupedData).sort((a, b) => {
       if (a === "Chưa có nhóm") return 1;
       if (b === "Chưa có nhóm") return -1;
+
+      const numA = parseInt(a.match(/\d+/)?.[0] || "0");
+      const numB = parseInt(b.match(/\d+/)?.[0] || "0");
+      if (numA !== numB) return numA - numB;
+
       return a.localeCompare(b);
     });
 
@@ -104,7 +112,7 @@ export function StudentList({
             type="single"
             collapsible
             key={`group-${group}`}
-            defaultValue={group}
+            defaultValue={group} // Mở sẵn accordion để tiện theo dõi
             className="bg-white border border-slate-100 rounded-[32px] shadow-sm overflow-hidden transition-all hover:shadow-md"
           >
             <AccordionItem value={group} className="border-0">
@@ -125,11 +133,9 @@ export function StudentList({
                         <p className="font-black text-slate-900 text-xl tracking-tighter">
                           {group}
                         </p>
-                        {group !== "Chưa có nhóm" && (
+                        {group !== "Chưa có nhóm" && leaders.length > 0 && (
                           <Badge className="rounded-full px-3 py-1 font-black text-[9px] uppercase tracking-wider bg-yellow-50 text-yellow-700 border-yellow-100 border shadow-none">
-                            Leader:{" "}
-                            {leaders.map((l) => l.full_name).join(", ") ||
-                              "Chưa có"}
+                            Leader: {leaders.map((l) => l.full_name).join(", ")}
                           </Badge>
                         )}
                       </div>
@@ -140,6 +146,8 @@ export function StudentList({
                   </div>
                 </AccordionTrigger>
               </div>
+
+              {/* AccordionContent chỉ render khi mở -> Tự động tối ưu DOM */}
               <AccordionContent className="px-0 pb-0 overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-slate-50/50 border-y border-slate-100">

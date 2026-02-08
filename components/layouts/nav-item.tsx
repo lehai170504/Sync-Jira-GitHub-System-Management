@@ -8,21 +8,37 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { RouteItem } from "./sidebar-config";
+import { RouteItem } from "./sidebar-config"; // Đảm bảo đường dẫn import đúng
 
+// 1. Cập nhật Interface để nhận currentClassId
 interface NavItemProps {
   item: RouteItem;
   isCollapsed: boolean;
   pathname: string;
+  currentClassId?: string; // Thêm dòng này (optional string)
 }
 
-export function NavItem({ item, isCollapsed, pathname }: NavItemProps) {
+export function NavItem({
+  item,
+  isCollapsed,
+  pathname,
+  currentClassId,
+}: NavItemProps) {
+  // Logic Active giữ nguyên (vì pathname của Next.js không bao gồm query params)
   const isActive =
     pathname === item.href || pathname.startsWith(`${item.href}/`);
 
+  // 2. Logic tạo đường dẫn: Nếu có classId thì gắn vào URL
+  let href = item.href;
+  if (currentClassId) {
+    // Kiểm tra xem href gốc đã có dấu ? chưa để nối chuỗi cho đúng
+    const separator = href.includes("?") ? "&" : "?";
+    href = `${href}${separator}classId=${currentClassId}`;
+  }
+
   const LinkContent = (
     <Link
-      href={item.href}
+      href={href} // Sử dụng href đã xử lý
       className={cn(
         "group flex items-center rounded-lg py-2.5 text-sm font-medium transition-all duration-200 relative",
         isCollapsed ? "justify-center px-2" : "px-4",

@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+// 1. Import useSearchParams
+import { useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
-import { Search, Loader2, Users, Layers } from "lucide-react";
+import { Search, Loader2, Users, Layers, AlertCircle } from "lucide-react";
 
 // UI Components (Shadcn Tabs)
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input"; 
 
 // Custom Components
 import { ClassHeader } from "@/features/management/classes/components/class-header";
@@ -23,9 +26,21 @@ import { useSocket } from "@/components/providers/socket-provider";
 import { ClassStudent } from "@/features/management/classes/types/class-types";
 
 export default function ClassManagementPage() {
-  const classId = Cookies.get("lecturer_class_id");
+  // 2. Logic lấy Class ID (Hybrid Strategy)
+  const searchParams = useSearchParams();
+  const urlClassId = searchParams.get("classId");
+
+  // Fallback Cookie
+  const cookieClassId =
+    typeof window !== "undefined"
+      ? Cookies.get("lecturer_class_id")
+      : undefined;
+
+  // ID chốt hạ
+  const classId = urlClassId || cookieClassId;
 
   // 1. Hook: Chi tiết lớp (Header)
+  // Tự động refetch khi classId đổi
   const { data: classDetails, isLoading: isDetailsLoading } =
     useClassDetails(classId);
 
@@ -57,8 +72,11 @@ export default function ClassManagementPage() {
     }
   }, [studentsData]);
 
+  // Socket Logic (Giữ nguyên, chỉ đảm bảo classId đúng)
   useEffect(() => {
     if (!socket || !isConnected || !classId) return;
+
+    // Join room mới khi classId đổi
     socket.emit("join_class", classId);
 
     const handleRefreshClass = () => {
@@ -67,26 +85,39 @@ export default function ClassManagementPage() {
     };
 
     socket.on("refresh_class", handleRefreshClass);
+
     return () => {
       socket.off("refresh_class", handleRefreshClass);
       socket.emit("leave_class", classId);
     };
   }, [socket, isConnected, classId, refetchStudents, refetchTeams]);
 
+  // --- LOADING STATE ---
   if (isDetailsLoading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
+      <div className="flex h-[80vh] items-center justify-center flex-col gap-4">
+        <div className="p-4 bg-white rounded-full shadow-xl shadow-orange-100 border border-orange-50">
+          <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
+        </div>
+        <p className="text-slate-400 text-sm font-medium animate-pulse">
+          Đang tải dữ liệu lớp học...
+        </p>
       </div>
     );
   }
 
-  if (!classId || !classDetails) {
+  // --- EMPTY STATE ---
+  if (!classId || !classDetails?.class) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center text-slate-500">
-        <Layers className="h-12 w-12 mb-4 opacity-20" />
-        <p className="font-medium text-lg">
-          Chưa chọn lớp học hoặc không tìm thấy dữ liệu.
+      <div className="flex h-[60vh] flex-col items-center justify-center text-slate-500 animate-in fade-in duration-500">
+        <div className="p-6 bg-slate-50 rounded-full mb-6">
+          <AlertCircle className="h-12 w-12 text-slate-300" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-700 mb-2">
+          Chưa xác định lớp học
+        </h2>
+        <p className="font-medium text-sm text-slate-400">
+          Vui lòng chọn lớp học từ danh sách để xem chi tiết.
         </p>
       </div>
     );
@@ -95,13 +126,13 @@ export default function ClassManagementPage() {
   const { class: classInfo, stats } = classDetails;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-10 font-sans">
+    <div className="space-y-8 animate-in fade-in duration-700 pb-20 font-sans p-4 md:p-10 max-w-[1600px] mx-auto">
       {/* HEADER */}
       <ClassHeader
         className={classInfo.name}
         subjectName={classInfo.subjectName}
-        subjectCode={classInfo.subject_id.code}
-        semesterName={classInfo.semester_id.name}
+        subjectCode={classInfo.subject_id?.code}
+        semesterName={classInfo.semester_id?.name}
         classId={classId}
         isConnected={isConnected}
         onRefresh={() => {
@@ -112,42 +143,50 @@ export default function ClassManagementPage() {
 
       {/* STATS */}
       <ClassStats
-        totalStudents={stats.total_students}
-        totalTeams={stats.total_teams}
-        jiraWeight={classInfo.contributionConfig.jiraWeight}
+        totalStudents={stats?.total_students || 0}
+        totalTeams={stats?.total_teams || 0}
+        jiraWeight={classInfo.contributionConfig?.jiraWeight || 0}
       />
 
-      <div className="relative">
-        <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-[#F27124] transition-colors" />
-        <input
-          placeholder="Tìm kiếm sinh viên hoặc tên nhóm..."
-          className="w-full pl-14 pr-6 py-5 bg-white border-2 border-slate-200 rounded-[20px] shadow-sm focus:ring-4 focus:ring-[#F27124]/10 focus:border-[#F27124] transition-all outline-none text-slate-800 font-semibold text-lg tracking-tight placeholder:text-slate-400"
+      {/* SEARCH BAR */}
+      <div className="relative group">
+        <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-[#F27124] transition-colors z-10" />
+        <Input
+          placeholder="Tìm kiếm sinh viên, mã số hoặc tên nhóm..."
+          className="w-full pl-14 pr-6 h-14 bg-white border-2 border-slate-100 rounded-[20px] shadow-sm focus:ring-4 focus:ring-[#F27124]/10 focus:border-[#F27124] transition-all text-slate-800 font-semibold text-base tracking-tight placeholder:text-slate-400"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
+      {/* TABS CONTENT */}
       <Tabs defaultValue="students" className="w-full">
-        <TabsList className="bg-slate-200/50 p-1 rounded-xl mb-6 h-auto inline-flex border border-slate-200">
+        <TabsList className="bg-slate-100 p-1.5 rounded-2xl mb-8 h-auto inline-flex border border-slate-200/60 shadow-inner">
           <TabsTrigger
             value="students"
-            className="rounded-lg px-6 py-2.5 text-sm font-bold text-slate-600 data-[state=active]:bg-white data-[state=active]:text-[#F27124] data-[state=active]:shadow-md transition-all gap-2"
+            className="rounded-xl px-6 py-3 text-sm font-bold text-slate-500 data-[state=active]:bg-white data-[state=active]:text-[#F27124] data-[state=active]:shadow-sm transition-all gap-2"
           >
             <Users className="w-4 h-4" /> Danh sách Sinh viên
           </TabsTrigger>
           <TabsTrigger
             value="teams"
-            className="rounded-lg px-6 py-2.5 text-sm font-bold text-slate-600 data-[state=active]:bg-white data-[state=active]:text-[#F27124] data-[state=active]:shadow-md transition-all gap-2"
+            className="rounded-xl px-6 py-3 text-sm font-bold text-slate-500 data-[state=active]:bg-white data-[state=active]:text-[#F27124] data-[state=active]:shadow-sm transition-all gap-2"
           >
             <Layers className="w-4 h-4" /> Danh sách Nhóm
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="students" className="mt-0 outline-none">
-          <div className="relative min-h-[400px]">
+        <div className="bg-white rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/40 p-1 min-h-[500px]">
+          <TabsContent
+            value="students"
+            className="mt-0 outline-none p-4 md:p-6"
+          >
             {isStudentsLoading ? (
-              <div className="flex justify-center pt-20">
-                <Loader2 className="h-8 w-8 animate-spin text-[#F27124]" />
+              <div className="flex flex-col items-center justify-center h-[400px] gap-4">
+                <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
+                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest animate-pulse">
+                  Đang tải danh sách...
+                </p>
               </div>
             ) : (
               <StudentList
@@ -157,19 +196,21 @@ export default function ClassManagementPage() {
                 onRefresh={refetchStudents}
               />
             )}
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="teams" className="mt-0 outline-none">
-          <TeamList
-            teams={
-              teamsData?.teams?.filter((t) =>
-                t.project_name.toLowerCase().includes(searchTerm.toLowerCase()),
-              ) || []
-            }
-            isLoading={isTeamsLoading}
-          />
-        </TabsContent>
+          <TabsContent value="teams" className="mt-0 outline-none p-4 md:p-6">
+            <TeamList
+              teams={
+                teamsData?.teams?.filter((t: any) =>
+                  t.project_name
+                    ?.toLowerCase()
+                    .includes(searchTerm.toLowerCase()),
+                ) || []
+              }
+              isLoading={isTeamsLoading}
+            />
+          </TabsContent>
+        </div>
       </Tabs>
     </div>
   );

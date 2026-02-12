@@ -9,7 +9,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Users, BookOpen } from "lucide-react";
+import { Users, BookOpen, ArrowRight } from "lucide-react";
 import { Class } from "@/features/management/classes/types/class-types";
 
 interface ClassCardProps {
@@ -98,22 +98,19 @@ export function ClassCard({ cls, onEdit, onViewDetails }: ClassCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="px-5 py-4 border-t bg-gray-50/50 flex justify-between items-center text-sm text-gray-500 mt-auto">
-        <div className="flex items-center gap-1.5">
-          <Users className="h-4 w-4" />
-          <span className="font-medium">0</span> Sinh viên
-        </div>
-
-        {/* Nút Xem chi tiết */}
-        <div
+      <CardFooter className="px-5 py-4 border-t bg-gray-50/50 flex items-center justify-end mt-auto">
+        <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onViewDetails(cls); // 👇 3. Gọi hàm mở Drawer
+            onViewDetails(cls);
           }}
-          className="text-xs text-[#F27124] font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 hover:underline cursor-pointer"
+          className="group/btn text-xs text-[#F27124] font-bold flex items-center gap-1.5 hover:underline transition-all"
         >
-          Xem chi tiết →
-        </div>
+          Xem chi tiết
+          {/* Icon di chuyển khi hover */}
+          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
+        </button>
       </CardFooter>
     </Card>
   );

@@ -14,7 +14,6 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Lock, ShieldAlert, UserX, Loader2 } from "lucide-react";
 import { User } from "../types";
-import { UserRowActions } from "./user-row-actions";
 
 interface UserTableProps {
   users: User[];
@@ -39,13 +38,12 @@ export function UserTable({
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
   // 1. LỌC DATA: Chỉ lấy LECTURER và STUDENT
-  const filteredUsers = users.filter((user) =>
-    ["LECTURER", "STUDENT"].includes(user.role),
-  );
+  const filteredUsers = users;
 
+  // --- TRẠNG THÁI LOADING ---
   if (isLoading) {
     return (
-      <Card className="border-none shadow-sm ring-1 ring-gray-100 rounded-xl h-96 flex items-center justify-center bg-white">
+      <Card className="border-none shadow-sm ring-1 ring-gray-100 rounded-xl min-h-[400px] flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-[#F27124]" />
           <p className="text-sm text-gray-500">Đang tải danh sách...</p>
@@ -54,10 +52,11 @@ export function UserTable({
     );
   }
 
+  // --- TRẠNG THÁI TRỐNG ---
   if (!filteredUsers || filteredUsers.length === 0) {
     return (
-      <Card className="border-none shadow-sm ring-1 ring-gray-100 rounded-xl overflow-hidden">
-        <CardContent className="h-64 flex flex-col items-center justify-center text-center p-6">
+      <Card className="border-none shadow-sm ring-1 ring-gray-100 rounded-xl overflow-hidden min-h-[300px]">
+        <CardContent className="h-full flex flex-col items-center justify-center text-center p-6 pt-20">
           <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
             <ShieldAlert className="h-8 w-8 text-gray-300" />
           </div>
@@ -79,8 +78,10 @@ export function UserTable({
     );
   }
 
+  // --- HIỂN THỊ DỮ LIỆU ---
   return (
-    <Card className="border-none shadow-lg bg-white ring-1 ring-gray-100 rounded-xl overflow-hidden">
+    // 👇 THÊM class `h-fit` để Card co dãn theo nội dung bên trong
+    <Card className="border-none shadow-lg bg-white ring-1 ring-gray-100 rounded-xl overflow-hidden h-fit transition-all duration-300">
       <CardContent className="p-0">
         <Table>
           <TableHeader className="bg-gray-50/50">
@@ -91,15 +92,16 @@ export function UserTable({
               <TableHead className="w-[15%] font-semibold text-gray-600 hidden sm:table-cell">
                 Mã số
               </TableHead>
-              <TableHead className="w-[15%] font-semibold text-gray-600">
+              <TableHead className="w-[20%] font-semibold text-gray-600">
                 Vai trò
               </TableHead>
               <TableHead className="w-[15%] font-semibold text-gray-600">
                 Trạng thái
               </TableHead>
-              <TableHead className="w-[15%] text-right pr-6 font-semibold text-gray-600">
+              {/* <TableHead className="w-[15%] font-semibold text-gray-600 text-right pr-6">
                 Thao tác
-              </TableHead>
+              </TableHead> */}
+              {/* Lưu ý: Bạn đã xóa UserRowActions ở yêu cầu trước, nếu cần hãy uncomment */}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -134,13 +136,11 @@ export function UserTable({
                   </div>
                 </TableCell>
 
-                {/* Cột 2: Mã số (Logic chỉnh sửa tại đây) */}
+                {/* Cột 2: Mã số */}
                 <TableCell className="hidden sm:table-cell">
                   {user.role === "LECTURER" ? (
-                    // Nếu là Lecturer -> Hiển thị gạch ngang mờ
                     <span className="text-gray-300 text-xs select-none">—</span>
                   ) : (
-                    // Nếu là Student -> Hiển thị mã số
                     <span className="font-mono text-sm text-gray-600 font-medium">
                       {user.student_code || "Chưa cấp"}
                     </span>
@@ -186,17 +186,12 @@ export function UserTable({
                     </Badge>
                   )}
                 </TableCell>
-
-                {/* Cột 5: Thao tác */}
-                <TableCell className="text-right pr-6">
-                  <UserRowActions user={user} onToggleStatus={onToggleStatus} />
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
 
-        {/* Pagination Footer */}
+        {/* Pagination Footer - Luôn nằm sát dưới cùng của bảng */}
         <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4 bg-gray-50/30">
           <p className="text-sm text-muted-foreground">
             Hiển thị <b>{filteredUsers.length}</b> kết quả

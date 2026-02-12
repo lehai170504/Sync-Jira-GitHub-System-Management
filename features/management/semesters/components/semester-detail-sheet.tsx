@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-// import { ScrollArea } from "@/components/ui/scroll-area"; // ❌ Bỏ ScrollArea của Shadcn vì nó tự custom scrollbar
 import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
@@ -54,27 +53,64 @@ export function SemesterDetailSheet({
   const classes = detailData?.classes || [];
   const stats = detailData?.stats;
 
+  // --- 👇 1. LOGIC TÍNH TOÁN TRẠNG THÁI (Realtime) ---
+  const getComputedStatus = (startDateStr: string, endDateStr: string) => {
+    const now = new Date();
+    const start = new Date(startDateStr);
+    const end = new Date(endDateStr);
+
+    // Reset giờ về 00:00:00 để so sánh chính xác theo ngày
+    now.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999); // End date tính đến cuối ngày
+
+    if (now < start) {
+      return {
+        label: "Sắp diễn ra",
+        className: "bg-blue-50 text-blue-600 border-blue-200",
+      };
+    } else if (now > end) {
+      return {
+        label: "Đã kết thúc",
+        className: "bg-slate-100 text-slate-500 border-slate-200",
+      };
+    } else {
+      return {
+        label: "Đang diễn ra",
+        className:
+          "bg-emerald-50 text-emerald-600 border-emerald-200 animate-pulse", // Thêm animate-pulse cho sinh động
+      };
+    }
+  };
+
+  // Tính toán trạng thái ngay khi có data
+  const statusInfo = semester
+    ? getComputedStatus(semester.start_date, semester.end_date)
+    : { label: "Unknown", className: "" };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-xl p-0 bg-white flex flex-col h-[100dvh] font-sans overflow-hidden border-l border-slate-200 shadow-2xl">
-        {/* --- 1. HEADER --- */}
+        {/* --- HEADER --- */}
         <SheetHeader className="px-6 py-6 border-b border-slate-100 bg-white z-20 shrink-0 shadow-sm text-left">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <div className="p-2 bg-orange-50 rounded-lg">
                 <Calendar className="w-5 h-5 text-[#F27124]" />
               </div>
-              <Badge
-                variant="outline"
-                className={cn(
-                  "text-[10px] font-black uppercase tracking-widest px-2 py-0.5",
-                  semester?.status === "Open"
-                    ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                    : "bg-slate-50 text-slate-500 border-slate-200",
-                )}
-              >
-                {semester?.status === "Open" ? "Đang diễn ra" : "Đã kết thúc"}
-              </Badge>
+
+              {/* 👇 2. HIỂN THỊ BADGE DỰA TRÊN LOGIC TÍNH TOÁN */}
+              {semester && (
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[10px] font-black uppercase tracking-widest px-2 py-0.5 border shadow-sm",
+                    statusInfo.className,
+                  )}
+                >
+                  {statusInfo.label}
+                </Badge>
+              )}
             </div>
             {semester && (
               <span className="text-[10px] font-bold text-slate-400 font-mono bg-slate-50 px-2 py-1 rounded">
@@ -99,8 +135,7 @@ export function SemesterDetailSheet({
           )}
         </SheetHeader>
 
-        {/* --- 2. SCROLLABLE CONTENT (ĐÃ SỬA) --- */}
-        {/* Thay thế ScrollArea bằng div thường + class scrollbar-hide */}
+        {/* --- SCROLLABLE CONTENT --- */}
         <div className="flex-1 w-full bg-slate-50/30 overflow-y-auto scrollbar-hide">
           <div className="p-6 space-y-8 pb-24">
             {isLoading ? (
@@ -119,7 +154,7 @@ export function SemesterDetailSheet({
               </div>
             ) : (
               <>
-                {/* A. THỐNG KÊ (STATS) */}
+                {/* Stats Section */}
                 <section className="grid grid-cols-2 gap-4">
                   <StatCard
                     icon={BookOpen}
@@ -137,7 +172,7 @@ export function SemesterDetailSheet({
                   />
                 </section>
 
-                {/* B. NGƯỜI TẠO (ADMIN) */}
+                {/* Creator Info */}
                 {semester.created_by_admin && (
                   <section>
                     <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">
@@ -163,7 +198,7 @@ export function SemesterDetailSheet({
 
                 <Separator />
 
-                {/* C. DANH SÁCH LỚP (CLASSES) - ACCORDION */}
+                {/* Class List */}
                 <section>
                   <div className="flex items-center justify-between mb-4 px-1">
                     <div className="flex items-center gap-2">
@@ -192,7 +227,7 @@ export function SemesterDetailSheet({
   );
 }
 
-// ... (Giữ nguyên các sub-components StatCard, ClassItemAccordion, WeightBox)
+// ... (Giữ nguyên các component con: StatCard, ClassItemAccordion, WeightBox)
 function StatCard({ icon: Icon, label, value, subText, color }: any) {
   const colors = {
     blue: "bg-blue-50 text-blue-600",
@@ -243,7 +278,7 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
 
       <AccordionContent className="px-4 pb-4 bg-slate-50/50 border-t border-slate-100">
         <div className="pt-4 space-y-6">
-          {/* 1. GIẢNG VIÊN */}
+          {/* Lecturer Info */}
           {cls.lecturer_id ? (
             <div className="flex items-center gap-3">
               <Avatar className="h-8 w-8 border border-white shadow-sm">
@@ -267,7 +302,7 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
             </div>
           )}
 
-          {/* 2. CẤU HÌNH ĐÓNG GÓP (CONTRIBUTION) */}
+          {/* Contribution Weights */}
           {cls.contributionConfig && (
             <div className="space-y-2">
               <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -296,7 +331,7 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
             </div>
           )}
 
-          {/* 3. CẤU TRÚC ĐIỂM */}
+          {/* Grade Structure */}
           {cls.gradeStructure && cls.gradeStructure.length > 0 && (
             <div className="space-y-2">
               <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">

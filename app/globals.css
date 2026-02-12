@@ -19,7 +19,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-  
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -38,14 +38,14 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  
+
   /* Chart Colors */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  
+
   /* Sidebar Colors */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -60,7 +60,7 @@
 /* --- 2. GIÁ TRỊ GỐC (ROOT VALUES) --- */
 :root {
   --radius: 0.625rem;
-  
+
   /* Light Mode Colors */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -68,33 +68,33 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  
+
   /* 🔥 FPT ORANGE (#F27124) */
   --primary: oklch(0.66 0.19 46);
   --primary-foreground: oklch(0.985 0 0);
-  
+
   --secondary: oklch(0.97 0.02 46);
   --secondary-foreground: oklch(0.205 0 0);
-  
+
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  
+
   --accent: oklch(0.97 0.02 46);
   --accent-foreground: oklch(0.205 0 0);
-  
+
   --destructive: oklch(0.577 0.245 27.325);
-  
+
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.66 0.19 46);
-  
+
   /* Charts */
-  --chart-1: oklch(0.66 0.19 46); 
+  --chart-1: oklch(0.66 0.19 46);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  
+
   /* Sidebar */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -114,31 +114,31 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  
+
   --primary: oklch(0.66 0.19 46);
   --primary-foreground: oklch(0.985 0 0);
-  
+
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
-  
+
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  
+
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  
+
   --destructive: oklch(0.704 0.191 22.216);
-  
+
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.66 0.19 46);
-  
+
   --chart-1: oklch(0.66 0.19 46);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  
+
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.66 0.19 46);
@@ -187,7 +187,7 @@
   }
   .scrollbar-hide {
     -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none;    /* Firefox */
+    scrollbar-width: none; /* Firefox */
   }
 
   /* .scrollbar-thin: Thanh cuộn siêu mảnh (nếu cần) */
@@ -200,20 +200,41 @@
 /* --- 5. ANIMATIONS --- */
 @theme {
   @keyframes fade-up {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   @keyframes reveal {
-    from { opacity: 0; clip-path: inset(45% 20% 45% 20%); }
-    to { opacity: 1; clip-path: inset(0% 0% 0% 0%); }
+    from {
+      opacity: 0;
+      clip-path: inset(45% 20% 45% 20%);
+    }
+    to {
+      opacity: 1;
+      clip-path: inset(0% 0% 0% 0%);
+    }
   }
   @keyframes tilt {
-    0%, 100% { transform: rotate3d(1, 1, 0, 10deg); }
-    50% { transform: rotate3d(1, 1, 0, -10deg); }
+    0%,
+    100% {
+      transform: rotate3d(1, 1, 0, 10deg);
+    }
+    50% {
+      transform: rotate3d(1, 1, 0, -10deg);
+    }
   }
   @keyframes orbit {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   --animate-fade-up: fade-up 0.8s ease-out forwards;
@@ -225,4 +246,117 @@
 /* Hiệu ứng mượt mà khi cuộn trang */
 html {
   scroll-behavior: smooth;
+}
+
+/* --- CUSTOM DRIVER.JS STYLES (Làm đẹp hướng dẫn) --- */
+
+/* 1. Hộp chứa chính (Popover Box) */
+.driver-popover {
+  background-color: #ffffff;
+  color: #0f172a; /* Slate 900 */
+  border-radius: 24px; /* Bo tròn mềm mại hơn */
+  border: 1px solid #e2e8f0; /* Slate 200 border subtle */
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1); /* Shadow sâu và mềm */
+  padding: 24px;
+  font-family:
+    var(--font-sans), ui-sans-serif, system-ui, sans-serif; /* Dùng font của app */
+  max-width: 400px; /* Rộng hơn một chút */
+}
+
+/* Mũi tên chỉ vào phần tử */
+.driver-popover-arrow {
+  border-width: 8px !important;
+}
+
+/* 2. Tiêu đề (Title) */
+.driver-popover-title {
+  font-size: 18px;
+  font-weight: 900; /* Rất đậm */
+  letter-spacing: -0.025em;
+  margin-bottom: 8px;
+  color: #0f172a;
+  text-transform: uppercase; /* Chữ in hoa cho tiêu đề */
+}
+
+/* 3. Nội dung mô tả (Description) */
+.driver-popover-description {
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 500;
+  color: #64748b; /* Slate 500 - màu xám nhẹ dễ đọc */
+}
+
+/* 4. Footer chứa các nút */
+.driver-popover-footer {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end; /* Đẩy nút sang phải */
+  gap: 12px;
+}
+
+/* 5. Nút "Tiếp theo" và "Hoàn tất" (Primary Button) */
+.driver-popover-next-btn {
+  background-color: #f27124 !important; /* Màu cam thương hiệu */
+  color: white !important;
+  border: none !important;
+  border-radius: 14px !important;
+  padding: 10px 20px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: none !important;
+  box-shadow: 0 4px 6px -1px rgb(242 113 36 / 0.2); /* Shadow màu cam */
+  transition: all 0.2s;
+}
+
+.driver-popover-next-btn:hover {
+  background-color: #d45d1d !important; /* Cam đậm hơn khi hover */
+  transform: translateY(-1px);
+}
+
+/* 6. Nút "Quay lại" (Secondary Button) */
+.driver-popover-prev-btn {
+  background-color: transparent !important;
+  color: #94a3b8 !important; /* Slate 400 */
+  border: 2px solid #e2e8f0 !important; /* Slate 200 border */
+  border-radius: 14px !important;
+  padding: 8px 16px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: none !important;
+  transition: all 0.2s;
+}
+
+.driver-popover-prev-btn:hover {
+  background-color: #f8fafc !important; /* Slate 50 hover */
+  color: #64748b !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Nút đóng (X) */
+.driver-popover-close-btn {
+  color: #cbd5e1 !important;
+  top: 16px !important;
+  right: 16px !important;
+  transition: color 0.2s;
+}
+.driver-popover-close-btn:hover {
+  color: #f27124 !important;
+}
+
+/* 7. Lớp nền tối (Overlay) */
+/* Dùng màu xanh đen đậm của app thay vì đen tuyền */
+.driver-overlay path {
+  fill: rgba(15, 23, 42, 0.75) !important; /* Slate 900 với độ mờ */
+}
+
+/* Viền sáng quanh phần tử được highlight */
+.driver-stage-no-animation {
+  outline: 2px solid rgba(242, 113, 36, 0.5) !important; /* Viền cam nhạt */
+  outline-offset: 2px;
 }

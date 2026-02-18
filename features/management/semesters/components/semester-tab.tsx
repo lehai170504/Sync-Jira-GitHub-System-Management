@@ -12,8 +12,8 @@ import {
 
 // Import Components đã tách
 import { SemesterDetailSheet } from "@/features/management/semesters/components/semester-detail-sheet";
-import { CreateSemesterModal } from "./create-semester-modal"; // File vừa tách
-import { SemesterCard } from "./semester-card"; // File vừa tách
+import { CreateSemesterModal } from "./create-semester-modal";
+import { SemesterCard } from "./semester-card";
 
 export function SemesterTab() {
   const [selectedSemesterId, setSelectedSemesterId] = useState<string | null>(
@@ -44,16 +44,16 @@ export function SemesterTab() {
       {/* 1. TOP BAR */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-black text-slate-900">
+          <h2 className="text-lg font-black text-slate-900 dark:text-slate-50">
             Danh sách Học kỳ
           </h2>
-          <p className="text-sm text-slate-500 font-medium">
+          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
             Quản lý và theo dõi tiến độ các kỳ học.
           </p>
         </div>
         <Button
           onClick={() => setIsCreateModalOpen(true)}
-          className="bg-slate-800 hover:bg-[#F27124] text-white rounded-xl font-bold shadow-xl transition-all active:scale-95 h-11 px-6"
+          className="bg-slate-800 hover:bg-[#F27124] text-white dark:bg-slate-700 dark:hover:bg-[#F27124] rounded-xl font-bold shadow-xl transition-all active:scale-95 h-11 px-6"
         >
           <Plus className="mr-1 h-4 w-4" /> Tạo Học Kỳ
         </Button>
@@ -69,16 +69,16 @@ export function SemesterTab() {
           />
         ))}
 
-        {/* Empty State */}
+        {/* Empty State - Đã cập nhật Dark Mode */}
         {sortedSemesters?.length === 0 && (
-          <div className="col-span-full py-20 flex flex-col items-center justify-center text-center border-2 border-dashed border-slate-200 rounded-[32px] bg-slate-50/50">
-            <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
-              <Archive className="h-8 w-8 text-slate-300" />
+          <div className="col-span-full py-20 flex flex-col items-center justify-center text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[32px] bg-slate-50/50 dark:bg-slate-900/50">
+            <div className="h-16 w-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-4">
+              <Archive className="h-8 w-8 text-slate-300 dark:text-slate-600" />
             </div>
-            <h3 className="text-slate-900 font-bold text-lg">
+            <h3 className="text-slate-900 dark:text-slate-50 font-bold text-lg">
               Chưa có dữ liệu
             </h3>
-            <p className="text-slate-500 text-sm max-w-xs mt-1">
+            <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs mt-1">
               Bắt đầu bằng cách tạo một học kỳ mới cho hệ thống.
             </p>
             <Button

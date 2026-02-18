@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation"; // 1. Import useSearchParams
+import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import {
@@ -26,11 +26,9 @@ import {
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 
-// --- CONFIG & TYPES ---
 import { routeGroups, UserRole } from "./sidebar-config";
 import { NavItem } from "./nav-item";
 
-// --- HOOKS ---
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useClassDetails } from "@/features/management/classes/hooks/use-class-details";
@@ -43,41 +41,24 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams(); // 2. Lấy query params
+  const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
 
-  // ----------------------------------------------------------------------
-  // 1. DATA FETCHING LAYER
-  // ----------------------------------------------------------------------
-
-  // A. Thông tin User
+  // ... (Phần Data Fetching giữ nguyên không thay đổi) ...
   const { data: profile } = useProfile();
   const currentRole = (profile?.user?.role as UserRole) || "STUDENT";
-
-  // B. Xác định Context Lớp học (Hybrid Strategy)
-  // Ưu tiên 1: Lấy từ URL (?classId=...)
   const urlClassId = searchParams.get("classId");
-
-  // Ưu tiên 2: Lấy từ Cookie (Backup nếu F5 hoặc vào trực tiếp)
   const studentCookieId = Cookies.get("student_class_id");
   const lecturerCookieId = Cookies.get("lecturer_class_id");
   const fallbackCookieId =
     currentRole === "LECTURER" ? lecturerCookieId : studentCookieId;
-
-  // ID chốt hạ để gọi API
   const activeClassId = urlClassId || fallbackCookieId;
-
-  // C. API 1: Lấy chi tiết lớp
   const { data: classDetailData, isLoading: isClassLoading } =
     useClassDetails(activeClassId);
-
-  // D. API 2: Lấy danh sách Teams
   const shouldFetchTeams = currentRole === "STUDENT" && !!activeClassId;
   const { data: teamsData } = useClassTeams(
     shouldFetchTeams ? activeClassId : undefined,
   );
-
-  // E. Derived State: Tìm ID Team
   const myTeamId = useMemo(() => {
     if (!teamsData?.teams || !profile?.user?._id) return undefined;
     const team = teamsData.teams.find((t: any) =>
@@ -85,17 +66,11 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
     );
     return team?._id;
   }, [teamsData, profile]);
-
-  // F. API 3: Check Role
   const { data: roleData } = useMyTeamRole(myTeamId);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // ----------------------------------------------------------------------
-  // 2. DISPLAY LOGIC LAYER
-  // ----------------------------------------------------------------------
 
   const classDisplayInfo = useMemo(() => {
     if (!mounted) return null;
@@ -103,7 +78,6 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
     const classInfo = classDetailData.class;
 
-    // CASE 1: LECTURER
     if (currentRole === "LECTURER") {
       return {
         main: classInfo.name,
@@ -113,12 +87,10 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
       };
     }
 
-    // CASE 2: STUDENT
     if (currentRole === "STUDENT") {
       let teamName = "Chưa có nhóm";
       let isLeader = false;
 
-      // Logic Team Name
       if (teamsData?.teams && myTeamId) {
         const team = teamsData.teams.find((t: any) => t._id === myTeamId);
         if (team) teamName = team.project_name;
@@ -127,7 +99,6 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         if (cookieTeam) teamName = cookieTeam;
       }
 
-      // Logic Leader
       if (roleData) {
         isLeader = roleData.is_leader;
       } else {
@@ -150,7 +121,6 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
     [currentRole],
   );
 
-  // Animation Variants (Giữ nguyên)
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -165,25 +135,22 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
   if (!mounted) return <div className="w-full h-full bg-[#0B0F1A]" />;
 
-  // ----------------------------------------------------------------------
-  // 3. RENDER UI LAYER
-  // ----------------------------------------------------------------------
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex flex-col h-full bg-[#0B0F1A] text-slate-300 border-r border-slate-800/40 relative overflow-hidden transition-all duration-300 shadow-2xl font-mono"
+      // FIX: Giữ nền đen cho Sidebar kể cả Light/Dark mode để tạo điểm nhấn chuyên nghiệp
+      className="flex flex-col h-full bg-[#0B0F1A] text-slate-300 border-r border-slate-800/40 relative overflow-hidden transition-all duration-300 shadow-2xl font-mono dark:border-slate-800"
     >
-      {/* 1. TOGGLE BUTTON (Giữ nguyên) */}
+      {/* 1. TOGGLE BUTTON */}
       <Button
         onClick={toggleSidebar}
         variant="ghost"
         size="icon"
         className={cn(
           "absolute -right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full",
-          "bg-white border border-slate-200 text-[#F27124] shadow-md z-[100]",
-          "hover:bg-orange-50 hover:scale-110 active:scale-95 transition-all duration-300",
+          "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#F27124] shadow-md z-[100]",
+          "hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:scale-110 active:scale-95 transition-all duration-300",
           "hidden md:flex items-center justify-center",
         )}
       >
@@ -194,7 +161,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         )}
       </Button>
 
-      {/* 2. HEADER: LOGO & BRANDING (Giữ nguyên) */}
+      {/* 2. HEADER: LOGO & BRANDING */}
       <div
         className={cn(
           "flex items-center h-20 shrink-0 transition-all duration-300 border-b border-slate-800/50 bg-[#0B0F1A]/80 backdrop-blur-md px-6",
@@ -213,7 +180,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
           }
           className="flex items-center gap-3.5 group relative"
         >
-          {/* Logo Container (Giữ nguyên) */}
+          {/* Logo Container */}
           <div className="relative">
             {!isCollapsed && (
               <div className="absolute -inset-3 border border-dashed border-slate-700/50 rounded-full animate-orbit-slow opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -235,7 +202,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
             </div>
           </div>
 
-          {/* Text Container (Giữ nguyên) */}
+          {/* Text Container */}
           {!isCollapsed && (
             <div className="flex flex-col overflow-hidden animate-in fade-in slide-in-from-left-2">
               {isClassLoading && !classDisplayInfo ? (
@@ -258,7 +225,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         </Link>
       </div>
 
-      {/* 3. USER CONTEXT BLOCK (Giữ nguyên) */}
+      {/* 3. USER CONTEXT BLOCK */}
       <AnimatePresence>
         {!isCollapsed && (
           <motion.div
@@ -267,7 +234,6 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
             exit={{ opacity: 0, height: 0 }}
             className="px-4 py-6 shrink-0"
           >
-            {/* ... Block User Info (Giữ nguyên code cũ) ... */}
             <div className="p-4 rounded-[24px] bg-[#161B2A]/50 border border-slate-800/60 relative overflow-hidden group hover:border-[#F27124]/30 transition-all duration-500 hover:shadow-lg hover:shadow-orange-900/10 hover:-translate-y-1">
               <div className="flex items-center gap-3.5 relative z-10">
                 <div className="p-2 bg-slate-800 rounded-xl group-hover:bg-[#F27124]/10 transition-colors duration-300">
@@ -306,7 +272,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         )}
       </AnimatePresence>
 
-      {/* 4. NAVIGATION LIST (CẬP NHẬT: Truyền classId vào NavItem) */}
+      {/* 4. NAVIGATION LIST */}
       <motion.div
         className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide py-2 px-3 space-y-8"
         variants={containerVariants}
@@ -342,7 +308,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         </TooltipProvider>
       </motion.div>
 
-      {/* 5. FOOTER: CLASS SWITCHER (Giữ nguyên - Link đổi lớp không cần param) */}
+      {/* 5. FOOTER: CLASS SWITCHER */}
       <div className="shrink-0 p-4 mt-auto border-t border-slate-800/80 bg-[#0B0F1A] z-20 space-y-4">
         {classDisplayInfo && (
           <TooltipProvider delayDuration={0}>
@@ -387,7 +353,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
           </TooltipProvider>
         )}
 
-        {/* System Status Block (Giữ nguyên) */}
+        {/* System Status Block */}
         {!isCollapsed && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -395,7 +361,6 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
             transition={{ delay: 0.5 }}
             className="p-3.5 rounded-2xl bg-[#F27124]/5 border border-[#F27124]/10 group cursor-default hover:bg-[#F27124]/10 transition-colors"
           >
-            {/* ... Block Status ... */}
             <div className="flex items-center gap-3">
               <div className="relative h-2 w-2">
                 <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75"></span>

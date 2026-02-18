@@ -10,7 +10,7 @@
   --font-sans: var(--font-geist-sans);
 }
 
-/* --- 1. ĐỊNH NGHĨA BIẾN MÀU SẮC (THEME VARIABLES) --- */
+/* --- 1. THEME VARIABLES --- */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -57,36 +57,38 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* --- 2. GIÁ TRỊ GỐC (ROOT VALUES) --- */
+/* --- 2. ROOT VALUES (COLOR PALETTE) --- */
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem; /* Bo góc tròn trịa hơn (12px) */
 
-  /* Light Mode Colors */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* --- LIGHT MODE (FPT Clean White) --- */
+  --background: oklch(1 0 0); /* Trắng tinh */
+  --foreground: oklch(0.13 0.02 260); /* Đen xanh nhẹ (Slate 900) */
+
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.13 0.02 260);
 
-  /* 🔥 FPT ORANGE (#F27124) */
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.13 0.02 260);
+
+  /* 🔥 FPT ORANGE (#F27124) - Primary */
   --primary: oklch(0.66 0.19 46);
   --primary-foreground: oklch(0.985 0 0);
 
-  --secondary: oklch(0.97 0.02 46);
-  --secondary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.96 0.01 260); /* Slate 100 */
+  --secondary-foreground: oklch(0.21 0.03 260);
 
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted: oklch(0.96 0.01 260);
+  --muted-foreground: oklch(0.55 0.03 260);
 
-  --accent: oklch(0.97 0.02 46);
-  --accent-foreground: oklch(0.205 0 0);
+  --accent: oklch(0.96 0.01 260);
+  --accent-foreground: oklch(0.21 0.03 260);
 
   --destructive: oklch(0.577 0.245 27.325);
 
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.66 0.19 46);
+  --border: oklch(0.92 0.01 260); /* Slate 200 */
+  --input: oklch(0.92 0.01 260);
+  --ring: oklch(0.66 0.19 46); /* Ring màu cam */
 
   /* Charts */
   --chart-1: oklch(0.66 0.19 46);
@@ -107,93 +109,122 @@
 }
 
 .dark {
-  /* Dark Mode Colors */
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  /* --- DARK MODE (Deep Slate/Cosmic) --- 
+     Thay vì đen tuyền (0 0 0), ta dùng Slate đậm để tạo chiều sâu
+  */
+  --background: oklch(0.1 0.01 260); /* Slate 950 */
+  --foreground: oklch(0.98 0.01 260); /* Slate 50 */
 
-  --primary: oklch(0.66 0.19 46);
+  --card: oklch(0.13 0.02 260); /* Slate 900 - Sáng hơn nền một chút */
+  --card-foreground: oklch(0.98 0.01 260);
+
+  --popover: oklch(0.13 0.02 260); /* Slate 900 */
+  --popover-foreground: oklch(0.98 0.01 260);
+
+  --primary: oklch(0.66 0.19 46); /* Cam FPT giữ nguyên */
   --primary-foreground: oklch(0.985 0 0);
 
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.2 0.02 260); /* Slate 800 */
+  --secondary-foreground: oklch(0.98 0.01 260);
 
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
+  --muted: oklch(0.2 0.02 260);
+  --muted-foreground: oklch(0.7 0.03 260);
 
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --accent: oklch(0.2 0.02 260);
+  --accent-foreground: oklch(0.98 0.01 260);
 
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: oklch(0.4 0.15 25); /* Đỏ sẫm hơn cho dark mode */
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --border: oklch(0.2 0.02 260); /* Slate 800 */
+  --input: oklch(0.2 0.02 260);
   --ring: oklch(0.66 0.19 46);
 
-  --chart-1: oklch(0.66 0.19 46);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  /* Sidebar Dark */
+  --sidebar: oklch(0.1 0.01 260);
+  --sidebar-foreground: oklch(0.98 0.01 260);
   --sidebar-primary: oklch(0.66 0.19 46);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-accent: oklch(0.2 0.02 260);
+  --sidebar-accent-foreground: oklch(0.98 0.01 260);
+  --sidebar-border: oklch(0.2 0.02 260);
   --sidebar-ring: oklch(0.66 0.19 46);
 }
 
-/* --- 3. BASE STYLES & CUSTOM SCROLLBAR (GLOBAL) --- */
+/* --- 3. BASE STYLES & BACKGROUND --- */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground relative min-h-screen font-sans antialiased selection:bg-orange-500/30 selection:text-orange-500;
   }
 
-  /* Tùy chỉnh Scrollbar Mặc định (Webkit) 
-     Để khi không dùng .scrollbar-hide thì nó vẫn đẹp và match với FPT Theme 
-  */
+  /* 🔥 BACKGROUND PATTERN: DOT GRID (Tự động đổi màu theo theme) */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    /* Dùng currentColor hoặc var(--border) để dot tự sáng lên trong dark mode */
+    background-image: radial-gradient(var(--border) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(
+      circle at center top,
+      black 50%,
+      transparent 100%
+    );
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* 🔥 TOP GLOW: Ánh sáng cam FPT */
+  body::after {
+    content: "";
+    position: fixed;
+    top: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1000px;
+    height: 500px;
+    /* Gradient cam FPT */
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      oklch(0.66 0.19 46 / 0.15) 0%,
+      transparent 100%
+    );
+    filter: blur(100px);
+    z-index: -2;
+    pointer-events: none;
+  }
+
+  /* Scrollbar */
   ::-webkit-scrollbar {
-    width: 8px; /* Độ rộng vừa phải */
+    width: 8px;
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: transparent; /* Nền trong suốt */
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--border); /* Màu xám nhạt */
-    border-radius: 9999px;
+    background: var(--border);
+    border-radius: 99px;
+    border: 2px solid transparent;
+    background-clip: content-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary); /* Hover vào đổi màu Cam FPT */
+    background-color: var(--primary);
   }
 }
 
-/* --- 4. UTILITIES (CÔNG CỤ HỖ TRỢ) --- */
+/* --- 4. UTILITIES --- */
 @layer utilities {
-  /* 🔥 .scrollbar-hide: 
-     Dùng class này cho bất kỳ div nào bạn muốn cuộn được nhưng KHÔNG hiện thanh cuộn 
-  */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
   .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-
-  /* .scrollbar-thin: Thanh cuộn siêu mảnh (nếu cần) */
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
@@ -202,7 +233,7 @@
   @keyframes fade-up {
     from {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
@@ -212,23 +243,23 @@
   @keyframes reveal {
     from {
       opacity: 0;
-      clip-path: inset(45% 20% 45% 20%);
+      clip-path: inset(0 50% 0 50%);
     }
     to {
       opacity: 1;
-      clip-path: inset(0% 0% 0% 0%);
+      clip-path: inset(0 0 0 0);
     }
   }
   @keyframes tilt {
     0%,
     100% {
-      transform: rotate3d(1, 1, 0, 10deg);
+      transform: rotate3d(1, 1, 0, 0deg);
     }
     50% {
-      transform: rotate3d(1, 1, 0, -10deg);
+      transform: rotate3d(1, 1, 0, 5deg);
     }
   }
-  @keyframes orbit {
+  @keyframes spin-slow {
     from {
       transform: rotate(0deg);
     }
@@ -236,127 +267,110 @@
       transform: rotate(360deg);
     }
   }
+  @keyframes shimmer {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
 
-  --animate-fade-up: fade-up 0.8s ease-out forwards;
-  --animate-reveal: reveal 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
-  --animate-tilt-3d: tilt 10s infinite linear;
-  --animate-orbit-slow: orbit 25s linear infinite;
+  --animate-fade-up: fade-up 0.6s ease-out forwards;
+  --animate-reveal: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-tilt-3d: tilt 10s infinite ease-in-out;
+  --animate-spin-slow: spin-slow 20s linear infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
 }
 
-/* Hiệu ứng mượt mà khi cuộn trang */
-html {
-  scroll-behavior: smooth;
-}
-
-/* --- CUSTOM DRIVER.JS STYLES (Làm đẹp hướng dẫn) --- */
-
-/* 1. Hộp chứa chính (Popover Box) */
+/* --- 6. DRIVER.JS STYLES (Đã fix Dark Mode) --- 
+   Thay vì mã hex cứng (#fff), ta dùng var(--popover)
+*/
 .driver-popover {
-  background-color: #ffffff;
-  color: #0f172a; /* Slate 900 */
-  border-radius: 24px; /* Bo tròn mềm mại hơn */
-  border: 1px solid #e2e8f0; /* Slate 200 border subtle */
+  background-color: var(--popover) !important; /* Tự động đổi màu */
+  color: var(--popover-foreground) !important;
+  border-radius: 20px;
+  border: 1px solid var(--border) !important;
   box-shadow:
     0 20px 25px -5px rgb(0 0 0 / 0.1),
-    0 8px 10px -6px rgb(0 0 0 / 0.1); /* Shadow sâu và mềm */
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
   padding: 24px;
-  font-family:
-    var(--font-sans), ui-sans-serif, system-ui, sans-serif; /* Dùng font của app */
-  max-width: 400px; /* Rộng hơn một chút */
+  font-family: var(--font-sans), system-ui, sans-serif;
+  max-width: 380px;
 }
 
-/* Mũi tên chỉ vào phần tử */
-.driver-popover-arrow {
-  border-width: 8px !important;
-}
-
-/* 2. Tiêu đề (Title) */
 .driver-popover-title {
   font-size: 18px;
-  font-weight: 900; /* Rất đậm */
-  letter-spacing: -0.025em;
+  font-weight: 800;
   margin-bottom: 8px;
-  color: #0f172a;
-  text-transform: uppercase; /* Chữ in hoa cho tiêu đề */
+  text-transform: uppercase;
+  color: var(--foreground) !important; /* Tự đổi màu chữ */
 }
 
-/* 3. Nội dung mô tả (Description) */
 .driver-popover-description {
   font-size: 14px;
   line-height: 1.6;
+  color: var(--muted-foreground) !important; /* Màu xám nhẹ */
   font-weight: 500;
-  color: #64748b; /* Slate 500 - màu xám nhẹ dễ đọc */
 }
 
-/* 4. Footer chứa các nút */
 .driver-popover-footer {
   margin-top: 24px;
   display: flex;
-  justify-content: flex-end; /* Đẩy nút sang phải */
+  justify-content: flex-end;
   gap: 12px;
 }
 
-/* 5. Nút "Tiếp theo" và "Hoàn tất" (Primary Button) */
 .driver-popover-next-btn {
-  background-color: #f27124 !important; /* Màu cam thương hiệu */
-  color: white !important;
+  background-color: var(--primary) !important; /* Cam FPT */
+  color: var(--primary-foreground) !important;
   border: none !important;
-  border-radius: 14px !important;
-  padding: 10px 20px !important;
-  font-size: 11px !important;
-  font-weight: 800 !important;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  border-radius: 12px !important;
+  padding: 8px 20px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
   text-shadow: none !important;
-  box-shadow: 0 4px 6px -1px rgb(242 113 36 / 0.2); /* Shadow màu cam */
   transition: all 0.2s;
 }
 
 .driver-popover-next-btn:hover {
-  background-color: #d45d1d !important; /* Cam đậm hơn khi hover */
+  opacity: 0.9;
   transform: translateY(-1px);
 }
 
-/* 6. Nút "Quay lại" (Secondary Button) */
 .driver-popover-prev-btn {
   background-color: transparent !important;
-  color: #94a3b8 !important; /* Slate 400 */
-  border: 2px solid #e2e8f0 !important; /* Slate 200 border */
-  border-radius: 14px !important;
+  color: var(--muted-foreground) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
   padding: 8px 16px !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 12px !important;
+  font-weight: 600 !important;
   text-shadow: none !important;
-  transition: all 0.2s;
 }
 
 .driver-popover-prev-btn:hover {
-  background-color: #f8fafc !important; /* Slate 50 hover */
-  color: #64748b !important;
-  border-color: #cbd5e1 !important;
+  background-color: var(--accent) !important;
+  color: var(--accent-foreground) !important;
 }
 
-/* Nút đóng (X) */
 .driver-popover-close-btn {
-  color: #cbd5e1 !important;
+  color: var(--muted-foreground) !important;
+  padding: 4px !important;
   top: 16px !important;
   right: 16px !important;
-  transition: color 0.2s;
 }
 .driver-popover-close-btn:hover {
-  color: #f27124 !important;
+  color: var(--primary) !important;
 }
 
-/* 7. Lớp nền tối (Overlay) */
-/* Dùng màu xanh đen đậm của app thay vì đen tuyền */
+/* Lớp phủ (Overlay) */
 .driver-overlay path {
-  fill: rgba(15, 23, 42, 0.75) !important; /* Slate 900 với độ mờ */
+  fill: var(--background) !important;
+  opacity: 0.8;
 }
 
-/* Viền sáng quanh phần tử được highlight */
 .driver-stage-no-animation {
-  outline: 2px solid rgba(242, 113, 36, 0.5) !important; /* Viền cam nhạt */
-  outline-offset: 2px;
+  outline: 2px solid var(--primary) !important;
+  outline-offset: 4px;
 }

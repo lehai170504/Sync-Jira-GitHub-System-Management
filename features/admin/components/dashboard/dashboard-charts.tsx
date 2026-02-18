@@ -21,19 +21,39 @@ import {
 } from "@/components/ui/card";
 import { chartData } from "./mock-data";
 
+// --- CUSTOM TOOLTIP (Để hỗ trợ Dark Mode tốt hơn) ---
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-xl dark:border-slate-800 dark:bg-slate-950">
+        <p className="mb-1 text-sm font-bold text-slate-900 dark:text-slate-100">
+          {label}
+        </p>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-[#F27124]" />
+          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            {payload[0].value}
+          </span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export function DashboardCharts() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
       {/* Main Chart (Chiếm 4 phần) */}
       <Card
         id="revenue-chart"
-        className="col-span-4 rounded-[24px] border-slate-100 shadow-sm"
+        className="col-span-4 rounded-[24px] border-slate-100 shadow-sm bg-white dark:bg-slate-900 dark:border-slate-800 transition-colors"
       >
         <CardHeader>
-          <CardTitle className="text-lg font-black text-slate-900">
+          <CardTitle className="text-lg font-black text-slate-900 dark:text-slate-50">
             Lưu lượng truy cập
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-slate-500 dark:text-slate-400">
             Số lượng request và người dùng active trong 7 ngày qua.
           </CardDescription>
         </CardHeader>
@@ -52,7 +72,7 @@ export function DashboardCharts() {
                 </defs>
                 <XAxis
                   dataKey="name"
-                  stroke="#94a3b8"
+                  stroke="#94a3b8" // Màu trung tính hiển thị tốt trên cả 2 nền
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
@@ -67,17 +87,10 @@ export function DashboardCharts() {
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
-                  stroke="#f1f5f9"
+                  stroke="#64748b" // Slate 500
+                  strokeOpacity={0.2}
                 />
-                <RechartsTooltip
-                  contentStyle={{
-                    backgroundColor: "#fff",
-                    borderRadius: "12px",
-                    border: "none",
-                    boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-                  }}
-                  itemStyle={{ color: "#1e293b", fontWeight: "bold" }}
-                />
+                <RechartsTooltip content={<CustomTooltip />} cursor={false} />
                 <Area
                   type="monotone"
                   dataKey="visits"
@@ -93,12 +106,12 @@ export function DashboardCharts() {
       </Card>
 
       {/* Side Chart (Chiếm 3 phần) */}
-      <Card className="col-span-3 rounded-[24px] border-slate-100 shadow-sm bg-slate-900 text-white">
+      <Card className="col-span-3 rounded-[24px] border-slate-100 shadow-sm bg-white dark:bg-slate-900 dark:border-slate-800 transition-colors">
         <CardHeader>
-          <CardTitle className="text-lg font-black text-white">
+          <CardTitle className="text-lg font-black text-slate-900 dark:text-slate-50">
             Hoạt động Git/Jira
           </CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-slate-500 dark:text-slate-400">
             Tần suất commit và task update.
           </CardDescription>
         </CardHeader>
@@ -108,20 +121,15 @@ export function DashboardCharts() {
               <BarChart data={chartData}>
                 <XAxis
                   dataKey="name"
-                  stroke="#64748b"
+                  stroke="#94a3b8"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                 />
                 <Bar dataKey="active" fill="#F27124" radius={[4, 4, 0, 0]} />
                 <RechartsTooltip
-                  cursor={{ fill: "rgba(255,255,255,0.1)" }}
-                  contentStyle={{
-                    backgroundColor: "#1e293b",
-                    borderRadius: "8px",
-                    border: "none",
-                    color: "#fff",
-                  }}
+                  cursor={{ fill: "rgba(242, 113, 36, 0.1)" }}
+                  content={<CustomTooltip />}
                 />
               </BarChart>
             </ResponsiveContainer>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, Crown, CheckCircle2 } from "lucide-react";
+import { Users, Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -18,8 +18,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-
-// 👇 Import Type ClassStudent
 import { ClassStudent } from "@/features/management/classes/types/class-types";
 
 export function StudentClassList({
@@ -29,14 +27,12 @@ export function StudentClassList({
   students: ClassStudent[];
   filterTerm: string;
 }) {
-  // 1. Filter Logic
   const filtered = students.filter(
     (s: ClassStudent) =>
       s.full_name?.toLowerCase().includes(filterTerm.toLowerCase()) ||
       s.student_code?.toLowerCase().includes(filterTerm.toLowerCase()),
   );
 
-  // 2. Group by Team
   const grouped = filtered.reduce(
     (acc, student: ClassStudent) => {
       const key = student.team || "Chưa có nhóm";
@@ -51,7 +47,7 @@ export function StudentClassList({
 
   if (students.length === 0) {
     return (
-      <div className="text-center text-gray-400 py-20 animate-in fade-in duration-500">
+      <div className="text-center text-gray-400 dark:text-slate-500 py-20 animate-in fade-in duration-500">
         Lớp chưa có dữ liệu sinh viên.
       </div>
     );
@@ -71,33 +67,33 @@ export function StudentClassList({
             type="single"
             collapsible
             key={group}
-            className="bg-white border border-gray-100 rounded-[24px] shadow-sm overflow-hidden transition-all hover:shadow-md"
+            className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-[24px] shadow-sm overflow-hidden transition-all hover:shadow-md dark:hover:shadow-none"
             defaultValue={group}
           >
             <AccordionItem value={group} className="border-0">
-              <div className="flex items-center justify-between px-6 py-4 bg-gray-50/50">
+              <div className="flex items-center justify-between px-6 py-4 bg-gray-50/50 dark:bg-slate-950/50">
                 <AccordionTrigger className="hover:no-underline py-0 flex-1">
                   <div className="flex items-center gap-4">
                     <div
                       className={cn(
                         "p-3 rounded-2xl transition-colors",
                         group === "Chưa có nhóm"
-                          ? "bg-slate-200 text-slate-500"
-                          : "bg-orange-100 text-[#F27124]",
+                          ? "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                          : "bg-orange-100 dark:bg-orange-900/20 text-[#F27124] dark:text-orange-400",
                       )}
                     >
                       <Users className="h-6 w-6" />
                     </div>
                     <div className="text-left">
-                      <p className="font-bold text-gray-900 text-lg tracking-tight">
+                      <p className="font-bold text-gray-900 dark:text-slate-100 text-lg tracking-tight">
                         {group}
                       </p>
                       {group !== "Chưa có nhóm" && (
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+                          <span className="text-xs text-gray-500 dark:text-slate-400 font-medium uppercase tracking-wider">
                             Trưởng nhóm:
                           </span>
-                          <span className="text-xs font-bold text-[#F27124]">
+                          <span className="text-xs font-bold text-[#F27124] dark:text-orange-400">
                             {leaderName}
                           </span>
                         </div>
@@ -109,18 +105,18 @@ export function StudentClassList({
 
               <AccordionContent className="px-0 pb-0">
                 <Table>
-                  <TableHeader className="bg-gray-50/80 border-y border-gray-100">
-                    <TableRow className="hover:bg-transparent">
-                      <TableHead className="pl-8 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                  <TableHeader className="bg-gray-50/80 dark:bg-slate-900 border-y border-gray-100 dark:border-slate-800">
+                    <TableRow className="hover:bg-transparent dark:hover:bg-transparent border-none">
+                      <TableHead className="pl-8 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">
                         MSSV
                       </TableHead>
-                      <TableHead className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                      <TableHead className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">
                         Thành viên
                       </TableHead>
-                      <TableHead className="text-xs font-bold text-gray-400 uppercase tracking-widest hidden md:table-cell">
+                      <TableHead className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest hidden md:table-cell">
                         Email
                       </TableHead>
-                      <TableHead className="text-center text-xs font-bold text-gray-400 uppercase tracking-widest">
+                      <TableHead className="text-center text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">
                         Vai trò
                       </TableHead>
                     </TableRow>
@@ -129,16 +125,16 @@ export function StudentClassList({
                     {grouped[group].map((s: ClassStudent, index: number) => (
                       <TableRow
                         key={`${s.student_code}-${index}`}
-                        className="group/row hover:bg-orange-50/30 transition-colors border-gray-50"
+                        className="group/row hover:bg-orange-50/30 dark:hover:bg-orange-900/10 transition-colors border-gray-50 dark:border-slate-800"
                       >
-                        <TableCell className="pl-8 font-semibold text-gray-500 text-sm">
+                        <TableCell className="pl-8 font-semibold text-gray-500 dark:text-slate-400 text-sm">
                           {s.student_code}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3 py-1">
-                            <Avatar className="h-9 w-9 border-2 border-white shadow-sm transition-transform group-hover/row:scale-105">
+                            <Avatar className="h-9 w-9 border-2 border-white dark:border-slate-700 shadow-sm transition-transform group-hover/row:scale-105">
                               <AvatarImage src={s.avatar_url} />
-                              <AvatarFallback className="bg-slate-100 text-xs font-bold text-gray-400 uppercase">
+                              <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase">
                                 {s.full_name?.charAt(0)}
                               </AvatarFallback>
                             </Avatar>
@@ -146,25 +142,25 @@ export function StudentClassList({
                               className={cn(
                                 "text-sm font-medium transition-colors",
                                 s.role === "Leader"
-                                  ? "font-bold text-gray-900"
-                                  : "text-gray-600 group-hover/row:text-gray-900",
+                                  ? "font-bold text-gray-900 dark:text-slate-100"
+                                  : "text-gray-600 dark:text-slate-300 group-hover/row:text-gray-900 dark:group-hover/row:text-slate-100",
                               )}
                             >
                               {s.full_name}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-gray-400 text-sm font-medium hidden md:table-cell">
+                        <TableCell className="text-gray-400 dark:text-slate-500 text-sm font-medium hidden md:table-cell">
                           {s.email}
                         </TableCell>
                         <TableCell className="text-center">
                           {s.role === "Leader" ? (
-                            <Badge className="bg-amber-100 text-amber-700 border-amber-200 shadow-none gap-1 py-0.5 px-2.5 text-[10px] font-bold uppercase ring-1 ring-amber-400/20">
+                            <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800 shadow-none gap-1 py-0.5 px-2.5 text-[10px] font-bold uppercase ring-1 ring-amber-400/20">
                               <Crown className="w-3 h-3 fill-amber-500" />{" "}
                               Leader
                             </Badge>
                           ) : (
-                            <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
+                            <span className="text-[10px] font-bold text-gray-300 dark:text-slate-600 uppercase tracking-widest">
                               Member
                             </span>
                           )}

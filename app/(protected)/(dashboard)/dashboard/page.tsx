@@ -22,7 +22,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Logic lấy ClassID (Giữ nguyên)
   const urlClassId = searchParams.get("classId");
   const cookieClassId =
     typeof window !== "undefined"
@@ -37,7 +36,6 @@ export default function DashboardPage() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Logic Auth (Giữ nguyên)
   useEffect(() => {
     const token = Cookies.get("token");
     if (!token) {
@@ -56,7 +54,6 @@ export default function DashboardPage() {
         email: savedEmail || "",
       });
     } else {
-      // Fallback
       setUser({
         role: "STUDENT",
         name: "Sinh viên",
@@ -76,11 +73,11 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
-  // Render Dashboard dựa trên Role
   return (
-    <div className="min-h-screen bg-white">
+    // FIX: bg-white -> bg-white dark:bg-slate-950
+    <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
       <div className="max-w-[1600px] mx-auto py-6 px-4 md:px-8">
-        {/* 1. ADMIN VIEW (Mới) */}
+        {/* 1. ADMIN VIEW */}
         {user.role === "ADMIN" && <AdminDashboard />}
 
         {/* 2. LECTURER VIEW */}
@@ -92,10 +89,10 @@ export default function DashboardPage() {
         {user.role === "STUDENT" && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="mb-6">
-              <h2 className="text-3xl font-black tracking-tight text-slate-900">
+              <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-50">
                 Xin chào, {user.name}!
               </h2>
-              <p className="text-slate-500 font-medium mt-1">
+              <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
                 Chúc bạn một ngày học tập hiệu quả.
               </p>
             </div>

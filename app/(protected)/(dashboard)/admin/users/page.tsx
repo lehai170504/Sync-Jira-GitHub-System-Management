@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-// Components
 import { UserStats } from "@/features/management/users/components/user-stats";
 import { UserTable } from "@/features/management/users/components/user-table";
 import { UserToolbar } from "@/features/management/users/components/user-toolbar";
@@ -22,18 +21,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-// Hooks
 import { useUsers } from "@/features/management/users/hooks/use-users";
 
 export default function UserManagementPage() {
-  // --- STATE ---
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // --- DATA FETCHING ---
-  // Lấy limit lớn để xử lý client-side pagination (Tạm thời)
   const { data, isLoading, refetch, isRefetching } = useUsers({
     page: 1,
     limit: 1000,
@@ -41,13 +36,10 @@ export default function UserManagementPage() {
 
   const allUsers = data?.users || [];
 
-  // --- FILTER LOGIC (CLIENT SIDE) ---
   const filteredUsers = useMemo(() => {
     return allUsers.filter((user) => {
-      // 1. Loại bỏ ADMIN khỏi danh sách này (Chỉ quản lý User thường)
       if (user.role === "ADMIN") return false;
 
-      // 2. Search (Tên, Email, MSSV)
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch =
         user.full_name?.toLowerCase().includes(searchLower) ||
@@ -55,10 +47,7 @@ export default function UserManagementPage() {
         (user.student_code &&
           user.student_code.toLowerCase().includes(searchLower));
 
-      // 3. Filter Role
       const matchesRole = roleFilter === "all" || user.role === roleFilter;
-
-      // 4. Filter Status
       const userStatus = user.status || "Active";
       const matchesStatus =
         statusFilter === "all" || userStatus === statusFilter;
@@ -67,7 +56,6 @@ export default function UserManagementPage() {
     });
   }, [allUsers, searchTerm, roleFilter, statusFilter]);
 
-  // --- PAGINATION LOGIC ---
   const ITEMS_PER_PAGE = 10;
   const totalFiltered = filteredUsers.length;
   const paginatedUsers = filteredUsers.slice(
@@ -75,7 +63,6 @@ export default function UserManagementPage() {
     page * ITEMS_PER_PAGE,
   );
 
-  // --- HANDLERS ---
   const handleResetFilters = () => {
     setSearchTerm("");
     setRoleFilter("all");
@@ -90,19 +77,23 @@ export default function UserManagementPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 pb-20 font-sans animate-in fade-in duration-700">
-      <div className="max-w-[1440px] mx-auto p-4 md:p-10 space-y-10">
+    // FIX: Nền tối cho toàn trang
+    <div className="h-full pb-20 font-sans animate-in fade-in duration-700 relative">
+      {/* Background Decor */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50/50 via-slate-50/50 to-transparent dark:from-slate-900/50 dark:via-slate-950/50 pointer-events-none" />
+
+      <div className="max-w-[1600px] mx-auto space-y-10">
         {/* --- 1. HEADER SECTION --- */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between border-b border-slate-200/60 pb-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between border-b border-slate-200/60 dark:border-slate-800 pb-8 transition-colors">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-blue-600 font-black uppercase tracking-[0.2em] text-[10px] bg-blue-50 w-fit px-3 py-1 rounded-full border border-blue-100">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-black uppercase tracking-[0.2em] text-[10px] bg-blue-50 dark:bg-blue-900/20 w-fit px-3 py-1 rounded-full border border-blue-100 dark:border-blue-800">
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>Identity Management</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-slate-900">
+            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-slate-900 dark:text-slate-50">
               Quản lý Người dùng
             </h1>
-            <p className="text-slate-500 font-medium text-sm md:text-base max-w-2xl leading-relaxed">
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm md:text-base max-w-2xl leading-relaxed">
               Kiểm soát trạng thái tài khoản, phân quyền hệ thống và theo dõi
               nhật ký hoạt động của thành viên.
             </p>
@@ -117,7 +108,7 @@ export default function UserManagementPage() {
                     size="icon"
                     onClick={handleRefresh}
                     disabled={isLoading || isRefetching}
-                    className="rounded-xl border-slate-200 bg-white text-slate-500 hover:text-[#F27124]"
+                    className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-[#F27124] dark:hover:text-[#F27124]"
                   >
                     <RefreshCcw
                       className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
@@ -136,7 +127,7 @@ export default function UserManagementPage() {
 
         {/* --- 2. STATS SECTION --- */}
         <section className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-orange-100 to-blue-100 rounded-[40px] blur opacity-20 transition duration-1000 group-hover:opacity-40" />
+          <div className="absolute -inset-1 bg-gradient-to-r from-orange-100 to-blue-100 dark:from-slate-800 dark:to-slate-900 rounded-[40px] blur opacity-20 transition duration-1000 group-hover:opacity-40" />
           <div className="relative">
             <UserStats users={allUsers} totalUsers={allUsers.length} />
           </div>
@@ -145,7 +136,7 @@ export default function UserManagementPage() {
         {/* --- 3. MAIN CONTENT --- */}
         <div className="space-y-6">
           {/* Toolbar */}
-          <div className="bg-white p-4 rounded-[32px] border border-slate-200/60 shadow-sm shadow-slate-200/50">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-[32px] border border-slate-200/60 dark:border-slate-800 shadow-sm shadow-slate-200/50 dark:shadow-none transition-colors">
             <UserToolbar
               searchTerm={searchTerm}
               setSearchTerm={(val) => {
@@ -169,8 +160,8 @@ export default function UserManagementPage() {
           {/* Results Info */}
           <div className="flex items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-2">
-              <LayoutGrid className="w-4 h-4 text-slate-400" />
-              <h3 className="font-black text-slate-500 uppercase tracking-widest text-[10px]">
+              <LayoutGrid className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+              <h3 className="font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-[10px]">
                 Kết quả hiển thị ({totalFiltered})
               </h3>
             </div>
@@ -180,7 +171,7 @@ export default function UserManagementPage() {
                 variant="ghost"
                 size="sm"
                 onClick={handleResetFilters}
-                className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 gap-1.5 transition-colors h-8"
+                className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 gap-1.5 transition-colors h-8"
               >
                 <FilterX className="w-3.5 h-3.5" /> Xóa bộ lọc
               </Button>
@@ -188,7 +179,7 @@ export default function UserManagementPage() {
           </div>
 
           {/* Table Container */}
-          <div className="bg-white rounded-[32px] border border-slate-200/60 shadow-xl shadow-slate-200/20 overflow-hidden h-fit min-h-[300px]">
+          <div className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-200/60 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-none overflow-hidden h-fit min-h-[300px]">
             <UserTable
               users={paginatedUsers}
               isLoading={isLoading || isRefetching}

@@ -22,7 +22,7 @@ export function ClassList({
 }: ClassListProps) {
   if (isLoading) {
     return (
-      <div className="h-64 flex items-center justify-center text-gray-400">
+      <div className="h-64 flex items-center justify-center text-gray-400 dark:text-slate-500">
         Đang tải danh sách lớp học...
       </div>
     );
@@ -30,11 +30,11 @@ export function ClassList({
 
   if (classes.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50/50">
-        <div className="bg-white p-4 rounded-full shadow-sm mb-4">
-          <Search className="h-8 w-8 text-gray-400" />
+      <div className="flex flex-col items-center justify-center h-64 text-center border-2 border-dashed border-gray-200 dark:border-slate-800 rounded-2xl bg-gray-50/50 dark:bg-slate-900/50">
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-full shadow-sm mb-4">
+          <Search className="h-8 w-8 text-gray-400 dark:text-slate-500" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
           Không tìm thấy lớp học
         </h3>
         <p className="text-muted-foreground text-sm mt-1 max-w-sm">
@@ -42,7 +42,7 @@ export function ClassList({
         </p>
         <Button
           variant="link"
-          className="mt-2 text-[#F27124]"
+          className="mt-2 text-[#F27124] font-bold"
           onClick={onClearFilters}
         >
           Xóa tất cả bộ lọc
@@ -64,13 +64,18 @@ export function ClassList({
         ))}
       </div>
 
-      {/* Pagination Footer (Demo UI) */}
-      <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+      {/* Pagination Footer */}
+      <div className="flex items-center justify-between border-t border-gray-100 dark:border-slate-800 pt-4">
         <p className="text-sm text-muted-foreground">
           Hiển thị {classes.length} kết quả
         </p>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" disabled>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled
+            className="dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400"
+          >
             Trước
           </Button>
           <Button
@@ -80,7 +85,11 @@ export function ClassList({
           >
             1
           </Button>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            className="dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
             Tiếp
           </Button>
         </div>

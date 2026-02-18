@@ -23,13 +23,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Hooks
 import { useCreateClass } from "../hooks/use-classes";
 import { useSemesters } from "@/features/management/semesters/hooks/use-semesters";
 import { useUsers } from "@/features/management/users/hooks/use-users";
 import { useSubjects } from "@/features/management/subjects/hooks/use-subjects";
-
-// Import Schema
 import {
   createClassSchema,
   CreateClassFormValues,
@@ -41,7 +38,6 @@ interface ClassDialogProps {
 }
 
 export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
-  // 1. Data Fetching
   const { data: semesters } = useSemesters();
   const { data: lecturersData } = useUsers({ role: "LECTURER", limit: 100 });
   const { data: subjectsData } = useSubjects("Active");
@@ -51,7 +47,6 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
 
   const { mutate: createClass, isPending } = useCreateClass();
 
-  // 2. Setup React Hook Form
   const {
     register,
     handleSubmit,
@@ -70,14 +65,12 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
     },
   });
 
-  // Reset form khi mở dialog
   useEffect(() => {
     if (open) {
       reset();
     }
   }, [open, reset]);
 
-  // Xử lý khi chọn môn học -> Tự động điền subjectName và gợi ý tên lớp
   const handleSubjectChange = (subjectId: string) => {
     const selectedSubject = subjects.find((s) => s._id === subjectId);
     if (selectedSubject) {
@@ -101,28 +94,33 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md rounded-2xl gap-6">
+      <DialogContent className="sm:max-w-md rounded-2xl gap-6 bg-white dark:bg-slate-950 border-none shadow-2xl">
         <DialogHeader>
-          <DialogTitle>Tạo Lớp học mới</DialogTitle>
+          <DialogTitle className="text-slate-900 dark:text-slate-100">
+            Tạo Lớp học mới
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
           {/* 1. MÔN HỌC */}
           <div className="grid gap-2">
-            <Label>
+            <Label className="dark:text-slate-400">
               Môn học <span className="text-red-500">*</span>
             </Label>
             <Select
               onValueChange={handleSubjectChange}
-              // Dùng value từ watch để sync với form state
               value={watch("subject_id")}
             >
               <SelectTrigger
-                className={errors.subject_id ? "border-red-500" : ""}
+                className={`bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 ${
+                  errors.subject_id
+                    ? "border-red-500 dark:border-red-500"
+                    : "focus:ring-orange-500/20"
+                }`}
               >
                 <SelectValue placeholder="Chọn môn học" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:bg-slate-900 dark:border-slate-800">
                 {subjects.map((sub) => (
                   <SelectItem key={sub._id} value={sub._id}>
                     {sub.code} - {sub.name}
@@ -139,12 +137,16 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
 
           {/* 2. TÊN LỚP */}
           <div className="grid gap-2">
-            <Label>
+            <Label className="dark:text-slate-400">
               Tên lớp học <span className="text-red-500">*</span>
             </Label>
             <Input
               placeholder="VD: SE1943-A"
-              className={errors.name ? "border-red-500 focus:ring-red-200" : ""}
+              className={`bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 ${
+                errors.name
+                  ? "border-red-500 focus:ring-red-200"
+                  : "focus:border-orange-500 dark:focus:border-orange-500"
+              }`}
               {...register("name")}
             />
             {errors.name && (
@@ -156,7 +158,7 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
 
           {/* 3. HỌC KỲ */}
           <div className="grid gap-2">
-            <Label>
+            <Label className="dark:text-slate-400">
               Học kỳ <span className="text-red-500">*</span>
             </Label>
             <Select
@@ -166,11 +168,13 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
               value={watch("semester_id")}
             >
               <SelectTrigger
-                className={errors.semester_id ? "border-red-500" : ""}
+                className={`bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 ${
+                  errors.semester_id ? "border-red-500" : ""
+                }`}
               >
                 <SelectValue placeholder="Chọn học kỳ" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:bg-slate-900 dark:border-slate-800">
                 {semesters?.map((sem) => (
                   <SelectItem key={sem._id} value={sem._id}>
                     {sem.name} ({sem.code})
@@ -187,7 +191,7 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
 
           {/* 4. GIẢNG VIÊN */}
           <div className="grid gap-2">
-            <Label>
+            <Label className="dark:text-slate-400">
               Giảng viên phụ trách <span className="text-red-500">*</span>
             </Label>
             <Select
@@ -197,11 +201,13 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
               value={watch("lecturer_id")}
             >
               <SelectTrigger
-                className={errors.lecturer_id ? "border-red-500" : ""}
+                className={`bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 ${
+                  errors.lecturer_id ? "border-red-500" : ""
+                }`}
               >
                 <SelectValue placeholder="Chọn giảng viên" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:bg-slate-900 dark:border-slate-800">
                 {lecturers.map((lec) => (
                   <SelectItem key={lec._id} value={lec._id}>
                     {lec.full_name} ({lec.email})
@@ -222,12 +228,13 @@ export function ClassDialog({ open, onOpenChange }: ClassDialogProps) {
               variant="ghost"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
+              className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               Hủy bỏ
             </Button>
             <Button
               type="submit"
-              className="bg-[#F27124] hover:bg-[#d65d1b] text-white"
+              className="bg-[#F27124] hover:bg-[#d65d1b] text-white shadow-lg shadow-orange-500/20"
               disabled={isPending}
             >
               {isPending ? (

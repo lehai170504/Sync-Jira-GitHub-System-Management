@@ -17,7 +17,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// 1. IMPORT SCHEMA VÀ TYPE VỪA TẠO
 import {
   createSubjectSchema,
   CreateSubjectFormValues,
@@ -31,8 +30,6 @@ interface SubjectDialogProps {
 
 export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
   const { createSubject, isPending } = useSubjectMutations();
-
-  // 2. SETUP FORM VỚI REACT HOOK FORM
 
   const {
     register,
@@ -49,7 +46,6 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
     },
   });
 
-  // Reset form khi mở modal
   useEffect(() => {
     if (open) {
       reset();
@@ -67,17 +63,18 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md rounded-2xl gap-6">
+      {/* Cập nhật Dialog Content: bg-white -> dark:bg-slate-950 */}
+      <DialogContent className="sm:max-w-md rounded-2xl gap-6 bg-white dark:bg-slate-950 border-none shadow-2xl">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <div className="h-10 w-10 bg-orange-50 rounded-xl flex items-center justify-center border border-orange-100">
+            <div className="h-10 w-10 bg-orange-50 dark:bg-orange-500/10 rounded-xl flex items-center justify-center border border-orange-100 dark:border-orange-500/20">
               <Plus className="h-5 w-5 text-[#F27124]" />
             </div>
             <div>
-              <DialogTitle className="text-xl font-bold text-gray-900">
+              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-slate-50">
                 Tạo Môn học mới
               </DialogTitle>
-              <DialogDescription className="text-xs">
+              <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
                 Nhập thông tin môn học để thêm vào hệ thống.
               </DialogDescription>
             </div>
@@ -90,14 +87,18 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
             <div className="space-y-2">
               <Label
                 htmlFor="code"
-                className="text-xs font-bold text-slate-500 uppercase tracking-wider"
+                className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
               >
                 Mã môn <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="code"
                 placeholder="VD: SWR302"
-                className={`h-10 ${errors.code ? "border-red-500 focus:ring-red-200" : ""}`}
+                className={`h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 ${
+                  errors.code
+                    ? "border-red-500 focus:ring-red-200"
+                    : "focus:border-[#F27124] dark:focus:border-[#F27124]"
+                }`}
                 {...register("code")}
                 onChange={(e) => {
                   register("code").onChange(e);
@@ -115,7 +116,7 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
             <div className="space-y-2">
               <Label
                 htmlFor="credits"
-                className="text-xs font-bold text-slate-500 uppercase tracking-wider"
+                className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
               >
                 Số tín chỉ <span className="text-red-500">*</span>
               </Label>
@@ -124,7 +125,11 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
                 type="number"
                 min={0}
                 placeholder="3"
-                className={`h-10 ${errors.credits ? "border-red-500 focus:ring-red-200" : ""}`}
+                className={`h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 ${
+                  errors.credits
+                    ? "border-red-500 focus:ring-red-200"
+                    : "focus:border-[#F27124] dark:focus:border-[#F27124]"
+                }`}
                 {...register("credits")}
               />
               {errors.credits && (
@@ -139,14 +144,18 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
           <div className="space-y-2">
             <Label
               htmlFor="name"
-              className="text-xs font-bold text-slate-500 uppercase tracking-wider"
+              className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
             >
               Tên môn học <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name"
               placeholder="VD: Software Requirement"
-              className={`h-10 ${errors.name ? "border-red-500 focus:ring-red-200" : ""}`}
+              className={`h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 ${
+                errors.name
+                  ? "border-red-500 focus:ring-red-200"
+                  : "focus:border-[#F27124] dark:focus:border-[#F27124]"
+              }`}
               {...register("name")}
             />
             {errors.name && (
@@ -160,14 +169,14 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
           <div className="space-y-2">
             <Label
               htmlFor="description"
-              className="text-xs font-bold text-slate-500 uppercase tracking-wider"
+              className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
             >
               Mô tả
             </Label>
             <Input
               id="description"
               placeholder="Mô tả ngắn gọn về môn học..."
-              className="h-10"
+              className="h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus:border-[#F27124] dark:focus:border-[#F27124]"
               {...register("description")}
             />
           </div>
@@ -178,14 +187,14 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
               variant="ghost"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className="font-bold text-slate-500"
+              className="font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               Hủy bỏ
             </Button>
             <Button
               type="submit"
               disabled={isPending}
-              className="bg-[#F27124] hover:bg-[#d65d1b] font-bold shadow-lg shadow-orange-500/20"
+              className="bg-[#F27124] hover:bg-[#d65d1b] font-bold text-white shadow-lg shadow-orange-500/20"
             >
               {isPending ? (
                 <>

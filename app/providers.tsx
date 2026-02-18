@@ -6,14 +6,28 @@ import { getQueryClient } from "@/lib/get-query-client";
 import { SocketProvider } from "@/components/providers/socket-provider";
 import { FCMTokenProvider } from "@/components/providers/fcm-token-provider";
 
+// 1. Import ThemeProvider (đã tạo ở bước trước)
+import { ThemeProvider } from "@/components/providers/theme-provider";
+
 export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SocketProvider>
-        <FCMTokenProvider>{children}</FCMTokenProvider>
-      </SocketProvider>
+      {/* 2. Bọc ThemeProvider vào đây. 
+          Nó nên nằm trong QueryClient (để dùng được state nếu cần) 
+          nhưng bọc ngoài các Provider logic khác. */}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <SocketProvider>
+          <FCMTokenProvider>{children}</FCMTokenProvider>
+        </SocketProvider>
+      </ThemeProvider>
+
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

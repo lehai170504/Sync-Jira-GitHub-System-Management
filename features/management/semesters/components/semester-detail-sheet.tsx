@@ -53,53 +53,56 @@ export function SemesterDetailSheet({
   const classes = detailData?.classes || [];
   const stats = detailData?.stats;
 
-  // --- 👇 1. LOGIC TÍNH TOÁN TRẠNG THÁI (Realtime) ---
+  // --- LOGIC TÍNH TOÁN TRẠNG THÁI ---
   const getComputedStatus = (startDateStr: string, endDateStr: string) => {
     const now = new Date();
     const start = new Date(startDateStr);
     const end = new Date(endDateStr);
 
-    // Reset giờ về 00:00:00 để so sánh chính xác theo ngày
     now.setHours(0, 0, 0, 0);
     start.setHours(0, 0, 0, 0);
-    end.setHours(23, 59, 59, 999); // End date tính đến cuối ngày
+    end.setHours(23, 59, 59, 999);
 
     if (now < start) {
       return {
         label: "Sắp diễn ra",
-        className: "bg-blue-50 text-blue-600 border-blue-200",
+        className:
+          "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
       };
     } else if (now > end) {
       return {
         label: "Đã kết thúc",
-        className: "bg-slate-100 text-slate-500 border-slate-200",
+        className:
+          "bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
       };
     } else {
       return {
         label: "Đang diễn ra",
         className:
-          "bg-emerald-50 text-emerald-600 border-emerald-200 animate-pulse", // Thêm animate-pulse cho sinh động
+          "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800 animate-pulse",
       };
     }
   };
 
-  // Tính toán trạng thái ngay khi có data
   const statusInfo = semester
     ? getComputedStatus(semester.start_date, semester.end_date)
     : { label: "Unknown", className: "" };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl p-0 bg-white flex flex-col h-[100dvh] font-sans overflow-hidden border-l border-slate-200 shadow-2xl">
+      {/* 1. FIX SHEET CONTENT 
+         - bg-white -> bg-white dark:bg-slate-950
+         - border -> dark:border-slate-800
+      */}
+      <SheetContent className="w-full sm:max-w-xl p-0 bg-white dark:bg-slate-950 flex flex-col h-[100dvh] font-sans overflow-hidden border-l border-slate-200 dark:border-slate-800 shadow-2xl">
         {/* --- HEADER --- */}
-        <SheetHeader className="px-6 py-6 border-b border-slate-100 bg-white z-20 shrink-0 shadow-sm text-left">
+        <SheetHeader className="px-6 py-6 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 z-20 shrink-0 shadow-sm text-left">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-orange-50 rounded-lg">
+              <div className="p-2 bg-orange-50 dark:bg-orange-500/10 rounded-lg">
                 <Calendar className="w-5 h-5 text-[#F27124]" />
               </div>
 
-              {/* 👇 2. HIỂN THỊ BADGE DỰA TRÊN LOGIC TÍNH TOÁN */}
               {semester && (
                 <Badge
                   variant="outline"
@@ -113,22 +116,22 @@ export function SemesterDetailSheet({
               )}
             </div>
             {semester && (
-              <span className="text-[10px] font-bold text-slate-400 font-mono bg-slate-50 px-2 py-1 rounded">
+              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 font-mono bg-slate-50 dark:bg-slate-900 px-2 py-1 rounded">
                 CODE: {semester.code}
               </span>
             )}
           </div>
 
-          <SheetTitle className="text-3xl font-black text-slate-900 tracking-tighter leading-none">
+          <SheetTitle className="text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tighter leading-none">
             {isLoading ? (
-              <div className="h-8 w-48 bg-slate-100 animate-pulse rounded" />
+              <div className="h-8 w-48 bg-slate-100 dark:bg-slate-800 animate-pulse rounded" />
             ) : (
               semester?.name
             )}
           </SheetTitle>
 
           {semester && (
-            <SheetDescription className="text-sm text-slate-500 font-medium flex items-center gap-2 mt-1">
+            <SheetDescription className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2 mt-1">
               Thời gian: {format(new Date(semester.start_date), "dd/MM/yyyy")} —{" "}
               {format(new Date(semester.end_date), "dd/MM/yyyy")}
             </SheetDescription>
@@ -136,7 +139,7 @@ export function SemesterDetailSheet({
         </SheetHeader>
 
         {/* --- SCROLLABLE CONTENT --- */}
-        <div className="flex-1 w-full bg-slate-50/30 overflow-y-auto scrollbar-hide">
+        <div className="flex-1 w-full bg-slate-50/30 dark:bg-slate-900/30 overflow-y-auto scrollbar-hide">
           <div className="p-6 space-y-8 pb-24">
             {isLoading ? (
               <div className="h-60 flex flex-col items-center justify-center gap-4">
@@ -147,8 +150,8 @@ export function SemesterDetailSheet({
               </div>
             ) : !semester ? (
               <div className="p-12 text-center flex flex-col items-center gap-4">
-                <Info className="w-12 h-12 text-slate-200" />
-                <p className="text-slate-500 font-medium">
+                <Info className="w-12 h-12 text-slate-200 dark:text-slate-700" />
+                <p className="text-slate-500 dark:text-slate-400 font-medium">
                   Không tìm thấy thông tin.
                 </p>
               </div>
@@ -175,20 +178,20 @@ export function SemesterDetailSheet({
                 {/* Creator Info */}
                 {semester.created_by_admin && (
                   <section>
-                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">
+                    <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 pl-1">
                       Quản trị viên
                     </h3>
-                    <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                      <Avatar className="h-10 w-10 border border-white shadow-sm bg-slate-100">
-                        <AvatarFallback className="text-slate-500 font-bold">
+                    <div className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                      <Avatar className="h-10 w-10 border border-white dark:border-slate-800 shadow-sm bg-slate-100 dark:bg-slate-800">
+                        <AvatarFallback className="text-slate-500 dark:text-slate-400 font-bold">
                           {semester.created_by_admin.full_name.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-sm font-bold text-slate-900">
+                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
                           {semester.created_by_admin.full_name}
                         </p>
-                        <p className="text-xs text-slate-500 font-medium">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                           {semester.created_by_admin.email}
                         </p>
                       </div>
@@ -196,18 +199,18 @@ export function SemesterDetailSheet({
                   </section>
                 )}
 
-                <Separator />
+                <Separator className="dark:bg-slate-800" />
 
                 {/* Class List */}
                 <section>
                   <div className="flex items-center justify-between mb-4 px-1">
                     <div className="flex items-center gap-2">
-                      <LayoutGrid className="w-4 h-4 text-slate-400" />
-                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">
+                      <LayoutGrid className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                      <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">
                         Danh sách lớp học
                       </h3>
                     </div>
-                    <Badge className="bg-slate-900 text-white hover:bg-slate-800">
+                    <Badge className="bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700">
                       {classes.length}
                     </Badge>
                   </div>
@@ -227,14 +230,16 @@ export function SemesterDetailSheet({
   );
 }
 
-// ... (Giữ nguyên các component con: StatCard, ClassItemAccordion, WeightBox)
+// --- SUB-COMPONENTS (Đã cập nhật Dark Mode) ---
+
 function StatCard({ icon: Icon, label, value, subText, color }: any) {
   const colors = {
-    blue: "bg-blue-50 text-blue-600",
-    orange: "bg-orange-50 text-[#F27124]",
+    blue: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300",
+    orange:
+      "bg-orange-50 text-[#F27124] dark:bg-orange-900/30 dark:text-orange-400",
   };
   return (
-    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+    <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
       <div
         className={cn(
           "inline-flex p-2 rounded-lg mb-3",
@@ -243,12 +248,14 @@ function StatCard({ icon: Icon, label, value, subText, color }: any) {
       >
         <Icon className="w-5 h-5" />
       </div>
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+      <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
         {label}
       </p>
       <div className="flex items-baseline gap-2 mt-1">
-        <span className="text-2xl font-black text-slate-900">{value || 0}</span>
-        <span className="text-[10px] text-slate-400 font-medium truncate">
+        <span className="text-2xl font-black text-slate-900 dark:text-slate-50">
+          {value || 0}
+        </span>
+        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
           {subText}
         </span>
       </div>
@@ -260,44 +267,46 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
   return (
     <AccordionItem
       value={cls._id}
-      className="border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-sm"
+      className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 overflow-hidden shadow-sm transition-colors"
     >
-      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-slate-50 transition-colors">
+      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
         <div className="flex items-center gap-4 text-left">
-          <div className="h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center font-black text-slate-500 text-xs shrink-0">
+          <div className="h-10 w-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center font-black text-slate-500 dark:text-slate-400 text-xs shrink-0">
             {cls.name.substring(0, 2)}
           </div>
           <div>
-            <p className="text-sm font-bold text-slate-900">{cls.name}</p>
-            <p className="text-[11px] text-slate-500 font-medium">
+            <p className="text-sm font-bold text-slate-900 dark:text-slate-50">
+              {cls.name}
+            </p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               {cls.subjectName}
             </p>
           </div>
         </div>
       </AccordionTrigger>
 
-      <AccordionContent className="px-4 pb-4 bg-slate-50/50 border-t border-slate-100">
+      <AccordionContent className="px-4 pb-4 bg-slate-50/50 dark:bg-slate-950/30 border-t border-slate-100 dark:border-slate-800">
         <div className="pt-4 space-y-6">
           {/* Lecturer Info */}
           {cls.lecturer_id ? (
             <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8 border border-white shadow-sm">
+              <Avatar className="h-8 w-8 border border-white dark:border-slate-800 shadow-sm">
                 <AvatarImage src={cls.lecturer_id.avatar_url} />
                 <AvatarFallback>
                   {cls.lecturer_id.full_name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-xs font-bold text-slate-900">
+                <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
                   {cls.lecturer_id.full_name}
                 </p>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
                   {cls.lecturer_id.email}
                 </p>
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-slate-400 text-xs italic">
+            <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 text-xs italic">
               <User className="w-4 h-4" /> Chưa phân công giảng viên
             </div>
           )}
@@ -305,7 +314,7 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
           {/* Contribution Weights */}
           {cls.contributionConfig && (
             <div className="space-y-2">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                 Contribution Weights
               </h4>
               <div className="grid grid-cols-3 gap-2">
@@ -334,26 +343,26 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
           {/* Grade Structure */}
           {cls.gradeStructure && cls.gradeStructure.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                 Grade Structure
               </h4>
               <div className="space-y-1.5">
                 {cls.gradeStructure.map((grade) => (
                   <div
                     key={grade._id}
-                    className="flex justify-between items-center text-xs bg-white p-2 rounded-lg border border-slate-100"
+                    className="flex justify-between items-center text-xs bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800"
                   >
-                    <span className="font-medium text-slate-700 flex items-center gap-2">
+                    <span className="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
                       {grade.isGroupGrade ? (
                         <Users className="w-3 h-3 text-indigo-500" />
                       ) : (
-                        <User className="w-3 h-3 text-slate-400" />
+                        <User className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                       )}
                       {grade.name}
                     </span>
                     <Badge
                       variant="secondary"
-                      className="font-mono text-[10px]"
+                      className="font-mono text-[10px] dark:bg-slate-800 dark:text-slate-300"
                     >
                       {grade.weight * 100}%
                     </Badge>
@@ -370,23 +379,27 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
 
 function WeightBox({ icon: Icon, label, value, color }: any) {
   const colorStyles = {
-    blue: "text-blue-600 bg-blue-50",
-    orange: "text-orange-600 bg-orange-50",
-    purple: "text-purple-600 bg-purple-50",
+    blue: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-300",
+    orange:
+      "text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-300",
+    purple:
+      "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-300",
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white border border-slate-100">
+    <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 transition-colors">
       <Icon
         className={cn(
           "w-4 h-4 mb-1",
-          colorStyles[color as keyof typeof colorStyles].split(" ")[0],
+          colorStyles[color as keyof typeof colorStyles].split(" ")[0], // Trick: Lấy class text màu
         )}
       />
-      <span className="text-[10px] text-slate-400 font-medium uppercase">
+      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium uppercase">
         {label}
       </span>
-      <span className="text-xs font-black text-slate-900">{value}%</span>
+      <span className="text-xs font-black text-slate-900 dark:text-slate-100">
+        {value}%
+      </span>
     </div>
   );
 }

@@ -35,7 +35,6 @@ export function CreateSemesterModal({
   onCreate,
   isCreating,
 }: CreateSemesterModalProps) {
-  // 2. Setup Form với Resolver
   const {
     register,
     handleSubmit,
@@ -51,7 +50,6 @@ export function CreateSemesterModal({
     },
   });
 
-  // Reset form mỗi khi mở modal
   useEffect(() => {
     if (open) {
       reset();
@@ -65,16 +63,16 @@ export function CreateSemesterModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] rounded-[32px] p-0 overflow-hidden border-none shadow-2xl">
-        <div className="p-8 bg-white">
+      <DialogContent className="sm:max-w-[500px] rounded-[32px] p-0 overflow-hidden border-none shadow-2xl bg-white dark:bg-slate-950">
+        <div className="p-8">
           <DialogHeader className="mb-6">
-            <div className="h-12 w-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-4 border border-orange-100">
+            <div className="h-12 w-12 bg-orange-50 dark:bg-orange-500/10 rounded-2xl flex items-center justify-center mb-4 border border-orange-100 dark:border-orange-500/20">
               <Plus className="h-6 w-6 text-[#F27124]" />
             </div>
-            <DialogTitle className="text-2xl font-black text-slate-900">
+            <DialogTitle className="text-2xl font-black text-slate-900 dark:text-slate-50">
               Tạo Học Kỳ Mới
             </DialogTitle>
-            <DialogDescription className="text-slate-500 font-medium">
+            <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium">
               Thiết lập thông tin cho kỳ học mới. Các trường có dấu * là bắt
               buộc.
             </DialogDescription>
@@ -87,14 +85,18 @@ export function CreateSemesterModal({
               <div className="space-y-2">
                 <Label
                   htmlFor="name"
-                  className="text-xs font-bold uppercase text-slate-500 tracking-wider"
+                  className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider"
                 >
                   Tên học kỳ <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="name"
                   placeholder="VD: Spring 2024"
-                  className={`rounded-xl border-slate-200 h-11 ${errors.name ? "border-red-500 focus:ring-red-200" : "focus:border-[#F27124] focus:ring-[#F27124]/20"}`}
+                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-11 dark:text-slate-100 ${
+                    errors.name
+                      ? "border-red-500 focus:ring-red-200"
+                      : "focus:border-[#F27124] focus:ring-[#F27124]/20"
+                  }`}
                   {...register("name")}
                 />
                 {errors.name && (
@@ -108,14 +110,18 @@ export function CreateSemesterModal({
               <div className="space-y-2">
                 <Label
                   htmlFor="code"
-                  className="text-xs font-bold uppercase text-slate-500 tracking-wider"
+                  className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider"
                 >
                   Mã học kỳ <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="code"
                   placeholder="VD: SP24"
-                  className={`rounded-xl border-slate-200 h-11 font-mono uppercase ${errors.code ? "border-red-500 focus:ring-red-200" : "focus:border-[#F27124] focus:ring-[#F27124]/20"}`}
+                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-11 font-mono uppercase dark:text-slate-100 ${
+                    errors.code
+                      ? "border-red-500 focus:ring-red-200"
+                      : "focus:border-[#F27124] focus:ring-[#F27124]/20"
+                  }`}
                   {...register("code")}
                   onChange={(e) => {
                     register("code").onChange(e);
@@ -136,14 +142,19 @@ export function CreateSemesterModal({
               <div className="space-y-2">
                 <Label
                   htmlFor="start"
-                  className="text-xs font-bold uppercase text-slate-500 tracking-wider"
+                  className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider"
                 >
                   Ngày bắt đầu <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="start"
                   type="date"
-                  className={`rounded-xl border-slate-200 h-11 block w-full ${errors.start_date ? "border-red-500 focus:ring-red-200" : "focus:border-[#F27124] focus:ring-[#F27124]/20"}`}
+                  // Thêm style cho icon lịch (dark mode)
+                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-11 block w-full dark:text-slate-100 dark:[color-scheme:dark] ${
+                    errors.start_date
+                      ? "border-red-500 focus:ring-red-200"
+                      : "focus:border-[#F27124] focus:ring-[#F27124]/20"
+                  }`}
                   {...register("start_date")}
                 />
                 {errors.start_date && (
@@ -158,14 +169,18 @@ export function CreateSemesterModal({
               <div className="space-y-2">
                 <Label
                   htmlFor="end"
-                  className="text-xs font-bold uppercase text-slate-500 tracking-wider"
+                  className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider"
                 >
                   Ngày kết thúc <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="end"
                   type="date"
-                  className={`rounded-xl border-slate-200 h-11 block w-full ${errors.end_date ? "border-red-500 focus:ring-red-200" : "focus:border-[#F27124] focus:ring-[#F27124]/20"}`}
+                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-11 block w-full dark:text-slate-100 dark:[color-scheme:dark] ${
+                    errors.end_date
+                      ? "border-red-500 focus:ring-red-200"
+                      : "focus:border-[#F27124] focus:ring-[#F27124]/20"
+                  }`}
                   {...register("end_date")}
                 />
                 {errors.end_date && (
@@ -182,7 +197,7 @@ export function CreateSemesterModal({
                 type="button"
                 variant="ghost"
                 onClick={() => onOpenChange(false)}
-                className="rounded-xl font-bold text-slate-500 hover:text-slate-900"
+                className="rounded-xl font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 Hủy bỏ
               </Button>

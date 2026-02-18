@@ -24,23 +24,23 @@ export function ClassHeader({
   onRefresh,
 }: ClassHeaderProps) {
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-6">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-6 transition-colors">
       <div className="space-y-1">
-        <div className="flex items-center gap-2 text-[#F27124] mb-1">
+        <div className="flex items-center gap-2 text-[#F27124] dark:text-orange-400 mb-1">
           <GraduationCap className="h-5 w-5" />
           <span className="text-xs font-black uppercase tracking-widest">
             {semesterName}
           </span>
           {isConnected && (
-            <div className="flex items-center gap-1.5 ml-2 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100 text-[9px] font-black uppercase tracking-widest animate-pulse">
+            <div className="flex items-center gap-1.5 ml-2 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-100 dark:border-emerald-800 text-[9px] font-black uppercase tracking-widest animate-pulse">
               Live Sync
             </div>
           )}
         </div>
-        <h1 className="text-4xl font-black tracking-tighter text-slate-900">
+        <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-slate-50">
           Lớp {className}
         </h1>
-        <p className="text-sm text-gray-500 font-medium">
+        <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">
           {subjectName} ({subjectCode})
         </p>
       </div>

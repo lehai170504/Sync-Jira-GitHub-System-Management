@@ -66,10 +66,10 @@ export function RegisterFormContainer({ onSwitchToLogin }: Props) {
   return (
     <div className="w-full space-y-6">
       <div className="space-y-2">
-        <h1 className="text-3xl font-black text-slate-900">
+        <h1 className="text-3xl font-black text-slate-900 dark:text-slate-50 transition-colors">
           {step === 1 ? "Tạo tài khoản" : "Xác thực"}
         </h1>
-        <p className="text-slate-500 text-sm">
+        <p className="text-slate-500 dark:text-slate-400 text-sm transition-colors">
           {step === 1
             ? "Bắt đầu hành trình học tập cùng SyncSystem."
             : "Nhập mã OTP đã được gửi đến email."}

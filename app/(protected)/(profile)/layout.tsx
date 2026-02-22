@@ -65,12 +65,6 @@ export default function SettingsLayout({
           </div>
         </div>
       </main>
-
-      <footer className="shrink-0 px-10 py-6 border-t border-slate-200/60 dark:border-slate-800/60 bg-white dark:bg-slate-950 transition-colors duration-300">
-        <div className="max-w-[1600px] mx-auto opacity-60 hover:opacity-100 transition-opacity">
-          <Footer />
-        </div>
-      </footer>
     </div>
   );
 }

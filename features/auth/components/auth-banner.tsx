@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   Sparkles,
   ArrowRight,
-  ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -54,13 +53,13 @@ export function AuthBanner({ isRegisterMode, onToggle }: AuthBannerProps) {
             <div className="absolute -top-8 -right-8 px-4 py-2 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-white/10 [transform:translateZ(80px)] flex items-center gap-2">
               <Zap className="h-3 w-3 text-yellow-400" />
               <span className="text-[9px] font-black uppercase tracking-widest">
-                Đồng bộ
+                ĐỒNG BỘ
               </span>
             </div>
             <div className="absolute -bottom-4 -left-10 px-4 py-2 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-white/10 [transform:translateZ(120px)] flex items-center gap-2">
               <ShieldCheck className="h-3 w-3 text-emerald-400" />
               <span className="text-[9px] font-black uppercase tracking-widest">
-                Bảo mật
+                BẢO MẬT
               </span>
             </div>
           </div>
@@ -79,7 +78,7 @@ export function AuthBanner({ isRegisterMode, onToggle }: AuthBannerProps) {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-2 mx-auto">
               <Sparkles className="h-3 w-3 text-emerald-400" />
               <span className="text-[8px] font-black uppercase tracking-[0.3em] text-emerald-400">
-                {isRegisterMode ? "Đã có tài khoản?" : "Thành viên mới?"}
+                {isRegisterMode ? "ĐÃ CÓ TÀI KHOẢN?" : "THÀNH VIÊN MỚI?"}
               </span>
             </div>
 
@@ -112,12 +111,8 @@ export function AuthBanner({ isRegisterMode, onToggle }: AuthBannerProps) {
               variant="outline"
               className="mt-4 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 h-12 px-8 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all active:scale-95"
             >
-              {isRegisterMode ? "Đăng nhập ngay" : "Đăng ký tài khoản"}
-              {isRegisterMode ? (
-                <ArrowRight className="ml-2 h-4 w-4" />
-              ) : (
-                <ArrowRight className="ml-2 h-4 w-4" />
-              )}
+              {isRegisterMode ? "ĐĂNG NHẬP NGAY" : "ĐĂNG KÝ TÀI KHOẢN"}
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </motion.div>
         </AnimatePresence>

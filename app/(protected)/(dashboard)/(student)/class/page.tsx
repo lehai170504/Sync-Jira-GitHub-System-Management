@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 // Components
-import { StudentClassList } from "@/features/management/classes/components/student-class-list";
+import { StudentList } from "@/features/management/classes/components/student-class-list";
 import { AddProjectDialog } from "@/features/projects/components/add-project-dialog";
 
 // Hooks
@@ -232,7 +232,7 @@ export default function StudentClassListPage() {
           </div>
         ) : (
           <div className="animate-in slide-in-from-bottom-4 duration-700 ease-out">
-            <StudentClassList students={students} filterTerm={searchTerm} />
+            <StudentList students={students} filterTerm={searchTerm} />
           </div>
         )}
       </div>

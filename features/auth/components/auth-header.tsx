@@ -6,20 +6,18 @@ export function AuthHeader() {
     <div className="px-8 py-6 flex items-center justify-between">
       <Link href="/" className="flex items-center gap-4 group">
         <div className="flex items-center gap-3">
-          {" "}
           <div className="relative h-24 w-24 flex-shrink-0">
             <Image
               src="/images/logo-sync.png"
               alt="SyncSystem Logo"
               fill
-              className="object-contain"
+              className="object-contain dark:brightness-0 dark:invert transition-all"
               priority
             />
           </div>
         </div>
         {/* Divider */}
-        <div className="h-8 w-px bg-slate-200"></div>{" "}
-        {/* Tăng chiều cao divider cho cân đối */}
+        <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 transition-colors"></div>
         {/* --- LOGO FPT --- */}
         <div className="opacity-90 grayscale group-hover:grayscale-0 transition-all duration-300 flex-shrink-0">
           <Image
@@ -27,7 +25,7 @@ export function AuthHeader() {
             alt="FPT University"
             width={110}
             height={35}
-            className="h-8 w-auto object-contain"
+            className="h-8 w-auto object-contain dark:brightness-0 dark:invert transition-all"
             priority
           />
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -47,8 +47,6 @@ export default function ForgotPasswordPage() {
   const { mutate: resetPass, isPending: isResetLoading } = useResetPassword();
 
   // --- HANDLERS ---
-
-  // Xử lý Bước 1: Gửi yêu cầu OTP
   const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
@@ -58,7 +56,6 @@ export default function ForgotPasswordPage() {
     requestOtp({ email, role });
   };
 
-  // Xử lý Bước 2: Đổi mật khẩu
   const handleStep2Submit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -84,7 +81,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="w-full h-screen lg:grid lg:grid-cols-2 overflow-hidden bg-white">
+    <div className="w-full h-screen lg:grid lg:grid-cols-2 overflow-hidden bg-white dark:bg-slate-950 transition-colors duration-300">
       {/* --- CỘT TRÁI: FORM --- */}
       <div className="flex flex-col h-full relative overflow-y-auto">
         {/* Header */}
@@ -94,18 +91,18 @@ export default function ForgotPasswordPage() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#F27124] to-[#d65d1b] shadow-md">
                 <span className="text-white font-black text-lg">S</span>
               </div>
-              <span className="font-bold text-lg text-slate-900 hidden sm:block">
+              <span className="font-bold text-lg text-slate-900 dark:text-slate-100 hidden sm:block transition-colors">
                 SyncSystem
               </span>
             </div>
-            <div className="h-6 w-px bg-slate-200"></div>
+            <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 transition-colors"></div>
             <div className="opacity-90 grayscale group-hover:grayscale-0 transition-all duration-300">
               <Image
                 src="/images/Logo_Trường_Đại_học_FPT.svg.png"
                 alt="FPT University"
                 width={100}
                 height={32}
-                className="h-7 w-auto object-contain"
+                className="h-7 w-auto object-contain dark:brightness-0 dark:invert transition-all"
               />
             </div>
           </Link>
@@ -115,10 +112,10 @@ export default function ForgotPasswordPage() {
         <div className="flex-1 flex flex-col justify-center px-8 sm:px-12 md:px-20 lg:px-16 xl:px-24">
           <div className="max-w-[480px] w-full mx-auto space-y-8">
             <div className="space-y-2">
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 transition-colors">
                 {step === 1 ? "Quên mật khẩu?" : "Đặt lại mật khẩu"}
               </h1>
-              <p className="text-slate-500 text-base">
+              <p className="text-slate-500 dark:text-slate-400 text-base transition-colors">
                 {step === 1
                   ? "Đừng lo, chúng tôi sẽ gửi mã xác thực đến email của bạn."
                   : `Nhập mã OTP đã được gửi đến ${email} để tạo mật khẩu mới.`}
@@ -133,33 +130,46 @@ export default function ForgotPasswordPage() {
               >
                 {/* Role Selection */}
                 <div className="space-y-2">
-                  <Label>Bạn là?</Label>
+                  <Label className="text-slate-700 dark:text-slate-300">
+                    Bạn là?
+                  </Label>
                   <Select
                     value={role}
                     onValueChange={(val: "STUDENT" | "LECTURER") =>
                       setRole(val)
                     }
                   >
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:ring-[#F27124]/20 transition-colors">
                       <SelectValue placeholder="Chọn vai trò" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="STUDENT">
+                    <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                      <SelectItem
+                        value="STUDENT"
+                        className="dark:text-slate-200"
+                      >
                         Sinh viên (Student)
                       </SelectItem>
-                      <SelectItem value="LECTURER">
+                      <SelectItem
+                        value="LECTURER"
+                        className="dark:text-slate-200"
+                      >
                         Giảng viên (Lecturer)
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     *Tính năng này không hỗ trợ tài khoản Admin.
                   </p>
                 </div>
 
                 {/* Email Input */}
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email tài khoản</Label>
+                  <Label
+                    htmlFor="email"
+                    className="text-slate-700 dark:text-slate-300"
+                  >
+                    Email tài khoản
+                  </Label>
                   <div className="relative">
                     <Input
                       id="email"
@@ -168,10 +178,10 @@ export default function ForgotPasswordPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={isOtpLoading}
-                      className="pl-10 h-11"
+                      className="pl-10 h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
                       required
                     />
-                    <div className="absolute left-3 top-3 text-slate-400">
+                    <div className="absolute left-3 top-3 text-slate-400 dark:text-slate-500">
                       <Mail className="h-5 w-5" />
                     </div>
                   </div>
@@ -182,15 +192,15 @@ export default function ForgotPasswordPage() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="h-12 w-12 p-0 rounded-xl"
+                      className="h-12 w-12 p-0 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                     >
-                      <ArrowLeft className="h-5 w-5 text-slate-600" />
+                      <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
                     </Button>
                   </Link>
                   <Button
                     type="submit"
                     disabled={isOtpLoading}
-                    className="flex-1 h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b]"
+                    className="flex-1 h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] text-white transition-colors"
                   >
                     {isOtpLoading ? (
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -211,18 +221,23 @@ export default function ForgotPasswordPage() {
               >
                 {/* OTP Input */}
                 <div className="space-y-2">
-                  <Label htmlFor="otp">Mã OTP (6 số)</Label>
+                  <Label
+                    htmlFor="otp"
+                    className="text-slate-700 dark:text-slate-300"
+                  >
+                    Mã OTP (6 số)
+                  </Label>
                   <div className="relative">
                     <Input
                       id="otp"
                       placeholder="123456"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
-                      className="pl-10 h-11 tracking-widest font-bold text-center text-lg"
+                      className="pl-10 h-11 tracking-widest font-bold text-center text-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
                       maxLength={6}
                       required
                     />
-                    <div className="absolute left-3 top-3 text-slate-400">
+                    <div className="absolute left-3 top-3 text-slate-400 dark:text-slate-500">
                       <KeyRound className="h-5 w-5" />
                     </div>
                   </div>
@@ -231,7 +246,12 @@ export default function ForgotPasswordPage() {
                 {/* New Password Fields */}
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="new-password">Mật khẩu mới</Label>
+                    <Label
+                      htmlFor="new-password"
+                      className="text-slate-700 dark:text-slate-300"
+                    >
+                      Mật khẩu mới
+                    </Label>
                     <div className="relative">
                       <Input
                         id="new-password"
@@ -239,23 +259,28 @@ export default function ForgotPasswordPage() {
                         placeholder="••••••"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="pl-10 h-11"
+                        className="pl-10 h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
                         required
                       />
-                      <div className="absolute left-3 top-3 text-slate-400">
+                      <div className="absolute left-3 top-3 text-slate-400 dark:text-slate-500">
                         <Lock className="h-5 w-5" />
                       </div>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirm">Nhập lại mật khẩu mới</Label>
+                    <Label
+                      htmlFor="confirm"
+                      className="text-slate-700 dark:text-slate-300"
+                    >
+                      Nhập lại mật khẩu mới
+                    </Label>
                     <Input
                       id="confirm"
                       type="password"
                       placeholder="••••••"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="h-11"
+                      className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
                       required
                     />
                   </div>
@@ -266,14 +291,14 @@ export default function ForgotPasswordPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setStep(1)}
-                    className="flex-none h-12 w-12 p-0 rounded-xl"
+                    className="flex-none h-12 w-12 p-0 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                   >
-                    <ArrowLeft className="h-5 w-5 text-slate-600" />
+                    <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
                   </Button>
                   <Button
                     type="submit"
                     disabled={isResetLoading}
-                    className="flex-1 h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b]"
+                    className="flex-1 h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] text-white transition-colors"
                   >
                     {isResetLoading ? (
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -287,11 +312,11 @@ export default function ForgotPasswordPage() {
 
             {/* Back to Login Link */}
             {step === 1 && (
-              <div className="text-center text-sm text-slate-500">
+              <div className="text-center text-sm text-slate-500 dark:text-slate-400 transition-colors">
                 Nhớ mật khẩu rồi?{" "}
                 <Link
                   href="/login"
-                  className="font-bold text-[#F27124] hover:underline"
+                  className="font-bold text-[#F27124] hover:text-[#d65d1b] dark:text-orange-400 dark:hover:text-orange-300 hover:underline transition-colors"
                 >
                   Đăng nhập ngay
                 </Link>
@@ -301,8 +326,8 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-6 text-center sm:text-left">
-          <p className="text-xs text-slate-400">
+        <div className="px-8 py-6 text-center sm:text-left transition-colors">
+          <p className="text-xs text-slate-400 dark:text-slate-500">
             &copy; 2026 SyncSystem. Subject Management Module.
           </p>
         </div>

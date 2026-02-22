@@ -22,10 +22,8 @@ import { ClassStudent } from "@/features/management/classes/types/class-types";
 
 // Note: Thêm prop classId & onRefresh để tương thích với prop truyền từ ClassManagementPage
 export function StudentList({
-  classId,
   students,
   filterTerm,
-  onRefresh,
 }: {
   classId?: string;
   students: ClassStudent[];

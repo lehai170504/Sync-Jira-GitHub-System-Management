@@ -2,28 +2,25 @@
 
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, UploadCloud, Loader2 } from "lucide-react"; // Thêm icon Loader2
+import { Download, UploadCloud, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 
-// 1. Import Hook và Type đã tạo
 import { useImportStudents } from "@/features/management/classes/hooks/use-classes";
 import { ImportStudentDto } from "@/features/management/classes/types/class-types";
 
 interface StudentImportProps {
-  classId: string; // 👇 Cần classId để gọi API
-  onSuccess?: () => void; // Callback khi import thành công (để reload lại danh sách cha)
+  classId: string;
+  onSuccess?: () => void;
 }
 
 export function StudentImport({ classId, onSuccess }: StudentImportProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // 2. Sử dụng Hook Mutation
   const { mutate: importStudents, isPending: isImporting } =
     useImportStudents();
 
-  // --- Tải File Mẫu (Giữ nguyên) ---
   const handleDownloadTemplate = () => {
+    // ... logic (giữ nguyên)
     const templateData = [
       {
         Class: "SE1943",
@@ -61,12 +58,11 @@ export function StudentImport({ classId, onSuccess }: StudentImportProps) {
     toast.success("Đã tải xuống file mẫu!");
   };
 
-  // --- Xử lý Upload & Call API ---
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // ... logic (giữ nguyên)
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Reset input để cho phép chọn lại cùng 1 file nếu muốn
     if (fileInputRef.current) fileInputRef.current.value = "";
 
     const reader = new FileReader();
@@ -82,12 +78,8 @@ export function StudentImport({ classId, onSuccess }: StudentImportProps) {
         return;
       }
 
-      // 3. Map dữ liệu Excel -> API Payload (ImportStudentDto)
       const formattedStudents: ImportStudentDto[] = jsonData.map((row: any) => {
-        // Xử lý Group (chấp nhận cả số "1" hoặc chuỗi "Team 1")
-        let groupVal = row["Group"] || row["Group "]; // Handle lỡ có khoảng trắng
-
-        // Xử lý Leader (chấp nhận "x", "X", "yes", "true")
+        let groupVal = row["Group"] || row["Group "];
         const leaderVal = row["Leader"]
           ? row["Leader"].toString().toLowerCase()
           : "";
@@ -106,7 +98,6 @@ export function StudentImport({ classId, onSuccess }: StudentImportProps) {
         };
       });
 
-      // Validate sơ bộ (nếu cần)
       const validStudents = formattedStudents.filter(
         (s) => s.Email && s.RollNumber,
       );
@@ -117,7 +108,6 @@ export function StudentImport({ classId, onSuccess }: StudentImportProps) {
         return;
       }
 
-      // 4. Gọi API Import
       importStudents(
         {
           classId: classId,
@@ -125,7 +115,7 @@ export function StudentImport({ classId, onSuccess }: StudentImportProps) {
         },
         {
           onSuccess: () => {
-            if (onSuccess) onSuccess(); // Báo cho cha biết để reload list
+            if (onSuccess) onSuccess();
           },
         },
       );
@@ -143,27 +133,25 @@ export function StudentImport({ classId, onSuccess }: StudentImportProps) {
         onChange={handleFileUpload}
       />
 
-      {/* Nút tải Template */}
       <Button
         variant="ghost"
         onClick={handleDownloadTemplate}
         disabled={isImporting}
-        className="text-gray-600 hover:text-[#F27124] hover:bg-orange-50 border border-dashed border-gray-300"
+        className="text-slate-600 dark:text-slate-300 hover:text-[#F27124] dark:hover:text-[#F27124] hover:bg-orange-50 dark:hover:bg-orange-900/10 border border-dashed border-slate-300 dark:border-slate-700"
       >
         <Download className="mr-2 h-4 w-4" /> File Mẫu
       </Button>
 
-      {/* Nút Import */}
       <Button
         variant="outline"
         onClick={() => fileInputRef.current?.click()}
         disabled={isImporting}
-        className="bg-white hover:bg-gray-50 border-gray-200 text-gray-700 shadow-sm min-w-[140px]"
+        className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 shadow-sm min-w-[140px]"
       >
         {isImporting ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin text-[#F27124]" />
         ) : (
-          <UploadCloud className="mr-2 h-4 w-4 text-green-600" />
+          <UploadCloud className="mr-2 h-4 w-4 text-green-600 dark:text-green-500" />
         )}
         {isImporting ? "Đang xử lý..." : "Import Excel"}
       </Button>

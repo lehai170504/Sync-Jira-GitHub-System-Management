@@ -58,16 +58,16 @@ export function GradingConfig() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* HEADER SECTION IN TAB */}
-      <div className="flex items-center justify-between bg-orange-50/50 p-4 rounded-xl border border-orange-100">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-orange-50/50 dark:bg-orange-900/10 p-4 rounded-xl border border-orange-100 dark:border-orange-900/30 transition-colors">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-white rounded-lg shadow-sm border border-orange-100">
-            <Settings2 className="h-6 w-6 text-[#F27124]" />
+          <div className="p-2 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-orange-100 dark:border-orange-900/50 transition-colors">
+            <Settings2 className="h-6 w-6 text-[#F27124] dark:text-orange-400" />
           </div>
           <div>
-            <h3 className="font-bold text-lg text-slate-800">
+            <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 transition-colors">
               Cấu hình trọng số (Weighting)
             </h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors">
               Thiết lập quy tắc tính điểm cho toàn bộ lớp học này.
             </p>
           </div>
@@ -77,7 +77,7 @@ export function GradingConfig() {
         <Button
           onClick={handleSave}
           disabled={isPending}
-          className="bg-[#F27124] hover:bg-[#d65d1b] text-white shadow-md shadow-orange-500/20"
+          className="w-full sm:w-auto bg-[#F27124] hover:bg-[#d65d1b] text-white shadow-md shadow-orange-500/20 dark:shadow-none"
         >
           {isPending ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

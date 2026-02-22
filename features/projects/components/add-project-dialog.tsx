@@ -135,12 +135,12 @@ export function AddProjectDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[550px] rounded-[24px] border-slate-200 bg-white/95 backdrop-blur-xl p-8 max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-[550px] rounded-[24px] border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl p-8 max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
         <DialogHeader className="space-y-3">
-          <DialogTitle className="text-2xl font-bold tracking-tight text-slate-900">
+          <DialogTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
             Tạo dự án mới
           </DialogTitle>
-          <DialogDescription className="text-sm text-slate-500 leading-relaxed text-left">
+          <DialogDescription className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed text-left">
             Kết nối GitHub, Jira và xác nhận thành viên để bắt đầu không gian
             làm việc.
           </DialogDescription>
@@ -159,13 +159,13 @@ export function AddProjectDialog({
                   name="name"
                   render={({ field }) => (
                     <FormItem className="grid gap-2 text-left space-y-0">
-                      <FormLabel className="text-xs font-bold uppercase text-slate-400 tracking-widest">
+                      <FormLabel className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest">
                         Tên dự án <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Nhập tên dự án..."
-                          className="rounded-xl border-slate-200 h-12 text-sm font-medium transition-all focus:ring-2 focus:ring-orange-500/20"
+                          className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-12 text-sm font-medium transition-all focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-orange-500/20 dark:text-slate-100"
                           {...field}
                         />
                       </FormControl>
@@ -181,14 +181,14 @@ export function AddProjectDialog({
                   render={() => (
                     <FormItem className="grid gap-3 text-left space-y-0">
                       <div className="flex items-center justify-between">
-                        <FormLabel className="text-xs font-bold uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                          <Users className="w-4 h-4 text-slate-900" /> Xác nhận
-                          thành viên ({form.watch("members").length})
+                        <FormLabel className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest flex items-center gap-2">
+                          <Users className="w-4 h-4 text-slate-900 dark:text-slate-300" />{" "}
+                          Xác nhận thành viên ({form.watch("members").length})
                         </FormLabel>
                         <FormMessage />
                       </div>
 
-                      <div className="grid grid-cols-1 gap-2 border rounded-2xl p-3 bg-slate-50/50 border-slate-100">
+                      <div className="grid grid-cols-1 gap-2 border rounded-2xl p-3 bg-slate-50/50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800">
                         {members.map((member) => (
                           <FormField
                             key={member._id}
@@ -198,20 +198,20 @@ export function AddProjectDialog({
                               return (
                                 <FormItem
                                   key={member._id}
-                                  className="flex flex-row items-center justify-between p-2 hover:bg-white rounded-xl transition-colors cursor-pointer space-y-0"
+                                  className="flex flex-row items-center justify-between p-2 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer space-y-0 group"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <Avatar className="h-8 w-8 border border-white">
+                                    <Avatar className="h-8 w-8 border border-white dark:border-slate-700 shadow-sm">
                                       <AvatarImage src={member.avatar_url} />
-                                      <AvatarFallback className="text-[10px] bg-orange-100 text-orange-600 font-bold">
+                                      <AvatarFallback className="text-[10px] bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-bold">
                                         {member.full_name?.charAt(0)}
                                       </AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col text-left">
-                                      <Label className="text-xs font-bold text-slate-700 cursor-pointer">
+                                      <Label className="text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                                         {member.full_name}
                                       </Label>
-                                      <span className="text-[10px] text-slate-400 uppercase">
+                                      <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase">
                                         {member.student_code}
                                       </span>
                                     </div>
@@ -233,7 +233,7 @@ export function AddProjectDialog({
                                               ),
                                             );
                                       }}
-                                      className="rounded-md border-slate-300 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                                      className="rounded-md border-slate-300 dark:border-slate-600 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
                                     />
                                   </FormControl>
                                 </FormItem>
@@ -252,9 +252,10 @@ export function AddProjectDialog({
                   name="githubRepoUrl"
                   render={({ field }) => (
                     <FormItem className="grid gap-2 text-left space-y-0">
-                      <FormLabel className="text-xs font-bold uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <Github className="w-4 h-4 text-slate-900" /> GitHub
-                        Repository <span className="text-red-500">*</span>
+                      <FormLabel className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest flex items-center gap-2">
+                        <Github className="w-4 h-4 text-slate-900 dark:text-slate-300" />{" "}
+                        GitHub Repository{" "}
+                        <span className="text-red-500">*</span>
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -262,7 +263,7 @@ export function AddProjectDialog({
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="rounded-xl border-slate-200 h-12 bg-white">
+                          <SelectTrigger className="rounded-xl border-slate-200 dark:border-slate-800 h-12 bg-white dark:bg-slate-900 dark:text-slate-100">
                             <SelectValue
                               placeholder={
                                 isLoadingRepos
@@ -272,12 +273,12 @@ export function AddProjectDialog({
                             />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="rounded-xl shadow-2xl border-slate-100">
+                        <SelectContent className="rounded-xl shadow-2xl border-slate-100 dark:border-slate-800 dark:bg-slate-900">
                           {repos.map((repo: any) => (
                             <SelectItem
                               key={repo.id}
                               value={repo.url}
-                              className="text-sm py-3 cursor-pointer"
+                              className="text-sm py-3 cursor-pointer dark:text-slate-200"
                             >
                               {repo.name}
                             </SelectItem>
@@ -295,7 +296,7 @@ export function AddProjectDialog({
                   name="jiraProjectKey"
                   render={({ field }) => (
                     <FormItem className="grid gap-2 text-left space-y-0">
-                      <FormLabel className="text-xs font-bold uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                      <FormLabel className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-widest flex items-center gap-2">
                         <Trello className="w-4 h-4 text-blue-500" /> Jira
                         Project Key <span className="text-red-500">*</span>
                       </FormLabel>
@@ -305,7 +306,7 @@ export function AddProjectDialog({
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="rounded-xl border-slate-200 h-12 bg-white">
+                          <SelectTrigger className="rounded-xl border-slate-200 dark:border-slate-800 h-12 bg-white dark:bg-slate-900 dark:text-slate-100">
                             <SelectValue
                               placeholder={
                                 isLoadingJira
@@ -315,14 +316,14 @@ export function AddProjectDialog({
                             />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="rounded-xl shadow-2xl border-slate-100">
+                        <SelectContent className="rounded-xl shadow-2xl border-slate-100 dark:border-slate-800 dark:bg-slate-900">
                           {projects.map((proj: any) => (
                             <SelectItem
                               key={proj.id}
                               value={proj.key}
-                              className="text-sm py-3 cursor-pointer"
+                              className="text-sm py-3 cursor-pointer dark:text-slate-200"
                             >
-                              <span className="font-bold text-blue-600 mr-2">
+                              <span className="font-bold text-blue-600 dark:text-blue-400 mr-2">
                                 [{proj.key}]
                               </span>
                               {proj.name}
@@ -337,11 +338,11 @@ export function AddProjectDialog({
               </div>
             </ScrollArea>
 
-            <DialogFooter className="pt-6 border-t mt-4">
+            <DialogFooter className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-4">
               <Button
                 type="submit"
                 disabled={isPending}
-                className="w-full bg-slate-900 hover:bg-black text-white rounded-xl uppercase font-bold text-sm h-14 shadow-xl transition-all active:scale-[0.98]"
+                className="w-full bg-slate-900 hover:bg-black dark:bg-[#F27124] dark:hover:bg-[#d45d1d] text-white rounded-xl uppercase font-bold text-sm h-14 shadow-xl transition-all active:scale-[0.98]"
               >
                 {isPending ? (
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />

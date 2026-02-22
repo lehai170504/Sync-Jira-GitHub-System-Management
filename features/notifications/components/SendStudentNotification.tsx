@@ -55,37 +55,42 @@ export function SendStudentNotification({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px] rounded-[24px]">
+      <DialogContent className="sm:max-w-[450px] rounded-[24px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <Mail className="w-5 h-5 text-blue-500" /> Nhắn tin cho sinh viên
+          <DialogTitle className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+            <Mail className="w-5 h-5 text-blue-500 dark:text-blue-400" /> Nhắn
+            tin cho sinh viên
           </DialogTitle>
-          <DialogDescription>
-            Gửi thông báo riêng đến <b>{student.full_name}</b>.
+          <DialogDescription className="text-slate-500 dark:text-slate-400">
+            Gửi thông báo riêng đến{" "}
+            <b className="text-slate-900 dark:text-slate-200">
+              {student.full_name}
+            </b>
+            .
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase text-slate-400">
+            <Label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500">
               Tiêu đề
             </Label>
             <Input
               placeholder="VD: Nhắc nhở nộp bài..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="rounded-xl border-slate-200"
+              className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase text-slate-400">
+            <Label className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500">
               Nội dung
             </Label>
             <Textarea
               placeholder="Nhập nội dung tin nhắn..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="rounded-xl border-slate-200 min-h-[100px]"
+              className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-[100px]"
             />
           </div>
         </div>
@@ -94,10 +99,10 @@ export function SendStudentNotification({
           <Button
             onClick={handleSend}
             disabled={isPending || !title || !message}
-            className="w-full bg-slate-900 hover:bg-black text-white rounded-xl font-bold"
+            className="w-full bg-slate-900 dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
           >
             {isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
             ) : (
               <SendHorizontal className="w-4 h-4 mr-2" />
             )}

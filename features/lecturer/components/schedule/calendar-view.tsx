@@ -24,8 +24,8 @@ import { CalendarEvent } from "../../types/schedule-type";
 interface CalendarViewProps {
   events: CalendarEvent[];
   onAddClick: (date: Date) => void;
-  onDateSelect: (date: Date) => void; // Thêm prop này để báo cho cha biết ngày nào được chọn
-  selectedDate?: Date; // Optional: Để highlight ngày đang chọn
+  onDateSelect: (date: Date) => void;
+  selectedDate?: Date;
 }
 
 export function CalendarView({
@@ -48,22 +48,22 @@ export function CalendarView({
   const jumpToToday = () => {
     const now = new Date();
     setCurrentMonth(now);
-    onDateSelect(now); // Khi bấm "Hôm nay", cũng select ngày đó luôn
+    onDateSelect(now);
   };
 
   return (
-    <Card className="lg:col-span-2 border border-slate-200 shadow-sm h-full flex flex-col bg-white overflow-hidden">
-      {/* HEADER (Giữ nguyên) */}
-      <CardHeader className="flex flex-row items-center justify-between py-4 px-6 border-b border-slate-100 bg-white">
+    <Card className="lg:col-span-2 border border-slate-200 dark:border-slate-800 shadow-sm h-full flex flex-col bg-white dark:bg-slate-900 overflow-hidden transition-colors">
+      {/* HEADER */}
+      <CardHeader className="flex flex-row items-center justify-between py-4 px-6 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-orange-50 rounded-lg">
+          <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
             <CalendarDays className="h-5 w-5 text-[#F27124]" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-800 capitalize leading-none">
+            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 capitalize leading-none">
               {format(currentMonth, "MMMM", { locale: vi })}
             </h2>
-            <p className="text-xs font-medium text-slate-400 mt-1">
+            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-1">
               Năm {format(currentMonth, "yyyy")}
             </p>
           </div>
@@ -73,16 +73,16 @@ export function CalendarView({
           <Button
             variant="outline"
             size="sm"
-            className="h-8 text-xs font-medium border-slate-200 text-slate-600 hover:text-[#F27124] hover:border-orange-200 hover:bg-orange-50"
+            className="h-8 text-xs font-medium border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-[#F27124] dark:hover:text-[#F27124] hover:border-orange-200 dark:hover:border-orange-500/50 hover:bg-orange-50 dark:hover:bg-slate-800 transition-colors"
             onClick={jumpToToday}
           >
             Hôm nay
           </Button>
-          <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-lg border border-slate-200">
+          <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 rounded-md hover:bg-white text-slate-500"
+              className="h-6 w-6 rounded-md hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
               onClick={prevMonth}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -90,7 +90,7 @@ export function CalendarView({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 rounded-md hover:bg-white text-slate-500"
+              className="h-6 w-6 rounded-md hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
               onClick={nextMonth}
             >
               <ChevronRight className="h-4 w-4" />
@@ -101,7 +101,7 @@ export function CalendarView({
 
       <CardContent className="p-0 flex-1 flex flex-col">
         {/* Days Header */}
-        <div className="grid grid-cols-7 text-center text-xs font-semibold text-slate-400 bg-slate-50/50 border-b border-slate-100">
+        <div className="grid grid-cols-7 text-center text-xs font-semibold text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
           {["CN", "Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy"].map((d) => (
             <div key={d} className="py-3 uppercase tracking-wider text-[10px]">
               {d}
@@ -110,7 +110,7 @@ export function CalendarView({
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 flex-1 auto-rows-fr min-h-[500px] bg-slate-50/30">
+        <div className="grid grid-cols-7 flex-1 auto-rows-fr min-h-[500px] bg-slate-50/30 dark:bg-slate-900/50">
           {calendarDays.map((day) => {
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isDayToday = isToday(day);
@@ -125,10 +125,10 @@ export function CalendarView({
             return (
               <div
                 key={day.toString()}
-                onClick={() => onDateSelect(day)} // Thêm sự kiện click để xem chi tiết
-                className={`group relative flex flex-col border-b border-r border-slate-100 p-2 transition-all duration-200 min-h-[100px] cursor-pointer
-                  ${!isCurrentMonth ? "bg-slate-50/50 text-slate-300" : "bg-white hover:bg-orange-50/10"} 
-                  ${isDayToday ? "bg-orange-50/20" : ""}
+                onClick={() => onDateSelect(day)}
+                className={`group relative flex flex-col border-b border-r border-slate-100 dark:border-slate-800 p-2 transition-all duration-200 min-h-[100px] cursor-pointer
+                  ${!isCurrentMonth ? "bg-slate-50/50 dark:bg-slate-950/50 text-slate-300 dark:text-slate-600" : "bg-white dark:bg-slate-900 hover:bg-orange-50/10 dark:hover:bg-slate-800"} 
+                  ${isDayToday ? "bg-orange-50/20 dark:bg-orange-900/10" : ""}
                   ${isSelected ? "ring-2 ring-inset ring-[#F27124]/50 z-10" : ""}
                 `}
               >
@@ -138,25 +138,25 @@ export function CalendarView({
                     className={`text-sm font-semibold w-7 h-7 flex items-center justify-center rounded-full transition-all
                     ${
                       isDayToday
-                        ? "bg-[#F27124] text-white shadow-md shadow-orange-200"
+                        ? "bg-[#F27124] text-white shadow-md shadow-orange-200 dark:shadow-none"
                         : isSelected
-                          ? "bg-slate-900 text-white"
+                          ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900"
                           : isCurrentMonth
-                            ? "text-slate-700 group-hover:text-[#F27124]"
-                            : "text-slate-300"
+                            ? "text-slate-700 dark:text-slate-300 group-hover:text-[#F27124]"
+                            : "text-slate-300 dark:text-slate-600"
                     }`}
                   >
                     {format(day, "d")}
                   </span>
 
-                  {/* Nút thêm nhanh (chỉ hiện khi hover và đúng tháng) */}
+                  {/* Nút thêm nhanh */}
                   {isCurrentMonth && (
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // Chặn sự kiện click vào ô ngày
+                        e.stopPropagation();
                         onAddClick(day);
                       }}
-                      className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-full hover:bg-orange-100 text-orange-500 transition-all transform hover:scale-110"
+                      className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-full hover:bg-orange-100 dark:hover:bg-slate-700 text-orange-500 dark:text-orange-400 transition-all transform hover:scale-110"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
@@ -171,10 +171,10 @@ export function CalendarView({
                       className={`text-[10px] px-1.5 py-1 rounded-md truncate font-medium border transition-all hover:shadow-sm
                       ${
                         ev.type === "Teaching"
-                          ? "bg-blue-50 text-blue-700 border-blue-100"
+                          ? "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/50"
                           : ev.type === "Grading"
-                            ? "bg-red-50 text-red-700 border-red-100"
-                            : "bg-purple-50 text-purple-700 border-purple-100"
+                            ? "bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800/50"
+                            : "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/50"
                       }`}
                       title={`${ev.time} - ${ev.title}`}
                     >
@@ -186,7 +186,7 @@ export function CalendarView({
                   ))}
 
                   {dayEvents.length > 3 && (
-                    <span className="text-[9px] font-medium text-slate-400 pl-1">
+                    <span className="text-[9px] font-medium text-slate-400 dark:text-slate-500 pl-1">
                       +{dayEvents.length - 3} khác
                     </span>
                   )}

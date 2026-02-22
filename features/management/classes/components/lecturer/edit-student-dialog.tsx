@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,11 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Layers, Crown } from "lucide-react";
 
-// --- FORM IMPORTS ---
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -39,7 +37,6 @@ import {
   UpdateStudentsPayload,
 } from "@/features/management/classes/types/class-types";
 
-// Import Schema
 import {
   editStudentSchema,
   type EditStudentFormValues,
@@ -62,7 +59,6 @@ export function EditStudentDialog({
 }: EditStudentDialogProps) {
   const { mutate: updateStudent, isPending } = useUpdateStudents();
 
-  // 1. Setup Form
   const form = useForm<EditStudentFormValues>({
     resolver: zodResolver(editStudentSchema),
     defaultValues: {
@@ -71,12 +67,9 @@ export function EditStudentDialog({
     },
   });
 
-  // 2. Sync state khi student thay đổi
   useEffect(() => {
     if (student) {
-      // Parse group từ string "Team 1" -> "1"
       const teamNumber = student.team?.match(/\d+/)?.[0] || "0";
-
       form.reset({
         isLeader: student.role === "Leader",
         group: teamNumber,
@@ -84,11 +77,9 @@ export function EditStudentDialog({
     }
   }, [student, open, form]);
 
-  // 3. Handle Submit
   const onSubmit = (data: EditStudentFormValues) => {
     if (!student) return;
 
-    // Xác định ID dựa trên status (Sửa _id thành id cho khớp Type ClassStudent nếu cần)
     const isEnrolled = student.status === "Enrolled";
     const studentIdVal = isEnrolled ? student._id : undefined;
     const pendingIdVal = !isEnrolled ? student._id : undefined;
@@ -113,12 +104,17 @@ export function EditStudentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
         <DialogHeader>
-          <DialogTitle>Chỉnh sửa sinh viên</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-slate-900 dark:text-slate-100">
+            Chỉnh sửa sinh viên
+          </DialogTitle>
+          <DialogDescription className="text-slate-500 dark:text-slate-400">
             Cập nhật thông tin nhóm và vai trò cho sinh viên{" "}
-            <b>{student?.full_name}</b>.
+            <b className="text-slate-900 dark:text-slate-200">
+              {student?.full_name}
+            </b>
+            .
           </DialogDescription>
         </DialogHeader>
 
@@ -133,26 +129,34 @@ export function EditStudentDialog({
               name="group"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nhóm</FormLabel>
+                  <FormLabel className="text-slate-700 dark:text-slate-300">
+                    Nhóm
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value} // Quan trọng: bind value với field.value
+                    value={field.value}
                     disabled={isPending}
                   >
                     <FormControl>
                       <div className="relative">
-                        <Layers className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 z-10" />
-                        <SelectTrigger className="pl-9">
+                        <Layers className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 z-10" />
+                        <SelectTrigger className="pl-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
                           <SelectValue placeholder="Chọn nhóm" />
                         </SelectTrigger>
                       </div>
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="0">Chưa có nhóm</SelectItem>
+                    <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                      <SelectItem value="0" className="dark:text-slate-200">
+                        Chưa có nhóm
+                      </SelectItem>
                       {Array.from({ length: 20 }, (_, i) =>
                         (i + 1).toString(),
                       ).map((num) => (
-                        <SelectItem key={num} value={num}>
+                        <SelectItem
+                          key={num}
+                          value={num}
+                          className="dark:text-slate-200"
+                        >
                           Nhóm {num}
                         </SelectItem>
                       ))}
@@ -169,54 +173,61 @@ export function EditStudentDialog({
               name="isLeader"
               render={({ field }) => (
                 <FormItem className="space-y-0">
-                  <div className="flex items-center justify-between space-x-2 border p-3 rounded-lg bg-gray-50">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`p-2 rounded-full ${
-                          field.value ? "bg-yellow-100" : "bg-gray-200"
-                        }`}
-                      >
-                        <Crown
-                          className={`h-4 w-4 ${
+                  <FormLabel className="block mb-2 text-slate-700 dark:text-slate-300">
+                    Vai trò
+                  </FormLabel>
+                  <FormControl>
+                    <div className="flex items-center justify-between space-x-2 border border-slate-200 dark:border-slate-800 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`p-2 rounded-full transition-colors ${
                             field.value
-                              ? "text-yellow-600 fill-yellow-600"
-                              : "text-gray-500"
+                              ? "bg-yellow-100 dark:bg-yellow-900/30"
+                              : "bg-slate-200 dark:bg-slate-800"
                           }`}
-                        />
+                        >
+                          <Crown
+                            className={`h-4 w-4 transition-colors ${
+                              field.value
+                                ? "text-yellow-600 dark:text-yellow-500 fill-yellow-600 dark:fill-yellow-500"
+                                : "text-slate-500 dark:text-slate-400"
+                            }`}
+                          />
+                        </div>
+                        <div className="flex flex-col space-y-0.5">
+                          <FormLabel className="font-medium cursor-pointer mb-0 text-slate-900 dark:text-slate-100">
+                            Nhóm Trưởng
+                          </FormLabel>
+                          <span className="text-xs text-slate-500 dark:text-slate-400">
+                            Cấp quyền quản lý nhóm
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex flex-col space-y-0.5">
-                        <FormLabel className="font-medium cursor-pointer mb-0">
-                          Nhóm Trưởng
-                        </FormLabel>
-                        <span className="text-xs text-muted-foreground">
-                          Cấp quyền quản lý nhóm
-                        </span>
-                      </div>
-                    </div>
-                    <FormControl>
                       <Switch
                         checked={field.value}
                         onCheckedChange={field.onChange}
                         disabled={isPending}
+                        className="data-[state=checked]:bg-[#F27124] dark:data-[state=unchecked]:bg-slate-700"
                       />
-                    </FormControl>
-                  </div>
+                    </div>
+                  </FormControl>
                 </FormItem>
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="pt-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isPending}
+                className="dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Hủy
               </Button>
               <Button
                 type="submit"
-                className="bg-[#F27124] hover:bg-[#d65d1b]"
+                className="bg-[#F27124] hover:bg-[#d65d1b] text-white"
                 disabled={isPending}
               >
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

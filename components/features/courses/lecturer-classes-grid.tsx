@@ -26,17 +26,17 @@ export function LecturerClassesGrid({
     return (
       <div className="flex flex-col items-center justify-center py-32 text-center animate-fade-up font-mono">
         <div className="relative mb-6">
-          <div className="absolute -inset-4 border border-dashed border-slate-200 rounded-full animate-orbit-slow opacity-50" />
-          <div className="bg-white p-6 rounded-full shadow-xl relative z-10">
-            <Search className="h-10 w-10 text-slate-300" />
+          <div className="absolute -inset-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-full animate-orbit-slow opacity-50" />
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-full shadow-xl relative z-10">
+            <Search className="h-10 w-10 text-slate-300 dark:text-slate-600" />
           </div>
         </div>
-        <h3 className="text-xl font-black text-slate-900 italic tracking-tighter">
+        <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 italic tracking-tighter">
           Không tìm thấy lớp học
         </h3>
         <Button
           variant="outline"
-          className="mt-8 rounded-xl border-slate-200 font-black text-[10px] tracking-widest uppercase hover:bg-slate-50 active:scale-95 transition-all"
+          className="mt-8 rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 font-black text-[10px] tracking-widest uppercase hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-all"
           onClick={onClearFilter}
         >
           Xóa bộ lọc
@@ -58,7 +58,7 @@ export function LecturerClassesGrid({
             transition={{ duration: 0.4, delay: index * 0.05 }}
           >
             <Card
-              className="group overflow-hidden border-slate-100 rounded-[32px] shadow-2xl shadow-slate-200/50 hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer flex flex-col h-full bg-white relative hover:-translate-y-2 active:scale-[0.98]"
+              className="group overflow-hidden border-slate-100 dark:border-slate-800 rounded-[32px] shadow-2xl shadow-slate-200/50 dark:shadow-none hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer flex flex-col h-full bg-white dark:bg-slate-900 relative hover:-translate-y-2 active:scale-[0.98]"
               onClick={() => onSelectClass(cls)}
             >
               {/* HEADER */}
@@ -70,7 +70,7 @@ export function LecturerClassesGrid({
                 </div>
 
                 <div className="flex justify-between items-start relative z-10">
-                  <Badge className="bg-black/20 text-white text-[9px] font-black px-3 py-1 rounded-full backdrop-blur-md border-0 tracking-widest uppercase">
+                  <Badge className="bg-black/20 text-white text-[9px] font-black px-3 py-1 rounded-full backdrop-blur-md border-0 tracking-widest uppercase hover:bg-black/30">
                     {cls.semester_id?.name ?? "N/A"}
                   </Badge>
                   <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
@@ -90,14 +90,14 @@ export function LecturerClassesGrid({
 
               {/* BODY */}
               <CardContent className="flex-1 p-6 flex flex-col">
-                <h4 className="font-bold text-slate-800 text-sm leading-tight mb-4 group-hover:text-[#F27124] transition-colors line-clamp-2 italic">
+                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight mb-4 group-hover:text-[#F27124] transition-colors line-clamp-2 italic">
                   {cls.subjectName ?? cls.subject_id?.name}
                 </h4>
 
-                <div className="space-y-3 mt-auto pt-4 border-t border-slate-50">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                <div className="space-y-3 mt-auto pt-4 border-t border-slate-50 dark:border-slate-800">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">
                     <div className="flex items-center gap-1.5">
-                      <Target className="w-3 h-3 text-blue-500" />
+                      <Target className="w-3 h-3 text-blue-500 dark:text-blue-400" />
                       <span>
                         Jira:{" "}
                         {Math.round(
@@ -107,7 +107,7 @@ export function LecturerClassesGrid({
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Sparkles className="w-3 h-3 text-orange-500" />
+                      <Sparkles className="w-3 h-3 text-orange-500 dark:text-orange-400" />
                       <span>
                         Git:{" "}
                         {Math.round(
@@ -119,8 +119,8 @@ export function LecturerClassesGrid({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <BarChart3 className="w-3.5 h-3.5 text-slate-300" />
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    <BarChart3 className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600" />
+                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                       {cls.gradeStructure?.length
                         ? `${cls.gradeStructure.length} cột điểm`
                         : "Chưa cấu hình điểm"}
@@ -130,21 +130,21 @@ export function LecturerClassesGrid({
               </CardContent>
 
               {/* FOOTER */}
-              <CardFooter className="px-6 py-4 bg-slate-50/50 flex justify-between items-center group-hover:bg-[#F27124]/5 transition-colors">
+              <CardFooter className="px-6 py-4 bg-slate-50/50 dark:bg-slate-950/50 flex justify-between items-center group-hover:bg-[#F27124]/5 dark:group-hover:bg-[#F27124]/10 transition-colors">
                 <div className="flex items-center gap-2">
                   <div
                     className={`h-1.5 w-1.5 rounded-full animate-pulse ${
                       cls.status === "Active"
                         ? "bg-emerald-500"
-                        : "bg-slate-300"
+                        : "bg-slate-300 dark:bg-slate-600"
                     }`}
                   />
-                  <span className="text-[9px] font-black text-slate-400 group-hover:text-[#F27124] uppercase tracking-[0.2em]">
+                  <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 group-hover:text-[#F27124] uppercase tracking-[0.2em]">
                     {cls.status}
                   </span>
                 </div>
-                <div className="h-7 w-7 rounded-lg bg-white border border-slate-100 flex items-center justify-center group-hover:border-[#F27124] group-hover:rotate-12 transition-all shadow-sm">
-                  <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-[#F27124]" />
+                <div className="h-7 w-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center group-hover:border-[#F27124] dark:group-hover:border-[#F27124] group-hover:rotate-12 transition-all shadow-sm">
+                  <ArrowRight className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 group-hover:text-[#F27124]" />
                 </div>
               </CardFooter>
             </Card>

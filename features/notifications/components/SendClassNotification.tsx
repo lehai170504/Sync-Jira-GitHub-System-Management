@@ -48,18 +48,18 @@ export function SendClassNotification({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2 font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95">
+        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2 font-bold shadow-lg shadow-blue-500/20 dark:shadow-none transition-all active:scale-95 h-12">
           <Megaphone className="w-4 h-4" />
           Gửi thông báo lớp
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[500px] rounded-[24px]">
+      <DialogContent className="sm:max-w-[500px] rounded-[24px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black tracking-tight">
+          <DialogTitle className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">
             Gửi thông báo cho {className}
           </DialogTitle>
-          <DialogDescription className="text-slate-500">
+          <DialogDescription className="text-slate-500 dark:text-slate-400">
             Thông báo sẽ được gửi trực tiếp đến trình duyệt của toàn bộ sinh
             viên trong lớp.
           </DialogDescription>
@@ -67,25 +67,25 @@ export function SendClassNotification({
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label className="font-bold text-xs uppercase text-slate-400 tracking-widest">
+            <Label className="font-bold text-xs uppercase text-slate-400 dark:text-slate-500 tracking-widest">
               Tiêu đề
             </Label>
             <Input
               placeholder="VD: Nhắc nhở nộp bài tập..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="rounded-xl border-slate-200 h-12 focus:ring-blue-500/20"
+              className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 h-12 focus:ring-blue-500/20 dark:focus:ring-blue-500/20"
             />
           </div>
           <div className="space-y-2">
-            <Label className="font-bold text-xs uppercase text-slate-400 tracking-widest">
+            <Label className="font-bold text-xs uppercase text-slate-400 dark:text-slate-500 tracking-widest">
               Nội dung
             </Label>
             <Textarea
               placeholder="Nhập nội dung thông báo chi tiết tại đây..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="rounded-xl border-slate-200 min-h-[120px] focus:ring-blue-500/20"
+              className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-[120px] focus:ring-blue-500/20 dark:focus:ring-blue-500/20"
             />
           </div>
         </div>
@@ -94,7 +94,7 @@ export function SendClassNotification({
           <Button
             onClick={handleSend}
             disabled={isPending || !title || !message}
-            className="w-full h-14 bg-slate-900 hover:bg-black text-white rounded-xl font-bold uppercase gap-2 transition-all active:scale-[0.98]"
+            className="w-full h-14 bg-slate-900 dark:bg-blue-600 hover:bg-black dark:hover:bg-blue-700 text-white rounded-xl font-bold uppercase gap-2 transition-all active:scale-[0.98]"
           >
             {isPending ? (
               <Loader2 className="w-5 h-5 animate-spin" />

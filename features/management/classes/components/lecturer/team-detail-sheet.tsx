@@ -11,7 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Loader2,
   GitCommit,
@@ -45,45 +44,43 @@ export function TeamDetailSheet({
   onOpenChange,
 }: TeamDetailSheetProps) {
   const { data: detailData, isLoading } = useTeamDetail(open ? teamId : null);
-
   const data = detailData as TeamDetailResponse | undefined;
-
   const team = data?.team;
   const members = data?.members || [];
   const stats = data?.stats;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl p-0 bg-white flex flex-col h-[100dvh] overflow-hidden border-l border-slate-200 shadow-2xl">
+      <SheetContent className="w-full sm:max-w-xl p-0 bg-white dark:bg-slate-950 flex flex-col h-[100dvh] overflow-hidden border-l border-slate-200 dark:border-slate-800 shadow-2xl">
         {/* --- HEADER --- */}
-        <SheetHeader className="px-6 py-6 border-b border-gray-100 bg-white z-10 shrink-0">
+        <SheetHeader className="px-6 py-6 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 z-10 shrink-0">
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <Badge
                 variant="outline"
-                className="bg-orange-50 text-[#F27124] border-orange-100 font-black uppercase text-[10px] tracking-widest"
+                className="bg-orange-50 dark:bg-orange-900/10 text-[#F27124] dark:text-orange-400 border-orange-100 dark:border-orange-900/30 font-black uppercase text-[10px] tracking-widest"
               >
                 Team Profile
               </Badge>
               {team?.last_sync_at && (
-                <span className="text-[10px] text-slate-400 font-bold flex items-center gap-1 bg-slate-50 px-2 py-1 rounded">
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold flex items-center gap-1 bg-slate-50 dark:bg-slate-900 px-2 py-1 rounded">
                   <Clock className="w-3 h-3" /> Sync:{" "}
                   {format(new Date(team.last_sync_at), "HH:mm dd/MM")}
                 </span>
               )}
             </div>
             <div className="space-y-1">
-              <SheetTitle className="text-3xl font-black text-slate-900 tracking-tighter leading-tight">
+              <SheetTitle className="text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tighter leading-tight">
                 {isLoading ? "Đang tải dữ liệu..." : team?.project_name}
               </SheetTitle>
               {team?.class_id && (
-                <p className="text-xs font-medium text-slate-500">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                   Lớp:{" "}
-                  <span className="font-bold text-slate-700">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">
                     {team.class_id.name}
                   </span>{" "}
                   • Môn:{" "}
-                  <span className="font-bold text-slate-700">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">
                     {team.class_id.subject_id?.code}
                   </span>
                 </p>
@@ -93,16 +90,16 @@ export function TeamDetailSheet({
         </SheetHeader>
 
         {/* --- BODY --- */}
-        <div className="flex-1 bg-slate-50/30 overflow-y-auto scrollbar-hide">
+        <div className="flex-1 bg-slate-50/30 dark:bg-slate-900/30 overflow-y-auto scrollbar-hide">
           {isLoading ? (
             <div className="h-full min-h-[400px] flex flex-col items-center justify-center gap-4">
               <Loader2 className="w-10 h-10 animate-spin text-[#F27124] opacity-20" />
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">
+              <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest animate-pulse">
                 Đang nạp dữ liệu nhóm...
               </p>
             </div>
           ) : !team ? (
-            <div className="p-12 text-center text-slate-400 font-bold uppercase tracking-widest">
+            <div className="p-12 text-center text-slate-400 dark:text-slate-600 font-bold uppercase tracking-widest">
               Không tìm thấy thông tin.
             </div>
           ) : (
@@ -137,7 +134,7 @@ export function TeamDetailSheet({
 
               {/* Integration Status */}
               <section className="space-y-3">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 ml-1">
                   Kênh tích hợp
                 </h3>
                 <div className="grid gap-3">
@@ -155,7 +152,7 @@ export function TeamDetailSheet({
                         : undefined
                     }
                     icon={SiGithub}
-                    colorClass="bg-slate-900 text-white"
+                    colorClass="bg-slate-900 dark:bg-slate-800 text-white"
                   />
                   <ConnectionRow
                     isConnected={
@@ -175,16 +172,16 @@ export function TeamDetailSheet({
 
               {/* Tabs Content */}
               <Tabs defaultValue="members" className="w-full">
-                <TabsList className="w-full bg-slate-100 p-1 rounded-2xl mb-6 border border-slate-200">
+                <TabsList className="w-full bg-slate-100 dark:bg-slate-900 p-1 rounded-2xl mb-6 border border-slate-200 dark:border-slate-800">
                   <TabsTrigger
                     value="members"
-                    className="flex-1 rounded-xl text-xs font-black data-[state=active]:bg-white data-[state=active]:shadow-md transition-all"
+                    className="flex-1 rounded-xl text-xs font-black data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 data-[state=active]:shadow-md transition-all text-slate-500 dark:text-slate-400"
                   >
                     Thành viên ({members.length})
                   </TabsTrigger>
                   <TabsTrigger
                     value="history"
-                    className="flex-1 rounded-xl text-xs font-black data-[state=active]:bg-white data-[state=active]:shadow-md transition-all"
+                    className="flex-1 rounded-xl text-xs font-black data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 data-[state=active]:shadow-md transition-all text-slate-500 dark:text-slate-400"
                   >
                     Lịch sử Sync
                   </TabsTrigger>
@@ -206,10 +203,10 @@ export function TeamDetailSheet({
 
         {/* --- FOOTER --- */}
         {!isLoading && team && (
-          <div className="p-6 border-t border-slate-100 bg-white shrink-0 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.05)]">
+          <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 shrink-0 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.05)] dark:shadow-none">
             <div className="flex gap-3">
               <Button
-                className="flex-1 h-12 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-2xl shadow-lg shadow-slate-200 transition-all active:scale-95"
+                className="flex-1 h-12 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-black rounded-2xl shadow-lg shadow-slate-200 dark:shadow-none transition-all active:scale-95"
                 disabled={!team.github_repo_url}
                 onClick={() =>
                   team.github_repo_url &&
@@ -219,7 +216,7 @@ export function TeamDetailSheet({
                 <SiGithub className="w-4 h-4 mr-2" /> GitHub Repo
               </Button>
               <Button
-                className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl shadow-lg shadow-blue-100 transition-all active:scale-95"
+                className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl shadow-lg shadow-blue-100 dark:shadow-none transition-all active:scale-95"
                 disabled={!team.jira_url}
                 onClick={() =>
                   team.jira_url && window.open(team.jira_url, "_blank")
@@ -235,17 +232,20 @@ export function TeamDetailSheet({
   );
 }
 
-// --- SUB COMPONENTS (Đã nâng cấp) ---
+// --- SUB COMPONENTS ---
 
 function StatCard({ icon: Icon, label, value, color }: any) {
   const colors = {
-    orange: "bg-orange-50 text-[#F27124]",
-    blue: "bg-blue-50 text-blue-600",
-    emerald: "bg-emerald-50 text-emerald-600",
-    purple: "bg-purple-50 text-purple-600",
+    orange:
+      "bg-orange-50 dark:bg-orange-900/10 text-[#F27124] dark:text-orange-400",
+    blue: "bg-blue-50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400",
+    emerald:
+      "bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-400",
+    purple:
+      "bg-purple-50 dark:bg-purple-900/10 text-purple-600 dark:text-purple-400",
   };
   return (
-    <div className="bg-white p-4 rounded-[28px] border border-slate-100 shadow-sm transition-all hover:shadow-md">
+    <div className="bg-white dark:bg-slate-900 p-4 rounded-[28px] border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
       <div
         className={cn(
           "inline-flex p-2 rounded-xl mb-2",
@@ -254,10 +254,10 @@ function StatCard({ icon: Icon, label, value, color }: any) {
       >
         <Icon className="w-4 h-4" />
       </div>
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">
+      <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1.5">
         {label}
       </p>
-      <p className="text-3xl font-black text-slate-900 tracking-tighter leading-none">
+      <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tighter leading-none">
         {value || 0}
       </p>
     </div>
@@ -276,35 +276,39 @@ function ConnectionRow({
       className={cn(
         "flex items-center gap-4 p-4 rounded-3xl border transition-all",
         isConnected
-          ? "bg-white border-slate-100"
-          : "bg-slate-50 border-dashed border-slate-200 opacity-60",
+          ? "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800"
+          : "bg-slate-50 dark:bg-slate-900/50 border-dashed border-slate-200 dark:border-slate-700 opacity-60",
       )}
     >
       <div
         className={cn(
           "p-3 rounded-2xl shadow-inner",
-          isConnected ? colorClass : "bg-slate-200 text-slate-400",
+          isConnected
+            ? colorClass
+            : "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500",
         )}
       >
         <Icon className="w-5 h-5" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1.5">
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-1.5">
           {label}
         </p>
         <p
           className={cn(
             "text-sm font-black truncate",
-            isConnected ? "text-slate-900" : "text-slate-300 italic",
+            isConnected
+              ? "text-slate-900 dark:text-slate-100"
+              : "text-slate-300 dark:text-slate-600 italic",
           )}
         >
           {isConnected ? subLabel || "Đã kết nối" : "Chưa cấu hình"}
         </p>
       </div>
       {isConnected ? (
-        <CheckCircle2 className="w-5 h-5 text-emerald-500 fill-emerald-50 shrink-0" />
+        <CheckCircle2 className="w-5 h-5 text-emerald-500 dark:text-emerald-400 fill-emerald-50 dark:fill-emerald-900/20 shrink-0" />
       ) : (
-        <AlertTriangle className="w-5 h-5 text-slate-300 shrink-0" />
+        <AlertTriangle className="w-5 h-5 text-slate-300 dark:text-slate-600 shrink-0" />
       )}
     </div>
   );
@@ -314,11 +318,11 @@ function MemberItem({ mem }: { mem: TeamMemberDetail }) {
   const student = mem.student_id;
 
   return (
-    <div className="group flex items-center justify-between p-4 bg-white rounded-3xl border border-slate-100 hover:border-orange-200 transition-all shadow-sm">
+    <div className="group flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-900/50 transition-all shadow-sm">
       <div className="flex items-center gap-4">
-        <Avatar className="h-11 w-11 rounded-2xl border-2 border-white shadow-sm ring-1 ring-slate-100">
+        <Avatar className="h-11 w-11 rounded-2xl border-2 border-white dark:border-slate-800 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700">
           <AvatarImage src={student?.avatar_url || ""} />
-          <AvatarFallback className="bg-slate-50 text-slate-400 font-black">
+          <AvatarFallback className="bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-black">
             {student?.full_name?.charAt(0) || "?"}
           </AvatarFallback>
         </Avatar>
@@ -327,19 +331,21 @@ function MemberItem({ mem }: { mem: TeamMemberDetail }) {
             <p
               className={cn(
                 "text-sm font-black tracking-tight leading-none",
-                student ? "text-slate-900" : "text-slate-400 italic",
+                student
+                  ? "text-slate-900 dark:text-slate-100"
+                  : "text-slate-400 dark:text-slate-600 italic",
               )}
             >
               {student?.full_name || "Chưa gán sinh viên"}
             </p>
             {mem.role_in_team === "Leader" && (
-              <Badge className="bg-yellow-400 text-yellow-900 hover:bg-yellow-400 border-none text-[9px] font-black uppercase px-2 py-0 h-4">
+              <Badge className="bg-yellow-400 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-500 hover:bg-yellow-400 border-none text-[9px] font-black uppercase px-2 py-0 h-4">
                 Leader
               </Badge>
             )}
           </div>
           {student && (
-            <p className="text-[11px] text-slate-400 font-medium mt-1.5">
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-1.5">
               {student.email}
             </p>
           )}
@@ -348,7 +354,7 @@ function MemberItem({ mem }: { mem: TeamMemberDetail }) {
       {student && (
         <Badge
           variant="outline"
-          className="font-mono text-[10px] text-slate-400 border-slate-100 px-2"
+          className="font-mono text-[10px] text-slate-400 dark:text-slate-500 border-slate-100 dark:border-slate-700 px-2 bg-slate-50 dark:bg-slate-800"
         >
           {student.student_code}
         </Badge>
@@ -360,7 +366,7 @@ function MemberItem({ mem }: { mem: TeamMemberDetail }) {
 function SyncHistoryLogs({ history }: { history: SyncHistoryLog[] }) {
   if (!history || history.length === 0)
     return (
-      <div className="text-center py-12 text-slate-300 italic font-bold">
+      <div className="text-center py-12 text-slate-300 dark:text-slate-600 italic font-bold">
         Chưa có lịch sử đồng bộ.
       </div>
     );
@@ -368,12 +374,12 @@ function SyncHistoryLogs({ history }: { history: SyncHistoryLog[] }) {
   const sortedHistory = [...history].reverse();
 
   return (
-    <div className="space-y-6 ml-3 border-l-2 border-slate-100 pl-6 py-2 relative">
+    <div className="space-y-6 ml-3 border-l-2 border-slate-100 dark:border-slate-800 pl-6 py-2 relative">
       {sortedHistory.slice(0, 5).map((log, idx) => (
         <div key={idx} className="relative group">
           <div
             className={cn(
-              "absolute -left-[33px] top-1.5 h-4 w-4 rounded-full border-4 border-white shadow-sm",
+              "absolute -left-[33px] top-1.5 h-4 w-4 rounded-full border-4 border-white dark:border-slate-950 shadow-sm",
               log.sync_errors && log.sync_errors.length > 0
                 ? "bg-red-500"
                 : "bg-emerald-500",
@@ -382,47 +388,47 @@ function SyncHistoryLogs({ history }: { history: SyncHistoryLog[] }) {
 
           <div className="space-y-2">
             <div className="flex justify-between items-start">
-              <p className="text-xs font-black text-slate-900 flex items-center gap-2">
+              <p className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 {log.sync_errors && log.sync_errors.length > 0
                   ? "Đồng bộ có lỗi"
                   : "Đồng bộ Thành công"}
                 {idx === 0 && (
-                  <Badge className="text-[9px] font-black h-4 bg-emerald-50 text-emerald-600 border-none">
+                  <Badge className="text-[9px] font-black h-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-none">
                     Mới nhất
                   </Badge>
                 )}
               </p>
-              <span className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold flex items-center gap-1">
                 <Calendar className="w-3 h-3" />{" "}
                 {format(new Date(log.synced_at), "HH:mm dd/MM")}
               </span>
             </div>
 
-            <div className="bg-white rounded-2xl p-3 grid grid-cols-3 gap-3 border border-slate-100 shadow-sm group-hover:border-emerald-100 transition-all">
-              <div className="flex flex-col items-center justify-center p-2 bg-slate-50 rounded-xl">
-                <SiGithub className="w-4 h-4 text-slate-700 mb-1" />
-                <span className="text-[10px] font-bold text-slate-500">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 grid grid-cols-3 gap-3 border border-slate-100 dark:border-slate-800 shadow-sm group-hover:border-emerald-100 dark:group-hover:border-emerald-900/30 transition-all">
+              <div className="flex flex-col items-center justify-center p-2 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                <SiGithub className="w-4 h-4 text-slate-700 dark:text-slate-300 mb-1" />
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
                   Commits
                 </span>
-                <span className="text-sm font-black text-slate-900">
+                <span className="text-sm font-black text-slate-900 dark:text-slate-100">
                   {log.stats?.git || 0}
                 </span>
               </div>
-              <div className="flex flex-col items-center justify-center p-2 bg-blue-50 rounded-xl">
-                <SiJira className="w-4 h-4 text-blue-600 mb-1" />
-                <span className="text-[10px] font-bold text-blue-400">
+              <div className="flex flex-col items-center justify-center p-2 bg-blue-50 dark:bg-blue-900/10 rounded-xl">
+                <SiJira className="w-4 h-4 text-blue-600 dark:text-blue-400 mb-1" />
+                <span className="text-[10px] font-bold text-blue-400 dark:text-blue-500">
                   Tasks
                 </span>
-                <span className="text-sm font-black text-blue-700">
+                <span className="text-sm font-black text-blue-700 dark:text-blue-300">
                   {log.stats?.jira_tasks || 0}
                 </span>
               </div>
-              <div className="flex flex-col items-center justify-center p-2 bg-purple-50 rounded-xl">
-                <History className="w-4 h-4 text-purple-600 mb-1" />
-                <span className="text-[10px] font-bold text-purple-400">
+              <div className="flex flex-col items-center justify-center p-2 bg-purple-50 dark:bg-purple-900/10 rounded-xl">
+                <History className="w-4 h-4 text-purple-600 dark:text-purple-400 mb-1" />
+                <span className="text-[10px] font-bold text-purple-400 dark:text-purple-500">
                   Sprints
                 </span>
-                <span className="text-sm font-black text-purple-700">
+                <span className="text-sm font-black text-purple-700 dark:text-purple-300">
                   {log.stats?.jira_sprints || 0}
                 </span>
               </div>
@@ -430,7 +436,7 @@ function SyncHistoryLogs({ history }: { history: SyncHistoryLog[] }) {
 
             {/* Hiển thị lỗi nếu có */}
             {log.sync_errors && log.sync_errors.length > 0 && (
-              <div className="bg-red-50 p-3 rounded-xl border border-red-100 text-xs text-red-600">
+              <div className="bg-red-50 dark:bg-red-900/10 p-3 rounded-xl border border-red-100 dark:border-red-900/30 text-xs text-red-600 dark:text-red-400">
                 <p className="font-bold flex items-center gap-1 mb-1">
                   <ShieldAlert className="w-3 h-3" /> Chi tiết lỗi:
                 </p>

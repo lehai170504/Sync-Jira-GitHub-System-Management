@@ -3,7 +3,6 @@
 import { useState } from "react";
 import {
   Settings,
-  Save,
   Loader2,
   Info,
   Github,
@@ -35,7 +34,6 @@ import { useUpdateTeamConfig } from "../hooks/use-update-config";
 
 interface ProjectConfigDialogProps {
   teamId: string;
-  // Nhận giá trị cũ nếu có để điền sẵn vào form
   initialValues?: {
     jira_url?: string;
     jira_project_key?: string;
@@ -49,11 +47,10 @@ export function ProjectConfigDialog({
 }: ProjectConfigDialogProps) {
   const [open, setOpen] = useState(false);
 
-  // Form State
   const [formData, setFormData] = useState({
     jira_url: initialValues?.jira_url || "",
     jira_project_key: initialValues?.jira_project_key || "",
-    jira_board_id: "", // Board ID thường phải nhập mới
+    jira_board_id: "",
     api_token_jira: "",
     github_repo_url: initialValues?.github_repo_url || "",
     api_token_github: "",
@@ -65,7 +62,7 @@ export function ProjectConfigDialog({
     updateConfig(
       {
         ...formData,
-        jira_board_id: Number(formData.jira_board_id), // Convert sang number
+        jira_board_id: Number(formData.jira_board_id),
       },
       {
         onSuccess: () => setOpen(false),
@@ -82,20 +79,20 @@ export function ProjectConfigDialog({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="gap-2 border-slate-200 shadow-sm hover:bg-slate-50"
+          className="gap-2 border-slate-200 dark:border-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900 dark:text-slate-300"
         >
-          <Settings className="w-4 h-4 text-slate-600" />
+          <Settings className="w-4 h-4 text-slate-600 dark:text-slate-400" />
           <span className="hidden sm:inline">Cấu hình kết nối</span>
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[700px] rounded-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
-        <DialogHeader className="p-6 pb-4 bg-slate-50 border-b border-slate-100">
-          <DialogTitle className="flex items-center gap-2 text-xl">
+      <DialogContent className="sm:max-w-[700px] rounded-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col bg-white dark:bg-slate-950 border-none shadow-2xl">
+        <DialogHeader className="p-6 pb-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+          <DialogTitle className="flex items-center gap-2 text-xl text-slate-900 dark:text-slate-100">
             <Settings className="w-5 h-5 text-orange-500" />
             Cấu hình tích hợp
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-slate-500 dark:text-slate-400">
             Kết nối dự án với Jira Board và GitHub Repository để đồng bộ dữ
             liệu.
           </DialogDescription>
@@ -105,23 +102,23 @@ export function ProjectConfigDialog({
           <div className="grid gap-8">
             {/* --- SECTION JIRA --- */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <Trello className="w-5 h-5 text-blue-600" />
-                <h3 className="font-bold text-slate-800">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+                <Trello className="w-5 h-5 text-blue-600 dark:text-blue-500" />
+                <h3 className="font-bold text-slate-800 dark:text-slate-200">
                   Jira Software Config
                 </h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>
+                  <Label className="text-slate-700 dark:text-slate-300">
                     Jira URL <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Globe className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Globe className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                     <Input
                       placeholder="https://domain.atlassian.net"
-                      className="pl-9"
+                      className="pl-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
                       value={formData.jira_url}
                       onChange={(e) => handleChange("jira_url", e.target.value)}
                     />
@@ -129,12 +126,12 @@ export function ProjectConfigDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label>
+                  <Label className="text-slate-700 dark:text-slate-300">
                     Project Key <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     placeholder="VD: SCRUM, SWP..."
-                    className="font-mono uppercase"
+                    className="font-mono uppercase bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
                     value={formData.jira_project_key}
                     onChange={(e) =>
                       handleChange("jira_project_key", e.target.value)
@@ -143,15 +140,15 @@ export function ProjectConfigDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label>
+                  <Label className="text-slate-700 dark:text-slate-300">
                     Board ID <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <LayoutTemplate className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <LayoutTemplate className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                     <Input
                       type="number"
                       placeholder="VD: 1, 5"
-                      className="pl-9"
+                      className="pl-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
                       value={formData.jira_board_id}
                       onChange={(e) =>
                         handleChange("jira_board_id", e.target.value)
@@ -161,16 +158,16 @@ export function ProjectConfigDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label>
+                  <Label className="text-slate-700 dark:text-slate-300">
                     API Token (Email Owner){" "}
                     <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Key className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Key className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                     <Input
                       type="password"
                       placeholder="ATATT3xFf..."
-                      className="pl-9 font-mono"
+                      className="pl-9 font-mono bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
                       value={formData.api_token_jira}
                       onChange={(e) =>
                         handleChange("api_token_jira", e.target.value)
@@ -184,15 +181,15 @@ export function ProjectConfigDialog({
               <Accordion
                 type="single"
                 collapsible
-                className="w-full bg-blue-50/50 rounded-lg px-4 border border-blue-100"
+                className="w-full bg-blue-50/50 dark:bg-blue-900/10 rounded-lg px-4 border border-blue-100 dark:border-blue-900/30"
               >
                 <AccordionItem value="item-1" className="border-none">
-                  <AccordionTrigger className="text-xs font-bold text-blue-700 hover:no-underline py-3">
+                  <AccordionTrigger className="text-xs font-bold text-blue-700 dark:text-blue-400 hover:no-underline py-3">
                     <span className="flex items-center gap-2">
                       <Info className="w-4 h-4" /> Hướng dẫn lấy thông tin Jira
                     </span>
                   </AccordionTrigger>
-                  <AccordionContent className="text-xs text-slate-600 space-y-2 pb-4">
+                  <AccordionContent className="text-xs text-slate-600 dark:text-slate-400 space-y-2 pb-4">
                     <p>
                       1. <b>URL & Key:</b> Vào dự án Jira, URL là{" "}
                       <code>https://[domain].atlassian.net</code>. Key là tiền
@@ -215,7 +212,7 @@ export function ProjectConfigDialog({
                       <a
                         href="https://id.atlassian.com/manage-profile/security/api-tokens"
                         target="_blank"
-                        className="text-blue-500 underline"
+                        className="text-blue-500 dark:text-blue-400 underline"
                       >
                         Atlassian Security
                       </a>{" "}
@@ -228,21 +225,23 @@ export function ProjectConfigDialog({
 
             {/* --- SECTION GITHUB --- */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <Github className="w-5 h-5 text-slate-800" />
-                <h3 className="font-bold text-slate-800">GitHub Config</h3>
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+                <Github className="w-5 h-5 text-slate-800 dark:text-slate-200" />
+                <h3 className="font-bold text-slate-800 dark:text-slate-200">
+                  GitHub Config
+                </h3>
               </div>
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>
+                  <Label className="text-slate-700 dark:text-slate-300">
                     Repository URL <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Globe className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Globe className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                     <Input
                       placeholder="https://github.com/username/repo-name"
-                      className="pl-9"
+                      className="pl-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
                       value={formData.github_repo_url}
                       onChange={(e) =>
                         handleChange("github_repo_url", e.target.value)
@@ -252,16 +251,16 @@ export function ProjectConfigDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label>
+                  <Label className="text-slate-700 dark:text-slate-300">
                     Personal Access Token (Classic){" "}
                     <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Key className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Key className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                     <Input
                       type="password"
                       placeholder="ghp_xxxxxxxxxxxx"
-                      className="pl-9 font-mono"
+                      className="pl-9 font-mono bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
                       value={formData.api_token_github}
                       onChange={(e) =>
                         handleChange("api_token_github", e.target.value)
@@ -275,15 +274,15 @@ export function ProjectConfigDialog({
               <Accordion
                 type="single"
                 collapsible
-                className="w-full bg-slate-100/50 rounded-lg px-4 border border-slate-200"
+                className="w-full bg-slate-100/50 dark:bg-slate-900/50 rounded-lg px-4 border border-slate-200 dark:border-slate-800"
               >
                 <AccordionItem value="item-2" className="border-none">
-                  <AccordionTrigger className="text-xs font-bold text-slate-700 hover:no-underline py-3">
+                  <AccordionTrigger className="text-xs font-bold text-slate-700 dark:text-slate-300 hover:no-underline py-3">
                     <span className="flex items-center gap-2">
                       <Info className="w-4 h-4" /> Hướng dẫn lấy Github Token
                     </span>
                   </AccordionTrigger>
-                  <AccordionContent className="text-xs text-slate-600 space-y-2 pb-4">
+                  <AccordionContent className="text-xs text-slate-600 dark:text-slate-400 space-y-2 pb-4">
                     <p>
                       1. Truy cập: <b>Settings</b> -&gt;{" "}
                       <b>Developer settings</b> -&gt;{" "}
@@ -308,8 +307,12 @@ export function ProjectConfigDialog({
           </div>
         </ScrollArea>
 
-        <DialogFooter className="p-6 border-t border-slate-100 bg-white">
-          <Button variant="ghost" onClick={() => setOpen(false)}>
+        <DialogFooter className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+          <Button
+            variant="ghost"
+            onClick={() => setOpen(false)}
+            className="dark:text-slate-300 dark:hover:bg-slate-800"
+          >
             Hủy
           </Button>
           <Button

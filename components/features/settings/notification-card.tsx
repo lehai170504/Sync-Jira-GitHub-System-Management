@@ -2,16 +2,16 @@
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { AlertTriangle, BellRing, Mail, ChevronRight } from "lucide-react";
+import { AlertTriangle, BellRing, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function NotificationSettings() {
   return (
-    <div className="h-full space-y-8 p-6 font-mono">
+    <div className="h-full space-y-8 p-6 font-mono bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm">
       {/* HEADER NHỎ */}
       <div className="flex items-center gap-2 mb-2">
-        <BellRing className="h-4 w-4 text-[#F27124]" />
-        <span className="text-[12px] font-black uppercase tracking-widest text-slate-900">
+        <BellRing className="h-4 w-4 text-[#F27124] dark:text-orange-400" />
+        <span className="text-[12px] font-black uppercase tracking-widest text-slate-900 dark:text-slate-100">
           Cấu hình thông báo
         </span>
       </div>
@@ -24,7 +24,7 @@ export function NotificationSettings() {
           defaultChecked={true}
         />
 
-        <div className="h-px bg-slate-100 mx-2" />
+        <div className="h-px bg-slate-100 dark:bg-slate-800 mx-2" />
 
         <NotificationItem
           icon={AlertTriangle}
@@ -46,30 +46,30 @@ function NotificationItem({
   isWarning,
 }: any) {
   return (
-    <div className="flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors group">
+    <div className="flex items-center justify-between gap-4 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
       <div className="flex gap-4 items-start">
         <div
           className={cn(
             "p-2.5 rounded-xl transition-colors",
             isWarning
-              ? "bg-red-50 text-red-500"
-              : "bg-slate-100 text-slate-500 group-hover:bg-white shadow-sm",
+              ? "bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-white dark:group-hover:bg-slate-700 shadow-sm",
           )}
         >
           <Icon className="h-4 w-4" />
         </div>
         <div className="space-y-1">
-          <Label className="text-[13px] font-bold uppercase tracking-tight text-slate-900 cursor-pointer">
+          <Label className="text-[13px] font-bold uppercase tracking-tight text-slate-900 dark:text-slate-100 cursor-pointer">
             {label}
           </Label>
-          <p className="text-[11px] text-slate-500 font-medium leading-relaxed uppercase opacity-70">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed uppercase opacity-70">
             {description}
           </p>
         </div>
       </div>
       <Switch
         defaultChecked={defaultChecked}
-        className="data-[state=checked]:bg-[#F27124]"
+        className="data-[state=checked]:bg-[#F27124] dark:data-[state=unchecked]:bg-slate-700"
       />
     </div>
   );

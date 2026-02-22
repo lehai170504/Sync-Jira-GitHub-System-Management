@@ -6,25 +6,25 @@ import { UserCircle, Fingerprint } from "lucide-react";
 
 export default function ProfilePage() {
   return (
-    <div className="max-w-[1400px] mx-auto space-y-10 pb-20 font-mono">
+    <div className="max-w-[1400px] mx-auto space-y-10 pb-20 font-mono transition-colors duration-300">
       {/* 1. BENTO HEADER SECTION */}
-      <div className="relative overflow-hidden p-10 rounded-[48px] bg-white border border-slate-200/60 shadow-sm transition-all hover:shadow-md group">
+      <div className="relative overflow-hidden p-10 rounded-[48px] bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-sm transition-all hover:shadow-md group">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-10">
           {/* Icon Box */}
-          <div className="p-6 bg-orange-50 rounded-[32px] text-[#F27124] shadow-inner group-hover:scale-110 transition-transform duration-500">
+          <div className="p-6 bg-orange-50 dark:bg-orange-900/20 rounded-[32px] text-[#F27124] dark:text-orange-400 shadow-inner group-hover:scale-110 transition-transform duration-500">
             <UserCircle className="w-14 h-14" />
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center gap-4">
-              <h3 className="text-4xl font-black uppercase tracking-tighter text-slate-900">
+              <h3 className="text-4xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-50 transition-colors">
                 Hồ sơ cá nhân
               </h3>
-              <div className="px-3 py-1 rounded-md bg-slate-900 text-white text-[10px] font-black tracking-[0.2em] uppercase">
-                VERIFIED_ACCOUNT
+              <div className="px-3 py-1 rounded-md bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-[10px] font-black tracking-[0.2em] uppercase transition-colors">
+                Verified Account
               </div>
             </div>
-            <p className="text-slate-500 text-base font-medium uppercase tracking-wider opacity-60 max-w-2xl leading-relaxed">
+            <p className="text-slate-500 dark:text-slate-400 text-base font-medium uppercase tracking-wider opacity-60 dark:opacity-80 max-w-2xl leading-relaxed transition-colors">
               Cổng quản trị thông tin định danh, tùy chỉnh hồ sơ hiển thị và
               thiết lập bảo mật đa lớp cho tài khoản FPT của bạn.
             </p>
@@ -32,7 +32,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Decor: Vân tay chìm phong cách bảo mật */}
-        <Fingerprint className="absolute -right-12 -bottom-12 w-80 h-80 text-slate-100 opacity-30 rotate-12 pointer-events-none group-hover:rotate-0 transition-transform duration-1000" />
+        <Fingerprint className="absolute -right-12 -bottom-12 w-80 h-80 text-slate-100 dark:text-slate-800 opacity-30 dark:opacity-20 rotate-12 pointer-events-none group-hover:rotate-0 transition-all duration-1000" />
       </div>
 
       {/* 2. GRID CONTENT: 3/12 (Sidebar) và 9/12 (Content) */}
@@ -40,15 +40,13 @@ export default function ProfilePage() {
         {/* CỘT TRÁI (Sticky Sidebar) */}
         <aside className="lg:col-span-3 w-full sticky top-28 z-20">
           <div className="animate-in fade-in slide-in-from-left-8 duration-700">
-            {/* Sidebar Component giữ nguyên logic nhưng bỏ card-wrap nếu bên trong đã có Card */}
             <ProfileSidebar />
           </div>
         </aside>
 
         {/* CỘT PHẢI (Main Content) */}
         <div className="lg:col-span-9 w-full animate-in fade-in slide-in-from-right-8 duration-1000">
-          <div className="bg-white rounded-[48px] border border-slate-200/60 p-8 md:p-12 shadow-sm min-h-[700px]">
-            {/* ProfileTabs sẽ tự bung theo container cha */}
+          <div className="bg-white dark:bg-slate-900 rounded-[48px] border border-slate-200/60 dark:border-slate-800 p-8 md:p-12 shadow-sm min-h-[700px] transition-colors">
             <ProfileTabs />
           </div>
         </div>

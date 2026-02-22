@@ -18,7 +18,6 @@ const CLASS_COLORS = [
   "bg-gradient-to-br from-cyan-500 to-blue-600",
 ];
 
-// FIX: Hàm lấy màu dựa trên ID (hash) để màu cố định
 const getStableColor = (id: string) => {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
@@ -29,7 +28,7 @@ const getStableColor = (id: string) => {
 };
 
 interface LecturerClassesSectionProps {
-  classes: LecturerClassItem[]; // Nhận data từ props
+  classes: LecturerClassItem[];
   searchTerm: string;
   selectedSemester: string;
   onClearFilter: () => void;
@@ -43,23 +42,19 @@ export function LecturerClassesSection({
 }: LecturerClassesSectionProps) {
   const router = useRouter();
 
-  // Logic lọc dữ liệu (Client-side filtering)
   const processedClasses = useMemo<LecturerClassDisplayItem[]>(() => {
     if (!classes || classes.length === 0) return [];
 
-    // 1. Map màu sắc trước khi filter để đảm bảo màu không đổi
     let result: LecturerClassDisplayItem[] = classes.map((cls) => ({
       ...cls,
-      color: getStableColor(cls._id), // Dùng ID để lấy màu
+      color: getStableColor(cls._id),
       subjectName: cls.subjectName ?? cls.subject_id?.name ?? "Môn học",
     }));
 
-    // 2. Filter theo kỳ
     if (selectedSemester !== "all") {
       result = result.filter((c) => c.semester_id?.name === selectedSemester);
     }
 
-    // 3. Filter theo từ khóa
     if (searchTerm) {
       const lowerTerm = searchTerm.toLowerCase().trim();
       result = result.filter((c) => {

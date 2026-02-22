@@ -30,7 +30,6 @@ import {
   Crown,
 } from "lucide-react";
 
-// --- FORM IMPORTS ---
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -42,7 +41,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-// Import Hook & Schema
 import { useAddStudent } from "@/features/management/classes/hooks/use-classes";
 import {
   addStudentSchema,
@@ -61,10 +59,8 @@ export function AddStudentDialog({
   const [open, setOpen] = useState(false);
   const { mutate: addStudent, isPending } = useAddStudent();
 
-  // 1. Setup Form
   const form = useForm<AddStudentFormValues>({
     resolver: zodResolver(addStudentSchema),
-
     defaultValues: {
       code: "",
       name: "",
@@ -74,7 +70,6 @@ export function AddStudentDialog({
     },
   });
 
-  // 2. Handle Submit
   const onSubmit = (data: AddStudentFormValues) => {
     const groupValue = parseInt(data.group, 10);
 
@@ -90,14 +85,13 @@ export function AddStudentDialog({
       {
         onSuccess: () => {
           setOpen(false);
-          form.reset(); // Reset form về default values
+          form.reset();
           if (onSuccess) onSuccess();
         },
       },
     );
   };
 
-  // Reset form khi đóng dialog (Optional)
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
@@ -108,15 +102,17 @@ export function AddStudentDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 text-white">
+        <Button className="bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 text-white font-bold">
           <UserPlus className="mr-2 h-4 w-4" /> Thêm SV
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
         <DialogHeader>
-          <DialogTitle>Thêm Sinh viên mới</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-slate-900 dark:text-slate-100">
+            Thêm Sinh viên mới
+          </DialogTitle>
+          <DialogDescription className="text-slate-500 dark:text-slate-400">
             Nhập thông tin sinh viên thủ công để thêm vào lớp.
           </DialogDescription>
         </DialogHeader>
@@ -133,14 +129,14 @@ export function AddStudentDialog({
                 name="code"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
+                    <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">
                       MSSV <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Hash className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                        <Hash className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-slate-500" />
                         <Input
-                          className="pl-9"
+                          className="pl-9 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124] dark:focus-visible:ring-[#F27124]"
                           placeholder="CE123456"
                           disabled={isPending}
                           {...field}
@@ -158,14 +154,14 @@ export function AddStudentDialog({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
+                    <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">
                       Email <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                        <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-slate-500" />
                         <Input
-                          className="pl-9"
+                          className="pl-9 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124] dark:focus-visible:ring-[#F27124]"
                           placeholder="anv@fpt.edu.vn"
                           disabled={isPending}
                           {...field}
@@ -184,14 +180,14 @@ export function AddStudentDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
+                  <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">
                     Họ tên <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                      <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-slate-500" />
                       <Input
-                        className="pl-9"
+                        className="pl-9 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124] dark:focus-visible:ring-[#F27124]"
                         placeholder="Nguyễn Văn A"
                         disabled={isPending}
                         {...field}
@@ -210,7 +206,9 @@ export function AddStudentDialog({
                 name="group"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nhóm</FormLabel>
+                    <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">
+                      Nhóm
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -218,18 +216,24 @@ export function AddStudentDialog({
                     >
                       <FormControl>
                         <div className="relative">
-                          <Layers className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 z-10" />
-                          <SelectTrigger className="pl-9">
+                          <Layers className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-slate-500 z-10" />
+                          <SelectTrigger className="pl-9 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:ring-[#F27124]">
                             <SelectValue placeholder="Chọn nhóm" />
                           </SelectTrigger>
                         </div>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="0">Chưa có nhóm</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                        <SelectItem value="0" className="dark:text-slate-200">
+                          Chưa có nhóm
+                        </SelectItem>
                         {Array.from({ length: 20 }, (_, i) =>
                           (i + 1).toString(),
                         ).map((num) => (
-                          <SelectItem key={num} value={num}>
+                          <SelectItem
+                            key={num}
+                            value={num}
+                            className="dark:text-slate-200"
+                          >
                             Nhóm {num}
                           </SelectItem>
                         ))}
@@ -246,19 +250,21 @@ export function AddStudentDialog({
                 name="isLeader"
                 render={({ field }) => (
                   <FormItem className="space-y-0">
-                    <FormLabel className="block mb-2">Vai trò</FormLabel>
+                    <FormLabel className="block mb-2 text-slate-700 dark:text-slate-300 font-semibold">
+                      Vai trò
+                    </FormLabel>
                     <FormControl>
-                      <div className="flex items-center justify-between space-x-2 border p-2.5 rounded-lg bg-gray-50 h-10">
+                      <div className="flex items-center justify-between space-x-2 border border-slate-200 dark:border-slate-800 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900/50 h-[42px]">
                         <div className="flex items-center gap-2">
                           <Crown
-                            className={`h-4 w-4 ${
+                            className={`h-4 w-4 transition-colors ${
                               field.value
                                 ? "text-yellow-500 fill-yellow-500"
-                                : "text-gray-400"
+                                : "text-gray-400 dark:text-slate-500"
                             }`}
                           />
                           <span
-                            className="text-sm font-medium cursor-pointer"
+                            className="text-sm font-medium cursor-pointer text-slate-700 dark:text-slate-200"
                             onClick={() => field.onChange(!field.value)}
                           >
                             Nhóm trưởng?
@@ -268,6 +274,7 @@ export function AddStudentDialog({
                           checked={field.value}
                           onCheckedChange={field.onChange}
                           disabled={isPending}
+                          className="data-[state=checked]:bg-[#F27124] dark:data-[state=unchecked]:bg-slate-700"
                         />
                       </div>
                     </FormControl>
@@ -276,22 +283,23 @@ export function AddStudentDialog({
               />
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="pt-4 mt-6 border-t border-slate-100 dark:border-slate-800">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
                 disabled={isPending}
+                className="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 font-bold"
               >
                 Hủy
               </Button>
               <Button
                 type="submit"
-                className="bg-[#F27124] hover:bg-[#d65d1b]"
+                className="bg-[#F27124] hover:bg-[#d65d1b] text-white font-bold"
                 disabled={isPending}
               >
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Lưu
+                Thêm Sinh viên
               </Button>
             </DialogFooter>
           </form>

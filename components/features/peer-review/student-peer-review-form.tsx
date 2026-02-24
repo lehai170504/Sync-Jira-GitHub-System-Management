@@ -185,10 +185,10 @@ export function PeerReviewForm() {
 
   if (membersToReview.length === 0) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 font-mono text-slate-900 dark:text-slate-100">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-100 rounded-lg">
-            <Users className="h-6 w-6 text-indigo-600" />
+          <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+            <Users className="h-6 w-6 text-indigo-600 dark:text-indigo-300" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">Đánh giá chéo (Peer Review)</h1>
@@ -197,7 +197,7 @@ export function PeerReviewForm() {
             </p>
           </div>
         </div>
-        <Card>
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
               Chưa có thành viên nào để đánh giá.
@@ -209,16 +209,16 @@ export function PeerReviewForm() {
   }
 
   return (
-    <div className="p-6 space-y-6 font-mono">
+    <div className="p-6 space-y-6 font-mono text-slate-900 dark:text-slate-100">
       <div className="flex items-center gap-3">
-        <div className="p-2 bg-indigo-100 rounded-lg">
-          <Users className="h-6 w-6 text-indigo-600" />
+        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+          <Users className="h-6 w-6 text-indigo-600 dark:text-indigo-300" />
         </div>
         <div>
           <h1 className="text-2xl font-bold uppercase tracking-tight">
             Peer Review
           </h1>
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">
             Chấm điểm thành viên trong nhóm
           </p>
         </div>
@@ -236,29 +236,31 @@ export function PeerReviewForm() {
             return (
               <Card
                 key={member.id}
-                className="bg-green-50 border-green-200 flex flex-col items-center justify-center py-10 h-full transition-all duration-500"
+                className="bg-green-50 dark:bg-emerald-900/20 border-green-200 dark:border-emerald-800 flex flex-col items-center justify-center py-10 h-full transition-all duration-500"
               >
-                <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
-                <h3 className="text-green-800 font-semibold text-lg uppercase">
+                <CheckCircle2 className="w-16 h-16 text-green-500 dark:text-emerald-300 mb-4" />
+                <h3 className="text-green-800 dark:text-emerald-100 font-semibold text-lg uppercase">
                   Đã đánh giá
                 </h3>
                 <div className="flex items-center gap-2 mt-2">
-                  <Avatar className="h-8 w-8 border border-green-300">
-                    <AvatarFallback className="bg-green-100 text-green-700">
+                  <Avatar className="h-8 w-8 border border-green-300 dark:border-emerald-700">
+                    <AvatarFallback className="bg-green-100 dark:bg-emerald-900/40 text-green-700 dark:text-emerald-300">
                       {member.initials}
                     </AvatarFallback>
                   </Avatar>
-                  <p className="text-green-600 font-medium">{member.name}</p>
+                  <p className="text-green-600 dark:text-emerald-200 font-medium">
+                    {member.name}
+                  </p>
                 </div>
                 <div className="flex mt-3 gap-1">
                   {[...Array(rating)].map((_, i) => (
                     <Star
                       key={i}
-                      className="w-5 h-5 fill-green-500 text-green-500"
+                      className="w-5 h-5 fill-green-500 text-green-500 dark:fill-emerald-400 dark:text-emerald-400"
                     />
                   ))}
                   {[...Array(5 - rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-gray-300" />
+                    <Star key={i} className="w-5 h-5 text-gray-300 dark:text-slate-700" />
                   ))}
                 </div>
               </Card>
@@ -268,18 +270,18 @@ export function PeerReviewForm() {
           return (
             <Card
               key={member.id}
-              className="hover:shadow-md transition-shadow duration-300 h-full flex flex-col border-slate-200"
+              className="hover:shadow-md transition-shadow duration-300 h-full flex flex-col border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
             >
               <CardHeader className="flex flex-row items-center gap-4 pb-2">
-                <Avatar className="h-12 w-12 border">
+                <Avatar className="h-12 w-12 border border-slate-200 dark:border-slate-700">
                   {member.avatarUrl ? (
                     <AvatarImage src={member.avatarUrl} />
                   ) : null}
                   <AvatarFallback
                     className={cn(
                       member.role === "LEADER"
-                        ? "bg-indigo-100 text-indigo-700"
-                        : "bg-slate-100 text-slate-700",
+                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300"
+                        : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
                     )}
                   >
                     {member.initials}
@@ -293,8 +295,8 @@ export function PeerReviewForm() {
                     className={cn(
                       "text-[9px] font-black uppercase px-2 py-0.5 rounded-full mt-1 inline-block tracking-widest",
                       member.role === "LEADER"
-                        ? "bg-indigo-100 text-indigo-600"
-                        : "bg-slate-100 text-slate-600",
+                        ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300"
+                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
                     )}
                   >
                     {member.role}
@@ -303,7 +305,7 @@ export function PeerReviewForm() {
               </CardHeader>
 
               <CardContent className="space-y-5 flex-1 flex flex-col pt-4">
-                <div className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <div className="flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
                   <div className="flex gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -318,7 +320,7 @@ export function PeerReviewForm() {
                             "w-8 h-8 transition-colors duration-200",
                             star <= rating
                               ? "fill-amber-400 text-amber-400 drop-shadow-sm"
-                              : "text-gray-300 group-hover:text-amber-200",
+                              : "text-gray-300 dark:text-slate-700 group-hover:text-amber-200",
                           )}
                         />
                       </button>
@@ -347,7 +349,7 @@ export function PeerReviewForm() {
                         : "Nhận xét (tuỳ chọn)..."
                     }
                     disabled={isSubmitting}
-                    className="resize-none min-h-[100px] rounded-2xl bg-slate-50/50 border-slate-200 focus-visible:ring-0 focus-visible:border-slate-400"
+                    className="resize-none min-h-[100px] rounded-2xl bg-slate-50/50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus-visible:ring-0 focus-visible:border-slate-400 dark:focus-visible:border-slate-500"
                   />
                 </div>
 

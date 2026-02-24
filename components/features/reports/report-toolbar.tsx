@@ -29,14 +29,14 @@ export function ReportToolbar({
         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
         <Input
           placeholder="Tìm tên báo cáo..."
-          className="pl-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-blue-200 rounded-xl"
+          className="pl-10 bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 focus:border-blue-500 focus:ring-blue-200 rounded-xl"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
       <Select value={typeFilter} onValueChange={setTypeFilter}>
-        <SelectTrigger className="w-full sm:w-[180px] rounded-xl bg-white border-gray-200">
+        <SelectTrigger className="w-full sm:w-[180px] rounded-xl bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Filter className="h-3.5 w-3.5" />
             <SelectValue placeholder="Loại file" />

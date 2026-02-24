@@ -91,7 +91,7 @@ export default function LeaderProgressPage() {
 
   if (!isLeader) {
     return (
-      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
+      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-3xl font-bold tracking-tight">
@@ -104,7 +104,7 @@ export default function LeaderProgressPage() {
           </div>
         </div>
         <Separator />
-        <Alert className="bg-gray-50 border-gray-200 text-gray-800">
+        <Alert className="bg-gray-50 border-gray-200 text-gray-800 dark:bg-slate-900/60 dark:border-slate-800 dark:text-slate-100">
           <AlertTitle>Không có quyền truy cập</AlertTitle>
           <AlertDescription>
             Bạn đang đăng nhập với vai trò Member. Vui lòng liên hệ Leader nếu cần xem thông tin này.
@@ -128,8 +128,8 @@ export default function LeaderProgressPage() {
   // Error state
   if (error) {
     return (
-      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
-        <Alert className="bg-red-50 border-red-200 text-red-900">
+      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
+        <Alert className="bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-200">
           <AlertTitle>Lỗi tải dữ liệu</AlertTitle>
           <AlertDescription>
             Không thể tải bảng xếp hạng từ server. Vui lòng thử lại sau.
@@ -145,11 +145,11 @@ export default function LeaderProgressPage() {
       : 0;
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
+    <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
       {/* HEADER */}
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2 text-slate-900 dark:text-slate-50">
             <Activity className="h-7 w-7 text-[#F27124]" />
             Team Progress
           </h2>
@@ -161,7 +161,7 @@ export default function LeaderProgressPage() {
           <p className="text-xs text-muted-foreground uppercase">
             Trung bình nhóm
           </p>
-          <p className="text-2xl font-bold text-emerald-600">
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
             {averageProgress.toFixed(0)}%
           </p>
         </div>
@@ -171,7 +171,7 @@ export default function LeaderProgressPage() {
 
       <div className="grid gap-6 md:grid-cols-5">
         {/* BAR CHART */}
-        <Card className="md:col-span-3 shadow-sm">
+        <Card className="md:col-span-3 shadow-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <CardHeader>
             <CardTitle className="text-base">
               Tiến độ theo thành viên (% hoàn thành)
@@ -223,7 +223,7 @@ export default function LeaderProgressPage() {
         </Card>
 
         {/* MEMBER SUMMARY */}
-        <Card className="md:col-span-2 shadow-sm">
+        <Card className="md:col-span-2 shadow-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <CardHeader>
             <CardTitle className="text-base">
               Chi tiết tiến độ từng thành viên
@@ -233,7 +233,7 @@ export default function LeaderProgressPage() {
             {memberProgress.map((m) => (
               <div
                 key={m.id}
-                className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2"
+                className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-muted/40 px-3 py-2"
               >
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8 border bg-background">
@@ -250,7 +250,7 @@ export default function LeaderProgressPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-emerald-600">
+                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
                     {m.progress}%
                   </p>
                   <p className="text-[11px] text-muted-foreground">

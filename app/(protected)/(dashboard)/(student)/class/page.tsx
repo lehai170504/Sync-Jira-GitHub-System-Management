@@ -105,15 +105,20 @@ export default function StudentClassListPage() {
   // 3. Render Guard: Trạng thái chưa chọn lớp
   if (!classId) {
     return (
-      <div className="flex flex-col items-center justify-center h-[80vh] text-gray-500 animate-in fade-in zoom-in-95">
-        <div className="p-8 bg-white rounded-full mb-6 shadow-sm border border-gray-100">
-          <Users className="w-12 h-12 text-gray-300" />
+      <div className="flex flex-col items-center justify-center h-[80vh] text-gray-500 dark:text-slate-400 animate-in fade-in zoom-in-95">
+        <div className="p-8 bg-white dark:bg-slate-900 rounded-full mb-6 shadow-sm border border-gray-100 dark:border-slate-700">
+          <Users className="w-12 h-12 text-gray-300 dark:text-slate-500" />
         </div>
-        <p className="text-xl font-semibold text-gray-800">Chưa chọn lớp học</p>
-        <p className="text-sm mt-2 text-gray-400">
+        <p className="text-xl font-semibold text-gray-800 dark:text-slate-100">
+          Chưa chọn lớp học
+        </p>
+        <p className="text-sm mt-2 text-gray-400 dark:text-slate-400">
           Vui lòng chọn lớp học từ màn hình chính để xem danh sách.
         </p>
-        <Button asChild className="mt-6 bg-[#F27124] hover:bg-[#d45d1d]">
+        <Button
+          asChild
+          className="mt-6 bg-[#F27124] hover:bg-[#d45d1d] dark:bg-orange-500 dark:hover:bg-orange-600"
+        >
           <Link href="/courses">Quay lại danh sách lớp</Link>
         </Button>
       </div>
@@ -121,9 +126,9 @@ export default function StudentClassListPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in-50 pb-10">
+    <div className="space-y-8 animate-in fade-in-50 pb-10 text-slate-900 dark:text-slate-100">
       {/* --- TOP TITLE SECTION --- */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-100 pb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-100 dark:border-slate-800 pb-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-[#F27124] mb-1">
             <GraduationCap className="h-5 w-5" />
@@ -131,10 +136,10 @@ export default function StudentClassListPage() {
               Thông tin lớp học
             </span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-slate-50">
             Thành viên lớp {className}
           </h1>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 dark:text-slate-400 text-sm">
             Quản lý và theo dõi danh sách đồng đội tham gia dự án.
           </p>
         </div>
@@ -168,40 +173,44 @@ export default function StudentClassListPage() {
 
       {/* --- STATS CARDS GRID --- */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="p-3 bg-orange-50 rounded-xl text-[#F27124]">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-all hover:shadow-md dark:hover:shadow-lg/5">
+          <div className="p-3 bg-orange-50 dark:bg-orange-900/30 rounded-xl text-[#F27124]">
             <Users className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+            <p className="text-[10px] text-gray-400 dark:text-slate-400 font-bold uppercase tracking-widest">
               Tổng số
             </p>
-            <p className="text-2xl font-bold text-gray-900">{totalCount}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-slate-50">
+              {totalCount}
+            </p>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="p-3 bg-emerald-50 rounded-xl text-emerald-600">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-all hover:shadow-md dark:hover:shadow-lg/5">
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl text-emerald-600 dark:text-emerald-400">
             <UserCheck className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+            <p className="text-[10px] text-gray-400 dark:text-slate-400 font-bold uppercase tracking-widest">
               Đã tham gia
             </p>
-            <p className="text-2xl font-bold text-gray-900">{enrolledCount}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-slate-50">
+              {enrolledCount}
+            </p>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-all hover:shadow-md dark:hover:shadow-lg/5">
+          <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">
             <LayoutGrid className="h-6 w-6" />
           </div>
           <div className="overflow-hidden">
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+            <p className="text-[10px] text-gray-400 dark:text-slate-400 font-bold uppercase tracking-widest">
               Nhóm của bạn
             </p>
             <p
-              className="text-xl font-bold text-gray-900 truncate"
+              className="text-xl font-bold text-gray-900 dark:text-slate-50 truncate"
               title={myTeamName}
             >
               {myTeamName || "N/A"}
@@ -212,10 +221,10 @@ export default function StudentClassListPage() {
 
       {/* --- SEARCH FILTER --- */}
       <div className="relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#F27124] transition-colors" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-slate-500 group-focus-within:text-[#F27124] transition-colors" />
         <input
           placeholder="Tìm kiếm đồng đội theo tên hoặc MSSV..."
-          className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-orange-500/5 focus:border-[#F27124] transition-all outline-none text-gray-700 font-medium"
+          className="w-full pl-12 pr-4 py-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-sm focus:ring-4 focus:ring-orange-500/5 focus:border-[#F27124] transition-all outline-none text-gray-700 dark:text-slate-100 font-medium placeholder:text-gray-400 dark:placeholder:text-slate-500"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -224,9 +233,9 @@ export default function StudentClassListPage() {
       {/* --- DATA LIST SECTION --- */}
       <div className="relative min-h-[400px]">
         {isStudentsLoading ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/50 backdrop-blur-sm rounded-3xl border border-dashed border-gray-200">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-slate-900/60 backdrop-blur-sm rounded-3xl border border-dashed border-gray-200 dark:border-slate-700">
             <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
-            <p className="mt-4 text-sm text-gray-500 font-medium animate-pulse">
+            <p className="mt-4 text-sm text-gray-500 dark:text-slate-400 font-medium animate-pulse">
               Đang đồng bộ dữ liệu lớp học...
             </p>
           </div>

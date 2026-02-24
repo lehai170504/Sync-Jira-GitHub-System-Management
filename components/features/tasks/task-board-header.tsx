@@ -92,7 +92,7 @@ export function TaskBoardHeader({
               <Button
                 variant="outline"
                 size="sm"
-                className="border-slate-300 text-slate-800"
+                className="border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100"
                 onClick={onEditSprint}
                 title="Sửa sprint"
               >
@@ -101,7 +101,7 @@ export function TaskBoardHeader({
               <Button
                 variant="destructive"
                 size="sm"
-                className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900/60 dark:hover:bg-red-900/50"
                 onClick={onDeleteSprint}
                 title="Xóa sprint"
               >
@@ -121,7 +121,7 @@ export function TaskBoardHeader({
         <Button
           variant="outline"
           size="sm"
-          className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+          className="border-emerald-300 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
           onClick={onAddSprint}
           title="Thêm sprint"
         >

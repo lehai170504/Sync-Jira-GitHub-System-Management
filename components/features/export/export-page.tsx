@@ -88,10 +88,10 @@ export function ExportPage() {
   // Chỉ LEADER mới được truy cập
   if (!isLeader) {
     return (
-      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
+      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
         <ExportHeader />
         <Separator />
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-800">
+        <div className="bg-gray-50 dark:bg-slate-900/60 border border-gray-200 dark:border-slate-800 rounded-lg p-4 text-gray-800 dark:text-slate-100">
           <h3 className="font-semibold mb-1">Không có quyền truy cập</h3>
           <p className="text-sm">
             Bạn đang đăng nhập với vai trò Member. Vui lòng liên hệ Leader.
@@ -102,10 +102,10 @@ export function ExportPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0">
+    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
       <ExportHeader />
 
-      <Separator className="bg-gradient-to-r from-transparent via-border to-transparent" />
+      <Separator className="bg-linear-to-r from-transparent via-border to-transparent" />
 
       <Tabs defaultValue="score" className="space-y-8">
         <div className="flex justify-center">

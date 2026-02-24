@@ -308,9 +308,9 @@ export function LeaderCommits({
   // Nếu không có TeamId (User chưa vào nhóm)
   if (!resolvedTeamId && !isClassesLoading) {
     return (
-      <div className="p-12 text-center bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200">
-        <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-        <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">
+      <div className="p-12 text-center bg-slate-50 dark:bg-slate-900/60 rounded-[32px] border-2 border-dashed border-slate-200 dark:border-slate-800">
+        <AlertCircle className="w-12 h-12 text-slate-300 dark:text-slate-500 mx-auto mb-4" />
+        <p className="text-sm font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest">
           Bạn chưa tham gia vào nhóm nào trong lớp học này.
         </p>
       </div>
@@ -318,17 +318,17 @@ export function LeaderCommits({
   }
 
   return (
-    <div className="space-y-8 w-full py-8 px-4 md:px-0 animate-in fade-in duration-700">
+    <div className="space-y-8 w-full py-8 px-4 md:px-0 animate-in fade-in duration-700 text-slate-900 dark:text-slate-100">
       {/* HEADER */}
       <div className="flex items-center gap-4">
-        <div className="p-4 bg-slate-900 rounded-[20px] shadow-xl shadow-slate-200 text-white">
+        <div className="p-4 bg-slate-900 rounded-[20px] shadow-xl shadow-slate-200 dark:shadow-slate-900/40 text-white">
           <GitCommit className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
+          <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-50 uppercase">
             Lịch sử Commit
           </h2>
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+          <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             {isLeader
               ? "Quản lý đóng góp mã nguồn của toàn nhóm"
               : "Xem lịch sử đóng góp cá nhân"}
@@ -336,7 +336,7 @@ export function LeaderCommits({
         </div>
       </div>
 
-      <Separator className="bg-slate-100" />
+      <Separator className="bg-slate-100 dark:bg-slate-800" />
 
       {isLeader ? (
         <Tabs
@@ -379,7 +379,7 @@ export function LeaderCommits({
             </div>
 
             {/* FILTERS */}
-            <div className="bg-white p-2 rounded-[24px] border border-slate-200/60 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 p-2 rounded-[24px] border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none">
               <CommitFilters
                 authorFilter={authorFilter}
                 fromDate={fromDate}
@@ -422,7 +422,7 @@ export function LeaderCommits({
                 {/* Summary */}
                 {groupedCommitsData?.summary && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="rounded-[20px] border bg-white p-4">
+                    <div className="rounded-[20px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
                       <div className="text-xs text-muted-foreground uppercase tracking-widest">
                         Tổng thành viên
                       </div>
@@ -430,7 +430,7 @@ export function LeaderCommits({
                         {groupedCommitsData.summary.total_members}
                       </div>
                     </div>
-                    <div className="rounded-[20px] border bg-white p-4">
+                    <div className="rounded-[20px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
                       <div className="text-xs text-muted-foreground uppercase tracking-widest">
                         Tổng commits
                       </div>
@@ -442,8 +442,8 @@ export function LeaderCommits({
                 )}
 
                 {/* Filter + Single table */}
-                <div className="rounded-[24px] border bg-white overflow-hidden">
-                  <div className="px-4 py-3 border-b bg-muted/30 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-muted/30 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div className="min-w-0">
                       <div className="font-bold truncate">Danh sách commit của team</div>
                       <div className="text-xs text-muted-foreground">
@@ -500,7 +500,7 @@ export function LeaderCommits({
           </div>
 
           {/* FILTERS */}
-          <div className="bg-white p-2 rounded-[24px] border border-slate-200/60 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 p-2 rounded-[24px] border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none">
             <CommitFilters
               authorFilter={authorFilter}
               fromDate={fromDate}
@@ -556,13 +556,14 @@ function StatItem({
   color: string;
 }) {
   const colors: any = {
-    blue: "bg-blue-50 text-blue-600 border-blue-100",
-    emerald: "bg-emerald-50 text-emerald-600 border-emerald-100",
-    red: "bg-red-50 text-red-600 border-red-100",
+    blue: "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/60",
+    emerald:
+      "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/60",
+    red: "bg-red-50 text-red-600 border-red-100 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900/60",
   };
   return (
     <div
-      className={`p-6 rounded-[28px] border ${colors[color]} flex justify-between items-center bg-white shadow-sm`}
+      className={`p-6 rounded-[28px] border ${colors[color]} flex justify-between items-center shadow-sm dark:shadow-none`}
     >
       <div>
         <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">

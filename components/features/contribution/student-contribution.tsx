@@ -45,7 +45,7 @@ export function LeaderContribution() {
 
   if (!isLeader) {
     return (
-      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
+      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-3xl font-bold tracking-tight">Contribution Ratio</h2>
@@ -55,7 +55,7 @@ export function LeaderContribution() {
           </div>
         </div>
         <Separator />
-        <Alert className="bg-gray-50 border-gray-200 text-gray-800">
+        <Alert className="bg-gray-50 border-gray-200 text-gray-800 dark:bg-slate-900/60 dark:border-slate-800 dark:text-slate-100">
           <AlertTitle>Không có quyền truy cập</AlertTitle>
           <AlertDescription>
             Bạn đang đăng nhập với vai trò Member. Vui lòng liên hệ Leader nếu
@@ -67,7 +67,7 @@ export function LeaderContribution() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
+    <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
       {/* HEADER */}
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-1">

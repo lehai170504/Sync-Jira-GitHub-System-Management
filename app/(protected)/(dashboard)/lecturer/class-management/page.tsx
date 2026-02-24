@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -22,14 +22,18 @@ import { ClassStudent } from "@/features/management/classes/types/class-types";
 
 export default function ClassManagementPage() {
   const searchParams = useSearchParams();
-  const urlClassId = searchParams.get("classId");
+  const urlClassId = searchParams.get("classId") ?? undefined;
+  const [classId, setClassId] = useState<string | undefined>(urlClassId ?? undefined);
 
-  const cookieClassId =
-    typeof window !== "undefined"
-      ? Cookies.get("lecturer_class_id")
-      : undefined;
+  useEffect(() => {
+    if (urlClassId) {
+      setClassId(urlClassId);
+      return;
+    }
 
-  const classId = urlClassId || cookieClassId;
+    const cookieClassId = Cookies.get("lecturer_class_id") ?? undefined;
+    setClassId((prev) => prev ?? cookieClassId);
+  }, [urlClassId]);
 
   const { data: classDetails, isLoading: isDetailsLoading } =
     useClassDetails(classId);

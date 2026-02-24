@@ -689,7 +689,7 @@ export function TaskBoard() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
+    <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
       {/* HEADER */}
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-1">
@@ -777,7 +777,7 @@ export function TaskBoard() {
       <Separator />
 
       {sprints.length === 0 && !isSprintsLoading && (
-        <Alert className="bg-amber-50 border-amber-200 text-amber-900">
+        <Alert className="bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-100">
           <RefreshCw className="h-4 w-4" />
           <AlertTitle>Chưa có sprint</AlertTitle>
           <AlertDescription>
@@ -791,7 +791,7 @@ export function TaskBoard() {
       )}
 
       {currentSprint && sprintOverdue && (
-        <Alert className="bg-red-50 border-red-200 text-red-900">
+        <Alert className="bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-100">
           <AlertTitle>Đã quá hạn deadline sprint</AlertTitle>
           <AlertDescription>
             <b>{currentSprint.name} ngày {formatDateVN_ddMMyyyy(currentSprint.deadline)}.</b> Vui lòng rà soát lại các task chưa hoàn thành.
@@ -801,13 +801,13 @@ export function TaskBoard() {
 
       {/* VIEW SWITCHER: TABLE / KANBAN */}
       <Tabs defaultValue="board" value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
-        <TabsList className="h-9">
-          <TabsTrigger value="board" className="flex items-center gap-2">
+        <TabsList className="h-9 bg-slate-100 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-800 rounded-xl">
+          <TabsTrigger value="board" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
             <KanbanSquare className="h-4 w-4" />
             Board
           </TabsTrigger>
           {isLeader && (
-            <TabsTrigger value="table" className="flex items-center gap-2">
+            <TabsTrigger value="table" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
               <ListChecks className="h-4 w-4" />
               Bảng tất cả thành viên
             </TabsTrigger>
@@ -824,7 +824,7 @@ export function TaskBoard() {
               Đang tải tasks...
             </div>
           ) : isTasksError ? (
-            <Alert className="bg-red-50 border-red-200 text-red-900">
+            <Alert className="bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-100">
               <AlertTitle>Lỗi tải tasks</AlertTitle>
               <AlertDescription>
                 Không thể lấy danh sách tasks từ server. Vui lòng thử lại.
@@ -913,7 +913,7 @@ export function TaskBoard() {
               Đang tải tasks...
             </div>
           ) : isTeamAllTasksError ? (
-            <Alert className="bg-red-50 border-red-200 text-red-900">
+            <Alert className="bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-100">
               <AlertTitle>Lỗi tải tasks</AlertTitle>
               <AlertDescription>
                 Không thể lấy danh sách tasks từ server. Vui lòng thử lại.

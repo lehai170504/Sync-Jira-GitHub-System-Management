@@ -16,9 +16,9 @@ export function ExportScoreCard({ lastExportAt, loading, onExport }: ExportScore
   const lastExportLabel = formatExportTimestamp(lastExportAt);
 
   return (
-    <Card className="border-2 shadow-xl overflow-hidden bg-gradient-to-br from-white to-emerald-50/30">
+    <Card className="border-2 border-emerald-100 dark:border-emerald-900/50 shadow-xl dark:shadow-none overflow-hidden bg-linear-to-br from-white to-emerald-50/30 dark:from-slate-950 dark:to-emerald-950/20">
       {/* HEADER WITH GRADIENT */}
-      <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-6 text-white">
+      <div className="bg-linear-to-r from-emerald-500 to-emerald-600 p-6 text-white">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
@@ -45,7 +45,7 @@ export function ExportScoreCard({ lastExportAt, loading, onExport }: ExportScore
       <CardContent className="p-6 space-y-6">
         {/* FILE INFO */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-emerald-100">
+          <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-lg border border-emerald-100 dark:border-emerald-900/60">
             <div className="p-2 bg-emerald-100 rounded-lg">
               <FileCheck className="h-5 w-5 text-emerald-600" />
             </div>
@@ -54,7 +54,7 @@ export function ExportScoreCard({ lastExportAt, loading, onExport }: ExportScore
               <p className="text-sm font-semibold text-emerald-700">.xlsx</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-emerald-100">
+          <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-lg border border-emerald-100 dark:border-emerald-900/60">
             <div className="p-2 bg-emerald-100 rounded-lg">
               <FileText className="h-5 w-5 text-emerald-600" />
             </div>
@@ -63,7 +63,7 @@ export function ExportScoreCard({ lastExportAt, loading, onExport }: ExportScore
               <p className="text-sm font-semibold text-emerald-700">Bang Diem Tong Hop</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-emerald-100">
+          <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-lg border border-emerald-100 dark:border-emerald-900/60">
             <div className="p-2 bg-emerald-100 rounded-lg">
               <Clock className="h-5 w-5 text-emerald-600" />
             </div>
@@ -84,7 +84,7 @@ export function ExportScoreCard({ lastExportAt, loading, onExport }: ExportScore
             onClick={onExport}
             disabled={loading}
             size="lg"
-            className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8"
+            className="bg-linear-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8"
           >
             {loading ? (
               <>

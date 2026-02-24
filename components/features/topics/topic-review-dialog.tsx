@@ -70,7 +70,7 @@ export function TopicReviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl rounded-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-xl rounded-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
         <DialogHeader>
           <DialogTitle className="text-xl flex items-center gap-2">
             {isPending ? "Duyệt Đề tài" : "Chi tiết Đề tài"}
@@ -93,7 +93,7 @@ export function TopicReviewDialog({
 
         <div className="space-y-5 py-2">
           {/* INFO CARD */}
-          <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
+          <div className="bg-gray-50 dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3">
             <div>
               <div className="flex justify-between items-start">
                 <h4 className="font-bold text-gray-900 text-lg leading-snug">
@@ -101,7 +101,7 @@ export function TopicReviewDialog({
                 </h4>
                 <Badge
                   variant="outline"
-                  className="bg-white whitespace-nowrap ml-2"
+                  className="bg-white dark:bg-slate-900 whitespace-nowrap ml-2"
                 >
                   {topic.major}
                 </Badge>
@@ -111,7 +111,7 @@ export function TopicReviewDialog({
               </div>
             </div>
 
-            <p className="text-sm text-gray-600 leading-relaxed border-t border-gray-200 pt-3">
+            <p className="text-sm text-gray-600 dark:text-slate-300 leading-relaxed border-t border-gray-200 dark:border-slate-800 pt-3">
               {topic.description}
             </p>
 
@@ -119,7 +119,7 @@ export function TopicReviewDialog({
               {topic.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-[10px] bg-white border px-2 py-1 rounded-md text-gray-500 font-medium"
+                  className="text-[10px] bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 px-2 py-1 rounded-md text-gray-500 dark:text-slate-400 font-medium"
                 >
                   #{tag}
                 </span>
@@ -131,15 +131,15 @@ export function TopicReviewDialog({
           <div className="grid grid-cols-2 gap-4">
             {/* Members */}
             <div className="space-y-2">
-              <h5 className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1">
+              <h5 className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1">
                 <Users className="h-3.5 w-3.5" /> Thành viên (
                 {topic.members.length})
               </h5>
-              <ul className="text-sm space-y-1 bg-white border rounded-lg p-2 max-h-[120px] overflow-y-auto">
+              <ul className="text-sm space-y-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-2 max-h-[120px] overflow-y-auto">
                 {topic.members.map((mem, idx) => (
                   <li
                     key={idx}
-                    className="flex items-center gap-2 text-gray-700"
+                    className="flex items-center gap-2 text-gray-700 dark:text-slate-200"
                   >
                     <div className="h-1.5 w-1.5 rounded-full bg-blue-400"></div>{" "}
                     {mem}
@@ -150,17 +150,17 @@ export function TopicReviewDialog({
 
             {/* Mentor */}
             <div className="space-y-2">
-              <h5 className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1">
+              <h5 className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1">
                 <User className="h-3.5 w-3.5" /> Mentor
               </h5>
-              <div className="flex items-center gap-3 bg-white border rounded-lg p-2">
-                <Avatar className="h-8 w-8 border border-gray-100">
-                  <AvatarFallback className="bg-orange-50 text-[#F27124] text-xs font-bold">
+              <div className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg p-2">
+                <Avatar className="h-8 w-8 border border-gray-100 dark:border-slate-700">
+                  <AvatarFallback className="bg-orange-50 dark:bg-orange-900/30 text-[#F27124] dark:text-orange-300 text-xs font-bold">
                     {topic.mentor.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="overflow-hidden">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">
                     {topic.mentor}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
@@ -174,25 +174,25 @@ export function TopicReviewDialog({
           {/* COMMENT SECTION - Chỉ hiện khi Pending hoặc nếu có comment cũ (trong thực tế) */}
           {isPending && (
             <div className="space-y-2">
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-gray-900 dark:text-slate-100">
                 Nhận xét / Lý do (Bắt buộc nếu từ chối)
               </span>
               <Textarea
                 placeholder="Nhập nhận xét của hội đồng chuyên môn..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                className="min-h-[100px] rounded-xl resize-none focus-visible:ring-[#F27124]/20 focus-visible:border-[#F27124]"
+                className="min-h-[100px] rounded-xl resize-none bg-slate-50 dark:bg-slate-900 focus-visible:ring-[#F27124]/20 focus-visible:border-[#F27124]"
               />
             </div>
           )}
         </div>
 
-        <DialogFooter className="pt-4 border-t border-gray-100">
+        <DialogFooter className="pt-4 border-t border-gray-100 dark:border-slate-800">
           {isPending ? (
             <div className="flex w-full gap-3 sm:justify-end">
               <Button
                 variant="outline"
-                className="flex-1 sm:flex-none text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-xl h-11"
+                className="flex-1 sm:flex-none text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border-red-200 dark:border-red-800 rounded-xl h-11"
                 onClick={() => handleAction("Rejected")}
                 disabled={isProcessing}
               >
@@ -221,7 +221,7 @@ export function TopicReviewDialog({
               <Button
                 variant="ghost"
                 onClick={() => onOpenChange(false)}
-                className="rounded-xl h-11 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700"
+                className="rounded-xl h-11 px-6 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-100"
               >
                 Đóng
               </Button>

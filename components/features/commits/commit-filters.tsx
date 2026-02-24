@@ -100,13 +100,13 @@ export function CommitFilters({
   };
 
   return (
-    <Card className="border-2 shadow-lg bg-gradient-to-br from-white to-purple-50/20">
-      <CardHeader className="pb-4">
+    <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-lg dark:shadow-none bg-linear-to-br from-white to-purple-50/20 dark:from-slate-900 dark:to-slate-900/80">
+      <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
         <CardTitle className="text-lg flex items-center gap-2">
-          <div className="p-2 bg-purple-100 rounded-lg">
+          <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
             <Filter className="h-4 w-4 text-purple-600" />
           </div>
-          <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
             Lọc commit
           </span>
         </CardTitle>
@@ -122,7 +122,7 @@ export function CommitFilters({
                 Lớp học
               </label>
               <Select value={selectedClassId} onValueChange={onClassChange}>
-                <SelectTrigger className="w-full md:w-[280px] border-2">
+                <SelectTrigger className="w-full md:w-[280px] border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
                   <SelectValue placeholder="Chọn lớp học" />
                 </SelectTrigger>
                 <SelectContent>
@@ -150,7 +150,7 @@ export function CommitFilters({
                   type="date"
                   value={fromDate}
                   onChange={(e) => onFromDateChange(e.target.value)}
-                  className="w-full md:w-[200px] border-2"
+                  className="w-full md:w-[200px] border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                 />
               </div>
               <div className="flex flex-col gap-2">
@@ -159,7 +159,7 @@ export function CommitFilters({
                   type="date"
                   value={toDate}
                   onChange={(e) => onToDateChange(e.target.value)}
-                  className="w-full md:w-[200px] border-2"
+                  className="w-full md:w-[200px] border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                 />
               </div>
             </div>
@@ -168,7 +168,7 @@ export function CommitFilters({
                 variant="outline"
                 onClick={onReset}
                 disabled={!hasActiveFilters}
-                className="border-2 hover:bg-purple-50"
+                className="border-2 border-slate-200 dark:border-slate-700 hover:bg-purple-50 dark:hover:bg-slate-800"
               >
                 <X className="h-4 w-4 mr-2" />
                 Xóa lọc
@@ -179,8 +179,10 @@ export function CommitFilters({
 
         {/* Kết quả đồng bộ - Phía dưới */}
         {syncResult && (
-          <div className="text-xs text-muted-foreground space-y-1 p-3 bg-purple-50 rounded-md border border-purple-200">
-            <p className="font-medium text-purple-700">{syncResult.message}</p>
+          <div className="text-xs text-muted-foreground space-y-1 p-3 bg-purple-50 dark:bg-purple-950/30 rounded-md border border-purple-200 dark:border-purple-900/60">
+            <p className="font-medium text-purple-700 dark:text-purple-200">
+              {syncResult.message}
+            </p>
             <div className="flex gap-4 text-xs">
               <span>Git: {syncResult.stats.git} commits</span>
               <span>Jira: {syncResult.stats.jira_tasks} tasks</span>
@@ -201,7 +203,7 @@ export function CommitFilters({
 
         {/* Bỏ filter thành viên theo yêu cầu */}
         {hasActiveFilters && (
-          <div className="flex items-center gap-2 text-sm text-purple-700 bg-purple-50 px-3 py-2 rounded-md">
+          <div className="flex items-center gap-2 text-sm text-purple-700 dark:text-purple-200 bg-purple-50 dark:bg-purple-950/40 px-3 py-2 rounded-md">
             <Filter className="h-3 w-3" />
             <span>Đang áp dụng bộ lọc</span>
           </div>

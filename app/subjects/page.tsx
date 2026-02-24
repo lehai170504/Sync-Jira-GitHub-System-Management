@@ -97,7 +97,7 @@ export default function SubjectsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] font-mono selection:bg-orange-100 relative">
+    <div className="min-h-screen bg-[#FDFDFD] dark:bg-slate-950 font-mono selection:bg-orange-100 relative transition-colors duration-300">
       {/* --- BACKGROUND DECOR --- */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-orange-100/30 blur-[120px] animate-pulse"></div>
@@ -105,7 +105,7 @@ export default function SubjectsPage() {
       </div>
 
       {/* --- HEADER TỐI GIẢN --- */}
-      <header className="bg-white/60 backdrop-blur-2xl border-b border-slate-200/40 px-8 h-20 flex items-center sticky top-0 z-50">
+      <header className="bg-white/60 dark:bg-slate-950/70 backdrop-blur-2xl border-b border-slate-200/40 dark:border-slate-800/60 px-8 h-20 flex items-center sticky top-0 z-50">
         <div className="container mx-auto max-w-7xl">
           <Link
             href="/"
@@ -120,30 +120,30 @@ export default function SubjectsPage() {
       </header>
 
       {/* --- MAIN CONTENT --- */}
-      <main className="container mx-auto px-6 py-20 max-w-7xl relative">
+      <main className="container mx-auto px-6 py-20 max-w-7xl relative text-slate-900 dark:text-slate-100">
         {/* HERO TITLE */}
         <div className="text-center mb-20 space-y-4 animate-fade-up">
           <Badge className="bg-[#F27124]/10 text-[#F27124] border-0 px-4 py-1 font-bold tracking-widest text-[10px]">
             Khám phá lộ trình
           </Badge>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-slate-900 leading-none">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-slate-900 dark:text-slate-50 leading-none">
             Danh mục
             <br />
             môn học.
           </h1>
-          <p className="text-slate-500 font-medium max-w-xl mx-auto text-sm leading-relaxed pt-4">
+          <p className="text-slate-500 dark:text-slate-400 font-medium max-w-xl mx-auto text-sm leading-relaxed pt-4">
             Hệ thống hóa quy trình DevOps cho các môn học chuyên ngành tại FPT
             University.
           </p>
         </div>
 
         {/* TOOLBAR */}
-        <div className="flex flex-col lg:flex-row gap-6 justify-between items-center mb-16 bg-white p-4 rounded-[32px] border border-slate-100 shadow-2xl shadow-slate-200/50 animate-reveal">
+        <div className="flex flex-col lg:flex-row gap-6 justify-between items-center mb-16 bg-white dark:bg-slate-900 p-4 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/60 animate-reveal">
           <div className="relative w-full lg:w-[400px] group">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[#F27124] transition-colors" />
             <input
               placeholder="Tìm mã môn học..."
-              className="w-full pl-12 h-14 rounded-2xl border-slate-100 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#F27124]/20 focus:bg-white transition-all text-xs font-bold"
+              className="w-full pl-12 h-14 rounded-2xl border-slate-100 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F27124]/20 focus:bg-white dark:focus:bg-slate-950 transition-all text-xs font-bold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -157,7 +157,7 @@ export default function SubjectsPage() {
                 className={`px-6 py-3 rounded-xl text-[10px] font-bold tracking-widest transition-all border ${
                   activeFilter === filter
                     ? "bg-slate-900 text-white border-slate-900 shadow-xl shadow-slate-900/20 scale-105"
-                    : "bg-white text-slate-400 border-slate-100 hover:border-orange-200 hover:text-[#F27124]"
+                    : "bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-900/60 hover:text-[#F27124]"
                 }`}
               >
                 {filter}
@@ -179,7 +179,7 @@ export default function SubjectsPage() {
                 transition={{ duration: 0.4, delay: index * 0.05 }}
               >
                 <Link href="/login">
-                  <Card className="h-full border-slate-100 rounded-[40px] p-2 bg-white hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 group overflow-hidden hover:scale-[1.02]">
+                  <Card className="h-full border-slate-100 dark:border-slate-800 rounded-[40px] p-2 bg-white dark:bg-slate-900 hover:shadow-2xl hover:shadow-orange-500/10 dark:hover:shadow-orange-900/40 transition-all duration-500 group overflow-hidden hover:scale-[1.02]">
                     <CardHeader className="p-8 pb-4 space-y-6">
                       <div className="flex justify-between items-center">
                         <Badge
@@ -192,7 +192,7 @@ export default function SubjectsPage() {
                             <SiJira className="h-4 w-4 text-[#0052CC]" />
                           )}
                           {sub.github && (
-                            <SiGithub className="h-4 w-4 text-slate-900" />
+                            <SiGithub className="h-4 w-4 text-slate-900 dark:text-slate-100" />
                           )}
                         </div>
                       </div>
@@ -204,24 +204,24 @@ export default function SubjectsPage() {
                             <sub.icon className="h-6 w-6" />
                           </div>
                         </div>
-                        <h3 className="text-3xl font-bold tracking-tighter text-slate-900 italic">
+                        <h3 className="text-3xl font-bold tracking-tighter text-slate-900 dark:text-slate-50 italic">
                           {sub.id}
                         </h3>
                       </div>
                     </CardHeader>
 
                     <CardContent className="px-8 py-4">
-                      <h4 className="font-bold text-sm text-slate-800 mb-3 line-clamp-1 italic tracking-tight">
+                      <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 mb-3 line-clamp-1 italic tracking-tight">
                         {sub.name}
                       </h4>
-                      <p className="text-[11px] font-bold text-slate-400 leading-relaxed line-clamp-2">
+                      <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 leading-relaxed line-clamp-2">
                         {sub.description}
                       </p>
                     </CardContent>
 
                     <CardFooter className="px-8 pb-8 pt-4">
-                      <div className="w-full h-12 flex items-center justify-center bg-slate-50 group-hover:bg-[#F27124] rounded-2xl transition-all duration-500 overflow-hidden relative">
-                        <span className="text-[9px] font-bold tracking-widest text-slate-400 group-hover:text-white transition-colors">
+                      <div className="w-full h-12 flex items-center justify-center bg-slate-50 dark:bg-slate-800 group-hover:bg-[#F27124] rounded-2xl transition-all duration-500 overflow-hidden relative">
+                        <span className="text-[9px] font-bold tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-white transition-colors">
                           Vào lớp học
                         </span>
                         <ArrowRight className="absolute right-6 h-4 w-4 text-white translate-x-10 group-hover:translate-x-0 transition-transform duration-500" />
@@ -236,8 +236,8 @@ export default function SubjectsPage() {
 
         {/* EMPTY STATE */}
         {filteredSubjects.length === 0 && (
-          <div className="text-center py-40 bg-white rounded-[60px] border-2 border-dashed border-slate-100 animate-fade-up">
-            <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="text-center py-40 bg-white dark:bg-slate-900 rounded-[60px] border-2 border-dashed border-slate-100 dark:border-slate-800 animate-fade-up">
+            <div className="h-20 w-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
               <Filter className="h-10 w-10 text-slate-200" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 tracking-tighter mb-2">

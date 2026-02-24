@@ -204,15 +204,19 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
   // Nếu team đã có cấu hình và không ở chế độ edit thì hiển thị thông tin read-only
   if (existingConfig && !isEditMode) {
     return (
-      <div className="space-y-6">
-        <Card className="border-2 border-violet-100 shadow-lg bg-gradient-to-br from-white to-violet-50/50 overflow-hidden">
+      <div className="space-y-6 text-slate-900 dark:text-slate-100">
+        <Card className="border-2 border-violet-100 dark:border-violet-900/60 shadow-lg dark:shadow-none bg-linear-to-br from-white to-violet-50/50 dark:from-slate-950 dark:to-violet-950/30 overflow-hidden">
           <CardContent className="p-8 flex flex-col items-center justify-center text-center space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Sẵn sàng đồng bộ</h3>
-            <p className="text-sm text-gray-500 max-w-md">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-50">
+              Sẵn sàng đồng bộ
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-slate-400 max-w-md">
               Nhấn nút bên dưới để lấy dữ liệu task mới nhất từ Jira và commit từ GitHub về hệ thống.
             </p>
             <p className="text-sm">
-              <span className="font-medium text-gray-700">Lần đồng bộ gần nhất:</span>{" "}
+              <span className="font-medium text-gray-700 dark:text-slate-200">
+                Lần đồng bộ gần nhất:
+              </span>{" "}
               <span className="text-muted-foreground">
                 {lastSyncAt ?? existingConfig?.last_sync_at ? (
                   new Date(
@@ -224,42 +228,46 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
               </span>
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
-            <Button
-              size="lg"
-              onClick={handleSyncAll}
-              disabled={isSyncing || !teamId}
-              className="h-12 px-8 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white shadow-lg rounded-full"
-            >
-              {isSyncing ? (
-                <>
-                  <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
-                  Đang đồng bộ...
-                </>
-              ) : (
-                <>
-                  <Zap className="mr-2 h-5 w-5 fill-yellow-300 text-yellow-100" />
-                  Bắt đầu Đồng bộ Tất cả
-                </>
-              )}
-            </Button>
+              <Button
+                size="lg"
+                onClick={handleSyncAll}
+                disabled={isSyncing || !teamId}
+                className="h-12 px-8 bg-linear-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white shadow-lg rounded-full"
+              >
+                {isSyncing ? (
+                  <>
+                    <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
+                    Đang đồng bộ...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="mr-2 h-5 w-5 fill-yellow-300 text-yellow-100" />
+                    Bắt đầu Đồng bộ Tất cả
+                  </>
+                )}
+              </Button>
             </div>
             {syncResult && (
-              <div className="text-xs text-muted-foreground p-3 bg-violet-50 rounded-lg border border-violet-200 w-full max-w-md">
-                <p className="font-medium text-violet-700">{syncResult.message}</p>
+              <div className="text-xs text-muted-foreground p-3 bg-violet-50 dark:bg-violet-950/30 rounded-lg border border-violet-200 dark:border-violet-900/60 w-full max-w-md">
+                <p className="font-medium text-violet-700 dark:text-violet-200">
+                  {syncResult.message}
+                </p>
                 <div className="flex gap-4 mt-1 justify-center">
                   <span>Git: {syncResult.stats.git} commits</span>
                   <span>Jira: {syncResult.stats.jira_tasks} tasks</span>
                   <span>Sprints: {syncResult.stats.jira_sprints}</span>
                 </div>
                 {syncResult.stats.errors.length > 0 && (
-                  <p className="text-red-600 mt-1 text-left">{syncResult.stats.errors[0]}</p>
+                  <p className="text-red-600 dark:text-red-300 mt-1 text-left">
+                    {syncResult.stats.errors[0]}
+                  </p>
                 )}
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-[#0052CC]">
+        <Card className="border-l-4 border-l-[#0052CC] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -349,7 +357,7 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-[#24292F]">
+        <Card className="border-l-4 border-l-[#24292F] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <svg
@@ -401,7 +409,7 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* JIRA SECTION */}
-      <Card className="border-l-4 border-l-[#0052CC]">
+        <Card className="border-l-4 border-l-[#0052CC] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <img
@@ -488,7 +496,7 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
       </Card>
 
       {/* GITHUB SECTION */}
-      <Card className="border-l-4 border-l-[#24292F]">
+      <Card className="border-l-4 border-l-[#24292F] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <svg

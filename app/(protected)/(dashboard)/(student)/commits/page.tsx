@@ -22,12 +22,12 @@ export default function LeaderCommitListPage() {
   }, []);
 
   if (!mounted) {
-    return <div className="max-w-6xl mx-auto py-8 px-4 md:px-0" />;
+    return <div className="w-full py-8 px-4 md:px-0" />;
   }
   
   if (role !== "STUDENT") {
     return (
-      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
+      <div className="space-y-6 w-full py-8 px-4 md:px-0">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-3xl font-bold tracking-tight">Lịch sử Commit</h2>

@@ -242,28 +242,6 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
                 </>
               )}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              onClick={() => {
-                if (existingConfig) {
-                  setFormData({
-                    jira_url: existingConfig.jira_url,
-                    jira_project_key: existingConfig.jira_project_key,
-                    jira_board_id: existingConfig.jira_board_id,
-                    api_token_jira: existingConfig.api_token_jira,
-                    github_repo_url: existingConfig.github_repo_url,
-                    api_token_github: existingConfig.api_token_github,
-                  });
-                }
-                setIsEditMode(true);
-              }}
-              className="h-12 px-6"
-            >
-              <Pencil className="mr-2 h-5 w-5" />
-              Chỉnh sửa cấu hình
-            </Button>
             </div>
             {syncResult && (
               <div className="text-xs text-muted-foreground p-3 bg-violet-50 rounded-lg border border-violet-200 w-full max-w-md">

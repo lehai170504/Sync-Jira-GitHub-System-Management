@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
 import { UserRole } from "@/components/layouts/sidebar-config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Activity } from "lucide-react";
+import { Activity, Loader2 } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -18,24 +18,31 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { useClassTeams } from "@/features/student/hooks/use-class-teams";
+import { useTeamRanking } from "@/features/management/teams/hooks/use-team-ranking";
 
-// Mock data: tiến độ từng thành viên (0–100%)
-const memberProgress = [
-  { id: "m1", name: "Nguyễn Văn An", initials: "AN", progress: 85, tasksDone: 8 },
-  { id: "m2", name: "Trần Thị Bình", initials: "BT", progress: 72, tasksDone: 6 },
-  { id: "m3", name: "Lê Hoàng Cường", initials: "LC", progress: 64, tasksDone: 5 },
-  { id: "m4", name: "Phạm Minh Dung", initials: "DM", progress: 48, tasksDone: 3 },
-];
-
-const chartData = memberProgress.map((m) => ({
-  name: m.initials,
-  progress: m.progress,
-}));
+// Helper function để lấy initials từ tên
+const getInitials = (name?: string) => {
+  if (!name) return "NA";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
 
 export default function LeaderProgressPage() {
   const [role, setRole] = useState<UserRole>("STUDENT");
   const [isLeader, setIsLeader] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // Resolve teamId giống trang /tasks và /config
+  const classId = Cookies.get("student_class_id") || "";
+  const myTeamName = Cookies.get("student_team_name");
+  const { data: teamsData } = useClassTeams(classId);
+  const myTeamInfo = teamsData?.teams?.find((t: any) => t.project_name === myTeamName);
+  const resolvedTeamId = myTeamInfo?._id || teamsData?.teams?.[0]?._id;
+
+  // Fetch ranking data từ API
+  const { data: rankingData, isLoading, error } = useTeamRanking(resolvedTeamId);
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
@@ -45,6 +52,40 @@ export default function LeaderProgressPage() {
     setIsLeader(leaderStatus);
     setMounted(true);
   }, []);
+
+  // Map API data sang format cho UI
+  const memberProgress = useMemo(() => {
+    if (!rankingData?.ranking) return [];
+    
+    return rankingData.ranking.map((member) => {
+      const studentName = member.student?.full_name || `Member ${member.member_id.slice(-4)}`;
+      const initials = getInitials(studentName);
+      // Tính progress: done_tasks / total_tasks * 100 (nếu total_tasks > 0)
+      const progress = member.jira.total_tasks > 0
+        ? Math.round((member.jira.done_tasks / member.jira.total_tasks) * 100)
+        : 0;
+      
+      return {
+        id: member.member_id,
+        name: studentName,
+        initials,
+        progress,
+        tasksDone: member.jira.done_tasks,
+        totalTasks: member.jira.total_tasks,
+        storyPointsDone: member.jira.done_story_points,
+        storyPointsTotal: member.jira.total_story_points,
+        commits: member.github.counted_commits,
+        role: member.role_in_team,
+      };
+    });
+  }, [rankingData]);
+
+  const chartData = useMemo(() => {
+    return memberProgress.map((m) => ({
+      name: m.initials,
+      progress: m.progress,
+    }));
+  }, [memberProgress]);
 
   if (!mounted) return null;
 
@@ -73,9 +114,35 @@ export default function LeaderProgressPage() {
     );
   }
 
+  // Loading state
+  if (isLoading || !resolvedTeamId) {
+    return (
+      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
+        <Alert className="bg-red-50 border-red-200 text-red-900">
+          <AlertTitle>Lỗi tải dữ liệu</AlertTitle>
+          <AlertDescription>
+            Không thể tải bảng xếp hạng từ server. Vui lòng thử lại sau.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   const averageProgress =
-    memberProgress.reduce((sum, m) => sum + m.progress, 0) /
-    memberProgress.length;
+    memberProgress.length > 0
+      ? memberProgress.reduce((sum, m) => sum + m.progress, 0) / memberProgress.length
+      : 0;
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
@@ -177,7 +244,8 @@ export default function LeaderProgressPage() {
                   <div>
                     <p className="text-sm font-semibold">{m.name}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      {m.tasksDone} task hoàn thành
+                      {m.tasksDone}/{m.totalTasks} task hoàn thành
+                      {m.commits > 0 && ` • ${m.commits} commits`}
                     </p>
                   </div>
                 </div>

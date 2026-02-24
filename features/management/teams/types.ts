@@ -117,3 +117,31 @@ export interface TeamCommitsResponse {
   commits: TeamCommitItem[];
 }
 
+/** GET /api/teams/:teamId/ranking */
+export interface TeamRankingResponse {
+  total: number;
+  ranking: Array<{
+    member_id: string;
+    student: {
+      _id: string;
+      student_code: string;
+      email: string;
+      full_name: string;
+    } | null;
+    role_in_team: string;
+    mapping: {
+      jira_account_id: string | null;
+      github_username: string | null;
+    };
+    jira: {
+      done_tasks: number;
+      done_story_points: number;
+      total_tasks: number;
+      total_story_points: number;
+    };
+    github: {
+      counted_commits: number;
+    };
+  }>;
+}
+

@@ -3,6 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { GitCommit, Loader2, AlertCircle } from "lucide-react";
 import { mockCommits, mockCommitDetails } from "./mock-data";
 import { CommitFilters } from "./commit-filters";
@@ -20,6 +28,7 @@ import {
 } from "@/features/integration/hooks/use-team-commits";
 import { useMyCommits } from "@/features/integration/hooks/use-my-commits";
 import { useTeamCommitsFromTeam } from "@/features/management/teams/hooks/use-team-commits";
+import { useIntegrationTeamCommitsGrouped } from "@/features/integration/hooks/use-team-commits-grouped";
 
 interface LeaderCommitsProps {
   role?: UserRole;
@@ -37,6 +46,8 @@ export function LeaderCommits({
   const [toDate, setToDate] = useState("");
   const [authorFilter, setAuthorFilter] = useState<string>("ALL");
   const [selectedCommitId, setSelectedCommitId] = useState<string | null>(null);
+  const [leaderView, setLeaderView] = useState<"list" | "grouped">("list");
+  const [groupedMemberFilter, setGroupedMemberFilter] = useState<string>("ALL");
 
   // 1. Lấy danh sách lớp học
   const { data: myClassesData, isLoading: isClassesLoading } = useMyClasses();
@@ -85,6 +96,15 @@ export function LeaderCommits({
   }, [membersData, currentStudentIdFromCookie, propIsLeader]);
 
   const isLeader = propIsLeader !== undefined ? propIsLeader : isLeaderState;
+
+  // Leader UI: grouped commits by member (GET /integrations/team/:teamId/commits - grouped)
+  const shouldFetchGrouped =
+    isLeader && leaderView === "grouped" && !!resolvedTeamId;
+  const {
+    data: groupedCommitsData,
+    isLoading: isGroupedLoading,
+    isError: isGroupedError,
+  } = useIntegrationTeamCommitsGrouped(resolvedTeamId, shouldFetchGrouped);
 
   // Mapping dữ liệu thành viên an toàn
   const validMembers = useMemo(
@@ -178,6 +198,60 @@ export function LeaderCommits({
     });
   }, [fromDate, toDate, allCommits]);
 
+  const groupedMembers = useMemo(() => groupedCommitsData?.members_commits || [], [groupedCommitsData]);
+
+  const groupedCommitsFlat: CommitItem[] = useMemo(() => {
+    if (!groupedMembers.length) return [];
+    const items: CommitItem[] = [];
+    groupedMembers.forEach((mc: any) => {
+      (mc?.commits || []).forEach((c: any) => {
+        items.push({
+          id: c.hash,
+          message: c.message,
+          author: c.author_email || "unknown",
+          branch: "main",
+          date: c.commit_date,
+          is_counted: c.is_counted,
+          rejection_reason: c.rejection_reason,
+        });
+      });
+    });
+    return items;
+  }, [groupedMembers]);
+
+  const groupedMemberOptions = useMemo(() => {
+    return groupedMembers.map((mc: any) => {
+      const m = mc?.member;
+      const label =
+        m?.student?.full_name ||
+        m?.github_username ||
+        `Member ${m?._id?.slice(-4)}`;
+      return {
+        id: m?._id as string,
+        label,
+        role: m?.role_in_team as string,
+        github: m?.github_username as string | null,
+        total: (mc?.total ?? (mc?.commits || []).length) as number,
+      };
+    });
+  }, [groupedMembers]);
+
+  const groupedCommitsForSelectedMember: CommitItem[] = useMemo(() => {
+    if (!groupedMembers.length) return [];
+    if (groupedMemberFilter === "ALL") return groupedCommitsFlat;
+    const mc = groupedMembers.find((x: any) => x?.member?._id === groupedMemberFilter);
+    if (!mc) return [];
+    return (mc?.commits || []).map((c: any) => ({
+      id: c.hash,
+      message: c.message,
+      author: c.author_email || "unknown",
+      branch: "main",
+      date: c.commit_date,
+      is_counted: c.is_counted,
+      rejection_reason: c.rejection_reason,
+    }));
+  }, [groupedMembers, groupedMemberFilter, groupedCommitsFlat]);
+
   // Thông tin Header lọc
   const authors = useMemo(
     () =>
@@ -244,7 +318,7 @@ export function LeaderCommits({
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0 animate-in fade-in duration-700">
+    <div className="space-y-8 w-full py-8 px-4 md:px-0 animate-in fade-in duration-700">
       {/* HEADER */}
       <div className="flex items-center gap-4">
         <div className="p-4 bg-slate-900 rounded-[20px] shadow-xl shadow-slate-200 text-white">
@@ -264,70 +338,203 @@ export function LeaderCommits({
 
       <Separator className="bg-slate-100" />
 
-      {/* STATS CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatItem
-          label="Tổng commit"
-          value={filteredCommits.length}
-          color="blue"
-        />
-        <StatItem
-          label="Hợp lệ"
-          value={
-            filteredCommits.filter(
-              (c) => getValidation(c).status === "valid",
-            ).length
-          }
-          color="emerald"
-        />
-        <StatItem
-          label="Cần kiểm tra"
-          value={
-            filteredCommits.filter(
-              (c) => getValidation(c).status !== "valid",
-            ).length
-          }
-          color="red"
-        />
-      </div>
+      {isLeader ? (
+        <Tabs
+          value={leaderView}
+          onValueChange={(v) => setLeaderView(v as "list" | "grouped")}
+          className="space-y-6"
+        >
+          {/* TabsTrigger ở đầu trang */}
+          <TabsList className="bg-muted/60 p-1 w-full md:w-fit">
+            <TabsTrigger value="list">Danh sách (lọc)</TabsTrigger>
+            <TabsTrigger value="grouped">Tất cả commit (theo thành viên)</TabsTrigger>
+          </TabsList>
 
-      {/* FILTERS */}
-      <div className="bg-white p-2 rounded-[24px] border border-slate-200/60 shadow-sm">
-        <CommitFilters
-          authorFilter={authorFilter}
-          fromDate={fromDate}
-          toDate={toDate}
-          authors={authors}
-          onAuthorChange={setAuthorFilter}
-          onFromDateChange={setFromDate}
-          onToDateChange={setToDate}
-          onReset={handleResetFilters}
-          isLeader={isLeader}
-          currentUserAuthorName={
-            validMembers.find(
-              (m) => m.student._id === currentStudentIdFromCookie,
-            )?.student.full_name || ""
-          }
-          leaderNames={leaderNames}
-          classOptions={classOptions}
-          selectedClassId={selectedClassId}
-          onClassChange={setSelectedClassId}
-          teamId={resolvedTeamId}
-        />
-      </div>
+          <TabsContent value="list" className="space-y-6">
+            {/* STATS CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <StatItem
+                label="Tổng commit"
+                value={filteredCommits.length}
+                color="blue"
+              />
+              <StatItem
+                label="Hợp lệ"
+                value={
+                  filteredCommits.filter(
+                    (c) => getValidation(c).status === "valid",
+                  ).length
+                }
+                color="emerald"
+              />
+              <StatItem
+                label="Cần kiểm tra"
+                value={
+                  filteredCommits.filter(
+                    (c) => getValidation(c).status !== "valid",
+                  ).length
+                }
+                color="red"
+              />
+            </div>
 
-      {/* LIST */}
-      <CommitListTable
-        commits={filteredCommits}
-        onCommitClick={setSelectedCommitId}
-      />
+            {/* FILTERS */}
+            <div className="bg-white p-2 rounded-[24px] border border-slate-200/60 shadow-sm">
+              <CommitFilters
+                authorFilter={authorFilter}
+                fromDate={fromDate}
+                toDate={toDate}
+                authors={authors}
+                onAuthorChange={setAuthorFilter}
+                onFromDateChange={setFromDate}
+                onToDateChange={setToDate}
+                onReset={handleResetFilters}
+                isLeader={isLeader}
+                currentUserAuthorName={
+                  validMembers.find(
+                    (m) => m.student._id === currentStudentIdFromCookie,
+                  )?.student.full_name || ""
+                }
+                leaderNames={leaderNames}
+                classOptions={classOptions}
+                selectedClassId={selectedClassId}
+                onClassChange={setSelectedClassId}
+                teamId={resolvedTeamId}
+              />
+            </div>
+
+            {/* LIST */}
+            <CommitListTable commits={filteredCommits} onCommitClick={setSelectedCommitId} />
+          </TabsContent>
+
+          <TabsContent value="grouped" className="space-y-6">
+            {isGroupedLoading ? (
+              <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Đang tải commits của team...
+              </div>
+            ) : isGroupedError ? (
+              <div className="p-6 rounded-[24px] border border-red-200 bg-red-50 text-red-900 text-sm">
+                Không thể tải dữ liệu commits theo thành viên. Vui lòng thử lại.
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Summary */}
+                {groupedCommitsData?.summary && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="rounded-[20px] border bg-white p-4">
+                      <div className="text-xs text-muted-foreground uppercase tracking-widest">
+                        Tổng thành viên
+                      </div>
+                      <div className="text-2xl font-black">
+                        {groupedCommitsData.summary.total_members}
+                      </div>
+                    </div>
+                    <div className="rounded-[20px] border bg-white p-4">
+                      <div className="text-xs text-muted-foreground uppercase tracking-widest">
+                        Tổng commits
+                      </div>
+                      <div className="text-2xl font-black">
+                        {groupedCommitsData.summary.total_commits}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Filter + Single table */}
+                <div className="rounded-[24px] border bg-white overflow-hidden">
+                  <div className="px-4 py-3 border-b bg-muted/30 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-bold truncate">Danh sách commit của team</div>
+                      <div className="text-xs text-muted-foreground">
+                        Lọc theo thành viên để xem commit chi tiết.
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground font-medium">
+                        Thành viên:
+                      </span>
+                      <Select value={groupedMemberFilter} onValueChange={setGroupedMemberFilter}>
+                        <SelectTrigger className="h-8 w-[280px] text-xs">
+                          <SelectValue placeholder="Tất cả thành viên" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ALL" className="text-xs">
+                            Tất cả thành viên
+                          </SelectItem>
+                          {groupedMemberOptions.map((o) => (
+                            <SelectItem key={o.id} value={o.id} className="text-xs">
+                              {o.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <CommitListTable
+                      commits={groupedCommitsForSelectedMember}
+                      onCommitClick={setSelectedCommitId}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <>
+          {/* STATS CARDS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StatItem label="Tổng commit" value={filteredCommits.length} color="blue" />
+            <StatItem
+              label="Hợp lệ"
+              value={filteredCommits.filter((c) => getValidation(c).status === "valid").length}
+              color="emerald"
+            />
+            <StatItem
+              label="Cần kiểm tra"
+              value={filteredCommits.filter((c) => getValidation(c).status !== "valid").length}
+              color="red"
+            />
+          </div>
+
+          {/* FILTERS */}
+          <div className="bg-white p-2 rounded-[24px] border border-slate-200/60 shadow-sm">
+            <CommitFilters
+              authorFilter={authorFilter}
+              fromDate={fromDate}
+              toDate={toDate}
+              authors={authors}
+              onAuthorChange={setAuthorFilter}
+              onFromDateChange={setFromDate}
+              onToDateChange={setToDate}
+              onReset={handleResetFilters}
+              isLeader={isLeader}
+              currentUserAuthorName={
+                validMembers.find(
+                  (m) => m.student._id === currentStudentIdFromCookie,
+                )?.student.full_name || ""
+              }
+              leaderNames={leaderNames}
+              classOptions={classOptions}
+              selectedClassId={selectedClassId}
+              onClassChange={setSelectedClassId}
+              teamId={resolvedTeamId}
+            />
+          </div>
+          <CommitListTable commits={filteredCommits} onCommitClick={setSelectedCommitId} />
+        </>
+      )}
 
       <CommitDetailModal
         open={!!selectedCommitId}
         onOpenChange={(open) => !open && setSelectedCommitId(null)}
         commit={
           selectedCommitId
-            ? allCommits.find((c) => c.id === selectedCommitId)
+            ? (leaderView === "grouped"
+                ? groupedCommitsFlat.find((c) => c.id === selectedCommitId)
+                : allCommits.find((c) => c.id === selectedCommitId))
             : undefined
         }
         detail={

@@ -1,4 +1,5 @@
 import { axiosClient } from "@/lib/axios-client";
+import { GetNotificationsResponse } from "../types/notification";
 
 // API cập nhật FCM Token cho người dùng
 export const updateFcmTokenApi = async (fcm_token: string) => {
@@ -21,4 +22,31 @@ export const sendStudentNotificationApi = async (data: {
   message: string;
 }) => {
   return await axiosClient.post("/notifications/send-student", data);
+};
+
+export const notificationApi = {
+  // GET: Lấy danh sách thông báo
+  getNotifications: (params: {
+    limit?: number;
+    skip?: number;
+    unread_only?: boolean;
+  }) =>
+    axiosClient.get<GetNotificationsResponse>(
+      "/notifications/my-notifications",
+      { params },
+    ),
+
+  // POST: Đánh dấu 1 thông báo đã đọc
+  markAsRead: (notificationId: string) =>
+    axiosClient.post(`/notifications/${notificationId}/read`),
+
+  // POST: Đánh dấu tất cả đã đọc
+  markAllRead: () => axiosClient.post("/notifications/mark-all-read"),
+
+  // DELETE: Xóa 1 thông báo cụ thể
+  deleteNotification: (notificationId: string) =>
+    axiosClient.delete(`/notifications/${notificationId}`),
+
+  // DELETE: Xóa tất cả thông báo ĐÃ ĐỌC
+  clearReadNotifications: () => axiosClient.delete("/notifications/clear-read"),
 };

@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -28,12 +31,39 @@ import { useDisconnectJira } from "@/features/integration/hooks/use-disconnect";
 
 export function JiraFormLeader() {
   const { connectToJira, isConnecting } = useJiraIntegration();
-  const { data: profileData, isLoading } = useProfile();
+  const {
+    data: profileData,
+    isLoading,
+    refetch: refetchProfile,
+  } = useProfile();
   const { mutate: disconnect, isPending: isDisconnecting } =
     useDisconnectJira();
 
   const jiraInfo = profileData?.user?.integrations?.jira;
   const isConnected = !!jiraInfo;
+
+  // --- LẮNG NGHE KẾT QUẢ TỪ POPUP ---
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+
+      const data = event.data;
+      if (data && data.type === "OAUTH_CALLBACK" && data.provider === "jira") {
+        if (data.success) {
+          toast.success(`Kết nối Jira thành công! Tài khoản: ${data.email}`);
+
+          setTimeout(() => {
+            refetchProfile();
+          }, 800);
+        } else {
+          toast.error(`Kết nối Jira thất bại: ${data.error}`);
+        }
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [refetchProfile]);
 
   if (isLoading)
     return (
@@ -44,13 +74,11 @@ export function JiraFormLeader() {
     <div className="font-mono space-y-6">
       {isConnected ? (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-          {/* Card chính phong cách Bento */}
           <div className="bg-white rounded-[32px] border border-slate-200/60 p-8 shadow-sm">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-[#0052CC]/10 rounded-2xl">
-                  <SiJira className="w-6 h-6 text-[#0052CC]" />{" "}
-                  {/* Thay thế bằng SiJira */}
+                  <SiJira className="w-6 h-6 text-[#0052CC]" />
                 </div>
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">
@@ -117,9 +145,14 @@ export function JiraFormLeader() {
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => disconnect()}
+                      disabled={isDisconnecting}
                       className="bg-red-600 hover:bg-red-700 rounded-xl uppercase text-[10px] font-black"
                     >
-                      Xác nhận
+                      {isDisconnecting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        "Xác nhận"
+                      )}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -128,7 +161,6 @@ export function JiraFormLeader() {
           </div>
         </div>
       ) : (
-        /* UI CHƯA KẾT NỐI */
         <div className="flex flex-col items-center justify-center p-12 bg-slate-50/50 rounded-[40px] border-2 border-dashed border-slate-200 space-y-6">
           <div className="p-5 bg-white rounded-3xl shadow-sm border border-slate-100">
             <SiJira className="w-10 h-10 text-slate-300 opacity-50" />
@@ -142,7 +174,7 @@ export function JiraFormLeader() {
             </p>
           </div>
           <Button
-            onClick={connectToJira}
+            onClick={connectToJira} // Gọi Hook
             disabled={isConnecting}
             className="h-14 bg-[#0052CC] hover:bg-[#0747A6] text-white rounded-2xl px-10 transition-all active:scale-95 shadow-xl hover:shadow-blue-500/20"
           >

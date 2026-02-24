@@ -44,7 +44,7 @@ export function NavItem({
     >
       <item.icon
         className={cn(
-          "h-5 w-5 flex-shrink-0 transition-colors",
+          "h-5 w-5 shrink-0 transition-colors",
           isActive ? item.color : "text-slate-500 group-hover:text-slate-300",
           !isCollapsed && "mr-3",
         )}

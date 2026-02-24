@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,7 +12,7 @@ import {
   Unplug,
   ExternalLink,
 } from "lucide-react";
-import { SiGithub } from "react-icons/si"; 
+import { SiGithub } from "react-icons/si";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,17 +29,50 @@ import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useDisconnectGithub } from "@/features/integration/hooks/use-disconnect";
 
 export function GithubFormLeader() {
+  // Lấy hook đã được refactor
   const { connectToGithub, isConnecting } = useGithubIntegration();
-  const { data: profileData, isLoading: isProfileLoading } = useProfile();
+  const {
+    data: profileData,
+    isLoading: isProfileLoading,
+    refetch: refetchProfile,
+  } = useProfile();
   const { mutate: disconnect, isPending: isDisconnecting } =
     useDisconnectGithub();
-
   const githubInfo = profileData?.user?.integrations?.github;
   const isConnected = !!githubInfo;
 
+  // --- LẮNG NGHE KẾT QUẢ TỪ POPUP ---
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+
+      const data = event.data;
+      if (
+        data &&
+        data.type === "OAUTH_CALLBACK" &&
+        data.provider === "github"
+      ) {
+        if (data.success) {
+          toast.success(
+            `Kết nối GitHub thành công! Tài khoản: ${data.username}`,
+          );
+
+          setTimeout(() => {
+            refetchProfile();
+          }, 800);
+        } else {
+          toast.error(`Kết nối GitHub thất bại: ${data.error}`);
+        }
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [refetchProfile]);
+
   if (isProfileLoading)
     return (
-      <div className="h-64 bg-slate-50 animate-pulse rounded-[32px] border border-slate-100" />
+      <div className="h-64 bg-slate-50 dark:bg-slate-900/50 animate-pulse rounded-[32px] border border-slate-100 dark:border-slate-800" />
     );
 
   return (
@@ -48,8 +83,7 @@ export function GithubFormLeader() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-slate-900 rounded-2xl text-white">
-                  <SiGithub className="w-6 h-6" />{" "}
-                  {/* Thay thế bằng SiGithub */}
+                  <SiGithub className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">
@@ -112,8 +146,7 @@ export function GithubFormLeader() {
                     size="sm"
                     className="text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl font-black text-[10px] uppercase tracking-widest"
                   >
-                    <Unplug className="h-3.5 w-3.5 mr-2" /> Thu hồi quyền truy
-                    cập
+                    <Unplug className="h-3.5 w-3.5 mr-2" /> Thu hồi quyền
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="font-mono rounded-3xl border-slate-200">
@@ -135,9 +168,14 @@ export function GithubFormLeader() {
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => disconnect()}
+                      disabled={isDisconnecting}
                       className="bg-red-600 hover:bg-red-700 rounded-xl uppercase text-[10px] font-black"
                     >
-                      Xác nhận
+                      {isDisconnecting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        "Xác nhận"
+                      )}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -159,7 +197,7 @@ export function GithubFormLeader() {
             </p>
           </div>
           <Button
-            onClick={connectToGithub}
+            onClick={connectToGithub} // Gọi Hook
             disabled={isConnecting}
             className="h-14 bg-slate-900 hover:bg-black text-white rounded-2xl px-10 transition-all active:scale-95 shadow-xl hover:shadow-slate-500/20"
           >

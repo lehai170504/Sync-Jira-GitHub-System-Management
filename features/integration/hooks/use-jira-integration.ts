@@ -3,17 +3,26 @@ import { toast } from "sonner";
 import { getJiraConnectUrlApi } from "../api/jira-api";
 
 export const useJiraIntegration = () => {
-  // --- ACTION 1: KẾT NỐI (Chỉ cần hàm này) ---
+  // --- ACTION: LẤY URL VÀ MỞ POPUP KẾT NỐI ---
   const connectMutation = useMutation({
     mutationFn: getJiraConnectUrlApi,
     onSuccess: (redirectUrl) => {
       if (redirectUrl && typeof redirectUrl === "string") {
-        // Lưu flag (option này để phân biệt nếu cần, giờ có thể không cần thiết lắm nhưng cứ giữ cho chắc)
         if (typeof window !== "undefined") {
           sessionStorage.setItem("connecting_service", "jira");
         }
-        // Chuyển hướng sang Atlassian
-        window.location.href = redirectUrl;
+
+        // Cấu hình mở Popup ở giữa màn hình
+        const width = 500;
+        const height = 600;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2;
+
+        window.open(
+          redirectUrl,
+          "JiraOAuthPopup",
+          `width=${width},height=${height},top=${top},left=${left},status=no,menubar=no,toolbar=no`,
+        );
       } else {
         toast.error("URL kết nối Jira không hợp lệ");
       }

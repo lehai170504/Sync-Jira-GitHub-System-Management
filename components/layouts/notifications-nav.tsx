@@ -1,16 +1,36 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { formatDistanceToNow } from "date-fns";
+import { vi } from "date-fns/locale";
+import {
+  Bell,
+  AlertTriangle,
+  MessageSquare,
+  ShieldIcon,
+  ArrowRight,
+  Loader2,
+  Calendar,
+  Trash2,
+  CheckCheck,
+  X,
+} from "lucide-react";
+import {
+  useNotifications,
+  useNotificationMutations,
+} from "@/features/notifications/hooks/use-notifications";
+import { NotificationItem } from "@/features/notifications/types/notification";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "../ui/dropdown-menu";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { ScrollArea } from "../ui/scroll-area";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -18,82 +38,80 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Bell,
-  CheckCircle2,
-  AlertTriangle,
-  MessageSquare,
-  Calendar,
-  ArrowRight,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
+} from "../ui/dialog";
 
-type Notification = {
-  id: number;
-  title: string;
-  desc: string;
-  detailContent: string;
-  time: string;
-  icon: any;
-  color: string;
-  bgColor: string;
-  read: boolean;
-  type: "task" | "review" | "system";
+// Helper map icon theo type
+const getIconConfig = (type: string) => {
+  switch (type) {
+    case "task":
+      return {
+        icon: AlertTriangle,
+        color: "text-amber-600",
+        bg: "bg-amber-100 dark:bg-amber-900/20",
+      };
+    case "review":
+      return {
+        icon: MessageSquare,
+        color: "text-blue-600",
+        bg: "bg-blue-100 dark:bg-blue-900/20",
+      };
+    default:
+      return {
+        icon: ShieldIcon,
+        color: "text-slate-600",
+        bg: "bg-slate-100 dark:bg-slate-900/20",
+      };
+  }
 };
 
-const INITIAL_NOTIFICATIONS: Notification[] = [
-  {
-    id: 1,
-    title: "Task sắp hết hạn",
-    desc: "Nhiệm vụ 'Thiết kế DB' còn 2 giờ nữa là đến hạn.",
-    detailContent:
-      "Bạn còn 2 giờ để hoàn thành nhiệm vụ Thiết kế DB trên Jira. Vui lòng kiểm tra và cập nhật tiến độ sớm nhất.",
-    time: "1 giờ trước",
-    icon: AlertTriangle,
-    color: "text-amber-600 dark:text-amber-400",
-    bgColor: "bg-amber-100 dark:bg-amber-900/20",
-    read: false,
-    type: "task",
-  },
-  // ... (Dữ liệu mẫu khác của bạn)
-];
-
 export function NotificationsNav() {
-  const [notifications, setNotifications] = useState<Notification[]>(
-    INITIAL_NOTIFICATIONS,
+  const [selectedNotif, setSelectedNotif] = useState<NotificationItem | null>(
+    null,
   );
-  const [selectedNotif, setSelectedNotif] = useState<Notification | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  // Gọi Hooks
+  const { data, isLoading } = useNotifications();
+  const {
+    markReadMutation,
+    markAllReadMutation,
+    deleteMutation,
+    clearReadMutation,
+  } = useNotificationMutations();
 
-  const handleNotificationClick = (notification: Notification) => {
-    if (!notification.read) {
-      const updatedList = notifications.map((n) =>
-        n.id === notification.id ? { ...n, read: true } : n,
-      );
-      setNotifications(updatedList);
+  const notifications = data?.notifications || [];
+  const unreadCount = data?.unread_count || 0;
+  const hasReadNotifications = notifications.some((n) => n.is_read);
+
+  // Mở Dialog chi tiết và đánh dấu đã đọc
+  const handleNotificationClick = (item: NotificationItem) => {
+    if (!item.is_read) {
+      markReadMutation.mutate(item._id);
     }
-    setSelectedNotif(notification);
+    setSelectedNotif(item);
     setIsDialogOpen(true);
   };
 
-  const handleMarkAllRead = () => {
-    setNotifications(notifications.map((n) => ({ ...n, read: true })));
+  // Xóa 1 thông báo
+  const handleDeleteItem = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // Ngăn không cho nổi bọt click lên thẻ cha (mở dialog)
+    deleteMutation.mutate(id);
+  };
+
+  // Xóa tất cả thông báo đã đọc
+  const handleClearRead = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    clearReadMutation.mutate();
   };
 
   return (
     <>
-      {/* --- DROPDOWN MENU --- */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="relative rounded-2xl h-11 w-11 hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent dark:hover:border-slate-800 transition-colors"
+            className="relative h-11 w-11 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
           >
             <Bell className="h-5 w-5 text-slate-600 dark:text-slate-400" />
             {unreadCount > 0 && (
@@ -106,143 +124,225 @@ export function NotificationsNav() {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
-          className="w-80 sm:w-95 rounded-[24px] shadow-2xl bg-white/95 dark:bg-slate-950/95 border-slate-100 dark:border-slate-800 backdrop-blur-xl animate-in zoom-in-95 duration-200"
+          className="w-80 sm:w-96 rounded-[24px] shadow-2xl bg-white/95 dark:bg-slate-950/95 border-slate-200 dark:border-slate-800 backdrop-blur-xl p-0 font-sans"
           align="end"
-          forceMount
         >
-          <DropdownMenuLabel className="font-normal p-4">
-            <div className="flex flex-col space-y-1">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold leading-none text-slate-900 dark:text-slate-100">
-                  Thông báo
-                </p>
-                {unreadCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="h-5 px-1.5 text-[10px]"
-                  >
-                    {unreadCount} mới
-                  </Badge>
-                )}
-              </div>
-              <div className="flex justify-between items-center mt-2">
-                <p className="text-xs leading-none text-muted-foreground dark:text-slate-400">
-                  Bạn có {unreadCount} thông báo chưa đọc.
-                </p>
+          {/* HEADER DROPDOWN */}
+          <DropdownMenuLabel className="p-5 pb-3">
+            <div className="flex items-center justify-between">
+              <p className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                Thông báo
+              </p>
+              {unreadCount > 0 && (
+                <Badge className="bg-red-500 hover:bg-red-600 text-white font-bold h-5 px-2 text-[10px] uppercase tracking-wider shadow-none border-none">
+                  {unreadCount} mới
+                </Badge>
+              )}
+            </div>
+
+            <div className="flex justify-between items-center mt-3">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                Bạn có {unreadCount} mục chưa đọc.
+              </p>
+
+              {/* CỤM NÚT ACTION TỔNG */}
+              <div className="flex items-center gap-3">
                 {unreadCount > 0 && (
                   <span
-                    onClick={handleMarkAllRead}
-                    className="text-[10px] text-blue-600 dark:text-blue-400 cursor-pointer hover:underline font-medium"
+                    onClick={() => markAllReadMutation.mutate()}
+                    className="text-[10px] text-blue-600 dark:text-blue-400 cursor-pointer hover:text-blue-700 font-bold uppercase tracking-widest flex items-center gap-1 transition-colors"
                   >
-                    Đọc tất cả
+                    <CheckCheck className="w-3 h-3" /> Đọc tất cả
+                  </span>
+                )}
+                {hasReadNotifications && (
+                  <span
+                    onClick={handleClearRead}
+                    className="text-[10px] text-red-500 dark:text-red-400 cursor-pointer hover:text-red-600 font-bold uppercase tracking-widest flex items-center gap-1 transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" /> Xóa đã đọc
                   </span>
                 )}
               </div>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
 
-          <ScrollArea className="h-87.5">
-            <DropdownMenuGroup className="p-2">
-              {notifications.map((item) => (
-                <DropdownMenuItem
-                  key={item.id}
-                  onClick={() => handleNotificationClick(item)}
-                  className="cursor-pointer flex items-start gap-3 p-3 focus:bg-slate-50 dark:focus:bg-slate-800/60 mb-1 rounded-xl transition-colors group"
-                >
-                  <div
-                    className={`mt-0.5 p-2.5 rounded-full shrink-0 ${item.bgColor}`}
-                  >
-                    <item.icon className={`h-4 w-4 ${item.color}`} />
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex justify-between items-start">
-                      <p
-                        className={`text-sm leading-tight ${!item.read ? "text-slate-900 dark:text-slate-100 font-bold" : "text-slate-600 dark:text-slate-400 font-medium"}`}
-                      >
-                        {item.title}
-                      </p>
-                      {!item.read && (
-                        <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1" />
+          <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800 m-0" />
+
+          {/* DANH SÁCH THÔNG BÁO */}
+          <ScrollArea className="h-100">
+            {isLoading ? (
+              <div className="flex h-full items-center justify-center p-8">
+                <Loader2 className="animate-spin h-6 w-6 text-blue-500" />
+              </div>
+            ) : notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full p-8 text-center gap-3">
+                <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-full">
+                  <Bell className="h-6 w-6 text-slate-300 dark:text-slate-600" />
+                </div>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  Không có thông báo nào.
+                </p>
+              </div>
+            ) : (
+              <div className="p-2 flex flex-col gap-1">
+                {notifications.map((item) => {
+                  const config = getIconConfig(item.type);
+                  return (
+                    // Dùng div thay vì DropdownMenuItem để handle click event độc lập (mở & xóa)
+                    <div
+                      key={item._id}
+                      className={cn(
+                        "relative group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 overflow-hidden",
+                        item.is_read
+                          ? "hover:bg-slate-50 dark:hover:bg-slate-900"
+                          : "bg-blue-50/30 dark:bg-blue-900/10 hover:bg-blue-50/50 dark:hover:bg-blue-900/20",
                       )}
+                      onClick={() => handleNotificationClick(item)}
+                    >
+                      {/* Icon */}
+                      <div
+                        className={cn(
+                          "mt-0.5 p-2.5 rounded-full shrink-0 transition-colors",
+                          config.bg,
+                        )}
+                      >
+                        <config.icon className={cn("h-4 w-4", config.color)} />
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 space-y-1 pr-6">
+                        <div className="flex justify-between items-start gap-2">
+                          <p
+                            className={cn(
+                              "text-sm leading-tight transition-colors line-clamp-1",
+                              !item.is_read
+                                ? "text-slate-900 dark:text-slate-100 font-bold"
+                                : "text-slate-600 dark:text-slate-300 font-medium",
+                            )}
+                          >
+                            {item.title}
+                          </p>
+                          {!item.is_read && (
+                            <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                          {item.message}
+                        </p>
+                        <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 pt-1 uppercase tracking-wider">
+                          {formatDistanceToNow(new Date(item.created_at), {
+                            addSuffix: true,
+                            locale: vi,
+                          })}
+                        </p>
+                      </div>
+
+                      {/* Nút Xóa hiện lên khi Hover */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => handleDeleteItem(e, item._id)}
+                        disabled={deleteMutation.isPending}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        {deleteMutation.isPending &&
+                        deleteMutation.variables === item._id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
                     </div>
-
-                    <p className="text-xs text-muted-foreground dark:text-slate-500 line-clamp-2 leading-snug">
-                      {item.desc}
-                    </p>
-                    <p className="text-[10px] font-bold text-gray-400 dark:text-slate-600 pt-1 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors uppercase tracking-tight">
-                      {item.time}
-                    </p>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuGroup>
+                  );
+                })}
+              </div>
+            )}
           </ScrollArea>
-
-          <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
-          <DropdownMenuItem
-            asChild
-            className="cursor-pointer justify-center py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:text-blue-600 dark:hover:text-blue-400 focus:bg-slate-50 dark:focus:bg-slate-800/60 transition-colors m-2 rounded-xl"
-          >
-            <Link
-              href="/dashboard/notifications"
-              className="w-full text-center block"
-            >
-              Xem tất cả thông báo
-            </Link>
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       {/* --- DETAIL DIALOG (MODAL) --- */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-106.25 bg-white dark:bg-slate-950 border-none sm:rounded-[32px] shadow-2xl transition-colors">
+        {/* FIX: Set w-[90vw] cho mobile và max-w-[400px] cho desktop để modal luôn nhỏ gọn */}
+        <DialogContent className="w-[90vw] max-w-100 sm:max-w-105 rounded-[24px] p-0 overflow-hidden border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 font-sans shadow-2xl transition-colors">
           {selectedNotif && (
             <>
-              <DialogHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div
-                    className={`p-2.5 rounded-full w-fit ${selectedNotif.bgColor}`}
-                  >
-                    <selectedNotif.icon
-                      className={`h-5 w-5 ${selectedNotif.color}`}
-                    />
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="font-bold text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800"
-                  >
-                    {selectedNotif.type}
-                  </Badge>
-                </div>
-                <DialogTitle className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                  {selectedNotif.title}
-                </DialogTitle>
-                <DialogDescription className="flex items-center gap-1.5 text-xs font-medium pt-1 text-slate-500 dark:text-slate-400">
-                  <Calendar className="h-3.5 w-3.5" /> {selectedNotif.time}
-                </DialogDescription>
-              </DialogHeader>
+              {/* Nút Close góc phải trên cùng (nhỏ gọn) */}
+              <button
+                onClick={() => setIsDialogOpen(false)}
+                className="absolute top-4 right-4 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors z-10"
+              >
+                <X className="w-4 h-4" />
+              </button>
 
-              <div className="py-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/60 mt-2 font-medium">
-                {selectedNotif.detailContent}
+              <div className="p-6 pb-5">
+                <DialogHeader className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "p-2.5 rounded-xl shadow-sm",
+                        getIconConfig(selectedNotif.type).bg,
+                      )}
+                    >
+                      {(() => {
+                        const Icon = getIconConfig(selectedNotif.type).icon;
+                        return (
+                          <Icon
+                            className={cn(
+                              "h-5 w-5",
+                              getIconConfig(selectedNotif.type).color,
+                            )}
+                          />
+                        );
+                      })()}
+                    </div>
+                    <div>
+                      <Badge
+                        variant="outline"
+                        className="uppercase text-[9px] font-black tracking-widest border-slate-200 dark:border-slate-700 text-slate-500"
+                      >
+                        {selectedNotif.type}
+                      </Badge>
+                      <p className="flex items-center gap-1.5 pt-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(selectedNotif.created_at).toLocaleString(
+                          "vi-VN",
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* FIX: Thêm pr-6 để chữ không bị đè lên nút X */}
+                  <DialogTitle className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-snug pr-6">
+                    {selectedNotif.title}
+                  </DialogTitle>
+                </DialogHeader>
+
+                {/* FIX: Thêm break-words và whitespace-pre-wrap để chống tràn khung nếu có text quá dài */}
+                <div className="mt-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 wrap-break-word whitespace-pre-wrap max-h-75 overflow-y-auto custom-scrollbar">
+                  {selectedNotif.message}
+                </div>
               </div>
 
-              <DialogFooter className="gap-2 sm:gap-0 mt-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsDialogOpen(false)}
-                  className="rounded-xl font-bold text-slate-600 dark:text-slate-300 dark:bg-slate-900 dark:border-slate-800 dark:hover:bg-slate-800 transition-colors"
-                >
-                  Đóng
-                </Button>
+              <DialogFooter className="p-6 pt-0 sm:justify-start">
                 {selectedNotif.type === "task" && (
-                  <Button className="bg-[#F27124] hover:bg-[#d65d1b] rounded-xl font-bold text-white shadow-lg dark:shadow-none">
-                    Xem Task <ArrowRight className="ml-2 h-4 w-4" />
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl h-11 font-bold text-white shadow-md transition-all active:scale-[0.98]">
+                    Xem công việc <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 )}
                 {selectedNotif.type === "review" && (
-                  <Button className="bg-blue-600 hover:bg-blue-700 rounded-xl font-bold text-white shadow-lg dark:shadow-none">
-                    Xem Đánh giá
+                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700 rounded-xl h-11 font-bold text-white shadow-md transition-all active:scale-[0.98]">
+                    Xem đánh giá <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                )}
+                {selectedNotif.type === "system" && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                    className="w-full rounded-xl h-11 font-bold dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                  >
+                    Đã hiểu
                   </Button>
                 )}
               </DialogFooter>

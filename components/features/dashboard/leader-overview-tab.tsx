@@ -141,7 +141,7 @@ export function LeaderOverviewTab() {
   // Loading state
   if (isLoading || !teamId) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-400">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -151,9 +151,9 @@ export function LeaderOverviewTab() {
   if (error) {
     return (
       <div className="space-y-6">
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-200 bg-red-50 text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-100">
           <CardContent className="pt-6">
-            <p className="text-red-600 text-sm">
+            <p className="text-red-600 dark:text-red-300 text-sm">
               Không thể tải dữ liệu dashboard. Vui lòng thử lại sau.
             </p>
           </CardContent>
@@ -199,7 +199,7 @@ export function LeaderOverviewTab() {
   return (
     <div className="space-y-6">
       {/* HEADER: Team Info */}
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 rounded-xl text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-lg gap-4">
+      <div className="bg-linear-to-r from-slate-900 to-slate-800 p-6 rounded-xl text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-lg gap-4">
         <div>
           <h2 className="text-2xl font-bold">
             {dashboardData?.team.project_name || "Nhóm"}
@@ -413,19 +413,19 @@ export function LeaderOverviewTab() {
                 key={alert.id}
                 className={`${
                   alert.type === "high"
-                    ? "bg-red-50 border-red-200 text-red-900"
+                    ? "bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-100"
                     : alert.type === "medium"
-                    ? "bg-orange-50 border-orange-200 text-orange-900"
-                    : "bg-yellow-50 border-yellow-200 text-yellow-900"
+                    ? "bg-orange-50 border-orange-200 text-orange-900 dark:bg-orange-950/40 dark:border-orange-900/60 dark:text-orange-100"
+                    : "bg-yellow-50 border-yellow-200 text-yellow-900 dark:bg-yellow-950/40 dark:border-yellow-900/60 dark:text-yellow-100"
                 }`}
               >
                 <AlertTriangle
                   className={`h-4 w-4 ${
                     alert.type === "high"
-                      ? "text-red-600"
+                      ? "text-red-600 dark:text-red-400"
                       : alert.type === "medium"
-                      ? "text-orange-600"
-                      : "text-yellow-600"
+                      ? "text-orange-600 dark:text-orange-400"
+                      : "text-yellow-600 dark:text-yellow-300"
                   }`}
                 />
                 <AlertTitle className="flex items-center justify-between">
@@ -563,7 +563,7 @@ export function LeaderOverviewTab() {
                 </div>
                 <Badge
                   variant="outline"
-                  className="text-[10px] px-1.5 py-0.5 border-slate-300 text-slate-700"
+                  className="text-[10px] px-1.5 py-0.5 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200"
                 >
                   MỚI
                 </Badge>

@@ -104,10 +104,39 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
   // Tính tổng điểm (Ví dụ đơn giản là cộng lại, thực tế cần công thức trọng số)
   const totalScore = realScoreData.reduce((sum, item) => sum + item.value, 0);
 
+  // Custom label cho PieChart: hiển thị tên (Jira/Git/Peer) bên ngoài lát để tránh đè nhau
+  const renderCustomizedLabel = (props: any) => {
+    const { cx, cy, midAngle, innerRadius, outerRadius, index, value } = props;
+
+    // Nếu giá trị = 0 thì không vẽ label để tránh chồng chữ khi nhiều mục = 0
+    if (!value) return null;
+
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 1.2;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    const item = realScoreData[index];
+    const color = item?.color ?? "#334155";
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill={color}
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+        className="text-xs font-semibold"
+      >
+        {item?.name}
+      </text>
+    );
+  };
+
   // --- Loading State ---
   if (isClassesLoading || (teamId && isDashboardLoading)) {
     return (
-      <div className="flex h-64 items-center justify-center">
+      <div className="flex h-64 items-center justify-center text-slate-500 dark:text-slate-400">
         <Loader2 className="h-8 w-8 animate-spin text-[#F27124]" />
       </div>
     );
@@ -116,8 +145,8 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
   // --- Empty State ---
   if (!teamId) {
     return (
-      <Card className="border-dashed border-2 shadow-none bg-slate-50">
-        <CardContent className="flex flex-col items-center justify-center py-12 text-slate-400">
+      <Card className="border-dashed border-2 shadow-none bg-slate-50 dark:bg-slate-900/60 dark:border-slate-700">
+        <CardContent className="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-500">
           <AlertCircle className="h-10 w-10 mb-2 opacity-50" />
           <p>Bạn chưa tham gia nhóm nào trong lớp này.</p>
         </CardContent>
@@ -128,11 +157,11 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
   return (
     <div className="space-y-6">
       {/* Main Chart Card */}
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/50 overflow-hidden">
+      <Card className="border-0 shadow-lg bg-white dark:bg-slate-900 overflow-hidden">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-xl font-bold flex items-center gap-2">
+              <CardTitle className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
                 <BarChart3 className="h-5 w-5 text-[#F27124]" />
                 Phân bổ điểm (Score Breakdown)
               </CardTitle>
@@ -140,7 +169,7 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
                 Tỷ lệ điểm từ các nguồn: Jira, Git, và Peer Review
               </p>
             </div>
-            <div className="px-4 py-2 bg-gradient-to-br from-[#F27124] to-orange-600 rounded-xl shadow-md">
+            <div className="px-4 py-2 bg-linear-to-br from-[#F27124] to-orange-600 rounded-xl shadow-md">
               <div className="text-2xl font-bold text-white">{totalScore}</div>
               <div className="text-xs text-white/90">Tổng điểm</div>
             </div>
@@ -155,9 +184,7 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent, value }) => {
-                    return `${name}\n${value} (${(percent * 100).toFixed(0)}%)`;
-                  }}
+                  label={renderCustomizedLabel}
                   outerRadius={140}
                   innerRadius={70}
                   paddingAngle={3}
@@ -226,13 +253,13 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
               key={item.name}
               className={cn(
                 "group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1",
-                "bg-gradient-to-br from-white to-gray-50/30",
+                "bg-white dark:bg-slate-900",
               )}
             >
               {/* Gradient Background Effect */}
               <div
                 className={cn(
-                  "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300",
+                  "absolute inset-0 bg-linear-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300",
                   item.gradientFrom,
                   item.gradientTo,
                 )}

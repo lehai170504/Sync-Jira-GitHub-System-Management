@@ -79,8 +79,8 @@ export function ReportTable({ reports }: ReportTableProps) {
   };
 
   return (
-    <Card className="border-gray-200 shadow-sm">
-      <CardHeader className="px-6 py-4 border-b border-gray-100">
+    <Card className="border-gray-200 dark:border-slate-800 shadow-sm dark:shadow-none bg-white dark:bg-slate-900 transition-colors">
+      <CardHeader className="px-6 py-4 border-b border-gray-100 dark:border-slate-800">
         <CardTitle className="text-lg">Lịch sử xuất báo cáo</CardTitle>
         <CardDescription>
           Danh sách các tài liệu đã được tạo trong hệ thống.
@@ -88,8 +88,8 @@ export function ReportTable({ reports }: ReportTableProps) {
       </CardHeader>
       <CardContent className="p-0">
         <Table>
-          <TableHeader className="bg-gray-50/50">
-            <TableRow className="border-gray-100">
+          <TableHeader className="bg-gray-50/50 dark:bg-slate-900/60">
+            <TableRow className="border-gray-100 dark:border-slate-800">
               <TableHead className="w-[40%] pl-6">Tên tài liệu</TableHead>
               <TableHead>Định dạng</TableHead>
               <TableHead>Kích thước</TableHead>
@@ -103,7 +103,7 @@ export function ReportTable({ reports }: ReportTableProps) {
               <TableRow>
                 <TableCell
                   colSpan={6}
-                  className="h-32 text-center text-gray-500"
+                  className="h-32 text-center text-gray-500 dark:text-slate-400"
                 >
                   Không tìm thấy báo cáo nào.
                 </TableCell>
@@ -112,12 +112,16 @@ export function ReportTable({ reports }: ReportTableProps) {
               reports.map((report) => (
                 <TableRow
                   key={report.id}
-                  className="group border-gray-100 hover:bg-gray-50/50"
+                  className="group border-gray-100 dark:border-slate-800 hover:bg-gray-50/50 dark:hover:bg-slate-800/60"
                 >
                   <TableCell className="font-medium pl-6">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`p-2 rounded-lg ${report.type === "Excel" ? "bg-green-50" : "bg-red-50"}`}
+                        className={`p-2 rounded-lg ${
+                          report.type === "Excel"
+                            ? "bg-green-50 dark:bg-green-900/30"
+                            : "bg-red-50 dark:bg-red-900/30"
+                        }`}
                       >
                         {report.type === "Excel" ? (
                           <FileSpreadsheet className="h-5 w-5 text-green-600" />
@@ -126,7 +130,7 @@ export function ReportTable({ reports }: ReportTableProps) {
                         )}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
                           {report.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -136,15 +140,19 @@ export function ReportTable({ reports }: ReportTableProps) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-gray-600">{report.type}</span>
+                    <span className="text-sm text-gray-600 dark:text-slate-300">
+                      {report.type}
+                    </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-gray-600 font-mono">
+                    <span className="text-sm text-gray-600 dark:text-slate-300 font-mono">
                       {report.size}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-gray-600">{report.date}</span>
+                    <span className="text-sm text-gray-600 dark:text-slate-300">
+                      {report.date}
+                    </span>
                   </TableCell>
                   <TableCell>{getStatusBadge(report.status)}</TableCell>
                   <TableCell className="text-right pr-6">
@@ -153,7 +161,7 @@ export function ReportTable({ reports }: ReportTableProps) {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+                          className="h-8 w-8 p-0 text-gray-500 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-full"
                           onClick={() => handleDownload(report.id, report.name)}
                           disabled={!!downloadingId}
                         >
@@ -169,7 +177,7 @@ export function ReportTable({ reports }: ReportTableProps) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 w-8 p-0 text-gray-400 hover:text-gray-900 rounded-full"
+                            className="h-8 w-8 p-0 text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-slate-100 rounded-full"
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
@@ -196,8 +204,8 @@ export function ReportTable({ reports }: ReportTableProps) {
         </Table>
 
         {/* Pagination Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50/30">
-          <span className="text-xs text-gray-500">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-slate-800 bg-gray-50/30 dark:bg-slate-900/70">
+          <span className="text-xs text-gray-500 dark:text-slate-400">
             Hiển thị {reports.length} kết quả
           </span>
           <div className="flex gap-2">
@@ -212,7 +220,7 @@ export function ReportTable({ reports }: ReportTableProps) {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs bg-white text-blue-600 border-blue-200 hover:bg-blue-50"
+              className="h-8 text-xs bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/60 hover:bg-blue-50 dark:hover:bg-blue-900/40"
             >
               1
             </Button>

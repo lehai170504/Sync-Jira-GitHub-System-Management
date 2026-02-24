@@ -1,6 +1,6 @@
-"use client";
+ "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import { Loader2, Plus, LayoutDashboard } from "lucide-react";
@@ -31,13 +31,18 @@ const getSlotTime = (slot: number) => {
 
 export default function SchedulePage() {
   const searchParams = useSearchParams();
-  const urlClassId = searchParams.get("classId");
-  const cookieClassId =
-    typeof window !== "undefined"
-      ? Cookies.get("lecturer_class_id")
-      : undefined;
+  const urlClassId = searchParams.get("classId") ?? undefined;
+  const [classId, setClassId] = useState<string | undefined>(urlClassId ?? undefined);
 
-  const classId = urlClassId || cookieClassId;
+  useEffect(() => {
+    if (urlClassId) {
+      setClassId(urlClassId);
+      return;
+    }
+
+    const cookieClassId = Cookies.get("lecturer_class_id") ?? undefined;
+    setClassId((prev) => prev ?? cookieClassId);
+  }, [urlClassId]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [viewDate, setViewDate] = useState<Date>(new Date());

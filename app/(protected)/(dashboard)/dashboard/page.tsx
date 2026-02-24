@@ -23,20 +23,14 @@ export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const urlClassId = searchParams.get("classId");
-  const cookieClassId =
-    typeof window !== "undefined"
-      ? Cookies.get(
-          Cookies.get("user_role") === "LECTURER"
-            ? "lecturer_class_id"
-            : "student_class_id",
-        )
-      : undefined;
-  const activeClassId = urlClassId || cookieClassId;
+  const urlClassId = searchParams.get("classId") ?? undefined;
 
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLeader, setIsLeader] = useState(false);
+  const [activeClassId, setActiveClassId] = useState<string | undefined>(
+    urlClassId,
+  );
 
   useEffect(() => {
     const token = Cookies.get("token");
@@ -49,6 +43,13 @@ export default function DashboardPage() {
     const savedName = Cookies.get("user_name");
     const savedEmail = Cookies.get("user_email");
     const studentIsLeader = Cookies.get("student_is_leader") === "true";
+    let cookieClassId: string | undefined;
+
+    if (savedRole === "LECTURER") {
+      cookieClassId = Cookies.get("lecturer_class_id") ?? undefined;
+    } else if (savedRole === "STUDENT") {
+      cookieClassId = Cookies.get("student_class_id") ?? undefined;
+    }
 
     if (savedRole) {
       setUser({
@@ -64,8 +65,9 @@ export default function DashboardPage() {
       });
     }
     setIsLeader(studentIsLeader);
+    setActiveClassId((prev) => prev ?? cookieClassId);
     setIsLoading(false);
-  }, [router]);
+  }, [router, urlClassId]);
 
   if (isLoading) {
     return (

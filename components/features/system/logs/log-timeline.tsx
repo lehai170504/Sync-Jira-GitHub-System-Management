@@ -59,8 +59,8 @@ export function LogTimeline({ logs }: LogTimelineProps) {
   };
 
   return (
-    <Card className="border-none shadow-md bg-white/50 backdrop-blur-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
-      <CardHeader className="bg-white border-b px-6 py-4">
+    <Card className="border-none shadow-md bg-white/50 dark:bg-slate-900/70 backdrop-blur-sm ring-1 ring-gray-200 dark:ring-slate-800 rounded-xl overflow-hidden transition-colors">
+      <CardHeader className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-6 py-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Dòng thời gian (Timeline)</CardTitle>
           <Badge variant="secondary" className="font-normal bg-gray-100">
@@ -69,7 +69,7 @@ export function LogTimeline({ logs }: LogTimelineProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="p-0 bg-white">
+      <CardContent className="p-0 bg-white dark:bg-slate-900">
         <ScrollArea className="h-[600px] px-6 py-6">
           <div className="space-y-8 ml-2">
             {Object.keys(groupedLogs).length === 0 ? (
@@ -80,10 +80,10 @@ export function LogTimeline({ logs }: LogTimelineProps) {
               Object.keys(groupedLogs).map((date) => (
                 <div key={date} className="relative">
                   {/* Sticky Date Header */}
-                  <div className="sticky top-0 z-10 bg-white pb-4 pt-2 mb-4 flex items-center gap-4">
+                  <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 pb-4 pt-2 mb-4 flex items-center gap-4">
                     <Badge
                       variant="outline"
-                      className="px-3 py-1 bg-slate-100 text-slate-600 border-slate-200 font-medium text-sm rounded-md shadow-sm"
+                      className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 font-medium text-sm rounded-md shadow-sm"
                     >
                       {date === "2024-02-20"
                         ? "Hôm nay, 20/02"
@@ -95,18 +95,18 @@ export function LogTimeline({ logs }: LogTimelineProps) {
                   </div>
 
                   {/* List Items */}
-                  <div className="border-l-2 border-slate-100 ml-4 space-y-6 pb-4">
+                    <div className="border-l-2 border-slate-100 dark:border-slate-800 ml-4 space-y-6 pb-4">
                     {groupedLogs[date].map((log) => {
                       const config = getStatusConfig(log.status);
                       return (
                         <div key={log.id} className="relative pl-8 group">
                           {/* Dot */}
                           <div
-                            className={`absolute -left-[9px] top-4 h-4 w-4 rounded-full border-2 bg-white transition-all group-hover:scale-110 ${config.color.split(" ")[0].replace("text", "border")}`}
+                            className={`absolute -left-[9px] top-4 h-4 w-4 rounded-full border-2 bg-white dark:bg-slate-900 transition-all group-hover:scale-110 ${config.color.split(" ")[0].replace("text", "border")}`}
                           ></div>
 
                           {/* Content Card */}
-                          <div className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl border border-gray-100 bg-white hover:border-[#F27124]/30 hover:shadow-md transition-all cursor-default">
+                          <div className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-[#F27124]/30 dark:hover:border-orange-900/60 hover:shadow-md transition-all cursor-default">
                             {/* Icon */}
                             <div
                               className={`p-3 rounded-xl h-fit ${config.color}`}
@@ -117,26 +117,26 @@ export function LogTimeline({ logs }: LogTimelineProps) {
                             {/* Details */}
                             <div className="flex-1 space-y-1">
                               <div className="flex items-center justify-between">
-                                <h4 className="font-semibold text-gray-900 text-sm">
+                                <h4 className="font-semibold text-gray-900 dark:text-slate-100 text-sm">
                                   {log.action}
                                 </h4>
                                 <div className="flex items-center gap-2 text-xs text-muted-foreground sm:hidden">
                                   <Clock className="h-3 w-3" /> {log.timestamp}
                                 </div>
                               </div>
-                              <p className="text-sm text-gray-600 leading-relaxed">
+                              <p className="text-sm text-gray-600 dark:text-slate-300 leading-relaxed">
                                 {log.detail}
                               </p>
                               <div className="flex items-center gap-3 pt-2">
                                 <Badge
                                   variant="secondary"
-                                  className="rounded-md text-[10px] px-1.5 font-normal h-5 bg-slate-100 text-slate-600"
+                                  className="rounded-md text-[10px] px-1.5 font-normal h-5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
                                 >
                                   User: {log.user}
                                 </Badge>
                                 <Badge
                                   variant="outline"
-                                  className="rounded-md text-[10px] px-1.5 font-normal h-5 text-slate-400 border-slate-200"
+                                  className="rounded-md text-[10px] px-1.5 font-normal h-5 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
                                 >
                                   IP: {log.ip}
                                 </Badge>
@@ -144,8 +144,8 @@ export function LogTimeline({ logs }: LogTimelineProps) {
                             </div>
 
                             {/* Desktop Timestamp */}
-                            <div className="hidden sm:flex flex-col items-end justify-center min-w-[80px] border-l pl-4 border-slate-50">
-                              <span className="text-lg font-bold text-gray-700 font-mono">
+                            <div className="hidden sm:flex flex-col items-end justify-center min-w-[80px] border-l pl-4 border-slate-50 dark:border-slate-800">
+                              <span className="text-lg font-bold text-gray-700 dark:text-slate-200 font-mono">
                                 {log.timestamp}
                               </span>
                               <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
@@ -164,7 +164,7 @@ export function LogTimeline({ logs }: LogTimelineProps) {
         </ScrollArea>
 
         {/* Pagination Footer */}
-        <div className="border-t p-4 bg-gray-50 flex items-center justify-between">
+        <div className="border-t border-slate-100 dark:border-slate-800 p-4 bg-gray-50 dark:bg-slate-900 flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
             Hiển thị {logs.length > 0 ? 1 : 0}-{logs.length} trong số 1248
           </span>

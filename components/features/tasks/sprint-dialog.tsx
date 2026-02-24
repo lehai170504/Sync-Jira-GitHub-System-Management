@@ -67,17 +67,17 @@ export function SprintDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
         <DialogHeader>
           <DialogTitle>{editing ? "Chỉnh sửa sprint" : "Thêm sprint"}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-slate-600 dark:text-slate-400">
             Quản lý sprint. Mỗi sprint có ngày bắt đầu và ngày kết thúc.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>
+            <Label className="text-slate-700 dark:text-slate-200">
               Tên sprint <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -85,10 +85,11 @@ export function SprintDialog({
               onChange={(e) => setFormSprint({ ...formSprint, name: e.target.value })}
               placeholder="Ví dụ: Sprint 7"
               required
+              className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
           <div className="space-y-2">
-            <Label>
+            <Label className="text-slate-700 dark:text-slate-200">
               Ngày bắt đầu <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -96,10 +97,11 @@ export function SprintDialog({
               value={startDateValue}
               onChange={handleStartDateChange}
               required
+              className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
           <div className="space-y-2">
-            <Label>
+            <Label className="text-slate-700 dark:text-slate-200">
               Ngày kết thúc <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -107,6 +109,7 @@ export function SprintDialog({
               value={endDateValue}
               onChange={handleEndDateChange}
               required
+              className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
         </div>

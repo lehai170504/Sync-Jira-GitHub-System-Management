@@ -40,18 +40,18 @@ export function CommitDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
-        <DialogHeader className="pb-4 border-b-2 bg-gradient-to-r from-purple-50 to-indigo-50 -m-6 mb-0 p-6">
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+        <DialogHeader className="pb-4 border-b-2 border-purple-100 dark:border-purple-900/40 bg-linear-to-r from-purple-50 to-indigo-50 dark:from-slate-900 dark:to-slate-900/80 -m-6 mb-0 p-6">
           <DialogTitle className="text-xl flex items-center gap-2">
             <div className="p-2 bg-purple-100 rounded-lg">
               <GitCommit className="h-5 w-5 text-purple-600" />
             </div>
-            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
               Chi tiết Commit
             </span>
           </DialogTitle>
           <DialogDescription className="pt-2 flex items-center gap-2 text-sm">
-            <code className="bg-purple-100 text-purple-700 px-2 py-1 rounded font-mono text-xs">
+            <code className="bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-200 px-2 py-1 rounded font-mono text-xs">
               {commit.id}
             </code>
             <span className="text-muted-foreground">•</span>
@@ -61,7 +61,7 @@ export function CommitDetailModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="border-2 rounded-lg flex-1 overflow-hidden bg-gradient-to-br from-white to-purple-50/20">
+        <div className="border-2 border-slate-200 dark:border-slate-800 rounded-lg flex-1 overflow-hidden bg-linear-to-br from-white to-purple-50/20 dark:from-slate-950 dark:to-slate-900/80">
           <ScrollArea className="h-full">
             <div className="p-6 space-y-6">
               {/* COMMIT MESSAGE */}
@@ -72,8 +72,10 @@ export function CommitDetailModal({
                   </div>
                   <h3 className="text-sm font-semibold text-foreground">Commit Message</h3>
                 </div>
-                <div className="p-4 bg-white rounded-lg border-2 border-purple-100">
-                  <p className="text-sm text-foreground leading-relaxed">{commit.message}</p>
+                <div className="p-4 bg-white dark:bg-slate-900 rounded-lg border-2 border-purple-100 dark:border-purple-900/60">
+                  <p className="text-sm text-foreground leading-relaxed">
+                    {commit.message}
+                  </p>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
                   <Badge variant="outline" className="font-mono text-xs border-purple-200 text-purple-700 bg-purple-50">
@@ -87,8 +89,8 @@ export function CommitDetailModal({
                           className={
                             "text-xs font-medium " +
                             (validation.status === "valid"
-                              ? "border-emerald-300 text-emerald-700 bg-emerald-50"
-                              : "border-red-300 text-red-700 bg-red-50")
+                              ? "border-emerald-300 text-emerald-700 bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:bg-emerald-950/40"
+                              : "border-red-300 text-red-700 bg-red-50 dark:border-red-800 dark:text-red-300 dark:bg-red-950/40")
                           }
                         >
                           {validation.status === "valid" ? (
@@ -118,7 +120,7 @@ export function CommitDetailModal({
                 </div>
               </div>
 
-              <Separator className="bg-gradient-to-r from-transparent via-border to-transparent" />
+              <Separator className="bg-linear-to-r from-transparent via-border to-transparent" />
 
               {/* FILES TABLE */}
               <div className="space-y-3">
@@ -133,7 +135,7 @@ export function CommitDetailModal({
                     </Badge>
                   )}
                 </div>
-                <div className="border-2 rounded-lg overflow-hidden bg-white">
+                <div className="border-2 border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden bg-white dark:bg-slate-900">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-purple-50/50">
@@ -155,9 +157,12 @@ export function CommitDetailModal({
                         </TableRow>
                       )}
                       {detail?.files.map((f) => (
-                        <TableRow key={f.path} className="hover:bg-purple-50/30">
+                        <TableRow
+                          key={f.path}
+                          className="hover:bg-purple-50/30 dark:hover:bg-slate-800/60"
+                        >
                           <TableCell>
-                            <code className="text-xs font-mono text-purple-700 bg-purple-50 px-2 py-1 rounded">
+                            <code className="text-xs font-mono text-purple-700 dark:text-purple-200 bg-purple-50 dark:bg-purple-950/40 px-2 py-1 rounded">
                               {f.path}
                             </code>
                           </TableCell>

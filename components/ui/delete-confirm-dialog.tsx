@@ -35,17 +35,19 @@ export function DeleteConfirmDialog({
 }: Props) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-destructive/10 dark:bg-red-950/40">
               <Trash2 className="h-4 w-4 text-destructive" />
             </span>
             {title}
           </AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogDescription className="text-slate-600 dark:text-slate-400">
+            {description}
+          </AlertDialogDescription>
           {(itemName || subtitle) && (
-            <div className="mt-3 space-y-1.5 rounded-lg border bg-muted/50 p-3">
+            <div className="mt-3 space-y-1.5 rounded-lg border bg-muted/50 dark:bg-slate-800/70 dark:border-slate-700 p-3">
               {itemName && (
                 <p className="font-medium text-foreground">{itemName}</p>
               )}

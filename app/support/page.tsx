@@ -91,7 +91,7 @@ export default function SupportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] font-mono selection:bg-orange-100 overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#FDFDFD] dark:bg-slate-950 font-mono selection:bg-orange-100 overflow-x-hidden relative transition-colors duration-300">
       {/* --- background decor --- */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-[-5%] left-[-5%] w-[600px] h-[600px] rounded-full bg-orange-100/30 blur-[120px] animate-pulse"></div>
@@ -99,7 +99,7 @@ export default function SupportPage() {
       </div>
 
       {/* --- header --- */}
-      <header className="bg-white/60 backdrop-blur-2xl border-b border-slate-200/40 px-8 h-20 flex items-center sticky top-0 z-50">
+      <header className="bg-white/60 dark:bg-slate-950/70 backdrop-blur-2xl border-b border-slate-200/40 dark:border-slate-800/60 px-8 h-20 flex items-center sticky top-0 z-50">
         <div className="container mx-auto max-w-7xl flex items-center justify-between">
           <Link
             href="/"
@@ -120,15 +120,15 @@ export default function SupportPage() {
       </header>
 
       {/* --- hero section --- */}
-      <section className="py-20 px-6 border-b border-slate-100 bg-white/40">
+      <section className="py-20 px-6 border-b border-slate-100 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40">
         <div className="container mx-auto max-w-3xl text-center space-y-8 animate-fade-up">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-100">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 dark:bg-orange-900/30 border border-orange-100 dark:border-orange-900/50">
             <Sparkles className="h-3 w-3 text-[#F27124]" />
             <span className="text-[8px] font-bold tracking-widest text-[#F27124]">
               Hệ thống giải đáp tự động
             </span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-slate-900 leading-none lowercase">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-slate-900 dark:text-slate-50 leading-none lowercase">
             Chúng tôi có thể giúp gì cho bạn?
           </h1>
 
@@ -136,7 +136,7 @@ export default function SupportPage() {
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[#F27124]" />
             <Input
               placeholder="nhập từ khóa tìm kiếm câu hỏi..."
-              className="pl-12 h-14 rounded-2xl border-slate-100 bg-white shadow-2xl shadow-slate-200/50 focus-visible:ring-[#F27124]/20 text-xs font-bold transition-all lowercase"
+              className="pl-12 h-14 rounded-2xl border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/70 focus-visible:ring-[#F27124]/20 text-xs font-bold transition-all lowercase text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -148,8 +148,8 @@ export default function SupportPage() {
         <div className="grid lg:grid-cols-12 gap-12 items-start">
           {/* --- cột trái: liên hệ --- */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="p-1 rounded-[32px] bg-gradient-to-br from-slate-100 to-transparent">
-              <div className="bg-white p-6 rounded-[31px] space-y-4 shadow-sm border border-slate-100/50">
+            <div className="p-1 rounded-[32px] bg-linear-to-br from-slate-100 to-transparent dark:from-slate-900">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-[31px] space-y-4 shadow-sm border border-slate-100/50 dark:border-slate-800">
                 <h3 className="text-[10px] font-bold tracking-widest text-slate-400 mb-6 flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-[#F27124]" /> Kênh liên
                   hiện
@@ -157,7 +157,7 @@ export default function SupportPage() {
 
                 <a
                   href="mailto:it.support@fpt.edu.vn"
-                  className="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all group border border-transparent hover:border-slate-100"
+                  className="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group border border-transparent hover:border-slate-100 dark:hover:border-slate-700"
                 >
                   <div className="h-10 w-10 rounded-xl bg-orange-50 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Mail className="h-5 w-5 text-[#F27124]" />
@@ -174,7 +174,7 @@ export default function SupportPage() {
 
                 <a
                   href="tel:02873005588"
-                  className="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all group border border-transparent hover:border-slate-100"
+                  className="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group border border-transparent hover:border-slate-100 dark:hover:border-slate-700"
                 >
                   <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Phone className="h-5 w-5 text-blue-600" />
@@ -216,7 +216,7 @@ export default function SupportPage() {
           {/* --- cột phải: faq --- */}
           <div className="lg:col-span-8 animate-fade-up">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-slate-900 italic flex items-center gap-3 ">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 italic flex items-center gap-3 ">
                 <HelpCircle className="h-6 w-6 text-[#F27124]" /> Câu hỏi thường
                 gặp
               </h2>
@@ -227,7 +227,7 @@ export default function SupportPage() {
               )}
             </div>
 
-            <div className="bg-white rounded-[40px] border border-slate-100 shadow-2xl shadow-slate-200/30 overflow-hidden p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/30 dark:shadow-slate-950/60 overflow-hidden p-4">
               {filteredFAQs.length > 0 ? (
                 <Accordion type="single" collapsible className="w-full">
                   {filteredFAQs.map((faq) => (
@@ -255,8 +255,8 @@ export default function SupportPage() {
               )}
             </div>
 
-            <div className="mt-10 p-10 rounded-[40px] bg-slate-50 border border-slate-100 text-center space-y-6">
-              <h4 className="font-bold text-slate-900 italic tracking-tighter lowercase">
+            <div className="mt-10 p-10 rounded-[40px] bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-center space-y-6">
+              <h4 className="font-bold text-slate-900 dark:text-slate-50 italic tracking-tighter lowercase">
                 Vẫn gặp khó khăn?
               </h4>
               <div className="flex flex-wrap justify-center gap-4">
@@ -266,7 +266,7 @@ export default function SupportPage() {
                       Gửi yêu cầu hỗ trợ
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="rounded-[32px] border-0 font-mono">
+                  <DialogContent className="rounded-[32px] border-0 font-mono bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
                     <DialogHeader>
                       <DialogTitle className="font-bold italic tracking-tighter lowercase">
                         Tạo yêu cầu mới
@@ -281,18 +281,18 @@ export default function SupportPage() {
                     >
                       <Input
                         placeholder="họ và tên"
-                        className="h-12 rounded-xl bg-slate-50 lowercase"
+                        className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 lowercase"
                         required
                       />
                       <Input
                         type="email"
                         placeholder="email liên hệ"
-                        className="h-12 rounded-xl bg-slate-50 lowercase"
+                        className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 lowercase"
                         required
                       />
                       <Textarea
                         placeholder="mô tả chi tiết vấn đề..."
-                        className="rounded-xl bg-slate-50 min-h-[100px] lowercase"
+                        className="rounded-xl bg-slate-50 dark:bg-slate-900 min-h-[100px] lowercase"
                         required
                       />
                       <Button
@@ -312,7 +312,7 @@ export default function SupportPage() {
 
                 <Button
                   variant="outline"
-                  className="h-14 px-8 rounded-2xl border-slate-200 font-bold text-[10px] tracking-widest hover:bg-white transition-all active:scale-95 shadow-sm"
+                  className="h-14 px-8 rounded-2xl border-slate-200 dark:border-slate-700 font-bold text-[10px] tracking-widest hover:bg-white dark:hover:bg-slate-900 transition-all active:scale-95 shadow-sm"
                 >
                   Trò chuyện trực tuyến
                 </Button>

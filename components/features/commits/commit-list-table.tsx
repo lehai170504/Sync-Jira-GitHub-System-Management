@@ -35,16 +35,19 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
   };
 
   return (
-    <Card className="border-2 shadow-xl overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b-2">
+    <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-xl dark:shadow-none overflow-hidden bg-white dark:bg-slate-900">
+      <CardHeader className="bg-linear-to-r from-purple-50 to-indigo-50 dark:from-slate-900 dark:to-slate-900/80 border-b border-slate-200 dark:border-slate-800">
         <CardTitle className="text-lg flex items-center gap-2">
-          <div className="p-2 bg-purple-100 rounded-lg">
+          <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
             <GitCommit className="h-4 w-4 text-purple-600" />
           </div>
-          <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-purple-600 to-indigo-400 bg-clip-text text-transparent">
             Danh sách commit
           </span>
-          <Badge variant="secondary" className="ml-auto bg-purple-100 text-purple-700">
+          <Badge
+            variant="secondary"
+            className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-200"
+          >
             {commits.length} commit
           </Badge>
         </CardTitle>
@@ -82,7 +85,7 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                   return (
                     <TableRow
                       key={c.id}
-                      className="cursor-pointer hover:bg-purple-50/50 transition-colors group"
+                      className="cursor-pointer hover:bg-purple-50/50 dark:hover:bg-slate-800 transition-colors group"
                       onClick={() => onCommitClick(c.id)}
                     >
                       <TableCell>
@@ -90,15 +93,21 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                           <TooltipTrigger asChild>
                             <div className="inline-flex items-center gap-2">
                               {v.status === "valid" ? (
-                                <div className="p-1.5 bg-emerald-100 rounded-lg">
-                                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                                <div className="p-1.5 bg-emerald-100 dark:bg-emerald-950/40 rounded-lg">
+                                  <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
                                 </div>
                               ) : (
-                                <div className="p-1.5 bg-red-100 rounded-lg">
-                                  <XCircle className="h-4 w-4 text-red-600" />
+                                <div className="p-1.5 bg-red-100 dark:bg-red-950/40 rounded-lg">
+                                  <XCircle className="h-4 w-4 text-red-600 dark:text-red-300" />
                                 </div>
                               )}
-                              <span className={`text-xs font-medium ${v.status === "valid" ? "text-emerald-700" : "text-red-700"}`}>
+                              <span
+                                className={`text-xs font-medium ${
+                                  v.status === "valid"
+                                    ? "text-emerald-700 dark:text-emerald-200"
+                                    : "text-red-700 dark:text-red-200"
+                                }`}
+                              >
                                 {v.label}
                               </span>
                             </div>
@@ -112,21 +121,24 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                         </Tooltip>
                       </TableCell>
                       <TableCell>
-                        <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-purple-700">
+                        <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-purple-700 dark:text-purple-300">
                           {c.id.substring(0, 7)}
                         </code>
                       </TableCell>
                       <TableCell className="font-medium max-w-md truncate">{c.message}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <div className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-xs font-semibold">
+                          <div className="h-6 w-6 rounded-full bg-linear-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-xs font-semibold">
                             {c.author.charAt(0)}
                           </div>
                           <span className="text-sm">{c.author}</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="text-[11px] font-mono border-purple-200 text-purple-700 bg-purple-50">
+                        <Badge
+                          variant="outline"
+                          className="text-[11px] font-mono border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-200 bg-purple-50 dark:bg-purple-950/40"
+                        >
                           {c.branch}
                         </Badge>
                       </TableCell>
@@ -137,10 +149,10 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                         {rejectionReason ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Badge
-                                variant="outline"
-                                className="text-[11px] border-red-200 text-red-700 bg-red-50 max-w-[260px] truncate inline-block align-middle"
-                              >
+                          <Badge
+                            variant="outline"
+                            className="text-[11px] border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 bg-red-50 dark:bg-red-950/40 max-w-[260px] truncate inline-block align-middle"
+                          >
                                 {rejectionReason}
                               </Badge>
                             </TooltipTrigger>
@@ -154,7 +166,7 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                         ) : (
                           <Badge
                             variant="outline"
-                            className="text-[11px] border-emerald-200 text-emerald-700 bg-emerald-50"
+                            className="text-[11px] border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/40"
                           >
                             —
                           </Badge>

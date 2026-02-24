@@ -1,6 +1,6 @@
-"use client";
+ "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import {
@@ -23,14 +23,18 @@ import { useClassDetails } from "@/features/management/classes/hooks/use-class-d
 
 export default function LecturerProjectManagementPage() {
   const searchParams = useSearchParams();
-  const urlClassId = searchParams.get("classId");
+  const urlClassId = searchParams.get("classId") ?? undefined;
+  const [classId, setClassId] = useState<string | undefined>(urlClassId ?? undefined);
 
-  const cookieClassId =
-    typeof window !== "undefined"
-      ? Cookies.get("lecturer_class_id")
-      : undefined;
+  useEffect(() => {
+    if (urlClassId) {
+      setClassId(urlClassId);
+      return;
+    }
 
-  const classId = urlClassId || cookieClassId;
+    const cookieClassId = Cookies.get("lecturer_class_id") ?? undefined;
+    setClassId((prev) => prev ?? cookieClassId);
+  }, [urlClassId]);
 
   const { data, isLoading: isProjectsLoading } = useClassProjects(classId);
 

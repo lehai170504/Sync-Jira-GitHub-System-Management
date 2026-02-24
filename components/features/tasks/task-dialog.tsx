@@ -65,45 +65,50 @@ export function TaskDialog({
   }, [open, isLeader, currentUserId, formTask, setFormTask]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
         <DialogHeader>
           <DialogTitle>{editing ? "Chỉnh sửa task" : "Thêm task mới"}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-slate-600 dark:text-slate-400">
             Nhập thông tin task của nhóm. ID sẽ được tạo tự động khi thêm mới.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Tiêu đề (Summary) <span className="text-red-500">*</span></Label>
+            <Label className="text-slate-700 dark:text-slate-200">
+              Tiêu đề (Summary) <span className="text-red-500">*</span>
+            </Label>
             <Input
               value={formTask.title}
               onChange={(e) => setFormTask({ ...formTask, title: e.target.value })}
               placeholder="Ví dụ: Thiết kế trang thanh toán"
+              className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
           <div className="space-y-2">
-            <Label>Mô tả (Description)</Label>
+            <Label className="text-slate-700 dark:text-slate-200">Mô tả (Description)</Label>
             <Textarea
               value={formTask.description ?? ""}
               onChange={(e) => setFormTask({ ...formTask, description: e.target.value })}
               placeholder="Ví dụ: Phân tích yêu cầu và thiết kế chi tiết"
               rows={3}
-              className="resize-none"
+              className="resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Assignee <span className="text-red-500">*</span></Label>
+              <Label className="text-slate-700 dark:text-slate-200">
+                Assignee <span className="text-red-500">*</span>
+              </Label>
               <Select
                 value={formTask.assigneeId}
                 onValueChange={(v) => setFormTask({ ...formTask, assigneeId: v })}
                 disabled={!canChangeAssignee}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
                   <SelectValue placeholder="Chọn thành viên" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                   {assigneeList.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
                       {m.name}
@@ -118,7 +123,9 @@ export function TaskDialog({
               )}
             </div>
             <div className="space-y-2">
-              <Label>Story Points <span className="text-red-500">*</span></Label>
+              <Label className="text-slate-700 dark:text-slate-200">
+                Story Points <span className="text-red-500">*</span>
+              </Label>
               <Input
                 type="number"
                 min={1}
@@ -133,15 +140,17 @@ export function TaskDialog({
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Sprint <span className="text-red-500">*</span></Label>
+            <Label className="text-slate-700 dark:text-slate-200">
+              Sprint <span className="text-red-500">*</span>
+            </Label>
             <Select
               value={formTask.printId}
               onValueChange={(v) => setFormTask({ ...formTask, printId: v })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
                 <SelectValue placeholder="Chọn sprint" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                 {sprints.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name} • {p.deadline}
@@ -152,7 +161,9 @@ export function TaskDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Ngày bắt đầu (Start date) <span className="text-red-500">*</span></Label>
+              <Label className="text-slate-700 dark:text-slate-200">
+                Ngày bắt đầu (Start date) <span className="text-red-500">*</span>
+              </Label>
               <Input
                 type="date"
                 value={formTask.startDate ?? ""}
@@ -165,7 +176,9 @@ export function TaskDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Hạn chót (Due date) <span className="text-red-500">*</span></Label>
+              <Label className="text-slate-700 dark:text-slate-200">
+                Hạn chót (Due date) <span className="text-red-500">*</span>
+              </Label>
               <Input
                 type="date"
                 value={formTask.deadline}

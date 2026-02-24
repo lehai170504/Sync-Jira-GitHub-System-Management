@@ -27,17 +27,19 @@ export default function LeaderCommitListPage() {
   
   if (role !== "STUDENT") {
     return (
-      <div className="space-y-6 w-full py-8 px-4 md:px-0">
+      <div className="space-y-6 w-full py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h2 className="text-3xl font-bold tracking-tight">Lịch sử Commit</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+              Lịch sử Commit
+            </h2>
             <p className="text-muted-foreground">
               Trang này chỉ dành cho Sinh viên.
             </p>
           </div>
         </div>
         <Separator />
-        <Alert className="bg-gray-50 border-gray-200 text-gray-800">
+        <Alert className="bg-gray-50 border-gray-200 text-gray-800 dark:bg-slate-900/60 dark:border-slate-800 dark:text-slate-100">
           <AlertTitle>Không có quyền truy cập</AlertTitle>
           <AlertDescription>
             Bạn đang đăng nhập với quyền <b>{role}</b>. Vui lòng chuyển sang tài khoản Sinh viên.

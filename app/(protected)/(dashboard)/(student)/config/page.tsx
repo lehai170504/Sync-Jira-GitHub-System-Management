@@ -73,7 +73,7 @@ export default function ConfigPage() {
   // Loading state - chỉ loading khi đang fetch data và chưa có cookie leader
   if (isLoading && !leaderCookie) {
     return (
-      <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0">
+      <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -84,15 +84,15 @@ export default function ConfigPage() {
   // Kiểm tra quyền truy cập - chỉ dành cho Leader
   if (!isLeader) {
     return (
-      <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0">
+      <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
         {/* HEADER */}
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-xl shadow-lg">
+            <div className="p-3 bg-linear-to-br from-violet-500 to-fuchsia-600 rounded-xl shadow-lg">
               <Settings className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold tracking-tight bg-linear-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
                 Cấu hình tích hợp
               </h2>
               <p className="text-muted-foreground mt-1">
@@ -102,10 +102,10 @@ export default function ConfigPage() {
           </div>
         </div>
 
-        <Separator className="bg-gradient-to-r from-transparent via-border to-transparent" />
+        <Separator className="bg-linear-to-r from-transparent via-border to-transparent" />
 
-        <Alert className="bg-gray-50 border-gray-200 text-gray-800">
-          <AlertCircle className="h-4 w-4 text-gray-600" />
+        <Alert className="bg-gray-50 border-gray-200 text-gray-800 dark:bg-slate-900/60 dark:border-slate-800 dark:text-slate-100">
+          <AlertCircle className="h-4 w-4 text-gray-600 dark:text-slate-300" />
           <AlertTitle>Không có quyền truy cập</AlertTitle>
           <AlertDescription>
             Trang này chỉ dành cho Leader để cấu hình tích hợp Jira và GitHub cho team.
@@ -117,15 +117,15 @@ export default function ConfigPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0">
+    <div className="space-y-8 max-w-7xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
       {/* HEADER */}
       <div className="space-y-3">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-xl shadow-lg">
+          <div className="p-3 bg-linear-to-br from-violet-500 to-fuchsia-600 rounded-xl shadow-lg">
             <Settings className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold tracking-tight bg-linear-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
               Cấu hình tích hợp
             </h2>
             <p className="text-muted-foreground mt-1">
@@ -135,7 +135,7 @@ export default function ConfigPage() {
         </div>
       </div>
 
-      <Separator className="bg-gradient-to-r from-transparent via-border to-transparent" />
+      <Separator className="bg-linear-to-r from-transparent via-border to-transparent" />
 
       {/* MAIN CONTENT */}
       <TeamConfigForm teamId={teamId} />

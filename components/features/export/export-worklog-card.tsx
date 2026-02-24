@@ -16,9 +16,9 @@ export function ExportWorklogCard({ lastExportAt, loading, onExport }: ExportWor
   const lastExportLabel = formatExportTimestamp(lastExportAt);
 
   return (
-    <Card className="border-2 shadow-xl overflow-hidden bg-gradient-to-br from-white to-blue-50/30">
+    <Card className="border-2 border-blue-100 dark:border-blue-900/60 shadow-xl dark:shadow-none overflow-hidden bg-linear-to-br from-white to-blue-50/30 dark:from-slate-950 dark:to-blue-950/20">
       {/* HEADER WITH GRADIENT */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+      <div className="bg-linear-to-r from-blue-500 to-blue-600 p-6 text-white">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
@@ -45,7 +45,7 @@ export function ExportWorklogCard({ lastExportAt, loading, onExport }: ExportWor
       <CardContent className="p-6 space-y-6">
         {/* FILE INFO */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-blue-100">
+          <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-lg border border-blue-100 dark:border-blue-900/60">
             <div className="p-2 bg-blue-100 rounded-lg">
               <FileCheck className="h-5 w-5 text-blue-600" />
             </div>
@@ -54,7 +54,7 @@ export function ExportWorklogCard({ lastExportAt, loading, onExport }: ExportWor
               <p className="text-sm font-semibold text-blue-700">.docx</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-blue-100">
+          <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-lg border border-blue-100 dark:border-blue-900/60">
             <div className="p-2 bg-blue-100 rounded-lg">
               <FileText className="h-5 w-5 text-blue-600" />
             </div>
@@ -63,7 +63,7 @@ export function ExportWorklogCard({ lastExportAt, loading, onExport }: ExportWor
               <p className="text-sm font-semibold text-blue-700">Task, effort, ghi chú</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-4 bg-white rounded-lg border border-blue-100">
+          <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-lg border border-blue-100 dark:border-blue-900/60">
             <div className="p-2 bg-blue-100 rounded-lg">
               <Clock className="h-5 w-5 text-blue-600" />
             </div>
@@ -84,7 +84,7 @@ export function ExportWorklogCard({ lastExportAt, loading, onExport }: ExportWor
             onClick={onExport}
             disabled={loading}
             size="lg"
-            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8"
+            className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8"
           >
             {loading ? (
               <>

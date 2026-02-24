@@ -1,5 +1,6 @@
-"use client";
+ "use client";
 
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import {
@@ -23,14 +24,20 @@ import { useClassDetails } from "@/features/management/classes/hooks/use-class-d
 
 export default function SettingsPage() {
   const searchParams = useSearchParams();
-  const urlClassId = searchParams.get("classId");
+  const urlClassId = searchParams.get("classId") ?? undefined;
+  const [classId, setClassId] = useState<string | undefined>(urlClassId ?? undefined);
 
-  const cookieClassId =
-    typeof window !== "undefined"
-      ? Cookies.get("lecturer_class_id") || Cookies.get("student_class_id") // Fallback cả 2 role nếu cần
-      : undefined;
+  useEffect(() => {
+    if (urlClassId) {
+      setClassId(urlClassId);
+      return;
+    }
 
-  const classId = urlClassId || cookieClassId;
+    const cookieClassId =
+      Cookies.get("lecturer_class_id") || Cookies.get("student_class_id") || undefined;
+
+    setClassId((prev) => prev ?? cookieClassId);
+  }, [urlClassId]);
 
   const { data: classDetailData, isLoading } = useClassDetails(classId);
   const classInfo = classDetailData?.class;

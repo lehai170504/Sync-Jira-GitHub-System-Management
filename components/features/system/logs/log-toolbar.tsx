@@ -49,14 +49,14 @@ export function LogToolbar({ onSearch, onFilter }: LogToolbarProps) {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-xl border shadow-sm">
+    <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors">
       {/* Left Side: Search & Filter */}
       <div className="flex flex-1 items-center gap-2 w-full md:w-auto">
         <div className="relative flex-1 md:max-w-xs">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Tìm theo User, Action..."
-            className="pl-9 h-10 bg-gray-50/50 focus:bg-white transition-all focus-visible:ring-[#F27124]/20 focus-visible:border-[#F27124]"
+            className="pl-9 h-10 bg-gray-50/50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-950 transition-all focus-visible:ring-[#F27124]/20 focus-visible:border-[#F27124]"
             onChange={(e) => onSearch(e.target.value)}
           />
         </div>

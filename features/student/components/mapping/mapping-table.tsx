@@ -43,23 +43,23 @@ export function MappingTable({
   onEdit,
 }: MappingTableProps) {
   return (
-    <div className="bg-white rounded-[24px] border border-gray-100 shadow-sm overflow-hidden ring-1 ring-gray-950/5">
+    <div className="bg-white dark:bg-slate-900 rounded-[24px] border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden ring-1 ring-gray-950/5 dark:ring-slate-800/80 transition-colors">
       <Table>
-        <TableHeader className="bg-slate-50/50">
+        <TableHeader className="bg-slate-50/50 dark:bg-slate-900/60">
           <TableRow className="hover:bg-transparent">
-            <TableHead className="pl-6 py-4 font-semibold text-slate-600">
+            <TableHead className="pl-6 py-4 font-semibold text-slate-600 dark:text-slate-300">
               Thành viên
             </TableHead>
-            <TableHead className="font-semibold text-slate-600">
+            <TableHead className="font-semibold text-slate-600 dark:text-slate-300">
               Vai trò
             </TableHead>
-            <TableHead className="font-semibold text-slate-600">
+            <TableHead className="font-semibold text-slate-600 dark:text-slate-300">
               Trạng thái Jira
             </TableHead>
-            <TableHead className="font-semibold text-slate-600">
+            <TableHead className="font-semibold text-slate-600 dark:text-slate-300">
               Trạng thái GitHub
             </TableHead>
-            <TableHead className="text-right pr-6 font-semibold text-slate-600">
+            <TableHead className="text-right pr-6 font-semibold text-slate-600 dark:text-slate-300">
               Thao tác
             </TableHead>
           </TableRow>
@@ -67,13 +67,13 @@ export function MappingTable({
         <TableBody>
           {isLoading
             ? [...Array(3)].map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell className="pl-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-slate-100 animate-pulse" />
-                      <div className="space-y-2">
-                        <div className="h-4 w-32 bg-slate-100 rounded animate-pulse" />
-                        <div className="h-3 w-48 bg-slate-100 rounded animate-pulse" />
+                    <TableRow key={i}>
+                      <TableCell className="pl-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
+                          <div className="space-y-2">
+                            <div className="h-4 w-32 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+                            <div className="h-3 w-48 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
                       </div>
                     </div>
                   </TableCell>
@@ -96,14 +96,14 @@ export function MappingTable({
                     >
                       <TableCell className="pl-6 py-4">
                         <div className="flex items-center gap-4">
-                          <Avatar className="h-11 w-11 border-2 border-white shadow-sm">
+                          <Avatar className="h-11 w-11 border-2 border-white dark:border-slate-800 shadow-sm">
                             <AvatarImage src={member.student?.avatar_url} />
-                            <AvatarFallback className="bg-indigo-100 text-indigo-600 font-bold">
+                            <AvatarFallback className="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 font-bold">
                               {member.student?.full_name?.charAt(0) || "?"}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-bold text-sm text-gray-900 flex items-center gap-2">
+                            <p className="font-bold text-sm text-gray-900 dark:text-slate-100 flex items-center gap-2">
                               {member.student?.full_name || "N/A"}
                               {isCurrentUser && (
                                 <Badge
@@ -114,7 +114,7 @@ export function MappingTable({
                                 </Badge>
                               )}
                             </p>
-                            <p className="text-xs text-gray-500 font-medium">
+                            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">
                               {member.student?.email || "Chưa cập nhật email"}
                             </p>
                           </div>
@@ -123,13 +123,13 @@ export function MappingTable({
 
                       <TableCell>
                         {member.role_in_team === "Leader" ? (
-                          <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200 shadow-none gap-1 pl-1 pr-2">
+                          <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/50 border-amber-200 dark:border-amber-900/60 shadow-none gap-1 pl-1 pr-2">
                             <ShieldCheck className="w-3 h-3" /> Leader
                           </Badge>
                         ) : (
                           <Badge
                             variant="secondary"
-                            className="bg-slate-100 text-slate-500 gap-1 pl-1 pr-2"
+                            className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 gap-1 pl-1 pr-2"
                           >
                             <User className="w-3 h-3" /> Member
                           </Badge>
@@ -142,8 +142,8 @@ export function MappingTable({
                             className={cn(
                               "p-1.5 rounded-lg",
                               member.mapping_status?.jira
-                                ? "bg-blue-50"
-                                : "bg-slate-50",
+                                ? "bg-blue-50 dark:bg-blue-900/30"
+                                : "bg-slate-50 dark:bg-slate-800/60",
                             )}
                           >
                             <Trello
@@ -160,14 +160,14 @@ export function MappingTable({
                               className={cn(
                                 "text-sm font-medium",
                                 member.jira_account_id
-                                  ? "text-gray-900"
-                                  : "text-gray-400 italic",
+                                  ? "text-gray-900 dark:text-slate-100"
+                                  : "text-gray-400 dark:text-slate-500 italic",
                               )}
                             >
                               {member.jira_account_id || "Chưa kết nối"}
                             </span>
                             {member.mapping_status?.jira && (
-                              <span className="text-[10px] text-green-600 flex items-center gap-1">
+                              <span className="text-[10px] text-green-600 dark:text-green-400 flex items-center gap-1">
                                 <CheckCircle2 className="w-3 h-3" /> Đã map
                               </span>
                             )}
@@ -181,8 +181,8 @@ export function MappingTable({
                             className={cn(
                               "p-1.5 rounded-lg",
                               member.mapping_status?.github
-                                ? "bg-gray-100"
-                                : "bg-slate-50",
+                                ? "bg-gray-100 dark:bg-slate-800"
+                                : "bg-slate-50 dark:bg-slate-800/60",
                             )}
                           >
                             <Github
@@ -199,14 +199,14 @@ export function MappingTable({
                               className={cn(
                                 "text-sm font-medium",
                                 member.github_username
-                                  ? "text-gray-900"
-                                  : "text-gray-400 italic",
+                                  ? "text-gray-900 dark:text-slate-100"
+                                  : "text-gray-400 dark:text-slate-500 italic",
                               )}
                             >
                               {member.github_username || "Chưa kết nối"}
                             </span>
                             {member.mapping_status?.github && (
-                              <span className="text-[10px] text-green-600 flex items-center gap-1">
+                              <span className="text-[10px] text-green-600 dark:text-green-400 flex items-center gap-1">
                                 <CheckCircle2 className="w-3 h-3" /> Đã map
                               </span>
                             )}
@@ -224,10 +224,10 @@ export function MappingTable({
                                   size="sm"
                                   disabled={!canEdit}
                                   className={cn(
-                                    "h-9 px-4 rounded-xl border-slate-200 transition-all",
+                                    "h-9 px-4 rounded-xl border-slate-200 dark:border-slate-700 transition-all",
                                     canEdit
-                                      ? "hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 text-slate-600"
-                                      : "opacity-40 cursor-not-allowed bg-slate-50",
+                                      ? "hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 text-slate-600 dark:text-slate-200"
+                                      : "opacity-40 cursor-not-allowed bg-slate-50 dark:bg-slate-800/60",
                                   )}
                                   onClick={() => canEdit && onEdit(member)}
                                 >

@@ -24,9 +24,9 @@ export default function StudentCoursesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col relative overflow-hidden">
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-100/50 rounded-full blur-3xl -z-10 animate-pulse" />
-      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-blue-100/50 rounded-full blur-3xl -z-10" />
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 flex flex-col relative overflow-hidden transition-colors duration-300">
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-100/50 dark:bg-orange-900/30 rounded-full blur-3xl -z-10 animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-blue-100/50 dark:bg-blue-900/30 rounded-full blur-3xl -z-10" />
 
       <CourseHeader />
 
@@ -36,7 +36,7 @@ export default function StudentCoursesPage() {
             title="Lớp học của tôi"
             description="Theo dõi tiến độ và quản lý các nhóm học tập hiệu quả."
             icon={
-              <div className="p-3 bg-white shadow-sm border border-orange-100 rounded-2xl">
+              <div className="p-3 bg-white dark:bg-slate-900 shadow-sm border border-orange-100 dark:border-orange-900/40 rounded-2xl">
                 <GraduationCap className="h-8 w-8 text-[#F27124]" />
               </div>
             }
@@ -57,7 +57,7 @@ export default function StudentCoursesPage() {
         </div>
       </main>
 
-      <footer className="py-8 text-center text-slate-400 text-sm">
+      <footer className="py-8 text-center text-slate-400 dark:text-slate-500 text-sm">
         © 2026 SyncSystem • FPT University
       </footer>
     </div>

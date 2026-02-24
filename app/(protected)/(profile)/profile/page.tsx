@@ -6,7 +6,7 @@ import { UserCircle, Fingerprint } from "lucide-react";
 
 export default function ProfilePage() {
   return (
-    <div className="max-w-[1400px] mx-auto space-y-10 pb-20 font-mono transition-colors duration-300">
+    <div className="max-w-350 mx-auto space-y-10 pb-20 font-mono transition-colors duration-300">
       {/* 1. BENTO HEADER SECTION */}
       <div className="relative overflow-hidden p-10 rounded-[48px] bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-sm transition-all hover:shadow-md group">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-10">
@@ -46,7 +46,7 @@ export default function ProfilePage() {
 
         {/* CỘT PHẢI (Main Content) */}
         <div className="lg:col-span-9 w-full animate-in fade-in slide-in-from-right-8 duration-1000">
-          <div className="bg-white dark:bg-slate-900 rounded-[48px] border border-slate-200/60 dark:border-slate-800 p-8 md:p-12 shadow-sm min-h-[700px] transition-colors">
+          <div className="bg-white dark:bg-slate-900 rounded-[48px] border border-slate-200/60 dark:border-slate-800 p-8 md:p-12 shadow-sm min-h-175 transition-colors">
             <ProfileTabs />
           </div>
         </div>

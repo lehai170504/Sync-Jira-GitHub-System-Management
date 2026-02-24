@@ -35,21 +35,19 @@ export function ProjectMemberStack({
         <TooltipProvider key={member._id}>
           <Tooltip delayDuration={100}>
             <TooltipTrigger asChild>
-              <Avatar className="h-9 w-9 border-2 border-white dark:border-slate-800 cursor-pointer transition-transform hover:scale-110 hover:z-10 shadow-sm ring-1 ring-slate-100 dark:ring-slate-700">
+              <Avatar className="h-9 w-9 border-2 border-white dark:border-slate-800 cursor-pointer transition-transform hover:scale-110 hover:z-10 shadow-sm">
                 <AvatarImage src={member.avatar_url} className="object-cover" />
-                <AvatarFallback className="bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-[9px] font-black">
+                <AvatarFallback className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold">
                   {member.full_name?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
             </TooltipTrigger>
             <TooltipContent
               side="top"
-              className="text-center dark:bg-slate-900 dark:border-slate-800"
+              className="text-center bg-slate-900 dark:bg-slate-800 border-none text-white shadow-xl"
             >
-              <p className="font-bold text-xs dark:text-slate-100">
-                {member.full_name}
-              </p>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+              <p className="font-bold text-xs">{member.full_name}</p>
+              <p className="text-[10px] text-slate-300 dark:text-slate-400 font-mono mt-0.5">
                 {member.student_code}
               </p>
             </TooltipContent>
@@ -58,7 +56,7 @@ export function ProjectMemberStack({
       ))}
 
       {remainingCount > 0 && (
-        <div className="h-9 w-9 rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-white dark:border-slate-800 flex items-center justify-center text-[10px] font-black text-slate-500 dark:text-slate-400 shadow-sm z-0">
+        <div className="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-white dark:border-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-500 dark:text-slate-400 shadow-sm z-0">
           +{remainingCount}
         </div>
       )}

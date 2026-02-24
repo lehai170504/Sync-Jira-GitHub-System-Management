@@ -52,65 +52,69 @@ export function CalendarView({
   };
 
   return (
-    <Card className="lg:col-span-2 border border-slate-200 dark:border-slate-800 shadow-sm h-full flex flex-col bg-white dark:bg-slate-900 overflow-hidden transition-colors">
+    <div className="h-full flex flex-col bg-white dark:bg-slate-900 overflow-hidden font-sans transition-colors">
       {/* HEADER */}
-      <CardHeader className="flex flex-row items-center justify-between py-4 px-6 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 md:p-6 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-            <CalendarDays className="h-5 w-5 text-[#F27124]" />
+          <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400">
+            <CalendarDays className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 capitalize leading-none">
-              {format(currentMonth, "MMMM", { locale: vi })}
+            <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 capitalize leading-none tracking-tight">
+              Tháng {format(currentMonth, "M, yyyy")}
             </h2>
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-1">
-              Năm {format(currentMonth, "yyyy")}
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-widest">
+              Lịch biểu giảng dạy
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button
             variant="outline"
             size="sm"
-            className="h-8 text-xs font-medium border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-[#F27124] dark:hover:text-[#F27124] hover:border-orange-200 dark:hover:border-orange-500/50 hover:bg-orange-50 dark:hover:bg-slate-800 transition-colors"
+            className="h-9 px-4 text-xs font-bold border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors rounded-xl"
             onClick={jumpToToday}
           >
             Hôm nay
           </Button>
-          <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors">
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 rounded-md hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
+              className="h-7 w-7 rounded-lg hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
               onClick={prevMonth}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
+            <div className="w-px h-4 bg-slate-200 dark:bg-slate-800" />
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 rounded-md hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
+              className="h-7 w-7 rounded-lg hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
               onClick={nextMonth}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="p-0 flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col">
         {/* Days Header */}
-        <div className="grid grid-cols-7 text-center text-xs font-semibold text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
+        <div className="grid grid-cols-7 text-center border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50">
           {["CN", "Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy"].map((d) => (
-            <div key={d} className="py-3 uppercase tracking-wider text-[10px]">
+            <div
+              key={d}
+              className="py-3 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400"
+            >
               {d}
             </div>
           ))}
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 flex-1 auto-rows-fr min-h-[500px] bg-slate-50/30 dark:bg-slate-900/50">
+        <div className="grid grid-cols-7 flex-1 auto-rows-fr min-h-150 bg-slate-100/50 dark:bg-slate-950/50 gap-px border-b border-slate-100 dark:border-slate-800">
           {calendarDays.map((day) => {
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isDayToday = isToday(day);
@@ -126,24 +130,24 @@ export function CalendarView({
               <div
                 key={day.toString()}
                 onClick={() => onDateSelect(day)}
-                className={`group relative flex flex-col border-b border-r border-slate-100 dark:border-slate-800 p-2 transition-all duration-200 min-h-[100px] cursor-pointer
-                  ${!isCurrentMonth ? "bg-slate-50/50 dark:bg-slate-950/50 text-slate-300 dark:text-slate-600" : "bg-white dark:bg-slate-900 hover:bg-orange-50/10 dark:hover:bg-slate-800"} 
-                  ${isDayToday ? "bg-orange-50/20 dark:bg-orange-900/10" : ""}
-                  ${isSelected ? "ring-2 ring-inset ring-[#F27124]/50 z-10" : ""}
+                className={`group relative flex flex-col p-2 transition-all duration-200 cursor-pointer overflow-hidden
+                  ${!isCurrentMonth ? "bg-slate-50/50 dark:bg-slate-900/30" : "bg-white dark:bg-slate-900"} 
+                  ${isDayToday ? "bg-orange-50/30 dark:bg-orange-900/10" : ""}
+                  ${isSelected ? "ring-2 ring-inset ring-blue-500 dark:ring-blue-400 z-10" : "hover:bg-slate-50 dark:hover:bg-slate-800"}
                 `}
               >
                 {/* Header Ngày */}
-                <div className="flex justify-between items-center mb-1">
+                <div className="flex justify-between items-center mb-1.5">
                   <span
-                    className={`text-sm font-semibold w-7 h-7 flex items-center justify-center rounded-full transition-all
+                    className={`text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full transition-all
                     ${
                       isDayToday
-                        ? "bg-[#F27124] text-white shadow-md shadow-orange-200 dark:shadow-none"
+                        ? "bg-blue-600 text-white shadow-md dark:shadow-none"
                         : isSelected
                           ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900"
                           : isCurrentMonth
-                            ? "text-slate-700 dark:text-slate-300 group-hover:text-[#F27124]"
-                            : "text-slate-300 dark:text-slate-600"
+                            ? "text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                            : "text-slate-400 dark:text-slate-600"
                     }`}
                   >
                     {format(day, "d")}
@@ -156,7 +160,7 @@ export function CalendarView({
                         e.stopPropagation();
                         onAddClick(day);
                       }}
-                      className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-full hover:bg-orange-100 dark:hover:bg-slate-700 text-orange-500 dark:text-orange-400 transition-all transform hover:scale-110"
+                      className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/40 dark:hover:text-blue-400 text-slate-500 transition-all transform hover:scale-105"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
@@ -164,38 +168,38 @@ export function CalendarView({
                 </div>
 
                 {/* Danh sách sự kiện Compact */}
-                <div className="flex-1 flex flex-col gap-1.5 mt-1">
-                  {dayEvents.slice(0, 3).map((ev) => (
+                <div className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar pr-0.5">
+                  {dayEvents.slice(0, 4).map((ev) => (
                     <div
                       key={ev.id}
-                      className={`text-[10px] px-1.5 py-1 rounded-md truncate font-medium border transition-all hover:shadow-sm
+                      className={`text-[10px] px-1.5 py-1 rounded truncate font-medium border-l-2 transition-all
                       ${
                         ev.type === "Teaching"
-                          ? "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/50"
+                          ? "bg-blue-50/50 text-blue-700 border-l-blue-500 dark:bg-blue-900/20 dark:text-blue-300"
                           : ev.type === "Grading"
-                            ? "bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800/50"
-                            : "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/50"
+                            ? "bg-orange-50/50 text-orange-700 border-l-orange-500 dark:bg-orange-900/20 dark:text-orange-300"
+                            : "bg-purple-50/50 text-purple-700 border-l-purple-500 dark:bg-purple-900/20 dark:text-purple-300"
                       }`}
                       title={`${ev.time} - ${ev.title}`}
                     >
-                      <span className="opacity-70 mr-1 font-normal">
+                      <span className="opacity-70 mr-1 font-semibold">
                         {ev.time.split(" ")[0]}
                       </span>
                       {ev.title}
                     </div>
                   ))}
 
-                  {dayEvents.length > 3 && (
-                    <span className="text-[9px] font-medium text-slate-400 dark:text-slate-500 pl-1">
-                      +{dayEvents.length - 3} khác
-                    </span>
+                  {dayEvents.length > 4 && (
+                    <div className="text-[9px] font-bold text-slate-400 dark:text-slate-500 pl-1 mt-0.5 uppercase">
+                      +{dayEvents.length - 4} sự kiện
+                    </div>
                   )}
                 </div>
               </div>
             );
           })}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

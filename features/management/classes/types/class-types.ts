@@ -47,6 +47,9 @@ export interface Class {
   semester_id: SemesterInfo;
   lecturer_id: LecturerInfo | null; // Có thể null
 
+  student_count?: number;
+  team_count?: number;
+
   contributionConfig: ContributionConfig;
   gradeStructure: GradeStructureItem[]; // Mảng grade structure
 

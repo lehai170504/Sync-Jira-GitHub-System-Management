@@ -24,24 +24,25 @@ export function ClassHeader({
   onRefresh,
 }: ClassHeaderProps) {
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-6 transition-colors">
-      <div className="space-y-1">
-        <div className="flex items-center gap-2 text-[#F27124] dark:text-orange-400 mb-1">
-          <GraduationCap className="h-5 w-5" />
-          <span className="text-xs font-black uppercase tracking-widest">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-200 dark:border-slate-800 pb-6 transition-colors">
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+            <GraduationCap className="h-4 w-4" />
             {semesterName}
-          </span>
+          </div>
           {isConnected && (
-            <div className="flex items-center gap-1.5 ml-2 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-100 dark:border-emerald-800 text-[9px] font-black uppercase tracking-widest animate-pulse">
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse border border-emerald-100 dark:border-emerald-800/50">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
               Live Sync
             </div>
           )}
         </div>
-        <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-slate-50">
+        <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-50">
           Lớp {className}
         </h1>
-        <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">
-          {subjectName} ({subjectCode})
+        <p className="text-base text-slate-500 dark:text-slate-400 font-medium">
+          {subjectName} <span className="opacity-60">({subjectCode})</span>
         </p>
       </div>
 

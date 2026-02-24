@@ -14,7 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 
-// Import Menu Items chung
+// Import Menu Items chung (Chứa Modal Profile)
 import { UserMenuItems } from "../common/user-menu-items";
 
 export function UserNav() {
@@ -51,7 +51,7 @@ export function UserNav() {
   // --- 1. LOADING STATE: SKELETON
   if (isProfileLoading) {
     return (
-      <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse border-2 border-white dark:border-slate-700 shadow-sm" />
+      <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse border-2 border-white dark:border-slate-700 shadow-sm transition-colors" />
     );
   }
 
@@ -60,13 +60,13 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="group relative focus:outline-none [perspective:1000px]">
-          <div className="relative rounded-full p-0.5 transition-all duration-500 group-hover:bg-gradient-to-tr group-hover:from-[#F27124] group-hover:to-orange-300 group-hover:shadow-lg group-hover:shadow-orange-500/20 group-hover:scale-105 active:scale-95">
+        <button className="group relative focus:outline-none perspective-[1000px]">
+          <div className="relative rounded-full p-0.5 transition-all duration-500 group-hover:bg-linear-to-tr group-hover:from-[#F27124] group-hover:to-orange-300 group-hover:shadow-lg group-hover:shadow-orange-500/20 group-hover:scale-105 active:scale-95">
             <div className="absolute -inset-3 border border-orange-500/0 rounded-full group-hover:border-orange-500/20 group-hover:animate-orbit-slow transition-all pointer-events-none">
-              <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-[#F27124] rounded-full opacity-0 group-hover:opacity-100 shadow-[0_0_10px_#F27124]"></div>
+              <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-[#F27124] dark:bg-orange-400 rounded-full opacity-0 group-hover:opacity-100 shadow-[0_0_10px_#F27124] dark:shadow-[0_0_10px_#f6ad55]"></div>
             </div>
 
-            <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-800 shadow-sm transition-transform duration-500 font-mono">
+            <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-800 shadow-sm transition-all duration-500 font-mono">
               <AvatarImage
                 src={user.avatar_url}
                 alt={displayName}
@@ -78,44 +78,44 @@ export function UserNav() {
             </Avatar>
 
             {/* Status Dot */}
-            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-800 shadow-sm group-hover:animate-pulse"></span>
+            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 dark:bg-emerald-400 border-2 border-white dark:border-slate-900 shadow-sm group-hover:animate-pulse transition-colors"></span>
           </div>
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="w-72 mt-3 p-2 rounded-[32px] shadow-2xl border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 font-sans"
+        className="w-72 mt-3 p-2 rounded-[32px] shadow-2xl border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 font-sans transition-colors"
         align="end"
         forceMount
       >
         {/* --- USER INFO BENTO CARD --- */}
         <DropdownMenuLabel className="font-normal p-2 mb-2">
-          <div className="flex flex-col space-y-3 bg-white/50 dark:bg-slate-800/50 p-4 rounded-[24px] border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+          <div className="flex flex-col space-y-3 bg-white/50 dark:bg-slate-800/50 p-4 rounded-[24px] border border-slate-100 dark:border-slate-700/50 shadow-sm relative overflow-hidden group transition-colors">
             {/* Decorative BG */}
-            <div className="absolute top-0 right-0 p-4 opacity-10 -rotate-12 transition-transform duration-500 group-hover:rotate-0 dark:opacity-20">
-              <Sparkles className="w-12 h-12 text-slate-900 dark:text-white" />
+            <div className="absolute top-0 right-0 p-4 opacity-10 dark:opacity-20 -rotate-12 transition-transform duration-500 group-hover:rotate-0">
+              <Sparkles className="w-12 h-12 text-slate-900 dark:text-slate-100" />
             </div>
 
             <div className="flex items-center gap-3 relative z-10">
               <div className="relative">
-                <Avatar className="h-10 w-10 rounded-xl border border-slate-100 dark:border-slate-700">
+                <Avatar className="h-10 w-10 rounded-xl border border-slate-100 dark:border-slate-700 transition-colors">
                   <AvatarImage src={user.avatar_url} className="object-cover" />
-                  <AvatarFallback className="bg-orange-100 dark:bg-orange-900/20 text-[#F27124] font-black">
+                  <AvatarFallback className="bg-orange-100 dark:bg-orange-900/20 text-[#F27124] dark:text-orange-400 font-black">
                     {userInitial}
                   </AvatarFallback>
                 </Avatar>
                 {user.is_verified && (
-                  <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white p-0.5 rounded-full border-2 border-white dark:border-slate-800">
+                  <div className="absolute -bottom-1 -right-1 bg-blue-500 dark:bg-blue-400 text-white dark:text-slate-900 p-0.5 rounded-full border-2 border-white dark:border-slate-800 transition-colors">
                     <BadgeCheck className="w-2.5 h-2.5" />
                   </div>
                 )}
               </div>
 
               <div className="flex flex-col">
-                <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate max-w-[140px] leading-tight capitalize">
+                <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate max-w-35 leading-tight capitalize transition-colors">
                   {displayName.toLowerCase()}
                 </p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate font-medium tracking-tight">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate font-medium tracking-tight transition-colors">
                   {displayEmail.toLowerCase()}
                 </p>
               </div>
@@ -123,7 +123,7 @@ export function UserNav() {
 
             <div className="pt-1 relative z-10">
               <span
-                className={`inline-flex items-center text-[9px] font-bold px-3 py-1 rounded-lg border shadow-sm uppercase tracking-widest ${getRoleStyle(
+                className={`inline-flex items-center text-[9px] font-bold px-3 py-1 rounded-lg border shadow-sm uppercase tracking-widest transition-colors ${getRoleStyle(
                   user.role,
                 )}`}
               >
@@ -133,7 +133,7 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
 
-        <DropdownMenuSeparator className="mx-2 bg-slate-100 dark:bg-slate-800" />
+        <DropdownMenuSeparator className="mx-2 bg-slate-100 dark:bg-slate-800 transition-colors" />
 
         {/* --- MENU ITEMS --- */}
         <div className="text-[12px] font-medium px-1 pb-1 dark:text-slate-300">

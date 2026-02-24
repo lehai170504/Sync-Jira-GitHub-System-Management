@@ -1,7 +1,12 @@
 "use client";
 
-import { ArrowRight, Search, Sparkles, Target, BarChart3 } from "lucide-react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { ArrowRight, Search, Target, GitCommit, BookOpen } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,21 +27,23 @@ export function LecturerClassesGrid({
   onSelectClass,
   onClearFilter,
 }: LecturerClassesGridProps) {
+  // --- TRẠNG THÁI TRỐNG (EMPTY STATE) ---
   if (classes.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 text-center animate-fade-up font-mono">
-        <div className="relative mb-6">
-          <div className="absolute -inset-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-full animate-orbit-slow opacity-50" />
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-full shadow-xl relative z-10">
-            <Search className="h-10 w-10 text-slate-300 dark:text-slate-600" />
-          </div>
+      <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-500 font-sans">
+        <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-full border border-slate-100 dark:border-slate-800 mb-6">
+          <Search className="h-10 w-10 text-slate-300 dark:text-slate-600" />
         </div>
-        <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 italic tracking-tighter">
-          Không tìm thấy lớp học
+        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+          Không tìm thấy lớp học nào
         </h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-sm">
+          Thử thay đổi từ khóa tìm kiếm hoặc chọn một học kỳ khác để xem kết
+          quả.
+        </p>
         <Button
           variant="outline"
-          className="mt-8 rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 font-black text-[10px] tracking-widest uppercase hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-all"
+          className="mt-6 rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           onClick={onClearFilter}
         >
           Xóa bộ lọc
@@ -45,106 +52,124 @@ export function LecturerClassesGrid({
     );
   }
 
+  // --- LƯỚI THẺ LỚP HỌC (SUBTLE GRID) ---
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 pb-20 font-mono">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20 font-sans">
       <AnimatePresence mode="popLayout">
         {classes.map((cls, index) => (
           <motion.div
             key={cls._id}
             layout
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.4, delay: index * 0.05 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, delay: index * 0.03 }}
+            className="h-full"
           >
             <Card
-              className="group overflow-hidden border-slate-100 dark:border-slate-800 rounded-[32px] shadow-2xl shadow-slate-200/50 dark:shadow-none hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer flex flex-col h-full bg-white dark:bg-slate-900 relative hover:-translate-y-2 active:scale-[0.98]"
+              className="group h-full flex flex-col relative overflow-hidden cursor-pointer bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               onClick={() => onSelectClass(cls)}
             >
-              {/* HEADER */}
+              {/* Thanh viền màu trên cùng (Accent Color) */}
               <div
-                className={`h-36 ${cls.color} relative p-6 flex flex-col justify-between overflow-hidden`}
-              >
-                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-150 transition-transform duration-700">
-                  <Sparkles className="w-20 h-20 text-white" />
-                </div>
+                className={`absolute top-0 left-0 right-0 h-1.5 opacity-90 ${cls.color}`}
+              />
 
-                <div className="flex justify-between items-start relative z-10">
-                  <Badge className="bg-black/20 text-white text-[9px] font-black px-3 py-1 rounded-full backdrop-blur-md border-0 tracking-widest uppercase hover:bg-black/30">
+              {/* HEADER: Tên lớp & Môn học */}
+              <CardHeader className="pt-6 pb-4">
+                <div className="flex justify-between items-start gap-4 mb-3">
+                  <div>
+                    <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-none">
+                      {cls.name}
+                    </h3>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-wide">
+                      {cls.subject_id?.code ?? cls.class_code ?? "N/A"}
+                    </p>
+                  </div>
+                  <Badge
+                    variant="secondary"
+                    className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border-none px-2.5 py-0.5 rounded-md font-semibold text-[10px] uppercase tracking-wider shrink-0"
+                  >
                     {cls.semester_id?.name ?? "N/A"}
                   </Badge>
-                  <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                    <ArrowRight className="text-white w-4 h-4" />
-                  </div>
                 </div>
 
-                <div className="relative z-10">
-                  <h3 className="text-3xl font-black text-white leading-none tracking-tighter italic">
-                    {cls.name}
-                  </h3>
-                  <p className="text-white/80 text-[10px] font-black tracking-widest mt-1 opacity-70 uppercase">
-                    {cls.subject_id?.code ?? cls.class_code ?? "N/A"}
-                  </p>
-                </div>
-              </div>
-
-              {/* BODY */}
-              <CardContent className="flex-1 p-6 flex flex-col">
-                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight mb-4 group-hover:text-[#F27124] transition-colors line-clamp-2 italic">
+                <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm line-clamp-2 leading-snug">
                   {cls.subjectName ?? cls.subject_id?.name}
-                </h4>
+                </p>
+              </CardHeader>
 
-                <div className="space-y-3 mt-auto pt-4 border-t border-slate-50 dark:border-slate-800">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">
-                    <div className="flex items-center gap-1.5">
-                      <Target className="w-3 h-3 text-blue-500 dark:text-blue-400" />
-                      <span>
-                        Jira:{" "}
+              {/* BODY: Thông số cấu hình */}
+              <CardContent className="py-0 flex-1 flex flex-col justify-center">
+                <div className="bg-slate-50 dark:bg-slate-950/50 rounded-xl p-4 space-y-3 border border-slate-100 dark:border-slate-800/60 transition-colors">
+                  {/* Trọng số */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <Target className="w-3.5 h-3.5 text-blue-500" />
+                        <span>Jira Task</span>
+                      </div>
+                      <p className="text-lg font-black text-slate-800 dark:text-slate-200 leading-none">
                         {Math.round(
                           (cls.contributionConfig?.jiraWeight ?? 0) * 100,
                         )}
                         %
-                      </span>
+                      </p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Sparkles className="w-3 h-3 text-orange-500 dark:text-orange-400" />
-                      <span>
-                        Git:{" "}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <GitCommit className="w-3.5 h-3.5 text-orange-500" />
+                        <span>Git Code</span>
+                      </div>
+                      <p className="text-lg font-black text-slate-800 dark:text-slate-200 leading-none">
                         {Math.round(
                           (cls.contributionConfig?.gitWeight ?? 0) * 100,
                         )}
                         %
-                      </span>
+                      </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <BarChart3 className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600" />
-                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                  {/* Dòng kẻ chia */}
+                  <div className="h-px bg-slate-200 dark:bg-slate-800" />
+
+                  {/* Cột điểm */}
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400">
+                    <BookOpen className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                    <span>
                       {cls.gradeStructure?.length
-                        ? `${cls.gradeStructure.length} cột điểm`
-                        : "Chưa cấu hình điểm"}
+                        ? `${cls.gradeStructure.length} Cột điểm được cấu hình`
+                        : "Chưa cấu hình cột điểm"}
                     </span>
                   </div>
                 </div>
               </CardContent>
 
-              {/* FOOTER */}
-              <CardFooter className="px-6 py-4 bg-slate-50/50 dark:bg-slate-950/50 flex justify-between items-center group-hover:bg-[#F27124]/5 dark:group-hover:bg-[#F27124]/10 transition-colors">
+              {/* FOOTER: Trạng thái & Action */}
+              <CardFooter className="pt-5 pb-5 flex items-center justify-between mt-auto bg-transparent">
+                {/* Status Indicator */}
                 <div className="flex items-center gap-2">
-                  <div
-                    className={`h-1.5 w-1.5 rounded-full animate-pulse ${
-                      cls.status === "Active"
-                        ? "bg-emerald-500"
-                        : "bg-slate-300 dark:bg-slate-600"
-                    }`}
-                  />
-                  <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 group-hover:text-[#F27124] uppercase tracking-[0.2em]">
-                    {cls.status}
+                  <span className="relative flex h-2.5 w-2.5">
+                    {cls.status === "Active" && (
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    )}
+                    <span
+                      className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
+                        cls.status === "Active"
+                          ? "bg-emerald-500"
+                          : "bg-slate-300 dark:bg-slate-600"
+                      }`}
+                    ></span>
+                  </span>
+                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">
+                    {cls.status === "Active" ? "Đang giảng dạy" : cls.status}
                   </span>
                 </div>
-                <div className="h-7 w-7 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center group-hover:border-[#F27124] dark:group-hover:border-[#F27124] group-hover:rotate-12 transition-all shadow-sm">
-                  <ArrowRight className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 group-hover:text-[#F27124]" />
+
+                {/* Call to action (Mũi tên mũi tên trượt nhẹ) */}
+                <div className="text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+                  Vào lớp
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </div>
               </CardFooter>
             </Card>

@@ -6,7 +6,7 @@ import { Settings, ToyBrick, BellDot, Cpu } from "lucide-react";
 
 export default function SettingsPage() {
   return (
-    <div className="max-w-[1400px] mx-auto space-y-10 font-mono pb-20 transition-colors duration-300">
+    <div className="max-w-350 mx-auto space-y-10 font-mono pb-20 transition-colors duration-300">
       {/* 1. HEADER SECTION: Phong cách Bento đồng bộ với Profile */}
       <div className="relative overflow-hidden p-10 rounded-[48px] bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-sm transition-all hover:shadow-md group">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-10">

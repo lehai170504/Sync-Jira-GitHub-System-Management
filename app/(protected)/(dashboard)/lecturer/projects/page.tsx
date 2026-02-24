@@ -55,12 +55,10 @@ export default function LecturerProjectManagementPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[80vh] dark:bg-slate-950 transition-colors duration-300">
-        <div className="p-8 bg-white dark:bg-slate-900 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-          <Loader2 className="h-12 w-12 animate-spin text-[#F27124]" />
-        </div>
-        <p className="mt-6 text-slate-400 dark:text-slate-500 font-black uppercase tracking-[0.2em] text-[10px] animate-pulse">
-          Đang nạp dữ liệu đồ án...
+      <div className="flex flex-col items-center justify-center h-[80vh] bg-transparent dark:bg-slate-950 transition-colors duration-300 font-sans">
+        <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+        <p className="mt-4 text-slate-500 dark:text-slate-400 font-medium text-sm animate-pulse">
+          Đang tải dữ liệu đồ án...
         </p>
       </div>
     );
@@ -68,14 +66,14 @@ export default function LecturerProjectManagementPage() {
 
   if (!classId) {
     return (
-      <div className="flex flex-col items-center justify-center h-[80vh] text-slate-500 dark:text-slate-400 animate-in fade-in duration-500 dark:bg-slate-950 transition-colors duration-300">
-        <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-full mb-6 border border-slate-100 dark:border-slate-800">
-          <FolderGit2 className="w-16 h-16 text-slate-200 dark:text-slate-600" />
+      <div className="flex flex-col items-center justify-center h-[80vh] text-slate-500 dark:text-slate-400 animate-in fade-in duration-500 dark:bg-slate-950 transition-colors duration-300 font-sans">
+        <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-full mb-6 border border-slate-200 dark:border-slate-800">
+          <FolderGit2 className="w-12 h-12 text-slate-400 dark:text-slate-500" />
         </div>
-        <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tighter uppercase">
+        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
           Chưa xác định lớp học
         </h2>
-        <p className="text-slate-400 mt-2 font-medium">
+        <p className="text-sm mt-2 font-medium">
           Vui lòng chọn lớp học tại danh sách quản lý.
         </p>
       </div>
@@ -83,40 +81,41 @@ export default function LecturerProjectManagementPage() {
   }
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700 pb-20 font-sans p-4 md:p-10 transition-colors duration-300">
+    <div className="space-y-8 animate-in fade-in duration-700 pb-20 font-sans p-4 md:p-8 max-w-400 mx-auto transition-colors duration-300">
       {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-100 dark:border-slate-800 pb-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-[#F27124] dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 w-fit px-3 py-1 rounded-full border border-orange-100 dark:border-orange-500/20 mb-2">
-            <LayoutGrid className="h-3.5 w-3.5" />
-            <span className="text-[10px] font-black uppercase tracking-widest">
-              Project Hub
-            </span>
+          <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 w-fit px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+            <LayoutGrid className="h-4 w-4" />
+            Project Hub
           </div>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-slate-50 leading-tight">
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-50 leading-tight">
             Đồ án Lớp {className}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-base md:text-lg">
-            Quản lý tập trung tiến độ, mã nguồn và nhân sự của {projects.length}{" "}
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-base">
+            Quản lý tập trung tiến độ, mã nguồn và nhân sự của{" "}
+            <span className="font-bold text-slate-700 dark:text-slate-300">
+              {projects.length}
+            </span>{" "}
             nhóm dự án.
           </p>
         </div>
       </div>
 
-      {/* STATS DASHBOARD (Bento Style) */}
+      {/* STATS DASHBOARD */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           label="Tổng số Đồ án"
           value={projects.length}
           icon={<FolderGit2 className="w-6 h-6" />}
-          color="orange"
+          color="blue"
           subText="Nhóm đang vận hành"
         />
         <StatCard
           label="Github Link"
           value={projects.filter((p) => p.githubRepoUrl).length}
           icon={<GitBranch className="w-6 h-6" />}
-          color="blue"
+          color="emerald"
           subText="Đã liên kết mã nguồn"
         />
         <StatCard
@@ -130,43 +129,45 @@ export default function LecturerProjectManagementPage() {
         />
       </div>
 
-      {/* TOOLBAR */}
-      <div className="bg-white dark:bg-slate-900 p-3 rounded-[32px] border border-slate-200/60 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center gap-4 transition-colors duration-300">
-        <div className="relative flex-1 group w-full">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 dark:text-slate-500 group-focus-within:text-[#F27124] transition-colors" />
-          <Input
-            placeholder="Tìm theo tên dự án, mã Leader hoặc Jira Key..."
-            className="w-full pl-14 h-14 bg-slate-50/50 dark:bg-slate-950/50 border-none focus:bg-white dark:focus:bg-slate-900 rounded-[24px] text-slate-700 dark:text-slate-100 font-bold text-base transition-all dark:placeholder:text-slate-600"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="space-y-6">
+        {/* TOOLBAR */}
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <div className="relative flex-1 group w-full max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+            <Input
+              placeholder="Tìm tên đồ án, mã Leader, Jira Key..."
+              className="w-full pl-12 h-12 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-100 font-medium transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:placeholder:text-slate-500 shadow-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              onClick={() => setSearchTerm("")}
+              className="rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <FilterX className="w-4 h-4 mr-2" /> Xóa bộ lọc
+            </Button>
+          )}
         </div>
-        {searchTerm && (
-          <Button
-            variant="ghost"
-            onClick={() => setSearchTerm("")}
-            className="rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 gap-1.5"
-          >
-            <FilterX className="w-3.5 h-3.5" /> Xóa lọc
-          </Button>
+
+        {/* PROJECTS GRID */}
+        {filteredProjects.length === 0 ? (
+          <div className="text-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 transition-colors duration-300">
+            <FolderGit2 className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600 mb-4" />
+            <p className="text-slate-600 dark:text-slate-400 font-bold text-sm">
+              Không tìm thấy đồ án nào phù hợp
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredProjects.map((project) => (
+              <ProjectCard key={project._id} project={project} />
+            ))}
+          </div>
         )}
       </div>
-
-      {/* PROJECTS GRID */}
-      {filteredProjects.length === 0 ? (
-        <div className="text-center py-24 bg-white dark:bg-slate-900 rounded-[48px] border-2 border-dashed border-slate-100 dark:border-slate-800 shadow-inner transition-colors duration-300">
-          <FolderGit2 className="mx-auto h-20 w-20 text-slate-100 dark:text-slate-700 mb-6" />
-          <p className="text-slate-400 dark:text-slate-500 font-black uppercase tracking-[0.2em] text-xs">
-            Không tìm thấy kết quả phù hợp
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {filteredProjects.map((project) => (
-            <ProjectCard key={project._id} project={project} />
-          ))}
-        </div>
-      )}
     </div>
   );
 }

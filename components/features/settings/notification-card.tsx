@@ -2,38 +2,28 @@
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { AlertTriangle, BellRing, Mail } from "lucide-react";
+import { AlertTriangle, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function NotificationSettings() {
   return (
-    <div className="h-full space-y-8 p-6 font-mono bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm">
-      {/* HEADER NHỎ */}
-      <div className="flex items-center gap-2 mb-2">
-        <BellRing className="h-4 w-4 text-[#F27124] dark:text-orange-400" />
-        <span className="text-[12px] font-black uppercase tracking-widest text-slate-900 dark:text-slate-100">
-          Cấu hình thông báo
-        </span>
-      </div>
+    <div className="space-y-4 font-mono bg-white dark:bg-slate-900 rounded-[24px] border border-slate-100 dark:border-slate-800 p-4 shadow-sm">
+      <NotificationItem
+        icon={Mail}
+        label="Tóm tắt qua Email" // Đã dịch
+        description="Gửi email tổng hợp tiến độ vào 08:00 mỗi ngày."
+        defaultChecked={true}
+      />
 
-      <div className="space-y-4">
-        <NotificationItem
-          icon={Mail}
-          label="Email Digest"
-          description="Gửi email tổng hợp tiến độ vào 08:00 mỗi ngày."
-          defaultChecked={true}
-        />
+      <div className="h-px bg-slate-100 dark:bg-slate-800 mx-2" />
 
-        <div className="h-px bg-slate-100 dark:bg-slate-800 mx-2" />
-
-        <NotificationItem
-          icon={AlertTriangle}
-          label="Cảnh báo rủi ro"
-          description="Báo tin tức thời khi sinh viên trễ hạn nộp bài."
-          defaultChecked={true}
-          isWarning
-        />
-      </div>
+      <NotificationItem
+        icon={AlertTriangle}
+        label="Cảnh báo rủi ro"
+        description="Báo tin tức thời khi sinh viên trễ hạn nộp bài."
+        defaultChecked={true}
+        isWarning
+      />
     </div>
   );
 }
@@ -50,10 +40,10 @@ function NotificationItem({
       <div className="flex gap-4 items-start">
         <div
           className={cn(
-            "p-2.5 rounded-xl transition-colors",
+            "p-2.5 rounded-xl transition-colors shadow-sm",
             isWarning
               ? "bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-white dark:group-hover:bg-slate-700 shadow-sm",
+              : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-white dark:group-hover:bg-slate-700",
           )}
         >
           <Icon className="h-4 w-4" />

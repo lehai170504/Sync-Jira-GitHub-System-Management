@@ -3,7 +3,15 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus, AlertCircle } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  AlertCircle,
+  BookOpen,
+  Hash,
+  Layers,
+  AlignLeft,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +30,7 @@ import {
   CreateSubjectFormValues,
 } from "@/features/management/subjects/schemas/subject-schema";
 import { useSubjectMutations } from "../hooks/use-subjects";
+import { Textarea } from "@/components/ui/textarea";
 
 interface SubjectDialogProps {
   open: boolean;
@@ -63,41 +72,37 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {/* Cập nhật Dialog Content: bg-white -> dark:bg-slate-950 */}
-      <DialogContent className="sm:max-w-md rounded-2xl gap-6 bg-white dark:bg-slate-950 border-none shadow-2xl">
-        <DialogHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-10 w-10 bg-orange-50 dark:bg-orange-500/10 rounded-xl flex items-center justify-center border border-orange-100 dark:border-orange-500/20">
-              <Plus className="h-5 w-5 text-[#F27124]" />
+      <DialogContent className="sm:max-w-125 rounded-3xl p-0 overflow-hidden bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-2xl font-sans transition-colors">
+        <DialogHeader className="p-8 pb-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 transition-colors">
+          <DialogTitle className="text-xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+              <Plus className="h-5 w-5" />
             </div>
-            <div>
-              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-slate-50">
-                Tạo Môn học mới
-              </DialogTitle>
-              <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
-                Nhập thông tin môn học để thêm vào hệ thống.
-              </DialogDescription>
-            </div>
-          </div>
+            Tạo Môn học mới
+          </DialogTitle>
+          <DialogDescription className="text-slate-500 dark:text-slate-400 text-sm mt-2">
+            Thiết lập thông số cơ bản cho môn học để sử dụng trong hệ thống.
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="px-8 py-6 space-y-5">
+          <div className="grid grid-cols-2 gap-5">
             {/* CODE */}
             <div className="space-y-2">
               <Label
                 htmlFor="code"
-                className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5"
               >
-                Mã môn <span className="text-red-500">*</span>
+                <Hash className="h-3.5 w-3.5 text-slate-400" /> Mã môn{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="code"
                 placeholder="VD: SWR302"
-                className={`h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 ${
+                className={`h-11 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 font-mono font-bold uppercase transition-colors ${
                   errors.code
-                    ? "border-red-500 focus:ring-red-200"
-                    : "focus:border-[#F27124] dark:focus:border-[#F27124]"
+                    ? "border-red-500 focus-visible:ring-red-200"
+                    : "focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                 }`}
                 {...register("code")}
                 onChange={(e) => {
@@ -106,7 +111,7 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
                 }}
               />
               {errors.code && (
-                <span className="text-[10px] text-red-500 font-medium flex items-center gap-1">
+                <span className="text-[10px] text-red-500 font-semibold flex items-center gap-1 mt-1">
                   <AlertCircle className="w-3 h-3" /> {errors.code.message}
                 </span>
               )}
@@ -116,24 +121,25 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
             <div className="space-y-2">
               <Label
                 htmlFor="credits"
-                className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5"
               >
-                Số tín chỉ <span className="text-red-500">*</span>
+                <Layers className="h-3.5 w-3.5 text-slate-400" /> Tín chỉ{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="credits"
                 type="number"
                 min={0}
                 placeholder="3"
-                className={`h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 ${
+                className={`h-11 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 font-medium transition-colors ${
                   errors.credits
-                    ? "border-red-500 focus:ring-red-200"
-                    : "focus:border-[#F27124] dark:focus:border-[#F27124]"
+                    ? "border-red-500 focus-visible:ring-red-200"
+                    : "focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                 }`}
                 {...register("credits")}
               />
               {errors.credits && (
-                <span className="text-[10px] text-red-500 font-medium flex items-center gap-1">
+                <span className="text-[10px] text-red-500 font-semibold flex items-center gap-1 mt-1">
                   <AlertCircle className="w-3 h-3" /> {errors.credits.message}
                 </span>
               )}
@@ -144,22 +150,23 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
           <div className="space-y-2">
             <Label
               htmlFor="name"
-              className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5"
             >
-              Tên môn học <span className="text-red-500">*</span>
+              <BookOpen className="h-3.5 w-3.5 text-slate-400" /> Tên môn học{" "}
+              <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name"
               placeholder="VD: Software Requirement"
-              className={`h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 ${
+              className={`h-11 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 font-medium transition-colors ${
                 errors.name
-                  ? "border-red-500 focus:ring-red-200"
-                  : "focus:border-[#F27124] dark:focus:border-[#F27124]"
+                  ? "border-red-500 focus-visible:ring-red-200"
+                  : "focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
               }`}
               {...register("name")}
             />
             {errors.name && (
-              <span className="text-[10px] text-red-500 font-medium flex items-center gap-1">
+              <span className="text-[10px] text-red-500 font-semibold flex items-center gap-1 mt-1">
                 <AlertCircle className="w-3 h-3" /> {errors.name.message}
               </span>
             )}
@@ -169,32 +176,33 @@ export function SubjectDialog({ open, onOpenChange }: SubjectDialogProps) {
           <div className="space-y-2">
             <Label
               htmlFor="description"
-              className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+              className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5"
             >
-              Mô tả
+              <AlignLeft className="h-3.5 w-3.5 text-slate-400" /> Mô tả (Tùy
+              chọn)
             </Label>
-            <Input
+            <Textarea
               id="description"
-              placeholder="Mô tả ngắn gọn về môn học..."
-              className="h-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus:border-[#F27124] dark:focus:border-[#F27124]"
+              placeholder="Nhập giới thiệu ngắn về môn học này..."
+              className="min-h-20 resize-none rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:border-blue-500 focus-visible:ring-blue-500/20 transition-colors font-medium p-3"
               {...register("description")}
             />
           </div>
 
-          <DialogFooter className="gap-2 pt-2">
+          <DialogFooter className="gap-3 pt-6 border-t border-slate-100 dark:border-slate-800 mt-6">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className="font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="h-11 rounded-xl font-bold dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 w-full sm:w-auto"
             >
               Hủy bỏ
             </Button>
             <Button
               type="submit"
               disabled={isPending}
-              className="bg-[#F27124] hover:bg-[#d65d1b] font-bold text-white shadow-lg shadow-orange-500/20"
+              className="h-11 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white w-full sm:w-auto shadow-md transition-all active:scale-[0.98]"
             >
               {isPending ? (
                 <>

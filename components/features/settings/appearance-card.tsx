@@ -17,7 +17,7 @@ export function AppearanceSettings() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="h-full space-y-8 p-6 font-mono bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm">
+    <div className="space-y-8 font-mono bg-white dark:bg-slate-900 rounded-[24px] border border-slate-100 dark:border-slate-800 p-6 shadow-sm">
       {/* 1. THEME SELECTION */}
       <div className="space-y-4">
         <div className="flex flex-col gap-1">
@@ -35,19 +35,19 @@ export function AppearanceSettings() {
         <div className="grid grid-cols-3 gap-3 p-1.5 bg-slate-100/50 dark:bg-slate-950/50 rounded-2xl border border-slate-200/40 dark:border-slate-800/50">
           <ThemeButton
             icon={Sun}
-            label="Light"
+            label="Sáng" // Đã dịch
             isActive={theme === "light"}
             onClick={() => setTheme("light")}
           />
           <ThemeButton
             icon={Moon}
-            label="Dark"
+            label="Tối" // Đã dịch
             isActive={theme === "dark"}
             onClick={() => setTheme("dark")}
           />
           <ThemeButton
             icon={Monitor}
-            label="System"
+            label="Hệ Thống" // Đã dịch
             isActive={theme === "system"}
             onClick={() => setTheme("system")}
           />
@@ -66,12 +66,12 @@ export function AppearanceSettings() {
             </Label>
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium uppercase opacity-70">
-            Thay đổi ngôn ngữ hiển thị của SyncSystem.
+            Thay đổi ngôn ngữ hiển thị của ứng dụng.
           </p>
         </div>
 
         <Select defaultValue="vi">
-          <SelectTrigger className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 dark:text-slate-100 font-bold text-xs uppercase tracking-tight focus:ring-[#F27124]/20 focus:border-[#F27124] transition-all">
+          <SelectTrigger className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 text-slate-900 dark:text-slate-100 font-bold text-xs uppercase tracking-tight focus:ring-[#F27124]/20 focus:border-[#F27124] transition-all">
             <SelectValue placeholder="Chọn ngôn ngữ" />
           </SelectTrigger>
           <SelectContent className="font-mono rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-900 shadow-xl">

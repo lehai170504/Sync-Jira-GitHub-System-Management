@@ -29,6 +29,7 @@ import {
   Trello,
   MessageSquare,
   Users,
+  Settings2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -67,7 +68,7 @@ export function SemesterDetailSheet({
       return {
         label: "Sắp diễn ra",
         className:
-          "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
+          "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800",
       };
     } else if (now > end) {
       return {
@@ -79,7 +80,7 @@ export function SemesterDetailSheet({
       return {
         label: "Đang diễn ra",
         className:
-          "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800 animate-pulse",
+          "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800 animate-pulse",
       };
     }
   };
@@ -90,69 +91,65 @@ export function SemesterDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      {/* 1. FIX SHEET CONTENT 
-         - bg-white -> bg-white dark:bg-slate-950
-         - border -> dark:border-slate-800
-      */}
-      <SheetContent className="w-full sm:max-w-xl p-0 bg-white dark:bg-slate-950 flex flex-col h-[100dvh] font-sans overflow-hidden border-l border-slate-200 dark:border-slate-800 shadow-2xl">
+      <SheetContent className="w-full sm:max-w-xl p-0 bg-white dark:bg-slate-950 flex flex-col h-[100dvh] font-sans overflow-hidden border-l border-slate-200 dark:border-slate-800 shadow-2xl transition-colors">
         {/* --- HEADER --- */}
-        <SheetHeader className="px-6 py-6 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 z-20 shrink-0 shadow-sm text-left">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-orange-50 dark:bg-orange-500/10 rounded-lg">
-                <Calendar className="w-5 h-5 text-[#F27124]" />
-              </div>
-
-              {semester && (
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-[10px] font-black uppercase tracking-widest px-2 py-0.5 border shadow-sm",
-                    statusInfo.className,
-                  )}
-                >
-                  {statusInfo.label}
-                </Badge>
-              )}
-            </div>
-            {semester && (
-              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 font-mono bg-slate-50 dark:bg-slate-900 px-2 py-1 rounded">
-                CODE: {semester.code}
+        <SheetHeader className="px-6 py-6 border-b border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md z-20 shrink-0 text-left transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 font-medium">
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs uppercase tracking-wider transition-colors">
+                <Calendar className="h-3.5 w-3.5" />
+                {semester?.code}
               </span>
+            </div>
+
+            {semester && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  "text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border shadow-sm rounded-md",
+                  statusInfo.className,
+                )}
+              >
+                {statusInfo.label}
+              </Badge>
             )}
           </div>
 
-          <SheetTitle className="text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tighter leading-none">
-            {isLoading ? (
-              <div className="h-8 w-48 bg-slate-100 dark:bg-slate-800 animate-pulse rounded" />
-            ) : (
-              semester?.name
-            )}
-          </SheetTitle>
+          <div className="space-y-1.5">
+            <SheetTitle className="text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tight transition-colors">
+              {isLoading ? (
+                <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md" />
+              ) : (
+                semester?.name
+              )}
+            </SheetTitle>
 
-          {semester && (
-            <SheetDescription className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2 mt-1">
-              Thời gian: {format(new Date(semester.start_date), "dd/MM/yyyy")} —{" "}
-              {format(new Date(semester.end_date), "dd/MM/yyyy")}
-            </SheetDescription>
-          )}
+            {semester && (
+              <SheetDescription className="text-sm text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2 mt-1 transition-colors">
+                Thời gian: {format(new Date(semester.start_date), "dd/MM/yyyy")}{" "}
+                — {format(new Date(semester.end_date), "dd/MM/yyyy")}
+              </SheetDescription>
+            )}
+          </div>
         </SheetHeader>
 
         {/* --- SCROLLABLE CONTENT --- */}
-        <div className="flex-1 w-full bg-slate-50/30 dark:bg-slate-900/30 overflow-y-auto scrollbar-hide">
-          <div className="p-6 space-y-8 pb-24">
+        <div className="flex-1 w-full bg-slate-50/30 dark:bg-slate-900/30 overflow-y-auto custom-scrollbar transition-colors">
+          <div className="p-6 md:p-8 space-y-8 pb-24">
             {isLoading ? (
               <div className="h-60 flex flex-col items-center justify-center gap-4">
-                <Loader2 className="w-8 h-8 animate-spin text-[#F27124]" />
-                <p className="text-xs font-bold text-slate-400 uppercase">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">
                   Đang tải dữ liệu...
                 </p>
               </div>
             ) : !semester ? (
               <div className="p-12 text-center flex flex-col items-center gap-4">
-                <Info className="w-12 h-12 text-slate-200 dark:text-slate-700" />
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
-                  Không tìm thấy thông tin.
+                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                  <Info className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+                </div>
+                <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">
+                  Không tìm thấy thông tin chi tiết.
                 </p>
               </div>
             ) : (
@@ -163,7 +160,7 @@ export function SemesterDetailSheet({
                     icon={BookOpen}
                     label="Lớp học"
                     value={stats?.total_classes}
-                    subText={`${stats?.active_classes} Active`}
+                    subText={`${stats?.active_classes} lớp mở`}
                     color="blue"
                   />
                   <StatCard
@@ -171,27 +168,28 @@ export function SemesterDetailSheet({
                     label="Giảng viên"
                     value={stats?.total_lecturers}
                     subText="Đang giảng dạy"
-                    color="orange"
+                    color="emerald"
                   />
                 </section>
 
                 {/* Creator Info */}
                 {semester.created_by_admin && (
-                  <section>
-                    <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 pl-1">
-                      Quản trị viên
+                  <section className="space-y-3">
+                    <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 uppercase tracking-wider transition-colors">
+                      <User className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                      Người khởi tạo
                     </h3>
-                    <div className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                      <Avatar className="h-10 w-10 border border-white dark:border-slate-800 shadow-sm bg-slate-100 dark:bg-slate-800">
-                        <AvatarFallback className="text-slate-500 dark:text-slate-400 font-bold">
+                    <div className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                      <Avatar className="h-10 w-10 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                        <AvatarFallback className="bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 font-bold">
                           {semester.created_by_admin.full_name.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100 transition-colors">
                           {semester.created_by_admin.full_name}
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-wide mt-0.5 transition-colors">
                           {semester.created_by_admin.email}
                         </p>
                       </div>
@@ -199,19 +197,20 @@ export function SemesterDetailSheet({
                   </section>
                 )}
 
-                <Separator className="dark:bg-slate-800" />
+                <Separator className="bg-slate-200 dark:bg-slate-800 transition-colors" />
 
                 {/* Class List */}
                 <section>
-                  <div className="flex items-center justify-between mb-4 px-1">
-                    <div className="flex items-center gap-2">
-                      <LayoutGrid className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-                      <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">
-                        Danh sách lớp học
-                      </h3>
-                    </div>
-                    <Badge className="bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700">
-                      {classes.length}
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 uppercase tracking-wider transition-colors">
+                      <LayoutGrid className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                      Danh sách lớp học
+                    </h3>
+                    <Badge
+                      variant="secondary"
+                      className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-2 py-0.5 transition-colors"
+                    >
+                      {classes.length} Lớp
                     </Badge>
                   </div>
 
@@ -220,6 +219,12 @@ export function SemesterDetailSheet({
                       <ClassItemAccordion key={cls._id} cls={cls} />
                     ))}
                   </Accordion>
+
+                  {classes.length === 0 && (
+                    <div className="text-center py-10 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-sm font-medium transition-colors">
+                      Chưa có lớp học nào được phân bổ.
+                    </div>
+                  )}
                 </section>
               </>
             )}
@@ -230,32 +235,37 @@ export function SemesterDetailSheet({
   );
 }
 
-// --- SUB-COMPONENTS (Đã cập nhật Dark Mode) ---
+// --- SUB-COMPONENTS ---
 
 function StatCard({ icon: Icon, label, value, subText, color }: any) {
   const colors = {
-    blue: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300",
+    blue: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-900/30",
+    emerald:
+      "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/30",
     orange:
-      "bg-orange-50 text-[#F27124] dark:bg-orange-900/30 dark:text-orange-400",
+      "text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-900/30",
   };
+
+  const style = colors[color as keyof typeof colors] || colors.blue;
+
   return (
-    <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
+    <div className="bg-white dark:bg-slate-900 p-5 rounded-[24px] border border-slate-200 dark:border-slate-800 shadow-sm transition-colors flex flex-col items-center text-center">
       <div
         className={cn(
-          "inline-flex p-2 rounded-lg mb-3",
-          colors[color as keyof typeof colors],
+          "inline-flex p-2.5 rounded-xl mb-3 transition-colors",
+          style,
         )}
       >
         <Icon className="w-5 h-5" />
       </div>
-      <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+      <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 transition-colors">
         {label}
       </p>
-      <div className="flex items-baseline gap-2 mt-1">
-        <span className="text-2xl font-black text-slate-900 dark:text-slate-50">
+      <div className="flex flex-col gap-0.5 mt-1">
+        <span className="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none transition-colors">
           {value || 0}
         </span>
-        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
+        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium transition-colors">
           {subText}
         </span>
       </div>
@@ -269,53 +279,54 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
       value={cls._id}
       className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 overflow-hidden shadow-sm transition-colors"
     >
-      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+      <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
         <div className="flex items-center gap-4 text-left">
-          <div className="h-10 w-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center font-black text-slate-500 dark:text-slate-400 text-xs shrink-0">
+          <div className="h-10 w-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center font-black text-slate-600 dark:text-slate-300 text-xs shrink-0 transition-colors">
             {cls.name.substring(0, 2)}
           </div>
           <div>
-            <p className="text-sm font-bold text-slate-900 dark:text-slate-50">
+            <p className="text-sm font-bold text-slate-900 dark:text-slate-100 transition-colors">
               {cls.name}
             </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium transition-colors">
               {cls.subjectName}
             </p>
           </div>
         </div>
       </AccordionTrigger>
 
-      <AccordionContent className="px-4 pb-4 bg-slate-50/50 dark:bg-slate-950/30 border-t border-slate-100 dark:border-slate-800">
+      <AccordionContent className="px-5 pb-5 bg-slate-50/50 dark:bg-slate-950/30 border-t border-slate-100 dark:border-slate-800 transition-colors">
         <div className="pt-4 space-y-6">
           {/* Lecturer Info */}
           {cls.lecturer_id ? (
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8 border border-white dark:border-slate-800 shadow-sm">
+            <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors">
+              <Avatar className="h-9 w-9 border border-slate-100 dark:border-slate-700 shadow-sm transition-colors">
                 <AvatarImage src={cls.lecturer_id.avatar_url} />
-                <AvatarFallback>
+                <AvatarFallback className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold">
                   {cls.lecturer_id.full_name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                  {cls.lecturer_id.full_name}
+                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 transition-colors">
+                  Giảng viên
                 </p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                  {cls.lecturer_id.email}
+                <p className="text-sm font-bold text-slate-900 dark:text-slate-100 transition-colors">
+                  {cls.lecturer_id.full_name}
                 </p>
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 text-xs italic">
+            <div className="flex items-center justify-center gap-2 p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 dark:text-slate-400 text-xs font-medium transition-colors">
               <User className="w-4 h-4" /> Chưa phân công giảng viên
             </div>
           )}
 
           {/* Contribution Weights */}
           {cls.contributionConfig && (
-            <div className="space-y-2">
-              <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                Contribution Weights
+            <div className="space-y-3">
+              <h4 className="text-[10px] font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 uppercase tracking-wider transition-colors">
+                <Settings2 className="w-3.5 h-3.5 text-slate-400" /> Trọng số
+                Đánh giá
               </h4>
               <div className="grid grid-cols-3 gap-2">
                 <WeightBox
@@ -342,27 +353,28 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
 
           {/* Grade Structure */}
           {cls.gradeStructure && cls.gradeStructure.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                Grade Structure
+            <div className="space-y-3 pt-2">
+              <h4 className="text-[10px] font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 uppercase tracking-wider transition-colors">
+                <LayoutGrid className="w-3.5 h-3.5 text-slate-400" /> Cấu trúc
+                điểm (Grade)
               </h4>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 {cls.gradeStructure.map((grade) => (
                   <div
                     key={grade._id}
-                    className="flex justify-between items-center text-xs bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800"
+                    className="flex justify-between items-center text-xs bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors shadow-sm"
                   >
-                    <span className="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2 transition-colors">
                       {grade.isGroupGrade ? (
-                        <Users className="w-3 h-3 text-indigo-500" />
+                        <Users className="w-3.5 h-3.5 text-indigo-500" />
                       ) : (
-                        <User className="w-3 h-3 text-slate-400 dark:text-slate-500" />
+                        <User className="w-3.5 h-3.5 text-slate-400" />
                       )}
                       {grade.name}
                     </span>
                     <Badge
                       variant="secondary"
-                      className="font-mono text-[10px] dark:bg-slate-800 dark:text-slate-300"
+                      className="font-bold text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-none transition-colors"
                     >
                       {grade.weight * 100}%
                     </Badge>
@@ -379,25 +391,25 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
 
 function WeightBox({ icon: Icon, label, value, color }: any) {
   const colorStyles = {
-    blue: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-300",
+    blue: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
     orange:
-      "text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-300",
+      "text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400",
     purple:
-      "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-300",
+      "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400",
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 transition-colors">
+    <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
       <Icon
         className={cn(
-          "w-4 h-4 mb-1",
-          colorStyles[color as keyof typeof colorStyles].split(" ")[0], // Trick: Lấy class text màu
+          "w-4 h-4 mb-1.5 transition-colors",
+          colorStyles[color as keyof typeof colorStyles].split(" ")[0],
         )}
       />
-      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium uppercase">
+      <span className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest transition-colors">
         {label}
       </span>
-      <span className="text-xs font-black text-slate-900 dark:text-slate-100">
+      <span className="text-xs font-black text-slate-900 dark:text-slate-100 mt-0.5 transition-colors">
         {value}%
       </span>
     </div>

@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { GraduationCap, LayoutGrid, FilterX } from "lucide-react";
+import {
+  GraduationCap,
+  LayoutGrid,
+  FilterX,
+  Search,
+  Loader2,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Components
 import { ClassStats } from "@/features/management/classes/components/class-stats";
@@ -36,21 +43,32 @@ export default function ClassManagementPage() {
 
   const classes = data?.classes || [];
 
-  // Filter Logic (Client-side search text)
+  // --- TÍNH TOÁN DỮ LIỆU CHO STATS ---
+  const statsSummary = useMemo(() => {
+    // Lưu ý: student_count và team_count cần được định nghĩa trong Interface Class
+    const totalStudents = classes.reduce(
+      (sum: number, cls: any) => sum + (cls.student_count || 0),
+      0,
+    );
+    const totalTeams = classes.reduce(
+      (sum: number, cls: any) => sum + (cls.team_count || 0),
+      0,
+    );
+    const avgJiraWeight =
+      classes.length > 0 ? classes[0].contributionConfig?.jiraWeight || 0 : 0;
+
+    return { totalStudents, totalTeams, avgJiraWeight };
+  }, [classes]);
+
+  // Filter Logic (Search text)
   const filteredClasses = useMemo(() => {
     return classes.filter((cls: Class) => {
       const searchLower = searchTerm.toLowerCase();
-
-      const nameMatch = cls.name?.toLowerCase().includes(searchLower);
-      const codeMatch = cls.class_code?.toLowerCase().includes(searchLower);
-      const lecturerNameMatch = cls.lecturer_id?.full_name
-        ?.toLowerCase()
-        .includes(searchLower);
-      const lecturerEmailMatch = cls.lecturer_id?.email
-        ?.toLowerCase()
-        .includes(searchLower);
-
-      return nameMatch || codeMatch || lecturerNameMatch || lecturerEmailMatch;
+      return (
+        cls.name?.toLowerCase().includes(searchLower) ||
+        cls.class_code?.toLowerCase().includes(searchLower) ||
+        cls.lecturer_id?.full_name?.toLowerCase().includes(searchLower)
+      );
     });
   }, [classes, searchTerm]);
 
@@ -60,91 +78,115 @@ export default function ClassManagementPage() {
     setLecturerFilter("all");
   };
 
-  // Handler mở Drawer
   const handleViewDetails = (cls: Class) => {
     setSelectedClassId({ _id: cls._id });
     setIsDrawerOpen(true);
   };
 
   return (
-    // FIX: Nền tối cho toàn trang
-    <div className="h-full pb-20 font-sans animate-in fade-in duration-700 relative">
-      {/* Background Decor cho Dark Mode */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-orange-50/50 via-slate-50/50 to-transparent dark:from-slate-900/50 dark:via-slate-950/50 pointer-events-none" />
+    <div className="h-full pb-20 font-sans animate-in fade-in duration-700 relative transition-colors">
+      {/* Background Decor */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-blue-50/50 via-transparent to-transparent dark:from-slate-900/20 pointer-events-none" />
 
-      <div className="max-w-[1600px] mx-auto space-y-10">
+      <div className="max-w-400 mx-auto space-y-10 p-4 md:p-8">
         {/* --- 1. HEADER SECTION --- */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between border-b border-slate-200/60 dark:border-slate-800 pb-8 transition-colors">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between border-b border-slate-200 dark:border-slate-800 pb-8 transition-colors">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-[#F27124] dark:text-orange-400 font-black uppercase tracking-[0.2em] text-[10px] bg-orange-50 dark:bg-orange-500/10 w-fit px-3 py-1 rounded-full border border-orange-100 dark:border-orange-500/20">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider text-[10px] bg-blue-50 dark:bg-blue-950/30 w-fit px-3 py-1.5 rounded-full border border-blue-100 dark:border-blue-800">
               <GraduationCap className="h-3.5 w-3.5" />
               <span>Hệ thống quản lý đào tạo</span>
             </div>
-            <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-slate-50 md:text-5xl lg:text-6xl transition-colors">
+            <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-slate-50 md:text-5xl">
               Danh sách Lớp học
             </h1>
             <p className="text-slate-500 dark:text-slate-400 font-medium text-sm md:text-base max-w-2xl leading-relaxed">
-              Quản lý vận hành lớp học, phân công giảng viên và theo dõi tiến độ
-              đào tạo tập trung.
+              Vận hành và theo dõi hiệu suất các lớp học, phân công giảng viên
+              và cấu hình trọng số đánh giá.
             </p>
           </div>
         </div>
 
         {/* --- 2. STATS DASHBOARD --- */}
-        <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-orange-100 to-blue-100 dark:from-slate-800 dark:to-slate-900 rounded-[40px] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="relative group"
+        >
+          <div className="absolute -inset-1 bg-linear-to-r from-blue-100 to-purple-100 dark:from-slate-800 dark:to-slate-900 rounded-[32px] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
           <div className="relative">
-            <ClassStats data={classes} />
+            <ClassStats
+              totalStudents={statsSummary.totalStudents}
+              totalTeams={statsSummary.totalTeams}
+              jiraWeight={statsSummary.avgJiraWeight}
+            />
           </div>
-        </div>
+        </motion.div>
 
-        {/* --- 3. FILTER & TOOLBAR AREA --- */}
-        {/* FIX: Nền trắng -> Nền tối (bg-white dark:bg-slate-900) */}
-        <div className="bg-white dark:bg-slate-900 p-2 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
-          <ClassToolbar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            semesterFilter={semesterFilter}
-            setSemesterFilter={setSemesterFilter}
-            lecturerFilter={lecturerFilter}
-            setLecturerFilter={setLecturerFilter}
-            clearFilters={clearFilters}
-          />
+        {/* --- 3. FILTER & TOOLBAR (Sticky) --- */}
+        <div className="sticky top-6 z-40">
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-3 rounded-[24px] border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none transition-all">
+            <ClassToolbar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              semesterFilter={semesterFilter}
+              setSemesterFilter={setSemesterFilter}
+              lecturerFilter={lecturerFilter}
+              setLecturerFilter={setLecturerFilter}
+              clearFilters={clearFilters}
+            />
+          </div>
         </div>
 
         {/* --- 4. DATA LIST SECTION --- */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between px-4">
-            <div className="flex items-center gap-2">
-              <LayoutGrid className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-              <h3 className="font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest text-xs">
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                <LayoutGrid className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              </div>
+              <h3 className="font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider text-xs">
                 Kết quả tìm kiếm ({filteredClasses.length})
               </h3>
             </div>
 
-            {searchTerm ||
-            semesterFilter !== "all" ||
-            lecturerFilter !== "all" ? (
-              <Button
-                variant="ghost"
-                onClick={clearFilters}
-                className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 gap-1"
-              >
-                <FilterX className="w-3 h-3" /> Xóa bộ lọc
-              </Button>
-            ) : null}
+            <AnimatePresence>
+              {(searchTerm ||
+                semesterFilter !== "all" ||
+                lecturerFilter !== "all") && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                >
+                  <Button
+                    variant="ghost"
+                    onClick={clearFilters}
+                    className="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-red-500 dark:text-slate-400 dark:hover:text-red-400 gap-2 h-9 px-4 rounded-full hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
+                  >
+                    <FilterX className="w-3.5 h-3.5" /> Xóa bộ lọc
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          <div className="min-h-[500px]">
-            <ClassList
-              classes={filteredClasses}
-              isLoading={isLoading}
-              onEditClass={(cls: Class) =>
-                console.log("Edit functionality pending", cls)
-              }
-              onClearFilters={clearFilters}
-              onViewClassDetails={handleViewDetails}
-            />
+          <div className="min-h-125">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center h-64 gap-4">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest animate-pulse">
+                  Đang nạp dữ liệu...
+                </p>
+              </div>
+            ) : (
+              <ClassList
+                classes={filteredClasses}
+                isLoading={isLoading}
+                onEditClass={(cls: Class) => console.log("Edit:", cls)}
+                onClearFilters={clearFilters}
+                onViewClassDetails={handleViewDetails}
+              />
+            )}
           </div>
         </div>
 

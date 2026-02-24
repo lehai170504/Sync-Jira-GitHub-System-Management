@@ -63,24 +63,23 @@ export function CreateSemesterModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] rounded-[32px] p-0 overflow-hidden border-none shadow-2xl bg-white dark:bg-slate-950">
+      <DialogContent className="sm:max-w-125 rounded-[32px] p-0 overflow-hidden border-slate-200 dark:border-slate-800 shadow-2xl bg-white dark:bg-slate-950 font-sans transition-colors">
         <div className="p-8">
           <DialogHeader className="mb-6">
-            <div className="h-12 w-12 bg-orange-50 dark:bg-orange-500/10 rounded-2xl flex items-center justify-center mb-4 border border-orange-100 dark:border-orange-500/20">
-              <Plus className="h-6 w-6 text-[#F27124]" />
+            <div className="h-12 w-12 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4 text-blue-600 dark:text-blue-400">
+              <Plus className="h-6 w-6" />
             </div>
-            <DialogTitle className="text-2xl font-black text-slate-900 dark:text-slate-50">
+            <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-slate-50">
               Tạo Học Kỳ Mới
             </DialogTitle>
-            <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium">
-              Thiết lập thông tin cho kỳ học mới. Các trường có dấu * là bắt
-              buộc.
+            <DialogDescription className="text-slate-500 dark:text-slate-400 text-sm mt-2">
+              Học kỳ mới sẽ tự động được đặt làm Học kỳ mặc định (OPEN).
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* GRID 1: Tên & Mã */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-5">
               {/* Field: Tên */}
               <div className="space-y-2">
                 <Label
@@ -91,11 +90,11 @@ export function CreateSemesterModal({
                 </Label>
                 <Input
                   id="name"
-                  placeholder="VD: Spring 2024"
-                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-11 dark:text-slate-100 ${
+                  placeholder="VD: Spring 2026"
+                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 h-12 dark:text-slate-100 font-medium transition-colors ${
                     errors.name
-                      ? "border-red-500 focus:ring-red-200"
-                      : "focus:border-[#F27124] focus:ring-[#F27124]/20"
+                      ? "border-red-500 focus-visible:ring-red-200"
+                      : "focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                   }`}
                   {...register("name")}
                 />
@@ -116,11 +115,11 @@ export function CreateSemesterModal({
                 </Label>
                 <Input
                   id="code"
-                  placeholder="VD: SP24"
-                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-11 font-mono uppercase dark:text-slate-100 ${
+                  placeholder="VD: SP26"
+                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 h-12 font-mono font-bold uppercase dark:text-slate-100 transition-colors ${
                     errors.code
-                      ? "border-red-500 focus:ring-red-200"
-                      : "focus:border-[#F27124] focus:ring-[#F27124]/20"
+                      ? "border-red-500 focus-visible:ring-red-200"
+                      : "focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                   }`}
                   {...register("code")}
                   onChange={(e) => {
@@ -137,23 +136,22 @@ export function CreateSemesterModal({
             </div>
 
             {/* GRID 2: Ngày bắt đầu & kết thúc */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-5">
               {/* Field: Start Date */}
               <div className="space-y-2">
                 <Label
                   htmlFor="start"
                   className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider"
                 >
-                  Ngày bắt đầu <span className="text-red-500">*</span>
+                  Bắt đầu <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="start"
                   type="date"
-                  // Thêm style cho icon lịch (dark mode)
-                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-11 block w-full dark:text-slate-100 dark:[color-scheme:dark] ${
+                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 h-12 w-full dark:text-slate-100 dark:scheme-dark font-medium transition-colors ${
                     errors.start_date
-                      ? "border-red-500 focus:ring-red-200"
-                      : "focus:border-[#F27124] focus:ring-[#F27124]/20"
+                      ? "border-red-500 focus-visible:ring-red-200"
+                      : "focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                   }`}
                   {...register("start_date")}
                 />
@@ -171,15 +169,15 @@ export function CreateSemesterModal({
                   htmlFor="end"
                   className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider"
                 >
-                  Ngày kết thúc <span className="text-red-500">*</span>
+                  Kết thúc <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="end"
                   type="date"
-                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-11 block w-full dark:text-slate-100 dark:[color-scheme:dark] ${
+                  className={`rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 h-12 w-full dark:text-slate-100 dark:scheme-dark font-medium transition-colors ${
                     errors.end_date
-                      ? "border-red-500 focus:ring-red-200"
-                      : "focus:border-[#F27124] focus:ring-[#F27124]/20"
+                      ? "border-red-500 focus-visible:ring-red-200"
+                      : "focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                   }`}
                   {...register("end_date")}
                 />
@@ -192,24 +190,24 @@ export function CreateSemesterModal({
               </div>
             </div>
 
-            <DialogFooter className="pt-4">
+            <DialogFooter className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 gap-3">
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 onClick={() => onOpenChange(false)}
-                className="rounded-xl font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="h-11 rounded-xl font-bold text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 w-full sm:w-auto"
               >
-                Hủy bỏ
+                Hủy
               </Button>
               <Button
                 type="submit"
                 disabled={isCreating}
-                className="bg-[#F27124] hover:bg-orange-600 text-white rounded-xl font-black px-6 shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
+                className="h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-sm active:scale-[0.98] transition-all w-full sm:w-auto"
               >
                 {isCreating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  "Xác nhận tạo"
+                  "Tạo Học kỳ"
                 )}
               </Button>
             </DialogFooter>

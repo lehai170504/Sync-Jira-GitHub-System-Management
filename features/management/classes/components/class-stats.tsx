@@ -4,56 +4,68 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, GraduationCap, Users } from "lucide-react";
 import { Class } from "@/features/management/classes/types/class-types";
 
-export function ClassStats({ data }: { data: Class[] }) {
-  const totalStudents = 0;
-  const activeClasses = data.length;
-
+// Đã đổi kiểu prop nhận vào theo file số 1 (Nhận từng thông số thay vì mảng Data)
+export function ClassStats({
+  totalStudents,
+  totalTeams,
+  jiraWeight,
+}: {
+  totalStudents: number;
+  totalTeams: number;
+  jiraWeight: number;
+}) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card className="shadow-sm border-l-4 border-l-[#F27124] dark:bg-slate-900 dark:border-t-0 dark:border-r-0 dark:border-b-0">
-        <CardContent className="p-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">
-              Tổng lớp học
-            </p>
-            <h3 className="text-2xl font-bold dark:text-slate-50">
-              {data.length}
-            </h3>
-          </div>
-          <div className="h-10 w-10 bg-orange-50 dark:bg-orange-500/10 rounded-full flex items-center justify-center text-[#F27124]">
-            <BookOpen className="h-5 w-5" />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-sm border-l-4 border-l-blue-500 dark:bg-slate-900 dark:border-t-0 dark:border-r-0 dark:border-b-0">
-        <CardContent className="p-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">
-              Đang hoạt động
-            </p>
-            <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {activeClasses}
-            </h3>
-          </div>
-          <div className="h-10 w-10 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
-            <Users className="h-5 w-5" />
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <Card className="shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 relative overflow-hidden transition-colors">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-start relative z-10">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                Tổng sinh viên
+              </p>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-slate-100">
+                {totalStudents}
+              </h3>
+            </div>
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl text-blue-600 dark:text-blue-400">
+              <Users className="h-6 w-6" />
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm border-l-4 border-l-green-500 dark:bg-slate-900 dark:border-t-0 dark:border-r-0 dark:border-b-0">
-        <CardContent className="p-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">
-              Tổng sinh viên
-            </p>
-            <h3 className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {totalStudents}
-            </h3>
+      <Card className="shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 relative overflow-hidden transition-colors">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-start relative z-10">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                Số lượng nhóm
+              </p>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-slate-100">
+                {totalTeams}
+              </h3>
+            </div>
+            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-2xl text-purple-600 dark:text-purple-400">
+              <BookOpen className="h-6 w-6" />
+            </div>
           </div>
-          <div className="h-10 w-10 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center text-green-600 dark:text-green-400">
-            <GraduationCap className="h-5 w-5" />
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 relative overflow-hidden transition-colors">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-start relative z-10">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                Trọng số Jira
+              </p>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-slate-100">
+                {Math.round(jiraWeight * 100)}%
+              </h3>
+            </div>
+            <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-2xl text-orange-600 dark:text-orange-400">
+              <GraduationCap className="h-6 w-6" />
+            </div>
           </div>
         </CardContent>
       </Card>

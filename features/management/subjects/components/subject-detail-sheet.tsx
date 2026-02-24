@@ -44,7 +44,7 @@ export function SubjectDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl p-0 flex flex-col h-[100dvh] font-sans overflow-hidden border-l border-slate-200 dark:border-slate-800 shadow-2xl bg-white dark:bg-slate-950">
+      <SheetContent className="w-full sm:max-w-xl p-0 flex flex-col h-dvh font-sans overflow-hidden border-l border-slate-200 dark:border-slate-800 shadow-2xl bg-white dark:bg-slate-950">
         {/* --- HEADER --- */}
         <SheetHeader className="px-6 py-6 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 shrink-0 shadow-sm z-10 text-left">
           <div className="flex flex-col gap-3 items-start">
@@ -83,7 +83,7 @@ export function SubjectDetailSheet({
         {/* --- SCROLL CONTENT --- */}
         <div className="flex-1 bg-slate-50/50 dark:bg-slate-900/50 overflow-y-auto scrollbar-hide">
           {isLoading ? (
-            <div className="h-full min-h-[400px] flex flex-col items-center justify-center gap-4">
+            <div className="h-full min-h-100 flex flex-col items-center justify-center gap-4">
               <Loader2 className="h-10 w-10 animate-spin text-[#F27124] opacity-20" />
               <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest animate-pulse">
                 Đang nạp dữ liệu môn học...
@@ -228,7 +228,7 @@ export function SubjectDetailSheet({
                               <p className="text-[10px] font-bold text-slate-900 dark:text-slate-100 leading-tight">
                                 {cls.lecturer_id.full_name}
                               </p>
-                              <p className="text-[9px] text-slate-400 dark:text-slate-500 truncate max-w-[80px]">
+                              <p className="text-[9px] text-slate-400 dark:text-slate-500 truncate max-w-20">
                                 {cls.lecturer_id.email.split("@")[0]}
                               </p>
                             </div>

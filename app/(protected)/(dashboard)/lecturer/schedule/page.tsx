@@ -90,7 +90,7 @@ export default function SchedulePage() {
 
   if (!classId) {
     return (
-      <div className="flex h-[80vh] flex-col items-center justify-center gap-4 animate-in fade-in duration-500">
+      <div className="flex h-[80vh] flex-col items-center justify-center gap-4 animate-in fade-in duration-500 font-sans">
         <p className="text-slate-400 dark:text-slate-500 text-sm font-medium">
           Vui lòng chọn lớp học để xem lịch trình.
         </p>
@@ -100,8 +100,8 @@ export default function SchedulePage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[80vh] flex-col items-center justify-center gap-4">
-        <div className="p-4 bg-white dark:bg-slate-900 rounded-full shadow-xl shadow-orange-100 dark:shadow-none border border-orange-50 dark:border-slate-800">
+      <div className="flex h-[80vh] flex-col items-center justify-center gap-4 font-sans">
+        <div className="p-4 bg-white dark:bg-slate-900 rounded-full shadow-xl shadow-orange-100 dark:shadow-none border border-orange-50 dark:border-slate-800 transition-colors">
           <Loader2 className="h-8 w-8 animate-spin text-[#F27124]" />
         </div>
         <p className="text-slate-400 dark:text-slate-500 text-sm font-medium animate-pulse">
@@ -112,36 +112,37 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in-50 pb-20 font-sans p-4 md:p-8 max-w-[1440px] mx-auto">
+    <div className="space-y-8 animate-in fade-in-50 pb-20 font-sans p-4 md:p-8 max-w-[1600px] mx-auto transition-colors duration-300">
       {/* --- HEADER SECTION --- */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-100 dark:border-slate-800 pb-8 transition-colors">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-200 dark:border-slate-800 pb-8 transition-colors">
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-[#F27124] dark:text-orange-400 mb-1 bg-orange-50 dark:bg-orange-900/10 w-fit px-3 py-1 rounded-full border border-orange-100 dark:border-orange-900/20">
+          <div className="flex items-center gap-2 text-[#F27124] dark:text-orange-400 mb-2 bg-orange-50 dark:bg-orange-900/20 w-fit px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-900/30 transition-colors">
             <LayoutDashboard className="h-4 w-4" />
             <span className="text-[10px] font-black uppercase tracking-widest">
               Dashboard
             </span>
           </div>
-          <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-slate-50 leading-tight">
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight transition-colors">
             Lịch trình & Công việc
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">
-            Quản lý lịch giảng dạy, cuộc họp và các hạn chót quan trọng.
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-base transition-colors">
+            Quản lý lịch giảng dạy, cuộc họp và các hạn chót quan trọng của lớp
+            học.
           </p>
         </div>
 
         <Button
           onClick={handleHeaderAddClick}
-          className="h-12 px-6 bg-[#F27124] hover:bg-[#d65d1b] text-white shadow-lg shadow-orange-500/20 dark:shadow-none rounded-xl font-bold transition-all hover:scale-105 active:scale-95"
+          className="h-12 px-6 bg-[#F27124] hover:bg-[#d65d1b] dark:bg-orange-500 dark:hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20 dark:shadow-none rounded-xl font-bold transition-all active:scale-95"
         >
           <Plus className="mr-2 h-5 w-5" /> Tạo Sự Kiện Mới
         </Button>
       </div>
 
       {/* --- MAIN CONTENT GRID --- */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
-        {/* LEFT COLUMN: CALENDAR */}
-        <div className="xl:col-span-2 shadow-sm rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+        {/* LEFT COLUMN: CALENDAR (Chiếm 8 cột trên màn lớn) */}
+        <div className="xl:col-span-8 shadow-sm rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-colors">
           <CalendarView
             events={events}
             onAddClick={handleCalendarAddClick}
@@ -150,32 +151,32 @@ export default function SchedulePage() {
           />
         </div>
 
-        {/* RIGHT COLUMN: SIDEBAR */}
-        <div className="space-y-6 xl:sticky xl:top-4">
+        {/* RIGHT COLUMN: SIDEBAR (Chiếm 4 cột trên màn lớn) */}
+        <div className="xl:col-span-4 space-y-6 xl:sticky xl:top-4">
           <AgendaView events={events} date={viewDate} />
 
           {/* Legend */}
-          <Card className="border-slate-200 dark:border-slate-800 shadow-sm bg-slate-50 dark:bg-slate-900/50 transition-colors">
-            <CardContent className="p-4">
-              <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
-                Chú thích loại sự kiện
+          <Card className="border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 transition-colors">
+            <CardContent className="p-5">
+              <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">
+                Chú thích sự kiện
               </h4>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 p-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
-                  <span className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Giảng dạy (Teaching)
+              <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-3">
+                <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors">
+                  <span className="w-3.5 h-3.5 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50"></span>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Giảng dạy
                   </span>
                 </div>
-                <div className="flex items-center gap-3 p-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
-                  <span className="w-3 h-3 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]"></span>
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Họp / Meeting
+                <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors">
+                  <span className="w-3.5 h-3.5 rounded-full bg-purple-500 shadow-sm shadow-purple-500/50"></span>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Họp / Đánh giá
                   </span>
                 </div>
-                <div className="flex items-center gap-3 p-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm transition-colors">
-                  <span className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors">
+                  <span className="w-3.5 h-3.5 rounded-full bg-orange-500 shadow-sm shadow-orange-500/50"></span>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Deadline / Chấm bài
                   </span>
                 </div>

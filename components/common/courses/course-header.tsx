@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,13 +12,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { ReactNode } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { UserMenuItems } from "../user-menu-items";
+
+// Tích hợp NotificationsNav thay cho nút Bell tĩnh
+import { NotificationsNav } from "@/components/layouts/notifications-nav";
 
 interface CourseHeaderProps {
   title?: string;
@@ -45,11 +47,11 @@ export function CourseHeader({ title, description, icon }: CourseHeaderProps) {
                 src="/images/Logo_Trường_Đại_học_FPT.svg.png"
                 alt="FPT Logo"
                 fill
-                className="object-contain dark:brightness-0 dark:invert"
+                className="object-contain dark:brightness-0 dark:invert transition-all"
                 priority
               />
             </div>
-            <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+            <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block transition-colors" />
             <div className="relative w-40 h-12 hidden md:block group">
               <Image
                 src="/images/logo-sync.png"
@@ -62,13 +64,13 @@ export function CourseHeader({ title, description, icon }: CourseHeaderProps) {
           </Link>
 
           <div className="hidden lg:flex items-center bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl px-4 py-2 w-80 border border-slate-200/50 dark:border-slate-800/50 focus-within:border-[#F27124]/50 dark:focus-within:border-[#F27124]/50 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:w-96 focus-within:shadow-xl focus-within:shadow-orange-500/5 transition-all duration-500 group">
-            <Search className="h-4 w-4 text-slate-400 dark:text-slate-500 mr-2 group-focus-within:text-[#F27124] transition-colors" />
+            <Search className="h-4 w-4 text-slate-400 dark:text-slate-500 mr-2 group-focus-within:text-[#F27124] dark:group-focus-within:text-orange-400 transition-colors" />
             <input
               type="text"
               placeholder="Tìm kiếm nội dung..."
-              className="bg-transparent border-none text-[11px] font-bold outline-none w-full tracking-tight dark:text-slate-100 dark:placeholder:text-slate-600"
+              className="bg-transparent border-none text-[11px] font-bold outline-none w-full tracking-tight text-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
-            <div className="px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-[9px] text-slate-400 dark:text-slate-500 font-black">
+            <div className="px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-[9px] text-slate-400 dark:text-slate-500 font-black transition-colors">
               /
             </div>
           </div>
@@ -78,14 +80,8 @@ export function CourseHeader({ title, description, icon }: CourseHeaderProps) {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 animate-fade-up">
             <ThemeToggle /> {/* Nút chuyển Dark/Light */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative rounded-2xl h-11 w-11 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900 hover:border-slate-200 dark:hover:border-slate-800 hover:shadow-sm border border-transparent transition-all"
-            >
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-3 right-3 h-2.5 w-2.5 bg-[#F27124] rounded-full border-2 border-white dark:border-slate-950 animate-pulse" />
-            </Button>
+            {/* Sử dụng Component Thông báo thật thay vì nút giả */}
+            <NotificationsNav />
           </div>
 
           {isProfileLoading ? (
@@ -97,19 +93,19 @@ export function CourseHeader({ title, description, icon }: CourseHeaderProps) {
               <Skeleton className="h-12 w-12 rounded-2xl dark:bg-slate-800" />
             </div>
           ) : (
-            <div className="flex items-center gap-4 pl-6 border-l border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-4 pl-6 border-l border-slate-200 dark:border-slate-800 transition-colors">
               <div className="hidden md:flex flex-col items-end text-right animate-fade-up">
-                <span className="text-sm font-black text-slate-900 dark:text-slate-100 leading-tight tracking-tighter italic">
+                <span className="text-sm font-black text-slate-900 dark:text-slate-100 leading-tight tracking-tighter italic transition-colors">
                   {user?.full_name || "Người dùng"}
                 </span>
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-tight opacity-70">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-tight opacity-70 transition-colors">
                   {user?.email}
                 </span>
               </div>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="group relative focus:outline-none [perspective:1000px]">
+                  <button className="group relative focus:outline-none perspective-[1000px]">
                     <div className="relative rounded-2xl p-0.5 transition-all duration-500 group-hover:bg-gradient-to-tr group-hover:from-[#F27124] group-hover:to-orange-300 group-hover:shadow-lg group-hover:shadow-orange-500/20">
                       <div className="absolute -inset-2 border border-orange-500/0 rounded-2xl group-hover:border-orange-500/20 group-hover:animate-orbit-slow transition-all"></div>
 
@@ -124,7 +120,7 @@ export function CourseHeader({ title, description, icon }: CourseHeaderProps) {
                         </AvatarFallback>
                       </Avatar>
 
-                      <div className="absolute -bottom-1 -right-1 bg-[#F27124] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md border-2 border-white dark:border-slate-800 shadow-sm capitalize">
+                      <div className="absolute -bottom-1 -right-1 bg-[#F27124] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md border-2 border-white dark:border-slate-800 shadow-sm capitalize transition-colors">
                         {user?.role?.toLowerCase()}
                       </div>
                     </div>
@@ -133,32 +129,32 @@ export function CourseHeader({ title, description, icon }: CourseHeaderProps) {
 
                 <DropdownMenuContent
                   align="end"
-                  className="w-72 mt-4 p-4 rounded-[32px] shadow-2xl border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 font-mono"
+                  className="w-72 mt-4 p-4 rounded-[32px] shadow-2xl border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 font-mono transition-colors"
                 >
                   <DropdownMenuLabel className="p-2 mb-2">
                     <div className="flex items-center gap-4">
-                      <Avatar className="h-12 w-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 relative overflow-hidden">
+                      <Avatar className="h-12 w-12 rounded-2xl border border-orange-100 dark:border-orange-900/30 relative overflow-hidden transition-colors">
                         <AvatarImage
                           src={user?.avatar_url}
                           className="object-cover"
                         />
-                        <AvatarFallback className="bg-[#F27124]/10 dark:bg-[#F27124]/20 text-[#F27124] font-black italic">
+                        <AvatarFallback className="bg-[#F27124]/10 dark:bg-[#F27124]/20 text-[#F27124] dark:text-orange-400 font-black italic">
                           {user?.full_name?.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
 
                       <div className="flex flex-col">
-                        <p className="text-sm font-black text-slate-900 dark:text-slate-100 leading-none italic">
+                        <p className="text-sm font-black text-slate-900 dark:text-slate-100 leading-none italic transition-colors">
                           {user?.full_name}
                         </p>
-                        <p className="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 opacity-70">
+                        <p className="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 opacity-70 transition-colors">
                           Tài khoản {user?.role?.toLowerCase()}
                         </p>
                       </div>
                     </div>
                   </DropdownMenuLabel>
 
-                  <DropdownMenuSeparator className="mx-[-4px] mb-2 bg-slate-50 dark:bg-slate-800" />
+                  <DropdownMenuSeparator className="-mx-1 mb-2 bg-slate-50 dark:bg-slate-800 transition-colors" />
 
                   <div className="text-[11px] font-bold tracking-tight">
                     <UserMenuItems

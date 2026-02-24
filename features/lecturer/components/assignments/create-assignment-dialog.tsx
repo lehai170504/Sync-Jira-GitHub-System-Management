@@ -20,7 +20,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Loader2,
+  FileText,
+  CalendarClock,
+  Link as LinkIcon,
+  AlignLeft,
+} from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -94,25 +101,29 @@ export function CreateAssignmentDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 rounded-full px-6 text-white font-bold">
+        <Button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 shadow-sm rounded-xl px-5 h-11 text-white font-bold transition-all active:scale-95">
           <Plus className="mr-2 h-4 w-4" /> Tạo bài mới
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[600px] bg-white dark:bg-slate-950 border-none shadow-2xl rounded-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-slate-900 dark:text-slate-100 text-xl font-bold">
+      <DialogContent className="sm:max-w-150 p-0 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-2xl rounded-3xl overflow-hidden font-sans transition-colors">
+        <DialogHeader className="px-8 pt-8 pb-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 transition-colors">
+          <DialogTitle className="text-slate-900 dark:text-slate-100 text-xl font-bold flex items-center gap-2">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+              <FileText className="h-5 w-5" />
+            </div>
             Tạo bài tập mới
           </DialogTitle>
-          <DialogDescription className="text-slate-500 dark:text-slate-400">
-            Thiết lập thông tin bài tập (Assignment) hoặc bài thực hành (Lab).
+          <DialogDescription className="text-slate-500 dark:text-slate-400 mt-2">
+            Thiết lập thông tin bài tập (Assignment) hoặc bài thực hành (Lab)
+            cho sinh viên.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 py-4"
+            className="px-8 py-6 space-y-5"
           >
             {/* FIELD: TÊN BÀI TẬP */}
             <FormField
@@ -120,29 +131,29 @@ export function CreateAssignmentDialog({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">
+                  <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     Tên bài tập <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="VD: Lab 1 - Java Basics"
-                      className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124] dark:focus-visible:ring-[#F27124]"
+                      placeholder="VD: Lab 1 - React Basics"
+                      className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-colors font-medium"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px]" />
                 </FormItem>
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {/* FIELD: LOẠI BÀI TẬP */}
               <FormField
                 control={form.control}
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">
+                    <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                       Loại bài tập
                     </FormLabel>
                     <Select
@@ -151,23 +162,26 @@ export function CreateAssignmentDialog({
                       disabled={isPending}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus:ring-[#F27124]">
+                        <SelectTrigger className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus:ring-blue-500/20 focus:border-blue-500 transition-colors font-medium">
                           <SelectValue placeholder="Chọn loại" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="dark:bg-slate-900 dark:border-slate-800">
+                      <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
                         <SelectItem
                           value="ASSIGNMENT"
-                          className="dark:text-slate-200"
+                          className="dark:text-slate-200 font-medium py-2.5"
                         >
-                          Assignment
+                          Assignment (Bài tập lớn)
                         </SelectItem>
-                        <SelectItem value="LAB" className="dark:text-slate-200">
-                          Lab
+                        <SelectItem
+                          value="LAB"
+                          className="dark:text-slate-200 font-medium py-2.5"
+                        >
+                          Lab (Thực hành)
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
@@ -178,17 +192,18 @@ export function CreateAssignmentDialog({
                 name="deadline"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">
+                    <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <CalendarClock className="h-3.5 w-3.5 text-slate-400" />{" "}
                       Hạn nộp <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="datetime-local"
-                        className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 dark:[color-scheme:dark] focus-visible:ring-[#F27124]"
+                        className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 dark:scheme-dark focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-colors font-medium"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
@@ -200,17 +215,18 @@ export function CreateAssignmentDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">
-                    Mô tả / Yêu cầu
+                  <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <AlignLeft className="h-3.5 w-3.5 text-slate-400" /> Mô tả /
+                    Yêu cầu
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Nhập hướng dẫn làm bài..."
-                      className="resize-none min-h-[100px] bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
+                      placeholder="Nhập hướng dẫn làm bài, yêu cầu đầu ra..."
+                      className="resize-none min-h-25 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-colors font-medium p-3"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px]" />
                 </FormItem>
               )}
             />
@@ -221,34 +237,35 @@ export function CreateAssignmentDialog({
               name="resources"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">
-                    Tài liệu đính kèm (Link)
+                  <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <LinkIcon className="h-3.5 w-3.5 text-slate-400" /> Link
+                    đính kèm
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Link 1, Link 2 (cách nhau bởi dấu phẩy)"
-                      className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
+                      placeholder="VD: Google Drive link, Docs link (Ngăn cách bằng dấu phẩy)"
+                      className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-colors font-medium"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px]" />
                 </FormItem>
               )}
             />
 
-            <DialogFooter className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-6">
+            <DialogFooter className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-6 gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
                 disabled={isPending}
-                className="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 font-bold"
+                className="h-11 rounded-xl font-bold dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 w-full sm:w-auto"
               >
-                Hủy
+                Hủy bỏ
               </Button>
               <Button
                 type="submit"
-                className="bg-[#F27124] hover:bg-[#d65d1b] text-white font-bold"
+                className="h-11 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white w-full sm:w-auto shadow-md dark:shadow-none"
                 disabled={isPending}
               >
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

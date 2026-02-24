@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Loader2,
+  Calendar as CalIcon,
+  Clock,
+  MapPin,
+  AlignLeft,
+  FileText,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -121,44 +129,48 @@ export function EventDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {!isControlled && (
         <DialogTrigger asChild>
-          <Button className="bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 text-white font-bold">
+          <Button className="bg-[#F27124] hover:bg-[#d65d1b] shadow-lg shadow-orange-500/20 text-white font-bold rounded-xl transition-all">
             <Plus className="mr-2 h-4 w-4" /> Tạo Lịch Dạy
           </Button>
         </DialogTrigger>
       )}
 
-      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 transition-colors">
-        <DialogHeader>
-          <DialogTitle className="text-slate-900 dark:text-slate-100">
-            Thêm lịch giảng dạy mới
+      <DialogContent className="sm:max-w-137.5 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-3xl p-0 overflow-hidden font-sans transition-colors">
+        <DialogHeader className="px-8 pt-8 pb-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 transition-colors">
+          <DialogTitle className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+              <CalIcon className="h-5 w-5" />
+            </div>
+            Thêm sự kiện mới
           </DialogTitle>
-          <DialogDescription className="text-slate-500 dark:text-slate-400">
-            Tạo lịch dạy (Teaching Schedule) cho lớp học hiện tại.
+          <DialogDescription className="text-slate-500 dark:text-slate-400 mt-2">
+            Điền thông tin chi tiết để tạo lịch học hoặc sự kiện cho lớp học.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 py-2"
+            className="p-8 space-y-5"
           >
-            <div className="grid grid-cols-2 gap-4">
+            {/* THỜI GIAN & ĐỊA ĐIỂM */}
+            <div className="grid grid-cols-2 gap-5">
               <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-700 dark:text-slate-300">
-                      Ngày dạy <span className="text-red-500">*</span>
+                    <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                      <CalIcon className="h-3.5 w-3.5" /> Ngày dạy
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="date"
-                        className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 dark:[color-scheme:dark] focus-visible:ring-[#F27124]"
+                        className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 dark:scheme-dark focus-visible:ring-blue-500/20 font-medium transition-colors rounded-xl"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
@@ -168,8 +180,8 @@ export function EventDialog({
                 name="slot"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-700 dark:text-slate-300">
-                      Ca học (Slot)
+                    <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                      <Clock className="h-3.5 w-3.5" /> Ca học
                     </FormLabel>
                     <Select
                       onValueChange={field.onChange}
@@ -177,11 +189,11 @@ export function EventDialog({
                       value={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus:ring-[#F27124]">
+                        <SelectTrigger className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus:ring-blue-500/20 font-medium transition-colors rounded-xl">
                           <SelectValue placeholder="Chọn slot" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                      <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
                         {[
                           { val: "1", label: "Slot 1 (07:30 - 09:00)" },
                           { val: "2", label: "Slot 2 (09:10 - 10:40)" },
@@ -193,115 +205,119 @@ export function EventDialog({
                           <SelectItem
                             key={s.val}
                             value={s.val}
-                            className="dark:text-slate-200"
+                            className="dark:text-slate-200 font-medium"
                           >
                             {s.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-[10px]" />
                   </FormItem>
                 )}
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="room"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-700 dark:text-slate-300">
-                    Phòng học (Room) <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="VD: BE-401, Online..."
-                      className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-5">
+              <FormField
+                control={form.control}
+                name="room"
+                render={({ field }) => (
+                  <FormItem className="col-span-1">
+                    <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                      <MapPin className="h-3.5 w-3.5" /> Phòng học
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="VD: BE-401, Online..."
+                        className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-blue-500/20 font-medium transition-colors rounded-xl"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[10px]" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="topic"
+                render={({ field }) => (
+                  <FormItem className="col-span-1">
+                    <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                      <FileText className="h-3.5 w-3.5" /> Tiêu đề
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="VD: Bài 1 - Giới thiệu..."
+                        className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-blue-500/20 font-medium transition-colors rounded-xl"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[10px]" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="topic"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-700 dark:text-slate-300">
-                    Chủ đề (Topic) <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="VD: Bài 1 - Giới thiệu React..."
-                      className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* NỘI DUNG & GHI CHÚ */}
+            <div className="space-y-5 pt-2">
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                      <AlignLeft className="h-3.5 w-3.5" /> Nội dung chi tiết
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Mô tả nội dung buổi học, yêu cầu chuẩn bị..."
+                        className="min-h-25 resize-none bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-blue-500/20 font-medium transition-colors rounded-xl"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[10px]" />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-700 dark:text-slate-300">
-                    Nội dung (Content)
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Mô tả nội dung buổi học..."
-                      className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                      Ghi chú (Tùy chọn)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Thêm thông tin ngắn gọn..."
+                        className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-blue-500/20 font-medium transition-colors rounded-xl"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-[10px]" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-slate-700 dark:text-slate-300">
-                    Ghi chú (Note)
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ghi chú thêm (tùy chọn)..."
-                      className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 dark:text-slate-100 focus-visible:ring-[#F27124]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-4">
+            <DialogFooter className="mt-8 pt-4 gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsOpen?.(false)}
-                className="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="h-11 rounded-xl font-bold dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 w-full sm:w-auto"
               >
-                Hủy
+                Hủy bỏ
               </Button>
               <Button
                 type="submit"
-                className="bg-[#F27124] hover:bg-[#d65d1b] text-white"
+                className="h-11 rounded-xl font-bold bg-[#F27124] hover:bg-[#d65d1b] dark:bg-blue-600 dark:hover:bg-blue-700 text-white w-full sm:w-auto shadow-md"
                 disabled={isPending}
               >
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Lưu lịch học
+                Tạo sự kiện
               </Button>
             </DialogFooter>
           </form>

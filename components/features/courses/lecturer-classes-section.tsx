@@ -8,14 +8,15 @@ import {
   LecturerClassesGrid,
   type LecturerClassDisplayItem,
 } from "./lecturer-classes-grid";
+import { LecturerClassesList } from "./lecturer-classes-list";
 
 const CLASS_COLORS = [
-  "bg-gradient-to-br from-indigo-500 to-purple-600",
-  "bg-gradient-to-br from-blue-600 to-indigo-700",
-  "bg-gradient-to-br from-teal-400 to-emerald-500",
-  "bg-gradient-to-br from-orange-400 to-red-500",
-  "bg-gradient-to-br from-pink-500 to-rose-600",
-  "bg-gradient-to-br from-cyan-500 to-blue-600",
+  "bg-indigo-500",
+  "bg-blue-500",
+  "bg-teal-500",
+  "bg-orange-500",
+  "bg-rose-500",
+  "bg-purple-500",
 ];
 
 const getStableColor = (id: string) => {
@@ -32,6 +33,7 @@ interface LecturerClassesSectionProps {
   searchTerm: string;
   selectedSemester: string;
   onClearFilter: () => void;
+  viewMode: "grid" | "list";
 }
 
 export function LecturerClassesSection({
@@ -39,6 +41,7 @@ export function LecturerClassesSection({
   searchTerm,
   selectedSemester,
   onClearFilter,
+  viewMode,
 }: LecturerClassesSectionProps) {
   const router = useRouter();
 
@@ -75,12 +78,20 @@ export function LecturerClassesSection({
   };
 
   return (
-    <div className="animate-fade-up">
-      <LecturerClassesGrid
-        classes={processedClasses}
-        onSelectClass={handleSelectClass}
-        onClearFilter={onClearFilter}
-      />
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+      {viewMode === "grid" ? (
+        <LecturerClassesGrid
+          classes={processedClasses}
+          onSelectClass={handleSelectClass}
+          onClearFilter={onClearFilter}
+        />
+      ) : (
+        <LecturerClassesList
+          classes={processedClasses}
+          onSelectClass={handleSelectClass}
+          onClearFilter={onClearFilter}
+        />
+      )}
     </div>
   );
 }

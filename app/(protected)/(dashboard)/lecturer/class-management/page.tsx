@@ -79,10 +79,8 @@ export default function ClassManagementPage() {
   // --- LOADING STATE ---
   if (isDetailsLoading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center flex-col gap-4 text-slate-400 dark:text-slate-500">
-        <div className="p-4 bg-white dark:bg-slate-900 rounded-full shadow-xl shadow-orange-100 dark:shadow-none border border-orange-50 dark:border-slate-800">
-          <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
-        </div>
+      <div className="flex h-[80vh] items-center justify-center flex-col gap-4 text-slate-400 dark:text-slate-500 font-sans transition-colors">
+        <Loader2 className="h-10 w-10 animate-spin text-blue-500 dark:text-blue-400" />
         <p className="text-sm font-medium animate-pulse">
           Đang tải dữ liệu lớp học...
         </p>
@@ -93,15 +91,16 @@ export default function ClassManagementPage() {
   // --- EMPTY STATE ---
   if (!classId || !classDetails?.class) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center text-slate-500 dark:text-slate-400 animate-in fade-in duration-500">
-        <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-full mb-6 border border-slate-100 dark:border-slate-800">
+      <div className="flex h-[80vh] flex-col items-center justify-center text-slate-500 dark:text-slate-400 animate-in fade-in duration-500 font-sans transition-colors">
+        <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-full mb-6 border border-slate-100 dark:border-slate-800">
           <AlertCircle className="h-12 w-12 text-slate-300 dark:text-slate-600" />
         </div>
-        <h2 className="text-xl font-bold text-slate-700 dark:text-slate-200 mb-2">
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">
           Chưa xác định lớp học
         </h2>
-        <p className="font-medium text-sm text-slate-400 dark:text-slate-500">
-          Vui lòng chọn lớp học từ danh sách để xem chi tiết.
+        <p className="font-medium text-sm text-slate-500 dark:text-slate-400 max-w-md text-center">
+          Vui lòng chọn một lớp học từ danh sách "Lớp đang dạy" để bắt đầu quản
+          lý.
         </p>
       </div>
     );
@@ -110,7 +109,7 @@ export default function ClassManagementPage() {
   const { class: classInfo, stats } = classDetails;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-20 font-sans p-4 md:p-10 max-w-[1600px] mx-auto">
+    <div className="space-y-8 animate-in fade-in duration-700 pb-20 font-sans p-4 md:p-8 max-w-400 mx-auto transition-colors">
       {/* HEADER */}
       <ClassHeader
         className={classInfo.name}
@@ -132,70 +131,72 @@ export default function ClassManagementPage() {
         jiraWeight={classInfo.contributionConfig?.jiraWeight || 0}
       />
 
-      {/* SEARCH BAR */}
-      <div className="relative group">
-        <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-500 group-focus-within:text-[#F27124] transition-colors z-10" />
-        <Input
-          placeholder="Tìm kiếm sinh viên, mã số hoặc tên nhóm..."
-          className="w-full pl-14 pr-6 h-14 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-[20px] shadow-sm dark:shadow-none focus:ring-4 focus:ring-[#F27124]/10 focus:border-[#F27124] dark:focus:border-[#F27124] transition-all text-slate-800 dark:text-slate-100 font-semibold text-base tracking-tight placeholder:text-slate-400 dark:placeholder:text-slate-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      {/* TABS CONTENT */}
-      <Tabs defaultValue="students" className="w-full">
-        <TabsList className="bg-slate-100 dark:bg-slate-900/50 p-1.5 rounded-2xl mb-8 h-auto inline-flex border border-slate-200/60 dark:border-slate-800 shadow-inner">
-          <TabsTrigger
-            value="students"
-            className="rounded-xl px-6 py-3 text-sm font-bold text-slate-500 dark:text-slate-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-[#F27124] dark:data-[state=active]:text-orange-400 data-[state=active]:shadow-sm transition-all gap-2"
-          >
-            <Users className="w-4 h-4" /> Danh sách Sinh viên
-          </TabsTrigger>
-          <TabsTrigger
-            value="teams"
-            className="rounded-xl px-6 py-3 text-sm font-bold text-slate-500 dark:text-slate-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-[#F27124] dark:data-[state=active]:text-orange-400 data-[state=active]:shadow-sm transition-all gap-2"
-          >
-            <Layers className="w-4 h-4" /> Danh sách Nhóm
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none p-1 min-h-[500px]">
-          <TabsContent
-            value="students"
-            className="mt-0 outline-none p-4 md:p-6"
-          >
-            {isStudentsLoading ? (
-              <div className="flex flex-col items-center justify-center h-[400px] gap-4">
-                <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
-                <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-widest animate-pulse">
-                  Đang tải danh sách...
-                </p>
-              </div>
-            ) : (
-              <StudentList
-                classId={classId}
-                students={students}
-                filterTerm={searchTerm}
-                onRefresh={refetchStudents}
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="teams" className="mt-0 outline-none p-4 md:p-6">
-            <TeamList
-              teams={
-                teamsData?.teams?.filter((t: any) =>
-                  t.project_name
-                    ?.toLowerCase()
-                    .includes(searchTerm.toLowerCase()),
-                ) || []
-              }
-              isLoading={isTeamsLoading}
-            />
-          </TabsContent>
+      <div className="space-y-6">
+        {/* SEARCH BAR */}
+        <div className="relative group max-w-md">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-500 group-focus-within:text-blue-500 transition-colors z-10" />
+          <Input
+            placeholder="Tìm sinh viên, mã số hoặc tên nhóm..."
+            className="w-full pl-12 pr-6 h-12 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-800 dark:text-slate-100 font-medium placeholder:text-slate-400"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-      </Tabs>
+
+        {/* TABS CONTENT */}
+        <Tabs defaultValue="students" className="w-full">
+          <TabsList className="bg-slate-100 dark:bg-slate-900 p-1 rounded-xl mb-6 h-auto inline-flex border border-slate-200/60 dark:border-slate-800">
+            <TabsTrigger
+              value="students"
+              className="rounded-lg px-6 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm transition-all gap-2"
+            >
+              <Users className="w-4 h-4" /> Danh sách Sinh viên
+            </TabsTrigger>
+            <TabsTrigger
+              value="teams"
+              className="rounded-lg px-6 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm transition-all gap-2"
+            >
+              <Layers className="w-4 h-4" /> Danh sách Nhóm
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm min-h-125 overflow-hidden transition-colors">
+            <TabsContent
+              value="students"
+              className="mt-0 outline-none p-4 md:p-6"
+            >
+              {isStudentsLoading ? (
+                <div className="flex flex-col items-center justify-center h-64 gap-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium animate-pulse">
+                    Đang tải danh sách...
+                  </p>
+                </div>
+              ) : (
+                <StudentList
+                  classId={classId}
+                  students={students}
+                  filterTerm={searchTerm}
+                  onRefresh={refetchStudents}
+                />
+              )}
+            </TabsContent>
+
+            <TabsContent value="teams" className="mt-0 outline-none p-4 md:p-6">
+              <TeamList
+                teams={
+                  teamsData?.teams?.filter((t: any) =>
+                    t.project_name
+                      ?.toLowerCase()
+                      .includes(searchTerm.toLowerCase()),
+                  ) || []
+                }
+                isLoading={isTeamsLoading}
+              />
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
     </div>
   );
 }

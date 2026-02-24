@@ -19,6 +19,21 @@ interface CommitListTableProps {
 }
 
 export function CommitListTable({ commits, onCommitClick }: CommitListTableProps) {
+  const formatDate_ddMMyyyy = (dateStr?: string) => {
+    if (!dateStr) return "—";
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return dateStr;
+    // en-GB -> dd/mm/yyyy, replace to dd-mm-yyyy
+    return new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    })
+      .format(d)
+      .replaceAll("/", "-");
+  };
+
   return (
     <Card className="border-2 shadow-xl overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b-2">
@@ -115,7 +130,9 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                           {c.branch}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{c.date}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate_ddMMyyyy(c.date)}
+                      </TableCell>
                       <TableCell className="text-right">
                         {rejectionReason ? (
                           <Tooltip>

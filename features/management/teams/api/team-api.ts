@@ -2,13 +2,15 @@ import { axiosClient } from "@/lib/axios-client";
 import {
   TeamDashboardResponse,
   TeamCommitsResponse,
+  TeamRankingResponse,
   UpdateTeamConfigPayload,
   UpdateTeamConfigResponse,
 } from "../types";
 
 /**
- * GET /api/teams/:teamId/dashboard
- * Lấy dữ liệu dashboard cho student (team overview)
+ * GET /teams/:teamId/dashboard
+ * Lấy dữ liệu Tổng quan cho dashboard (dùng cho cả LEADER và MEMBER).
+ * Response: team (_id, project_name, last_sync_at), overview (tasks, commits, sprints).
  */
 export const getTeamDashboardApi = async (
   teamId: string,
@@ -66,6 +68,19 @@ export const getTeamCommitsFromTeamApi = async (
 ): Promise<TeamCommitsResponse> => {
   const { data } = await axiosClient.get<TeamCommitsResponse>(
     `/teams/${teamId}/commits`,
+  );
+  return data;
+};
+
+/**
+ * GET /teams/:teamId/ranking
+ * Lấy bảng xếp hạng đóng góp của các thành viên trong team (dùng cho trang /progress)
+ */
+export const getTeamRankingApi = async (
+  teamId: string,
+): Promise<TeamRankingResponse> => {
+  const { data } = await axiosClient.get<TeamRankingResponse>(
+    `/teams/${teamId}/ranking`,
   );
   return data;
 };

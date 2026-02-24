@@ -59,10 +59,9 @@ export function CommitFilters({
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<TeamSyncResponse | null>(null);
 
-  const hasActiveFilters = 
-    (isLeader && authorFilter !== "ALL") || 
-    fromDate || 
-    toDate || 
+  const hasActiveFilters =
+    fromDate ||
+    toDate ||
     (selectedClassId && classOptions.length > 1);
 
   const handleSync = async () => {
@@ -200,42 +199,7 @@ export function CommitFilters({
           </div>
         )}
 
-        <div className="flex flex-col gap-4 md:flex-row md:items-end">
-          {/* Author filter - chỉ hiển thị cho LEADER */}
-          {isLeader ? (
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm font-medium text-foreground">Thành viên</label>
-              <Select value={authorFilter} onValueChange={onAuthorChange}>
-                <SelectTrigger className="w-full md:w-[240px] border-2">
-                  <SelectValue placeholder="Chọn thành viên" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">Tất cả thành viên</SelectItem>
-                  {authors.map((a) => {
-                    const isAuthorLeader = leaderNames.includes(a);
-                    return (
-                      <SelectItem key={a} value={a}>
-                        <div className="flex items-center gap-2">
-                          <span>{a}</span>
-                          {isAuthorLeader && (
-                            <Crown className="h-3 w-3 text-amber-500 fill-amber-500" />
-                          )}
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-sm font-medium text-foreground">Thành viên</label>
-              <div className="px-3 py-2 bg-muted rounded-md border-2 border-purple-200 text-sm text-muted-foreground">
-                {currentUserAuthorName || "Bạn"}
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Bỏ filter thành viên theo yêu cầu */}
         {hasActiveFilters && (
           <div className="flex items-center gap-2 text-sm text-purple-700 bg-purple-50 px-3 py-2 rounded-md">
             <Filter className="h-3 w-3" />

@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 // Import các Dashboard Component
 import { AdminDashboard } from "@/features/admin/components/dashboard/admin-dashboard";
 import { LecturerDashboard } from "@/components/features/dashboard/lecturer-view";
+import { LeaderDashboard } from "@/components/features/dashboard/student-view";
 import { MemberDashboard } from "@/components/features/dashboard/member-view";
 
 type UserRole = "ADMIN" | "LECTURER" | "STUDENT";
@@ -35,6 +36,7 @@ export default function DashboardPage() {
 
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLeader, setIsLeader] = useState(false);
 
   useEffect(() => {
     const token = Cookies.get("token");
@@ -46,6 +48,7 @@ export default function DashboardPage() {
     const savedRole = Cookies.get("user_role") as UserRole;
     const savedName = Cookies.get("user_name");
     const savedEmail = Cookies.get("user_email");
+    const studentIsLeader = Cookies.get("student_is_leader") === "true";
 
     if (savedRole) {
       setUser({
@@ -60,6 +63,7 @@ export default function DashboardPage() {
         email: "",
       });
     }
+    setIsLeader(studentIsLeader);
     setIsLoading(false);
   }, [router]);
 
@@ -96,7 +100,11 @@ export default function DashboardPage() {
                 Chúc bạn một ngày học tập hiệu quả.
               </p>
             </div>
-            <MemberDashboard classId={activeClassId} />
+            {isLeader ? (
+              <LeaderDashboard />
+            ) : (
+              <MemberDashboard classId={activeClassId} />
+            )}
           </div>
         )}
       </div>

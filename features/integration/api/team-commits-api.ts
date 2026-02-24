@@ -60,3 +60,55 @@ export const getMemberCommitsApi = async (
   return data;
 };
 
+/**
+ * GET /integrations/team/:teamId/commits
+ * (Grouped) Lấy commits của toàn team, group theo từng member.
+ * Dùng cho UI Leader "xem tất cả commit của team".
+ *
+ * NOTE: Endpoint này khác shape với `TeamCommitsResponse` (flat list).
+ */
+export interface IntegrationTeamCommitsGroupedResponse {
+  team: {
+    _id: string;
+    project_name: string;
+  };
+  summary: {
+    total_members: number;
+    total_commits: number;
+  };
+  members_commits: Array<{
+    member: {
+      _id: string;
+      student: {
+        _id: string;
+        student_code: string;
+        email: string;
+        full_name: string;
+      } | null;
+      role_in_team: string;
+      github_username: string | null;
+    };
+    total: number;
+    commits: Array<{
+      _id: string;
+      team_id: string;
+      hash: string;
+      author_email: string;
+      commit_date: string;
+      is_counted: boolean;
+      message: string;
+      rejection_reason?: string | null;
+      __v?: number;
+    }>;
+  }>;
+}
+
+export async function getIntegrationTeamCommitsGroupedApi(
+  teamId: string,
+): Promise<IntegrationTeamCommitsGroupedResponse> {
+  const { data } = await axiosClient.get<IntegrationTeamCommitsGroupedResponse>(
+    `/integrations/team/${teamId}/commits`,
+  );
+  return data;
+}
+

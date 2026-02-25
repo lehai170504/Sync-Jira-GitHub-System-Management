@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useMyProject } from "@/features/projects/hooks/use-my-project";
 import {
   Loader2,
@@ -11,6 +14,7 @@ import {
   Code,
   Rocket,
   AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,11 +22,50 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Cookies from "js-cookie";
+import { syncProjectApi } from "@/features/integration/api/sync-api";
 
 export default function ProjectDetailsPage() {
   const { data: project, isLoading, error } = useMyProject();
-
+  const queryClient = useQueryClient();
+  const [isSyncing, setIsSyncing] = useState(false);
   const isLeader = Cookies.get("student_is_leader") === "true";
+
+  const handleSyncProject = async () => {
+    if (!project?._id) {
+      toast.error("Không tìm thấy dự án để đồng bộ.");
+      return;
+    }
+
+    try {
+      setIsSyncing(true);
+      const res = await syncProjectApi(project._id);
+
+      const { github, jira, errors = [] } = res.stats || {};
+      const description =
+        github !== undefined || jira !== undefined
+          ? `GitHub: ${github ?? 0} commits. Jira: ${jira ?? 0} items.`
+          : undefined;
+
+      if (errors.length && errors.length > 0) {
+        toast.warning(res.message || "Đồng bộ dự án hoàn tất với một số lỗi.", {
+          description,
+        });
+      } else {
+        toast.success(res.message || "Đồng bộ dự án thành công!", {
+          description,
+        });
+      }
+
+      // Refetch thông tin dự án sau sync
+      queryClient.invalidateQueries({ queryKey: ["my-project"] });
+    } catch (e: any) {
+      const msg =
+        e?.response?.data?.message || "Không thể đồng bộ dữ liệu dự án.";
+      toast.error(msg);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -82,7 +125,31 @@ export default function ProjectDetailsPage() {
           </h1>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 items-center">
+          {isLeader && (
+            <Button
+              className="rounded-xl gap-2 bg-[#F27124] hover:bg-[#d65d1b] text-white shadow-sm active:scale-95"
+              onClick={handleSyncProject}
+              disabled={isSyncing}
+            >
+              {isSyncing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-xs font-bold uppercase">
+                    Đang đồng bộ...
+                  </span>
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4" />
+                  <span className="text-xs font-bold uppercase">
+                    Đồng bộ dữ liệu
+                  </span>
+                </>
+              )}
+            </Button>
+          )}
+
           <Button
             variant="outline"
             className="rounded-xl gap-2 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 shadow-sm transition-all active:scale-95"

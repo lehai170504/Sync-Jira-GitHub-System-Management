@@ -11,10 +11,10 @@ import type { StudentClassItem } from "./types";
 import { StudentClassesGrid } from "./student-classes-grid";
 
 const CLASS_COLORS = [
-  "bg-gradient-to-br from-emerald-500 to-teal-600",
-  "bg-gradient-to-br from-blue-500 to-cyan-600",
-  "bg-gradient-to-br from-indigo-500 to-purple-600",
-  "bg-gradient-to-br from-orange-400 to-amber-500",
+  "bg-linear-to-br from-emerald-500 to-teal-600",
+  "bg-linear-to-br from-blue-500 to-cyan-600",
+  "bg-linear-to-br from-indigo-500 to-purple-600",
+  "bg-linear-to-br from-orange-400 to-amber-500",
 ];
 
 const getClassColor = (index: number) =>
@@ -86,12 +86,12 @@ export function StudentClassesSection({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-80 items-center justify-center bg-white/50 backdrop-blur-md rounded-3xl border border-white shadow-inner">
+      <div className="flex flex-col h-80 items-center justify-center bg-white/60 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl border border-white dark:border-slate-800 shadow-inner">
         <div className="relative">
           <Loader2 className="h-12 w-12 animate-spin text-[#F27124] relative z-10" />
-          <div className="absolute inset-0 h-12 w-12 bg-orange-200 blur-xl opacity-50 animate-ping" />
+          <div className="absolute inset-0 h-12 w-12 bg-orange-200 dark:bg-orange-900 blur-xl opacity-50 animate-ping" />
         </div>
-        <p className="mt-4 text-slate-500 font-medium animate-pulse">
+        <p className="mt-4 text-slate-500 dark:text-slate-400 font-medium animate-pulse">
           Đang chuẩn bị không gian học tập...
         </p>
       </div>

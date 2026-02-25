@@ -16,7 +16,12 @@ export default function JiraCallbackPage() {
 
     // 1. Đọc params từ URL
     const success = searchParams.get("success");
-    const email = searchParams.get("email") || searchParams.get("username");
+    const rawEmail = searchParams.get("email") || searchParams.get("username");
+    // Không dùng email cho message nữa, chỉ log khi cần debug
+    const email =
+      rawEmail && rawEmail !== "null" && rawEmail !== "undefined"
+        ? rawEmail
+        : null;
     const error = searchParams.get("error");
 
     // 2. Xử lý kết quả qua Window Message (Dành cho luồng mở Popup)
@@ -36,7 +41,7 @@ export default function JiraCallbackPage() {
     } else {
       // 3. Fallback: Nếu không phải mở bằng popup
       if (success === "true") {
-        toast.success(`Kết nối Jira thành công! Tài khoản: ${email}`);
+        toast.success("Kết nối Jira thành công!");
       } else {
         toast.error(
           "Kết nối Jira thất bại: " + (error || "Lỗi không xác định"),

@@ -171,14 +171,7 @@ export const routeGroups: RouteGroup[] = [
   },
   {
     label: "Công cụ & Cài đặt",
-    roles: ["STUDENT"],
-    items: [
-      {
-        label: "Cấu hình",
-        icon: Settings,
-        href: "/config",
-        color: "text-violet-500",
-      },
-    ],
+    roles: [],
+    items: [],
   },
 ];

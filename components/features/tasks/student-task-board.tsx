@@ -782,8 +782,8 @@ export function TaskBoard() {
           <AlertTitle>Chưa có sprint</AlertTitle>
           <AlertDescription>
             Vui lòng đồng bộ Jira tại trang{" "}
-            <Link href="/config" className="font-medium underline hover:no-underline">
-              Cấu hình
+            <Link href="/project" className="font-medium underline hover:no-underline">
+              Thông tin dự án
             </Link>{" "}
             để lấy danh sách sprint từ Jira.
           </AlertDescription>
@@ -833,11 +833,11 @@ export function TaskBoard() {
           ) : visibleTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-muted/20">
               <p className="text-muted-foreground text-center mb-4">
-                Chưa có tasks. Vui lòng đồng bộ Jira tại trang Cấu hình hoặc thêm task mới.
+                Chưa có tasks. Vui lòng đồng bộ Jira tại trang Thông tin dự án hoặc thêm task mới.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <Button variant="outline" asChild>
-                  <Link href="/config">
+                  <Link href="/project">
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Đồng bộ Jira
                   </Link>
@@ -922,11 +922,11 @@ export function TaskBoard() {
           ) : !teamAllTasksData || tableTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-muted/20">
               <p className="text-muted-foreground text-center mb-4">
-                Chưa có tasks. Vui lòng đồng bộ Jira tại trang Cấu hình hoặc thêm task mới.
+                Chưa có tasks. Vui lòng đồng bộ Jira tại trang Thông tin dự án hoặc thêm task mới.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <Button variant="outline" asChild>
-                  <Link href="/config">
+                  <Link href="/project">
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Đồng bộ Jira
                   </Link>

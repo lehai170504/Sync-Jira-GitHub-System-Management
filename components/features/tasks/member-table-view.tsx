@@ -36,11 +36,11 @@ export function MemberTableView({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {members.map((member) => {
+        {members.map((member, index) => {
           const memberTasks = tasks.filter((t) => t.assigneeId === member.id);
           return (
             <div
-              key={member.id}
+              key={`${member.id}-${index}`}
               className="rounded-lg border bg-muted/30 p-3 space-y-2"
             >
               <div className="flex items-center justify-between">
@@ -74,13 +74,13 @@ export function MemberTableView({
                     Chưa có task nào được assign.
                   </p>
                 )}
-                {memberTasks.map((task) => {
+                {memberTasks.map((task, index) => {
                   const overdue = isTaskOverdue(task);
                   const canEdit = isLeader || task.assigneeId === currentUserId;
                   const canDelete = isLeader || task.assigneeId === currentUserId;
                   return (
                     <div
-                      key={task.id}
+                      key={`${task.id}-${index}`}
                       className={
                         "flex items-center justify-between text-xs bg-background rounded-md px-2 py-1 border " +
                         (overdue

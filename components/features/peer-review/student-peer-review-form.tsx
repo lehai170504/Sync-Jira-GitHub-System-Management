@@ -360,7 +360,7 @@ export function PeerReviewForm() {
                     rating === 0 ||
                     (rating < 2 && (!comment || comment.trim().length < 10))
                   }
-                  className="w-full mt-auto bg-slate-900 hover:bg-[#F27124] text-white rounded-xl font-black uppercase tracking-widest text-xs h-12"
+                  className="w-full mt-auto h-12 rounded-xl font-black uppercase tracking-widest text-xs text-white bg-slate-900 hover:bg-slate-800 dark:bg-[#F27124] dark:hover:bg-[#d65d1b] shadow-sm dark:shadow-orange-500/25"
                 >
                   {isSubmitting ? (
                     <Loader2 className="animate-spin" />

@@ -7,8 +7,8 @@ import { requestForToken } from "@/lib/firebase-messaging";
 import { updateFcmTokenApi } from "@/features/notifications/api/notification-api";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { useQueryClient } from "@tanstack/react-query"; // THÊM DÒNG NÀY
 
-/** Push notification là tùy chọn — không chạy FCM khi user đã chặn quyền. */
 function canUseFCM(): boolean {
   if (typeof window === "undefined" || typeof Notification === "undefined")
     return false;
@@ -23,6 +23,8 @@ export const FCMTokenProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const queryClient = useQueryClient(); // KHỞI TẠO QUERY CLIENT
+
   useEffect(() => {
     const hasAuth = Cookies.get("token");
     if (!hasAuth) return;
@@ -49,18 +51,22 @@ export const FCMTokenProvider = ({
       try {
         const messaging = getMessaging(firebaseApp);
         const unsubscribe = onMessage(messaging, (payload) => {
+          // Hiện toast thông báo Firebase
           toast.info(payload.notification?.title || "Thông báo mới", {
             description: payload.notification?.body,
             duration: 8000,
             position: "top-right",
           });
+
+          // QUAN TRỌNG: Gọi React Query cập nhật lại cái chuông
+          queryClient.invalidateQueries({ queryKey: ["notifications"] });
         });
         return () => unsubscribe();
       } catch (e) {
         console.warn("⚠️ FCM foreground listener setup failed:", e);
       }
     }
-  }, []);
+  }, [queryClient]); // Thêm queryClient vào dependency
 
   return <>{children}</>;
 };

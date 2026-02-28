@@ -38,10 +38,10 @@ export const notificationApi = {
 
   // POST: Đánh dấu 1 thông báo đã đọc
   markAsRead: (notificationId: string) =>
-    axiosClient.post(`/notifications/${notificationId}/read`),
+    axiosClient.put(`/notifications/${notificationId}/read`),
 
   // POST: Đánh dấu tất cả đã đọc
-  markAllRead: () => axiosClient.post("/notifications/mark-all-read"),
+  markAllRead: () => axiosClient.put("/notifications/mark-all-read"),
 
   // DELETE: Xóa 1 thông báo cụ thể
   deleteNotification: (notificationId: string) =>

@@ -20,6 +20,6 @@ export interface NotificationItem {
 
 export interface GetNotificationsResponse {
   notifications: NotificationItem[];
-  unread_count: number;
+  unread: number;
   total: number;
 }

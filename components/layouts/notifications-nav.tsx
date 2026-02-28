@@ -80,7 +80,7 @@ export function NotificationsNav() {
   } = useNotificationMutations();
 
   const notifications = data?.notifications || [];
-  const unreadCount = data?.unread_count || 0;
+  const unreadCount = data?.unread || notifications.filter((n) => !n.is_read).length;
   const hasReadNotifications = notifications.some((n) => n.is_read);
 
   // Mở Dialog chi tiết và đánh dấu đã đọc
@@ -114,10 +114,10 @@ export function NotificationsNav() {
             className="relative h-11 w-11 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
           >
             <Bell className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+
             {unreadCount > 0 && (
-              <span className="absolute top-2.5 right-2.5 flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-white dark:border-slate-950"></span>
+              <span className="absolute top-2 right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-slate-950">
+                {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
           </Button>

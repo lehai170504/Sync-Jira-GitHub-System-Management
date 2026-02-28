@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Cookies from "js-cookie";
 import {
   updateFcmTokenApi,
   sendClassNotificationApi,
@@ -16,10 +17,14 @@ export const useUpdateFcmToken = () => {
 };
 
 export const useSendClassNotification = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: sendClassNotificationApi,
     onSuccess: (data: any) => {
       toast.success(data.message || "Gửi thông báo thành công!");
+      // Này là update chuông cho thằng GỬI
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Lỗi khi gửi thông báo");
@@ -28,11 +33,16 @@ export const useSendClassNotification = () => {
 };
 
 export const useNotifications = (unreadOnly = false) => {
+  const hasToken = !!Cookies.get("token");
+
   return useQuery({
     queryKey: ["notifications", unreadOnly],
     queryFn: () =>
       notificationApi.getNotifications({ unread_only: unreadOnly, limit: 20 }),
     select: (res) => res.data,
+    enabled: hasToken,
+    // Polling nhẹ nhàng mỗi phút 1 lần phòng hờ Socket rớt mạng
+    refetchInterval: 60000,
   });
 };
 
@@ -51,7 +61,6 @@ export const useNotificationMutations = () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
-  // MỚI: Mutation Xóa 1 thông báo
   const deleteMutation = useMutation({
     mutationFn: (id: string) => notificationApi.deleteNotification(id),
     onSuccess: () => {
@@ -61,7 +70,6 @@ export const useNotificationMutations = () => {
     onError: () => toast.error("Có lỗi xảy ra khi xóa thông báo"),
   });
 
-  // MỚI: Mutation Xóa tất cả thông báo đã đọc
   const clearReadMutation = useMutation({
     mutationFn: () => notificationApi.clearReadNotifications(),
     onSuccess: () => {

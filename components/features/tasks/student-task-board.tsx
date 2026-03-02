@@ -23,7 +23,7 @@ import type { Sprint, Task } from "./types";
 import {
   isDateOverdue,
   isTaskOverdue,
-  mapStatusCategoryToStatus,
+  mapApiTaskToStatus,
   mapStatusToStatusCategory,
 } from "./utils";
 import { TaskBoardHeader } from "./task-board-header";
@@ -406,7 +406,7 @@ export function TaskBoard() {
           title: t.summary || t.title || t.issue_key || id,
           description: t.description,
           assigneeId: jiraId,
-          status: mapStatusCategoryToStatus(t.status_category),
+          status: mapApiTaskToStatus(t.status_category, t.status_name),
           storyPoints: Number(t.story_point ?? 0) || 0,
           priority: "Medium",
           type: "Jira",
@@ -441,7 +441,7 @@ export function TaskBoard() {
         title: t.summary || t.title || t.issue_key || id,
         description: t.description,
         assigneeId,
-        status: mapStatusCategoryToStatus(t.status_category),
+        status: mapApiTaskToStatus(t.status_category, t.status_name),
         storyPoints: Number(t.story_point ?? 0) || 0,
         priority: "Medium",
         type: "Jira",

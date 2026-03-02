@@ -4,14 +4,17 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { FolderGit2, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SiGithub, SiJira } from "react-icons/si";
-import { ProjectManagement } from "@/features/projects/types/types";
+import {
+  ProjectDetail,
+  ProjectManagement,
+} from "@/features/projects/types/types";
 
 import { ProjectLeader } from "./project-leader";
 import { ProjectMemberStack } from "./project-member-stack";
 import { TeamDetailSheet } from "./team-detail-sheet";
 
 interface ProjectCardProps {
-  project: ProjectManagement;
+  project: ProjectManagement | ProjectDetail;
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {

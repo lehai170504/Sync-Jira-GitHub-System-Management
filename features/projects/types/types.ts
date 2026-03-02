@@ -4,6 +4,10 @@ export interface CreateProjectPayload {
   members: string[]; // Mảng các ID sinh viên
   githubRepoUrl: string; // Lấy từ GithubRepo.url
   jiraProjectKey: string; // Lấy từ JiraProject.key
+  /** Lớp học - backend cần để xác minh Leader và liên kết project */
+  class_id?: string;
+  /** Nhóm - backend cần để xác minh quyền và liên kết project */
+  team_id?: string;
 }
 
 // Định nghĩa dữ liệu Project trả về khi thành công
@@ -41,10 +45,17 @@ export interface ProjectDetail {
   created_at: string;
   /** BE gửi khi getMyProject lazy-sync Jira trả 410; vẫn hiển thị project bình thường */
   jira_sync_warning?: string;
+  /** Lớp học của dự án - dùng để so khớp với classes từ /auth/me/classes */
+  class_id?: { _id?: string; name?: string; class_code?: string };
 }
 
 export interface MyProjectResponse {
   project: ProjectDetail;
+}
+
+/** Response khi API trả về danh sách projects (GET /projects/my-project) */
+export interface MyProjectsResponse {
+  projects: ProjectDetail[];
 }
 
 // 1. Type cho Member (Dùng chung cho leader_id, lecturer_id, và items trong members)

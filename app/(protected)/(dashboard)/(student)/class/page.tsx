@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Cookies from "js-cookie";
 import {
   Search,
@@ -28,6 +28,7 @@ export default function StudentClassListPage() {
   const classId = Cookies.get("student_class_id");
   const className = Cookies.get("student_class_name");
   const myTeamName = Cookies.get("student_team_name");
+  const teamId = Cookies.get("student_team_id");
   const isLeader = Cookies.get("student_is_leader") === "true";
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,7 +39,7 @@ export default function StudentClassListPage() {
   } = useClassStudents(classId);
 
   const {
-    data: project,
+    data: allMyProjects = [],
     isLoading: isProjectLoading,
     refetch: refetchProject,
   } = useMyProject();
@@ -102,6 +103,16 @@ export default function StudentClassListPage() {
 
   const myTeamMembers = students.filter((s: any) => s.team === myTeamName);
 
+  // Project thuộc lớp đang chọn mới coi là "đã có project"
+  const hasValidProject = useMemo(() => {
+    if (!allMyProjects?.length || !classId) return false;
+    return allMyProjects.some(
+      (p) =>
+        p.class_id &&
+        (p.class_id._id === classId || p.class_id.name === className)
+    );
+  }, [allMyProjects, classId, className]);
+
   // 3. Render Guard: Trạng thái chưa chọn lớp
   if (!classId) {
     return (
@@ -152,8 +163,8 @@ export default function StudentClassListPage() {
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Đang kiểm tra...
               </Button>
-            ) : project ? (
-              // 👇 Hiển thị khi đã có Project
+            ) : hasValidProject ? (
+              // 👇 Hiển thị khi đã có Project thuộc lớp hiện tại
               <Button
                 variant="outline"
                 className="bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 font-bold uppercase tracking-tight rounded-xl gap-2 px-4 h-10 text-xs cursor-default"
@@ -162,8 +173,11 @@ export default function StudentClassListPage() {
                 Đã tạo project
               </Button>
             ) : (
+              // Chưa có project hoặc project thuộc lớp khác → hiện nút khởi tạo
               <AddProjectDialog
                 members={myTeamMembers}
+                classId={classId}
+                teamId={teamId}
                 onSuccess={() => refetchProject()}
               />
             )}

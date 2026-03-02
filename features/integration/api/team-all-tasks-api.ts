@@ -1,5 +1,8 @@
 import { axiosClient } from "@/lib/axios-client";
-import { TaskItem } from "@/features/management/teams/api/task-api";
+import {
+  TaskItem,
+  sortTasksByStatus,
+} from "@/features/management/teams/api/task-api";
 
 /**
  * Member task item từ API GET /integrations/team/{teamId}/tasks
@@ -45,5 +48,12 @@ export const getTeamAllTasksApi = async (
   const { data } = await axiosClient.get<TeamAllTasksResponse>(
     `/integrations/team/${teamId}/tasks`
   );
-  return data;
+  if (!data?.members_tasks) return data;
+  return {
+    ...data,
+    members_tasks: data.members_tasks.map((mt) => ({
+      ...mt,
+      tasks: sortTasksByStatus(Array.isArray(mt.tasks) ? mt.tasks : []),
+    })),
+  };
 };

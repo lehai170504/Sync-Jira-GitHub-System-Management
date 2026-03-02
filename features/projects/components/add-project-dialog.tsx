@@ -57,11 +57,15 @@ import {
 
 interface AddProjectDialogProps {
   members: ClassStudent[];
+  classId?: string;
+  teamId?: string;
   onSuccess?: () => void;
 }
 
 export function AddProjectDialog({
   members,
+  classId,
+  teamId,
   onSuccess,
 }: AddProjectDialogProps) {
   const [open, setOpen] = useState(false);
@@ -114,6 +118,8 @@ export function AddProjectDialog({
         members: data.members,
         githubRepoUrl: data.githubRepoUrl,
         jiraProjectKey: data.jiraProjectKey,
+        ...(classId && { class_id: classId }),
+        ...(teamId && { team_id: teamId }),
       },
       {
         onSuccess: () => {

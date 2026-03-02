@@ -3,8 +3,8 @@
 import {
   ScoreRadarChart,
   ScoreHistoryChart,
-} from "@/components/features/scoring/score-charts";
-import { ScoreBreakdown } from "@/components/features/scoring/score-breakdown";
+} from "@/features/scoring/score-charts";
+import { ScoreBreakdown } from "@/features/scoring/score-breakdown";
 import {
   Card,
   CardContent,

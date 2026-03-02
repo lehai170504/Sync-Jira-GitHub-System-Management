@@ -15,8 +15,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Import components
-import { AppearanceSettings } from "@/components/features/settings/appearance-card";
-import { NotificationSettings } from "@/components/features/settings/notification-card";
+import { AppearanceSettings } from "@/features/settings/appearance-card";
+import { NotificationSettings } from "@/features/settings/notification-card";
 import { GradingConfig } from "@/features/lecturer/components/settings/grading-config";
 
 // Import hook để lấy thông tin lớp

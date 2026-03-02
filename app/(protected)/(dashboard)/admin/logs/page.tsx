@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import { LogStats } from "@/components/features/system/logs/log-stats";
-import { LogToolbar } from "@/components/features/system/logs/log-toolbar";
-import { LogTimeline } from "@/components/features/system/logs/log-timeline";
-import { mockLogs } from "@/components/features/system/logs/log-data";
+import { LogStats } from "@/features/system/logs/log-stats";
+import { LogToolbar } from "@/features/system/logs/log-toolbar";
+import { LogTimeline } from "@/features/system/logs/log-timeline";
+import { mockLogs } from "@/features/system/logs/log-data";
 
 export default function SystemLogsPage() {
   const [searchTerm, setSearchTerm] = useState("");

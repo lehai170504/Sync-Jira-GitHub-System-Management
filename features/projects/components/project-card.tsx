@@ -96,14 +96,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
         {/* 3. Team Section */}
         <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <ProjectLeader leader={project.leader_id} />
+          <ProjectLeader leader={project.leader_id as any} />
 
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-1">
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
                 Thành viên
               </span>
-              <ProjectMemberStack members={project.members} />
+              <ProjectMemberStack members={project.members as any} />
             </div>
 
             <div className="flex flex-col gap-1 items-end text-right">

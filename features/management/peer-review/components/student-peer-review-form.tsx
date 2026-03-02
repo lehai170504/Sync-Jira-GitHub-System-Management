@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Star, CheckCircle2, Loader2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { submitReview } from "@/server/actions/review-actions";
+import { submitReview } from "@/features/management/reviews/components/review-actions";
 import { useTeamMembers } from "@/features/student/hooks/use-team-members";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
@@ -49,7 +49,6 @@ export function PeerReviewForm() {
       );
       if (myTeam?._id) {
         setTeamId(myTeam._id);
-      } else if (teamsData.teams[0]?._id) {
         setTeamId(teamsData.teams[0]._id);
       }
     }
@@ -260,7 +259,10 @@ export function PeerReviewForm() {
                     />
                   ))}
                   {[...Array(5 - rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-gray-300 dark:text-slate-700" />
+                    <Star
+                      key={i}
+                      className="w-5 h-5 text-gray-300 dark:text-slate-700"
+                    />
                   ))}
                 </div>
               </Card>

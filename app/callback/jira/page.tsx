@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-export default function JiraCallbackPage() {
+// Component con chứa logic sử dụng useSearchParams
+function JiraCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const hasProcessed = useRef(false);
@@ -68,5 +69,20 @@ export default function JiraCallbackPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+// Component cha: Bọc Suspense để vượt qua lỗi Build của Next.js
+export default function JiraCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+          <Loader2 className="h-10 w-10 animate-spin text-[#0052CC] dark:text-blue-500" />
+        </div>
+      }
+    >
+      <JiraCallbackContent />
+    </Suspense>
   );
 }

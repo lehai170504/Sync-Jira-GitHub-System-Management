@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
-export default function GoogleCallbackPage() {
+// 1. Component con chứa toàn bộ logic xử lý params
+function GoogleCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -53,5 +54,26 @@ export default function GoogleCallbackPage() {
       </div>
       <p className="text-sm text-slate-500">Đang xử lý đăng nhập...</p>
     </div>
+  );
+}
+
+// 2. Component cha bọc Suspense để vượt qua lỗi Build Next.js
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white space-y-4">
+          <div className="relative flex h-16 w-16 items-center justify-center">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-100 opacity-75"></span>
+            <div className="relative inline-flex rounded-full h-12 w-12 bg-orange-50 items-center justify-center">
+              <Loader2 className="h-6 w-6 text-[#F27124] animate-spin" />
+            </div>
+          </div>
+          <p className="text-sm text-slate-500">Đang xử lý đăng nhập...</p>
+        </div>
+      }
+    >
+      <GoogleCallbackContent />
+    </Suspense>
   );
 }

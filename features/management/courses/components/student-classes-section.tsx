@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 import type { MyClass } from "@/features/student/types/my-class-types";
-import type { StudentClassItem } from "./types";
+import type { StudentClassItem } from "../types/course-types";
 import { StudentClassesGrid } from "./student-classes-grid";
 
 const CLASS_COLORS = [
@@ -88,12 +88,13 @@ export function StudentClassesSection({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-80 items-center justify-center bg-white/60 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl border border-white dark:border-slate-800 shadow-inner">
+      <div className="flex flex-col h-80 items-center justify-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[40px] border border-white/20 dark:border-slate-800/50 shadow-2xl transition-colors duration-500">
         <div className="relative">
           <Loader2 className="h-12 w-12 animate-spin text-[#F27124] relative z-10" />
-          <div className="absolute inset-0 h-12 w-12 bg-orange-200 dark:bg-orange-900 blur-xl opacity-50 animate-ping" />
+          {/* Tinh chỉnh ánh sáng lan tỏa phía sau mượt hơn trong chế độ tối */}
+          <div className="absolute inset-0 h-12 w-12 bg-orange-400 dark:bg-orange-600 blur-2xl opacity-20 animate-pulse" />
         </div>
-        <p className="mt-4 text-slate-500 dark:text-slate-400 font-medium animate-pulse">
+        <p className="mt-6 text-slate-500 dark:text-slate-400 font-black text-[10px] uppercase tracking-widest animate-pulse transition-colors">
           Đang chuẩn bị không gian học tập...
         </p>
       </div>

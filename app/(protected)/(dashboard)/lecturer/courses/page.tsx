@@ -5,7 +5,7 @@ import { Loader2, BookOpen } from "lucide-react";
 
 import { CourseHeader } from "@/components/common/courses/course-header";
 import { CourseFilter } from "@/components/common/courses/course-filter";
-import { LecturerClassesSection } from "@/components/features/courses/lecturer-classes-section";
+import { LecturerClassesSection } from "@/features/management/courses/components/lecturer-classes-section";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useLecturerClasses } from "@/features/management/lecturers/hooks/use-lecturer-classes";
 import { useSemesters } from "@/features/management/semesters/hooks/use-semesters";

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-export default function GithubCallbackPage() {
+// Component con chứa logic sử dụng useSearchParams
+function GithubCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const hasProcessed = useRef(false);
@@ -66,5 +67,20 @@ export default function GithubCallbackPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+// Component cha: Bọc Suspense để vượt qua lỗi Build của Next.js
+export default function GithubCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+          <Loader2 className="h-10 w-10 animate-spin text-emerald-600 dark:text-emerald-500" />
+        </div>
+      }
+    >
+      <GithubCallbackContent />
+    </Suspense>
   );
 }

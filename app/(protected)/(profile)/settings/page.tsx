@@ -1,7 +1,7 @@
 "use client";
 
-import { AppearanceSettings } from "@/components/features/settings/appearance-card";
-import { NotificationSettings } from "@/components/features/settings/notification-card";
+import { AppearanceSettings } from "@/features/settings/appearance-card";
+import { NotificationSettings } from "@/features/settings/notification-card";
 import { Settings, ToyBrick, BellDot, Cpu } from "lucide-react";
 
 export default function SettingsPage() {

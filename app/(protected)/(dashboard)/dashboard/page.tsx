@@ -7,9 +7,9 @@ import { Loader2 } from "lucide-react";
 
 // Import các Dashboard Component
 import { AdminDashboard } from "@/features/admin/components/dashboard/admin-dashboard";
-import { LecturerDashboard } from "@/components/features/dashboard/lecturer-view";
-import { LeaderDashboard } from "@/components/features/dashboard/student-view";
-import { MemberDashboard } from "@/components/features/dashboard/member-view";
+import { LecturerDashboard } from "@/features/dashboard/lecturer-view";
+import { LeaderDashboard } from "@/features/dashboard/student-view";
+import { MemberDashboard } from "@/features/dashboard/member-view";
 
 type UserRole = "ADMIN" | "LECTURER" | "STUDENT";
 

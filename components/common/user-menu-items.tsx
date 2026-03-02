@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { ProfileDialog } from "@/features/auth/components/profile/profile-dialog";
-import { SettingsDialog } from "@/components/features/settings/settings-dialog";
+import { SettingsDialog } from "@/features/settings/settings-dialog";
 
 interface UserMenuItemsProps {
   role?: string;

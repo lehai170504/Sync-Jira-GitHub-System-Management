@@ -57,11 +57,20 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL("/lecturer/courses", request.url));
       }
 
-      // Admin và Sinh viên về Dashboard chung
+      // 👇 THÊM ĐIỀU KIỆN CHO STUDENT ĐI VÀO TRANG CHỌN LỚP 👇
+      if (role === "STUDENT") {
+        return NextResponse.redirect(new URL("/courses", request.url));
+      }
+
+      // Nếu có role ADMIN thì đưa về trang admin (tùy dự án của bạn)
+      if (role === "ADMIN") {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+
+      // Fallback mặc định nếu không khớp role nào
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
-
   return NextResponse.next();
 }
 

@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { UserRole } from "@/components/layouts/sidebar-config";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { PeerReviewForm } from "@/components/features/peer-review/student-peer-review-form";
+import { PeerReviewForm } from "@/features/management/peer-review/components/student-peer-review-form";
 
 export default function PeerReviewPage() {
   const [role, setRole] = useState<UserRole>("STUDENT");

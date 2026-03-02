@@ -1,6 +1,6 @@
 import { axiosClient } from "@/lib/axios-client";
 import {
-  ClassResponse,
+  ClassListResponse,
   CreateClassPayload,
   ClassFilters,
   ImportStudentsPayload,
@@ -13,7 +13,7 @@ import {
 // 1. GET: Lấy danh sách lớp học
 export const getClassesApi = async (
   filters: ClassFilters,
-): Promise<ClassResponse> => {
+): Promise<ClassListResponse> => {
   const { data } = await axiosClient.get("/management/classes", {
     params: filters,
   });

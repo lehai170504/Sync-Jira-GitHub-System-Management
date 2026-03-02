@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { UserRole } from "@/components/layouts/sidebar-config";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { LeaderCommits } from "@/components/features/commits/student-commits";
+import { LeaderCommits } from "@/features/commits/student-commits";
 
 export default function LeaderCommitListPage() {
   const [role, setRole] = useState<UserRole>("STUDENT");

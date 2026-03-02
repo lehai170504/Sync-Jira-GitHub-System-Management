@@ -12,7 +12,7 @@ import {
 import { Calendar, Tag, Users, ArrowRight } from "lucide-react";
 
 // --- FIX: Import Type từ file gốc ---
-import { Topic } from "@/components/features/topics/topic-data";
+import { Topic } from "@/features/topics/topic-data";
 
 interface TopicCardProps {
   topic: Topic;

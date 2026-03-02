@@ -5,7 +5,7 @@ import { GraduationCap } from "lucide-react";
 
 import { CourseHeader } from "@/components/common/courses/course-header";
 import { CourseFilter } from "@/components/common/courses/course-filter";
-import { StudentClassesSection } from "@/components/features/courses/student-classes-section";
+import { StudentClassesSection } from "@/features/management/courses/components/student-classes-section";
 import { useSemesters } from "@/features/management/semesters/hooks/use-semesters";
 
 export default function StudentCoursesPage() {

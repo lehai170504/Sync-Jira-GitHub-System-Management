@@ -73,7 +73,10 @@ axiosClient.interceptors.response.use(
         // 3. Lưu Token mới vào Cookie
         // (Lưu ý: set lại thời gian hết hạn phù hợp với BE trả về)
         Cookies.set("token", data.access_token, { path: "/", expires: 1 });
-        Cookies.set("refreshToken", data.refresh_token, { path: "/", expires: 7 });
+        Cookies.set("refreshToken", data.refresh_token, {
+          path: "/",
+          expires: 7,
+        });
 
         // 4. Gắn token mới vào header của request ban đầu
         axiosClient.defaults.headers.common["Authorization"] =
@@ -98,7 +101,9 @@ axiosClient.interceptors.response.use(
         Cookies.remove("user_name", opt);
         if (typeof window !== "undefined") {
           localStorage.setItem("logout_event", Date.now().toString());
-          window.location.href = "/login";
+          if (window.location.pathname !== "/login") {
+            window.location.href = "/login";
+          }
         }
 
         return Promise.reject(refreshError);

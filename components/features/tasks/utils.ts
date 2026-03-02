@@ -10,6 +10,65 @@ export function mapStatusCategoryToStatus(statusCategory?: string): TaskStatus {
   return "todo";
 }
 
+/** Map API status_name (Jira raw status) -> internal TaskStatus */
+function mapStatusNameToStatus(statusName?: string): TaskStatus {
+  const s = (statusName || "").toLowerCase().trim();
+  // To Do / Open
+  if (
+    s === "to do" ||
+    s === "todo" ||
+    s === "open" ||
+    s === "backlog" ||
+    s === "new"
+  )
+    return "todo";
+  // In Progress
+  if (
+    s === "in progress" ||
+    s === "in-progress" ||
+    s === "in development" ||
+    s === "development" ||
+    s === "in development"
+  )
+    return "in-progress";
+  // In Review / Code Review
+  if (
+    s === "in review" ||
+    s === "review" ||
+    s === "code review" ||
+    s === "ready for review" ||
+    s === "in testing" ||
+    s === "testing"
+  )
+    return "review";
+  // Done
+  if (s === "done" || s === "closed" || s === "resolved") return "done";
+  return "todo";
+}
+
+/**
+ * Map API task (status_category + status_name) -> internal TaskStatus.
+ * Ưu tiên status_category, fallback status_name khi category không map được.
+ */
+export function mapApiTaskToStatus(
+  statusCategory?: string,
+  statusName?: string
+): TaskStatus {
+  const fromCategory = mapStatusCategoryToStatus(statusCategory);
+  const fromName = mapStatusNameToStatus(statusName);
+  // Nếu status_category map ra todo nhưng status_name map ra giá trị khác -> dùng status_name
+  if (fromCategory === "todo" && fromName !== "todo") return fromName;
+  return fromCategory;
+}
+
+/** Thứ tự status để sort tasks (todo < in-progress < review < done) */
+export const STATUS_ORDER: Record<TaskStatus, number> = {
+  todo: 0,
+  "in-progress": 1,
+  review: 2,
+  done: 3,
+};
+
 /** Map internal TaskStatus -> API status_category (Jira format) */
 export function mapStatusToStatusCategory(status: TaskStatus): string {
   switch (status) {

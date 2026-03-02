@@ -54,6 +54,7 @@ export function StudentClassesSection({
           color: getClassColor(index),
           role: item.role_in_team,
           teamName: item.team_name || "",
+          teamId: item.team_id,
           isLeader: item.is_leader,
         };
       },
@@ -80,6 +81,7 @@ export function StudentClassesSection({
     Cookies.set("student_class_id", cls.id);
     Cookies.set("student_class_name", cls.className);
     Cookies.set("student_team_name", cls.teamName);
+    if (cls.teamId) Cookies.set("student_team_id", cls.teamId);
     Cookies.set("student_is_leader", String(cls.isLeader));
     router.push("/dashboard");
   };

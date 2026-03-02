@@ -10,17 +10,19 @@ export const useCreateProject = () => {
 
   return useMutation({
     mutationFn: (payload: CreateProjectPayload) => createProjectApi(payload),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       toast.success(data.message || "Tạo dự án thành công!");
 
-      // Refresh lại danh sách project hoặc thông tin nhóm nếu cần
-      queryClient.invalidateQueries({ queryKey: ["my-project"] });
+      // Đợi refetch my-project xong rồi mới navigate để /project và /class thấy dữ liệu mới
+      await queryClient.refetchQueries({ queryKey: ["my-project"] });
 
       router.push("/project");
     },
     onError: (error: any) => {
+      const res = error.response?.data;
       const msg =
-        error.response?.data?.message ||
+        res?.message ||
+        (Array.isArray(res?.errors) ? res.errors.join(", ") : undefined) ||
         "Không thể tạo dự án. Vui lòng kiểm tra lại quyền Leader hoặc thông tin nhóm.";
       toast.error(msg);
     },

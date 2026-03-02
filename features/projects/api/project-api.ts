@@ -3,7 +3,7 @@ import {
   ClassProjectsResponse,
   CreateProjectPayload,
   CreateProjectResponse,
-  MyProjectResponse,
+  MyProjectsResponse,
   ProjectDetail,
   ProjectManagement,
   ProjectsApiResponse,
@@ -23,11 +23,10 @@ export const createProjectApi = async (
   return data;
 };
 
-export const getMyProjectApi = async (): Promise<ProjectDetail> => {
-  const { data } = await axiosClient.get<MyProjectResponse>(
-    "/projects/my-project",
-  );
-  return data.project;
+export const getMyProjectApi = async (): Promise<ProjectDetail[]> => {
+  const res = await axiosClient.get<MyProjectsResponse>("/projects/my-project");
+  const allMyProjects = res.data.projects;
+  return allMyProjects ?? [];
 };
 
 export const getLecturerProjectsApi = async (

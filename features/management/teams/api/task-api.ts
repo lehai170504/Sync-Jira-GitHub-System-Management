@@ -22,9 +22,33 @@ export interface TaskItem {
   __v?: number;
 }
 
+/** Thứ tự status để sort tasks theo đúng vị trí cột Kanban (todo < in-progress < review < done) */
+function getStatusOrder(
+  statusCategory?: string,
+  statusName?: string
+): number {
+  const cat = (statusCategory || "").toLowerCase().trim();
+  const name = (statusName || "").toLowerCase().trim();
+  const s = cat || name;
+  if (s === "to do" || s === "todo" || s === "open" || s === "backlog" || s === "new") return 0;
+  if (s === "in progress" || s === "in-progress" || s === "in development" || s === "development") return 1;
+  if (s === "in review" || s === "review" || s === "code review" || s === "ready for review" || s === "in testing" || s === "testing") return 2;
+  if (s === "done" || s === "closed" || s === "resolved") return 3;
+  return 0;
+}
+
+/** Sắp xếp tasks theo status_name/status_category để hiển thị đúng vị trí trên Kanban */
+export function sortTasksByStatus(tasks: TaskItem[]): TaskItem[] {
+  return [...tasks].sort(
+    (a, b) =>
+      getStatusOrder(a.status_category, a.status_name) -
+      getStatusOrder(b.status_category, b.status_name)
+  );
+}
+
 /**
  * GET /tasks?team_id=...&sprint_id=...
- * Lấy danh sách tasks của team theo sprint
+ * Lấy danh sách tasks của team theo sprint (đã sort theo status)
  */
 export const getTasksApi = async (
   teamId: string,
@@ -33,7 +57,7 @@ export const getTasksApi = async (
   const { data } = await axiosClient.get<TaskItem[]>("/tasks", {
     params: { team_id: teamId, sprint_id: sprintId },
   });
-  return data;
+  return sortTasksByStatus(Array.isArray(data) ? data : []);
 };
 
 /**

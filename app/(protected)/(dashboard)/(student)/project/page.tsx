@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import Cookies from "js-cookie";
 import { useMyProject } from "@/features/projects/hooks/use-my-project";
 import {
   Loader2,
@@ -21,14 +22,41 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Cookies from "js-cookie";
 import { syncProjectApi } from "@/features/integration/api/sync-api";
 
 export default function ProjectDetailsPage() {
-  const { data: project, isLoading, error } = useMyProject();
+  const classId = Cookies.get("student_class_id");
+  const className = Cookies.get("student_class_name");
+  const isLeader = Cookies.get("student_is_leader") === "true";
+
+  const { data: allMyProjects = [], isLoading: isProjectLoading } =
+    useMyProject();
+
   const queryClient = useQueryClient();
   const [isSyncing, setIsSyncing] = useState(false);
-  const isLeader = Cookies.get("student_is_leader") === "true";
+
+  // Lấy project phù hợp với lớp đang chọn (project đầu tiên match class_id)
+  const project = useMemo(() => {
+    if (!allMyProjects.length) return undefined;
+    if (!classId && !className) return allMyProjects[0];
+    return allMyProjects.find((p) => {
+      if (!p.class_id) return true;
+      return (
+        p.class_id._id === classId || p.class_id.name === className
+      );
+    }) ?? allMyProjects[0];
+  }, [allMyProjects, classId, className]);
+
+  const projectClassMatches = useMemo(() => {
+    if (!project?.class_id || !classId) return !classId;
+    return (
+      project.class_id._id === classId || project.class_id.name === className
+    );
+  }, [project?.class_id, classId, className]);
+
+  const showProjectDetails = project && projectClassMatches;
+  const showEmptyState = !project || !projectClassMatches;
+  const isLoading = isProjectLoading;
 
   const handleSyncProject = async () => {
     if (!project?._id) {
@@ -56,7 +84,6 @@ export default function ProjectDetailsPage() {
         });
       }
 
-      // Refetch thông tin dự án sau sync
       queryClient.invalidateQueries({ queryKey: ["my-project"] });
     } catch (e: any) {
       const msg =
@@ -80,8 +107,7 @@ export default function ProjectDetailsPage() {
     );
   }
 
-  // 4. TRƯỜNG HỢP: CHƯA CÓ DỰ ÁN
-  if (!project) {
+  if (showEmptyState) {
     return (
       <div className="max-w-7xl mx-auto p-6 h-[70vh] flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-500 text-slate-900 dark:text-slate-100">
         <div className="p-6 bg-orange-50 dark:bg-orange-900/30 rounded-full mb-6 border border-orange-100 dark:border-orange-900/60">
@@ -99,7 +125,6 @@ export default function ProjectDetailsPage() {
     );
   }
 
-  // 5. TRƯỜNG HỢP: ĐÃ CÓ DỰ ÁN
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 animate-in fade-in duration-500 text-slate-900 dark:text-slate-100">
       {project.jira_sync_warning && (
@@ -246,13 +271,14 @@ export default function ProjectDetailsPage() {
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6">
               {project.members?.map((member) => {
-                const isLeader = member._id === project.leader_id?._id;
+                const isMemberLeader =
+                  member._id === project.leader_id?._id;
                 return (
                   <div
                     key={member._id}
                     className="group relative flex items-center gap-4 p-4 border border-gray-50 dark:border-slate-800 rounded-[20px] hover:border-orange-200 dark:hover:border-orange-900/60 hover:bg-orange-50/10 dark:hover:bg-orange-900/10 transition-all duration-300"
                   >
-                    {isLeader && (
+                    {isMemberLeader && (
                       <div className="absolute top-3 right-3">
                         <Badge className="bg-amber-100 text-amber-700 border-none gap-1 py-0.5 px-2 text-[9px] font-bold uppercase">
                           <Crown className="w-3 h-3 fill-amber-500" /> Leader

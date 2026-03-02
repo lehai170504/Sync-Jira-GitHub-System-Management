@@ -1,5 +1,8 @@
 import { axiosClient } from "@/lib/axios-client";
-import { TaskItem } from "@/features/management/teams/api/task-api";
+import {
+  TaskItem,
+  sortTasksByStatus,
+} from "@/features/management/teams/api/task-api";
 
 /**
  * Response từ API GET /integrations/team/{teamId}/member/{memberId}/tasks
@@ -31,6 +34,5 @@ export const getMemberTasksApi = async (
   const { data } = await axiosClient.get<MemberTasksResponse>(
     `/integrations/team/${teamId}/member/${memberId}/tasks`
   );
-  // Chỉ trả về tasks array, giống như getTasksApi
-  return data.tasks;
+  return sortTasksByStatus(Array.isArray(data.tasks) ? data.tasks : []);
 };

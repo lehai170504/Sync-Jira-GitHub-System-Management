@@ -10,5 +10,6 @@ export interface StudentClassItem {
   color: string;
   role: "Leader" | "Member";
   teamName: string;
+  teamId?: string;
   isLeader: boolean;
 }

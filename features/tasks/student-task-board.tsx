@@ -25,6 +25,7 @@ import {
   isTaskOverdue,
   mapApiTaskToStatus,
   mapStatusToStatusCategory,
+  mapStatusToStatusName,
 } from "./utils";
 import { TaskBoardHeader } from "./task-board-header";
 import { KanbanView } from "./kanban-view";
@@ -522,7 +523,7 @@ export function TaskBoard() {
             team_id: resolvedTeamId!,
             summary: formTask.title.trim(),
             description: formTask.description ?? "",
-            status: formTask.status,
+            status: mapStatusToStatusName(formTask.status),
             sprint_id: formTask.printId,
             assignee_account_id: formTask.assigneeId,
             story_point: formTask.storyPoints,
@@ -869,21 +870,21 @@ export function TaskBoard() {
                   return;
                 }
 
-                // Map TaskStatus -> API status string
-                const apiStatus = mapStatusToStatusCategory(newStatus);
+                // Map TaskStatus -> status_name Jira: "To Do" | "In Progress" | "Done"
+                const statusName = mapStatusToStatusName(newStatus);
 
                 // Optimistic update UI ngay
                 setTasks((prev) =>
                   prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
                 );
 
-                // Gọi API PUT /tasks/{id} để cập nhật status
+                // Gọi API PUT /tasks/{id} để cập nhật status (kéo thả Kanban)
                 updateTask(
                   {
                     taskId: task.id,
                     payload: {
                       team_id: resolvedTeamId,
-                      status: apiStatus,
+                      status: statusName,
                     },
                   },
                   {

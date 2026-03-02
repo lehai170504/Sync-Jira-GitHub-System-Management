@@ -107,11 +107,14 @@ export const createTaskApi = async (
  * nhưng field team_id là BẮT BUỘC.
  * Các field còn lại có thể gửi partial; BE sẽ chỉ cập nhật
  * những field được gửi lên, các field khác giữ nguyên.
+ *
+ * status: Jira status cho kéo thả Kanban ("To Do" | "In Progress" | "In Review" | "Done")
  */
 export interface UpdateTaskPayload {
   team_id: string;
   summary?: string;
   description?: string;
+  /** Jira status - dùng cho kéo thả: "To Do" | "In Progress" | "In Review" | "Done" */
   status?: string;
   sprint_id?: string;
   assignee_account_id?: string;

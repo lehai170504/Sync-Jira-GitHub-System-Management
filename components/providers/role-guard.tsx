@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 
@@ -9,6 +9,7 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
   const { data, isLoading } = useProfile();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     // Nếu đang tải dữ liệu profile hoặc chưa có data thì chưa làm gì cả
@@ -29,10 +30,15 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
     }
 
     // 3. Xử lý điều hướng cho Giảng viên (LECTURER)
+    // Chỉ redirect về /lecturer/courses khi lecturer vào /dashboard CHƯA chọn lớp (không có classId trong URL hoặc cookie)
     if (role === "LECTURER" && pathname === "/dashboard") {
-      router.push("/lecturer/courses");
+      const urlClassId = searchParams.get("classId");
+      const cookieClassId = Cookies.get("lecturer_class_id");
+      if (!urlClassId && !cookieClassId) {
+        router.push("/lecturer/courses");
+      }
     }
-  }, [data, isLoading, pathname, router]);
+  }, [data, isLoading, pathname, searchParams, router]);
 
   return <>{children}</>;
 }

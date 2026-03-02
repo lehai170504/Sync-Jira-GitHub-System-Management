@@ -85,6 +85,25 @@ export function mapStatusToStatusCategory(status: TaskStatus): string {
   }
 }
 
+/**
+ * Map TaskStatus -> status_name cho API PUT /tasks/{id} (kéo thả Kanban).
+ * Trả về "To Do" | "In Progress" | "In Review" | "Done" - 4 trạng thái Jira.
+ */
+export function mapStatusToStatusName(status: TaskStatus): string {
+  switch (status) {
+    case "todo":
+      return "To Do";
+    case "in-progress":
+      return "In Progress";
+    case "review":
+      return "In Review";
+    case "done":
+      return "Done";
+    default:
+      return "To Do";
+  }
+}
+
 export function isDateOverdue(dateStr: string | undefined | null) {
   if (!dateStr) return false;
   const today = new Date();

@@ -2,7 +2,7 @@
 
 import { reviewSchema } from "@/lib/validations/review.schema";
 import { revalidatePath } from "next/cache";
-import { submitReviewsApi } from "@/features/management/reviews/api/review-api";
+import { submitReviewsApi } from "@/features/management/reviews/api/review-api-server";
 
 export async function submitReview(data: any) {
   const validated = reviewSchema.safeParse(data);

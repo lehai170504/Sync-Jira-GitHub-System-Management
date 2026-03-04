@@ -32,6 +32,9 @@ import {
   SyncHistoryLog,
 } from "@/features/student/types/team-types";
 
+// IMPORT COMPONENT VỪA TÁCH
+import { TeamReviewsTab } from "./team-reviews-tab";
+
 interface TeamDetailSheetProps {
   teamId: string | null;
   open: boolean;
@@ -45,13 +48,21 @@ export function TeamDetailSheet({
 }: TeamDetailSheetProps) {
   const { data: detailData, isLoading } = useTeamDetail(open ? teamId : null);
   const data = detailData as TeamDetailResponse | undefined;
+
+  // 👇 CẬP NHẬT: Lấy thêm dữ liệu project từ response mới của BE
   const team = data?.team;
+  const project = data?.project;
   const members = data?.members || [];
   const stats = data?.stats;
 
+  // 👇 Ưu tiên lấy field từ project, nếu không có mới fallback về team
+  const githubUrl = project?.githubRepoUrl || team?.github_repo_url;
+  const jiraKey = project?.jiraProjectKey || team?.jira_project_key;
+  const jiraUrl = team?.jira_url;
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl p-0 bg-white dark:bg-slate-950 flex flex-col h-[100dvh] overflow-hidden border-l border-slate-200 dark:border-slate-800 shadow-2xl">
+      <SheetContent className="w-full sm:max-w-xl p-0 bg-white dark:bg-slate-950 flex flex-col h-[100dvh] overflow-hidden border-l border-slate-200 dark:border-slate-800 shadow-2xl font-sans">
         {/* --- HEADER --- */}
         <SheetHeader className="px-6 py-6 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 z-10 shrink-0">
           <div className="space-y-1">
@@ -139,31 +150,20 @@ export function TeamDetailSheet({
                 </h3>
                 <div className="grid gap-3">
                   <ConnectionRow
-                    isConnected={
-                      !!team.api_token_github && !!team.github_repo_url
-                    }
+                    isConnected={!!githubUrl} // Đã update biến
                     label="GitHub Repository"
                     subLabel={
-                      team.github_repo_url
-                        ? team.github_repo_url.replace(
-                            "https://github.com/",
-                            "",
-                          )
+                      githubUrl
+                        ? githubUrl.replace("https://github.com/", "")
                         : undefined
                     }
                     icon={SiGithub}
                     colorClass="bg-slate-900 dark:bg-slate-800 text-white"
                   />
                   <ConnectionRow
-                    isConnected={
-                      !!team.api_token_jira && !!team.jira_project_key
-                    }
+                    isConnected={!!jiraKey} // Đã update biến
                     label="Jira Workspace"
-                    subLabel={
-                      team.jira_project_key
-                        ? `Key: ${team.jira_project_key}`
-                        : undefined
-                    }
+                    subLabel={jiraKey ? `Key: ${jiraKey}` : undefined}
                     icon={SiJira}
                     colorClass="bg-blue-600 text-white"
                   />
@@ -175,13 +175,21 @@ export function TeamDetailSheet({
                 <TabsList className="w-full bg-slate-100 dark:bg-slate-900 p-1 rounded-2xl mb-6 border border-slate-200 dark:border-slate-800">
                   <TabsTrigger
                     value="members"
-                    className="flex-1 rounded-xl text-xs font-black data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 data-[state=active]:shadow-md transition-all text-slate-500 dark:text-slate-400"
+                    className="flex-1 rounded-xl text-[11px] font-black uppercase tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 data-[state=active]:shadow-md transition-all text-slate-500 dark:text-slate-400"
                   >
-                    Thành viên ({members.length})
+                    Thành viên
                   </TabsTrigger>
+
+                  <TabsTrigger
+                    value="reviews"
+                    className="flex-1 rounded-xl text-[11px] font-black uppercase tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-[#F27124] dark:data-[state=active]:text-orange-400 data-[state=active]:shadow-md transition-all text-slate-500 dark:text-slate-400"
+                  >
+                    Đánh giá
+                  </TabsTrigger>
+
                   <TabsTrigger
                     value="history"
-                    className="flex-1 rounded-xl text-xs font-black data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 data-[state=active]:shadow-md transition-all text-slate-500 dark:text-slate-400"
+                    className="flex-1 rounded-xl text-[11px] font-black uppercase tracking-wider data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 data-[state=active]:shadow-md transition-all text-slate-500 dark:text-slate-400"
                   >
                     Lịch sử Sync
                   </TabsTrigger>
@@ -191,6 +199,11 @@ export function TeamDetailSheet({
                   {members.map((mem) => (
                     <MemberItem key={mem._id} mem={mem} />
                   ))}
+                </TabsContent>
+
+                {/* GỌI COMPONENT ĐÃ ĐƯỢC TÁCH Ở ĐÂY */}
+                <TabsContent value="reviews" className="outline-none">
+                  <TeamReviewsTab teamId={team._id} />
                 </TabsContent>
 
                 <TabsContent value="history" className="outline-none">
@@ -207,20 +220,19 @@ export function TeamDetailSheet({
             <div className="flex gap-3">
               <Button
                 className="flex-1 h-12 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-black rounded-2xl shadow-lg shadow-slate-200 dark:shadow-none transition-all active:scale-95"
-                disabled={!team.github_repo_url}
-                onClick={() =>
-                  team.github_repo_url &&
-                  window.open(team.github_repo_url, "_blank")
-                }
+                disabled={!githubUrl} // Đã update biến
+                onClick={() => githubUrl && window.open(githubUrl, "_blank")}
               >
                 <SiGithub className="w-4 h-4 mr-2" /> GitHub Repo
               </Button>
               <Button
                 className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl shadow-lg shadow-blue-100 dark:shadow-none transition-all active:scale-95"
-                disabled={!team.jira_url}
-                onClick={() =>
-                  team.jira_url && window.open(team.jira_url, "_blank")
-                }
+                disabled={!jiraKey && !jiraUrl} // Đã update biến
+                onClick={() => {
+                  const targetUrl =
+                    jiraUrl || (jiraKey ? `https://id.atlassian.com/` : null); // Fallback tạm nếu không có base URL
+                  if (targetUrl) window.open(targetUrl, "_blank");
+                }}
               >
                 <SiJira className="w-4 h-4 mr-2" /> Jira Board
               </Button>
@@ -316,7 +328,6 @@ function ConnectionRow({
 
 function MemberItem({ mem }: { mem: TeamMemberDetail }) {
   const student = mem.student_id;
-
   return (
     <div className="group flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-900/50 transition-all shadow-sm">
       <div className="flex items-center gap-4">
@@ -370,9 +381,7 @@ function SyncHistoryLogs({ history }: { history: SyncHistoryLog[] }) {
         Chưa có lịch sử đồng bộ.
       </div>
     );
-
   const sortedHistory = [...history].reverse();
-
   return (
     <div className="space-y-6 ml-3 border-l-2 border-slate-100 dark:border-slate-800 pl-6 py-2 relative">
       {sortedHistory.slice(0, 5).map((log, idx) => (
@@ -385,7 +394,6 @@ function SyncHistoryLogs({ history }: { history: SyncHistoryLog[] }) {
                 : "bg-emerald-500",
             )}
           />
-
           <div className="space-y-2">
             <div className="flex justify-between items-start">
               <p className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
@@ -403,7 +411,6 @@ function SyncHistoryLogs({ history }: { history: SyncHistoryLog[] }) {
                 {format(new Date(log.synced_at), "HH:mm dd/MM")}
               </span>
             </div>
-
             <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 grid grid-cols-3 gap-3 border border-slate-100 dark:border-slate-800 shadow-sm group-hover:border-emerald-100 dark:group-hover:border-emerald-900/30 transition-all">
               <div className="flex flex-col items-center justify-center p-2 bg-slate-50 dark:bg-slate-800 rounded-xl">
                 <SiGithub className="w-4 h-4 text-slate-700 dark:text-slate-300 mb-1" />
@@ -433,8 +440,6 @@ function SyncHistoryLogs({ history }: { history: SyncHistoryLog[] }) {
                 </span>
               </div>
             </div>
-
-            {/* Hiển thị lỗi nếu có */}
             {log.sync_errors && log.sync_errors.length > 0 && (
               <div className="bg-red-50 dark:bg-red-900/10 p-3 rounded-xl border border-red-100 dark:border-red-900/30 text-xs text-red-600 dark:text-red-400">
                 <p className="font-bold flex items-center gap-1 mb-1">

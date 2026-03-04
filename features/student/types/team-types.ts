@@ -53,12 +53,12 @@ export interface ClassInfo {
   __v?: number;
 }
 
-// 3. Định nghĩa Sync History (Giữ nguyên hoặc mở rộng tùy data thực tế)
+// 3. Định nghĩa Sync History
 export interface SyncHistoryStats {
   git: number;
   jira_sprints: number;
   jira_tasks: number;
-  sync_errors?: any[]; // Optional vì trong JSON là mảng rỗng
+  sync_errors?: any[];
 }
 
 export interface SyncHistoryLog {
@@ -79,7 +79,6 @@ export interface StudentInfo {
 // 5. Định nghĩa Member chi tiết
 export interface TeamMemberDetail {
   _id: string;
-  // Lưu ý: student_id có thể null (như trong phần tử đầu tiên và thứ 3 của mảng members)
   student_id: StudentInfo | null;
   role_in_team: "Leader" | "Member";
   project_id: string | null;
@@ -89,11 +88,7 @@ export interface TeamMemberDetail {
 export interface TeamDetail {
   _id: string;
   project_name: string;
-
-  // Thông tin lớp học đã populated đầy đủ
   class_id: ClassInfo;
-
-  // Config tích hợp
   jira_story_point_field?: string;
   api_token_github?: string;
   api_token_jira?: string;
@@ -101,8 +96,6 @@ export interface TeamDetail {
   jira_board_id?: number;
   jira_project_key?: string;
   jira_url?: string;
-
-  // Metadata & Sync
   sync_history: SyncHistoryLog[];
   created_at: string;
   last_sync_at?: string;
@@ -117,11 +110,38 @@ export interface TeamStats {
   commits: number;
 }
 
-// 8. Response trọn vẹn từ API
+// 👇 THÊM MỚI: Định nghĩa chi tiết cho Project dựa theo JSON BE mới
+export interface ProjectInfo {
+  _id: string;
+  name: string;
+  class_id: string;
+  team_id: string;
+  semester_id: {
+    _id: string;
+    name: string;
+    code: string;
+  };
+  subject_id: {
+    _id: string;
+    name: string;
+    code: string;
+  };
+  leader_id: StudentInfo;
+  lecturer_id: string;
+  members: StudentInfo[];
+  githubRepoUrl?: string; // Nằm trong project thay vì team
+  jiraProjectKey?: string; // Nằm trong project thay vì team
+  created_at: string;
+  createdAt: string;
+  updatedAt: string;
+  __v?: number;
+}
+
+// 👇 CẬP NHẬT LẠI: Response trọn vẹn từ API
 export interface TeamDetailResponse {
   team: TeamDetail;
   members: TeamMemberDetail[];
-  project: any | null; // Project có thể null nếu chưa init
+  project: ProjectInfo | null; // Cập nhật từ 'any | null' thành interface chuẩn
   stats: TeamStats;
 }
 
@@ -144,16 +164,14 @@ export interface Team {
     class_code: string;
   };
   project_name: string;
-  sync_history: SyncHistoryLog[]; // Cập nhật type cụ thể thay vì any[]
+  sync_history: SyncHistoryLog[];
   created_at: string;
 
-  // 👇 Các trường bổ sung (Optional vì nhóm mới tạo chưa có)
   github_repo_url?: string;
   jira_project_key?: string;
   jira_url?: string;
   jira_board_id?: number;
 
-  // Các field nhạy cảm (thường FE không nên hiển thị, nhưng nếu API trả về thì cứ define)
   api_token_github?: string;
   api_token_jira?: string;
 

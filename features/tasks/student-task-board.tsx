@@ -31,13 +31,9 @@ import { TaskBoardHeader } from "./task-board-header";
 import { KanbanView } from "./kanban-view";
 import { MemberTableView } from "./member-table-view";
 import { TaskDialog } from "./task-dialog";
-import { SprintDialog } from "./sprint-dialog";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useTeamSprints } from "@/features/management/teams/hooks/use-team-sprints";
-import { useCreateSprint } from "@/features/management/teams/hooks/use-create-sprint";
-import { useUpdateSprint } from "@/features/management/teams/hooks/use-update-sprint";
-import { useDeleteSprint } from "@/features/management/teams/hooks/use-delete-sprint";
 import { useTeamTasks } from "@/features/management/teams/hooks/use-team-tasks";
 import { useCreateTask } from "@/features/management/teams/hooks/use-create-task";
 import { useUpdateTask } from "@/features/management/teams/hooks/use-update-task";
@@ -76,8 +72,6 @@ export function TaskBoard() {
     startDate: "",
   });
 
-  const [sprintDialogOpen, setSprintDialogOpen] = useState(false);
-  const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{
@@ -86,14 +80,6 @@ export function TaskBoard() {
     name: string;
     subtitle?: string; // task key (e.g. PROJ-123) cho task
   } | null>(null);
-  const [formSprint, setFormSprint] = useState<Sprint>({
-    id: "",
-    name: "",
-    deadline: "",
-    start_date: "",
-    end_date: "",
-  });
-
   // Resolve teamId giống trang /commits và /config
   const classId = Cookies.get("student_class_id") || "";
   const myTeamName = Cookies.get("student_team_name");
@@ -189,12 +175,7 @@ export function TaskBoard() {
   } = useTeamAllTasks(currentTab === "table" ? resolvedTeamId : undefined);
   
   // Hook để tạo sprint mới
-  const { mutate: createSprint, isPending: isCreatingSprint } = useCreateSprint();
   // Hook để cập nhật sprint
-  const { mutate: updateSprint, isPending: isUpdatingSprint } = useUpdateSprint();
-  // Hook để xóa sprint
-  const { mutate: deleteSprint, isPending: isDeletingSprint } = useDeleteSprint();
-
   // Hook để tạo task mới
   const { mutate: createTask, isPending: isCreatingTask } = useCreateTask(resolvedTeamId);
 
@@ -234,7 +215,15 @@ export function TaskBoard() {
 
   const apiSprints: Sprint[] = useMemo(() => {
     if (!teamSprintsData || teamSprintsData.length === 0) return [];
-    return teamSprintsData.map((s: any) => {
+
+    // Chỉ lấy các sprint đang active để hiển thị trên trang Tasks
+    const activeSprints = teamSprintsData.filter(
+      (s: any) => s.state === "active",
+    );
+
+    if (activeSprints.length === 0) return [];
+
+    return activeSprints.map((s: any) => {
       const id = s._id || s.id || `${s.name}-${s.start_date || ""}-${s.end_date || ""}`;
       const deadline = typeof s.end_date === "string" ? formatDateVN_yyyyMMdd(s.end_date) : "";
       return { id, name: s.name, deadline };
@@ -569,100 +558,12 @@ export function TaskBoard() {
 
   const handleConfirmDelete = () => {
     if (!deleteTarget) return;
-    if (deleteTarget.type === "task") {
-      deleteTask(deleteTarget.id, {
-        onSuccess: () => {
-          setDeleteConfirmOpen(false);
-          setDeleteTarget(null);
-        },
-      });
-    } else {
-      deleteSprint(deleteTarget.id, {
-        onSuccess: () => {
-          if (selectedPrint === deleteTarget.id) {
-            const next = sprints.find((s) => s.id !== deleteTarget.id);
-            setSelectedPrint(next?.id ?? "");
-          }
-          setDeleteConfirmOpen(false);
-          setDeleteTarget(null);
-        },
-      });
-    }
-  };
-
-  const resetSprintForm = () => {
-    setFormSprint({ 
-      id: "", 
-      name: "", 
-      deadline: "",
-      start_date: "",
-      end_date: "",
-    });
-    setEditingSprint(null);
-  };
-
-  const handleSaveSprint = () => {
-    if (!formSprint.name.trim()) {
-      toast.error("Vui lòng nhập tên sprint");
-      return;
-    }
-    if (!formSprint.start_date) {
-      toast.error("Vui lòng chọn ngày bắt đầu sprint");
-      return;
-    }
-    if (!formSprint.end_date) {
-      toast.error("Vui lòng chọn ngày kết thúc sprint");
-      return;
-    }
-    if (!resolvedTeamId) {
-      toast.error("Không tìm thấy team ID");
-      return;
-    }
-
-    // Nếu đang edit, gọi API PUT /sprints/:id
-    if (editingSprint) {
-      updateSprint(
-        {
-          sprintId: editingSprint.id,
-          payload: {
-            name: formSprint.name.trim(),
-            start_date: formSprint.start_date,
-            end_date: formSprint.end_date,
-          },
-        },
-        {
-          onSuccess: () => {
-            setSprintDialogOpen(false);
-            resetSprintForm();
-          },
-        }
-      );
-      return;
-    }
-
-    // Tạo sprint mới qua API
-    createSprint(
-      {
-        team_id: resolvedTeamId,
-        name: formSprint.name.trim(),
-        start_date: formSprint.start_date,
-        end_date: formSprint.end_date,
+    deleteTask(deleteTarget.id, {
+      onSuccess: () => {
+        setDeleteConfirmOpen(false);
+        setDeleteTarget(null);
       },
-      {
-        onSuccess: () => {
-          setSprintDialogOpen(false);
-          resetSprintForm();
-          // Sprints sẽ được refetch tự động sau khi tạo thành công
-        },
-      }
-    );
-  };
-
-  const handleDeleteSprint = (id: string) => {
-    const sprint = sprints.find((s) => s.id === id);
-    if (!sprint) return;
-    setDeleteTarget({ type: "sprint", id, name: sprint.name });
-    setDeleteConfirmOpen(true);
+    });
   };
 
   const visibleTasks = useMemo(
@@ -716,26 +617,6 @@ export function TaskBoard() {
             sprintOverdue={sprintOverdue}
             isLeader={isLeader}
             sprintMeta={currentSprintMeta}
-            onAddSprint={() => {
-              setEditingSprint(null);
-              resetSprintForm();
-              setSprintDialogOpen(true);
-            }}
-            onEditSprint={() => {
-              if (!currentSprint) return;
-              const meta = sprintMetaMap[currentSprint.id];
-              setEditingSprint(currentSprint);
-              setFormSprint({
-                ...currentSprint,
-                start_date: meta?.start_date ?? "",
-                end_date: meta?.end_date ?? "",
-              });
-              setSprintDialogOpen(true);
-            }}
-            onDeleteSprint={() => {
-              if (!currentSprint) return;
-              handleDeleteSprint(currentSprint.id);
-            }}
             onAddTask={() => {
               setEditingTask(null);
               resetTaskForm();
@@ -973,35 +854,18 @@ export function TaskBoard() {
         currentUserId={currentUserId}
       />
 
-      <SprintDialog
-        open={sprintDialogOpen}
-        onOpenChange={setSprintDialogOpen}
-        editing={!!editingSprint}
-        formSprint={formSprint}
-        setFormSprint={setFormSprint}
-        onSave={handleSaveSprint}
-        isSaving={isCreatingSprint || isUpdatingSprint}
-      />
-
       <DeleteConfirmDialog
         open={deleteConfirmOpen}
         onOpenChange={(open) => {
           setDeleteConfirmOpen(open);
           if (!open) setDeleteTarget(null);
         }}
-        title={deleteTarget?.type === "sprint" ? "Xóa sprint" : "Xóa task"}
-        description={
-          deleteTarget?.type === "sprint"
-            ? "Bạn chắc chắn muốn xóa sprint này? Các task trong sprint có thể bị ảnh hưởng."
-            : "Bạn chắc chắn muốn xóa task này? Hành động này không thể hoàn tác."
-        }
+        title="Xóa task"
+        description="Bạn chắc chắn muốn xóa task này? Hành động này không thể hoàn tác."
         itemName={deleteTarget?.name}
         subtitle={deleteTarget?.subtitle}
         onConfirm={handleConfirmDelete}
-        isLoading={
-          (deleteTarget?.type === "task" && isDeletingTask) ||
-          (deleteTarget?.type === "sprint" && isDeletingSprint)
-        }
+        isLoading={isDeletingTask}
       />
     </div>
   );

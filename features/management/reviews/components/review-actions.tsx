@@ -2,9 +2,9 @@
 
 import { reviewSchema } from "@/lib/validations/review.schema";
 import { revalidatePath } from "next/cache";
+import { submitReviewsApi } from "@/features/management/reviews/api/review-api";
 
 export async function submitReview(data: any) {
-  // 1. Validate dữ liệu tại server
   const validated = reviewSchema.safeParse(data);
 
   if (!validated.success) {
@@ -12,20 +12,28 @@ export async function submitReview(data: any) {
   }
 
   try {
-    const { revieweeId, rating, comment } = validated.data;
+    const { teamId, reviews } = validated.data;
 
-    // 2. GIẢ LẬP: Lưu vào Database
-    // await db.peerReview.create({ ... })
-
-    // Giả lập delay mạng
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Logic kiểm tra: Không cho tự đánh giá chính mình (nếu FE bypass)
-    // if (revieweeId === currentUser.id) return { error: "Không thể tự đánh giá!" }
+    const apiRes = await submitReviewsApi({
+      teamId,
+      reviews: reviews.map((r) => ({
+        evaluated_id: r.evaluated_id,
+        rating: r.rating,
+        comment: r.comment ?? "",
+      })),
+    });
 
     revalidatePath("/peer-review");
-    return { success: true, message: "Đã gửi đánh giá thành công!" };
-  } catch (error) {
-    return { error: "Lỗi hệ thống. Vui lòng thử lại sau." };
+    const message =
+      (apiRes as { message?: string })?.message ?? "Đã gửi đánh giá thành công!";
+    return { success: true, message };
+  } catch (error: any) {
+    const msg =
+      error?.response?.data?.error ||
+      error?.response?.data?.message ||
+      error?.message ||
+      "Lỗi hệ thống. Vui lòng thử lại sau.";
+    const statusCode = error?.response?.status;
+    return { error: msg, ...(statusCode && { statusCode }) };
   }
 }

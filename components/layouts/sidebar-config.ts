@@ -18,6 +18,7 @@ import {
   Briefcase,
   FolderGit2,
   LinkIcon,
+  GanttChartSquare,
 } from "lucide-react";
 
 export type UserRole = "ADMIN" | "LECTURER" | "STUDENT";
@@ -148,6 +149,12 @@ export const routeGroups: RouteGroup[] = [
         icon: FileText,
         href: "/tasks",
         color: "text-rose-500",
+      },
+      {
+        label: "Timeline Sprint",
+        icon: GanttChartSquare,
+        href: "/timeline",
+        color: "text-cyan-500",
       },
       {
         label: "Tiến độ nhóm",

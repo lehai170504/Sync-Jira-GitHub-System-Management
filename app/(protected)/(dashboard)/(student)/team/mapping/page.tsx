@@ -67,11 +67,11 @@ export default function AccountMappingPage() {
 
   if (!teamId && !isLoading) {
     return (
-      <div className="flex flex-col h-[70vh] items-center justify-center text-gray-400 gap-4 animate-in fade-in zoom-in-95">
-        <div className="p-6 bg-slate-50 rounded-full">
-          <AlertCircle className="h-12 w-12 text-slate-300" />
+      <div className="flex flex-col h-[70vh] items-center justify-center text-gray-400 dark:text-slate-400 gap-4 animate-in fade-in zoom-in-95">
+        <div className="p-6 bg-slate-50 dark:bg-slate-900 rounded-full">
+          <AlertCircle className="h-12 w-12 text-slate-300 dark:text-slate-600" />
         </div>
-        <p className="text-lg font-medium">
+        <p className="text-lg font-medium text-gray-600 dark:text-slate-300">
           Không tìm thấy thông tin nhóm của bạn.
         </p>
       </div>
@@ -79,7 +79,7 @@ export default function AccountMappingPage() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto p-8 md:p-10 space-y-10 animate-in fade-in duration-500 pb-20">
+    <div className="max-w-[1600px] mx-auto p-8 md:p-10 space-y-10 animate-in fade-in duration-500 pb-20 text-slate-900 dark:text-slate-100">
       <div className="max-w-4xl">
         <MappingHeader />
       </div>

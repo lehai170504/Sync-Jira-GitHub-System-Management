@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
 import { UserRole } from "@/components/layouts/sidebar-config";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { Star, CheckCircle2, Loader2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { submitReview } from "@/features/management/reviews/components/review-actions";
+import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useTeamMembers } from "@/features/student/hooks/use-team-members";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
@@ -24,10 +25,10 @@ type ReviewData = {
 
 export function PeerReviewForm() {
   const [role, setRole] = useState<UserRole>("STUDENT");
-  const [currentUserId, setCurrentUserId] = useState<string>("");
   const [teamId, setTeamId] = useState<string | undefined>(undefined);
 
   const classId = Cookies.get("student_class_id");
+  const { data: profile } = useProfile();
   const { data: myClasses } = useMyClasses();
   const { data: teamsData } = useClassTeams(classId);
   const { data: membersData, isLoading: isMembersLoading } =
@@ -54,20 +55,6 @@ export function PeerReviewForm() {
     }
   }, [classId, myClasses, teamsData]);
 
-  // Lấy currentUserId từ members data
-  useEffect(() => {
-    const studentId = Cookies.get("student_id");
-    // FIX 1: Sử dụng Optional Chaining để kiểm tra student_id tồn tại
-    if (membersData?.members && studentId) {
-      const currentMember = membersData.members.find(
-        (m) => m?.student?._id === studentId,
-      );
-      if (currentMember?._id) {
-        setCurrentUserId(currentMember._id);
-      }
-    }
-  }, [membersData]);
-
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
     if (savedRole) {
@@ -75,13 +62,15 @@ export function PeerReviewForm() {
     }
   }, []);
 
+  // Lấy _id của user hiện tại từ profile (để loại trừ bản thân, không dùng cookie student_id)
+  const currentUserId = profile?.user?._id ?? "";
+
   // Map API members data sang format của component
   const allTeamMembers = useMemo(() => {
-    // FIX 2: Lọc bỏ những member bị lỗi student null trước khi map
     if (!membersData?.members) return [];
 
     return membersData.members
-      .filter((m) => m && m.student) // Đảm bảo member và student không null
+      .filter((m) => m && m.student)
       .map((member) => {
         const name = member.student.full_name || "Thành viên chưa rõ";
         const initials = name
@@ -93,6 +82,7 @@ export function PeerReviewForm() {
 
         return {
           id: member._id,
+          studentId: member.student._id ?? "",
           name: name,
           initials: initials,
           role:
@@ -104,16 +94,17 @@ export function PeerReviewForm() {
       });
   }, [membersData]);
 
-  // Lọc ra danh sách thành viên để đánh giá (trừ bản thân)
+  // Chỉ đánh giá thành viên trong team, ngoại trừ bản thân (so khớp student._id với user._id)
   const membersToReview = useMemo(() => {
-    return allTeamMembers.filter((m) => m.id !== currentUserId);
+    if (!currentUserId) return allTeamMembers;
+    return allTeamMembers.filter((m) => m.studentId !== currentUserId);
   }, [allTeamMembers, currentUserId]);
 
   const [reviews, setReviews] = useState<Record<string, ReviewData>>({});
   const [submittedReviews, setSubmittedReviews] = useState<Set<string>>(
     new Set(),
   );
-  const [submittingId, setSubmittingId] = useState<string | null>(null);
+  const [isSubmittingAll, setIsSubmittingAll] = useState(false);
 
   const handleRatingChange = (memberId: string, rating: number) => {
     setReviews((prev) => ({
@@ -139,36 +130,60 @@ export function PeerReviewForm() {
     }));
   };
 
-  const handleSubmit = async (memberId: string, memberName: string) => {
-    const review = reviews[memberId];
+  const canSubmitAll = useMemo(() => {
+    if (!membersToReview || membersToReview.length === 0) return false;
+    for (const member of membersToReview) {
+      const review = reviews[member.id];
+      if (!review || review.rating === 0) return false;
+      if (
+        review.rating <= 2 &&
+        (!review.comment || review.comment.trim().length < 10)
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }, [membersToReview, reviews]);
 
-    if (!review || review.rating === 0) {
-      toast.error("Vui lòng chọn số sao đánh giá.");
+  const handleSubmitAll = async () => {
+    if (!teamId) {
+      toast.error("Không tìm thấy team để gửi đánh giá.");
       return;
     }
 
-    if (review.rating < 2) {
-      if (!review.comment || review.comment.trim().length < 10) {
-        toast.error(
-          "Điểm thấp (< 2 sao) cần nhập lý do chi tiết (tối thiểu 10 ký tự).",
-        );
-        return;
-      }
+    if (!canSubmitAll) {
+      toast.error(
+        "Bạn phải đánh giá đầy đủ tất cả thành viên (và nhập lý do với điểm <= 2 sao) trước khi gửi.",
+      );
+      return;
     }
 
-    setSubmittingId(memberId);
-    const res = await submitReview({
-      revieweeId: review.revieweeId,
-      rating: review.rating,
-      comment: review.comment,
-    });
-    setSubmittingId(null);
+    const payload = {
+      teamId,
+      reviews: membersToReview.map((member) => {
+        const review = reviews[member.id]!;
+        return {
+          evaluated_id: member.studentId,
+          rating: review.rating,
+          comment: review.comment ?? "",
+        };
+      }),
+    };
+
+    console.log(
+      "[Peer Review] Submit all payload:",
+      JSON.stringify(payload, null, 2),
+    );
+
+    setIsSubmittingAll(true);
+    const res = await submitReview(payload);
+    setIsSubmittingAll(false);
 
     if (res.error) {
       toast.error(res.error);
     } else {
-      toast.success(`Đã đánh giá ${memberName} thành công!`);
-      setSubmittedReviews((prev) => new Set(prev).add(memberId));
+      toast.success(res.message ?? "Đã gửi đánh giá thành công!");
+      setSubmittedReviews(new Set(membersToReview.map((m) => m.id)));
     }
   };
 
@@ -229,13 +244,12 @@ export function PeerReviewForm() {
           const rating = review?.rating || 0;
           const comment = review?.comment || "";
           const isSubmitted = submittedReviews.has(member.id);
-          const isSubmitting = submittingId === member.id;
 
           if (isSubmitted) {
             return (
               <Card
                 key={member.id}
-                className="bg-green-50 dark:bg-emerald-900/20 border-green-200 dark:border-emerald-800 flex flex-col items-center justify-center py-10 h-full transition-all duration-500"
+                className="bg-green-50 dark:bg-emerald-900/20 border-green-200 dark:border-emerald-800 flex flex-col items-center justify-center py-10 h-full w-100 transition-all duration-500"
               >
                 <CheckCircle2 className="w-16 h-16 text-green-500 dark:text-emerald-300 mb-4" />
                 <h3 className="text-green-800 dark:text-emerald-100 font-semibold text-lg uppercase">
@@ -272,7 +286,7 @@ export function PeerReviewForm() {
           return (
             <Card
               key={member.id}
-              className="hover:shadow-md transition-shadow duration-300 h-full flex flex-col border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+              className="hover:shadow-md transition-shadow duration-300 h-full w-100 flex flex-col border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
             >
               <CardHeader className="flex flex-row items-center gap-4 pb-2">
                 <Avatar className="h-12 w-12 border border-slate-200 dark:border-slate-700">
@@ -314,7 +328,7 @@ export function PeerReviewForm() {
                         key={star}
                         type="button"
                         onClick={() => handleRatingChange(member.id, star)}
-                        disabled={isSubmitting}
+                        disabled={isSubmittingAll || isSubmitted}
                         className="group focus:outline-none transition-transform active:scale-95 disabled:opacity-50"
                       >
                         <Star
@@ -336,7 +350,7 @@ export function PeerReviewForm() {
                 <div className="space-y-2 flex-1">
                   <Label className="text-[10px] uppercase text-slate-400 font-black tracking-widest ml-1">
                     Nhận xét{" "}
-                    {rating > 0 && rating < 2 && (
+                    {rating > 0 && rating <= 2 && (
                       <span className="text-red-500">*</span>
                     )}
                   </Label>
@@ -346,35 +360,43 @@ export function PeerReviewForm() {
                       handleCommentChange(member.id, e.target.value)
                     }
                     placeholder={
-                      rating < 2
-                        ? "Lý do điểm thấp..."
+                      rating <= 2
+                        ? "Nhận xét cho thành viên..."
                         : "Nhận xét (tuỳ chọn)..."
                     }
-                    disabled={isSubmitting}
+                    disabled={isSubmittingAll || isSubmitted}
                     className="resize-none min-h-[100px] rounded-2xl bg-slate-50/50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus-visible:ring-0 focus-visible:border-slate-400 dark:focus-visible:border-slate-500"
                   />
                 </div>
 
-                <Button
-                  onClick={() => handleSubmit(member.id, member.name)}
-                  disabled={
-                    isSubmitting ||
-                    rating === 0 ||
-                    (rating < 2 && (!comment || comment.trim().length < 10))
-                  }
-                  className="w-full mt-auto h-12 rounded-xl font-black uppercase tracking-widest text-xs text-white bg-slate-900 hover:bg-slate-800 dark:bg-[#F27124] dark:hover:bg-[#d65d1b] shadow-sm dark:shadow-orange-500/25"
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    "Gửi đánh giá"
-                  )}
-                </Button>
+                <div className="mt-auto h-12 flex items-center justify-center text-[11px] text-slate-500 dark:text-slate-400">
+                  {isSubmitted
+                    ? "Đã gửi đánh giá cho thành viên này."
+                    : rating === 0
+                      ? "Chọn số sao để đánh giá."
+                      : rating <= 2 && (!comment || comment.trim().length < 10)
+                        ? "Điểm <= 2 sao cần nhập lý do (tối thiểu 10 ký tự)."
+                        : "Đã đủ điều kiện, có thể gửi tất cả đánh giá."}
+                </div>
               </CardContent>
             </Card>
           );
         })}
       </div>
+      {membersToReview.length > 0 && (
+        <div className="flex justify-center pt-4">
+          <Button
+            onClick={handleSubmitAll}
+            disabled={!canSubmitAll || isSubmittingAll}
+            className="h-12 px-10 rounded-xl font-black uppercase tracking-widest text-sm text-white bg-slate-900 hover:bg-slate-800 dark:bg-[#F27124] dark:hover:bg-[#d651d1b] shadow-lg dark:shadow-orange-500/25"
+          >
+            {isSubmittingAll ? (
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+            ) : null}
+            Gửi tất cả đánh giá
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

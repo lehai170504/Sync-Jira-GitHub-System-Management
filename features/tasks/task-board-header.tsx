@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { Sprint } from "./types";
 
 type Props = {
@@ -26,10 +26,6 @@ type Props = {
     end_date?: string;
     state?: string;
   };
-  onAddSprint: () => void;
-  onEditSprint: () => void;
-  onDeleteSprint: () => void;
-
   onAddTask: () => void;
 };
 
@@ -42,9 +38,6 @@ export function TaskBoardHeader({
   sprintOverdue,
   isLeader,
   sprintMeta,
-  onAddSprint,
-  onEditSprint,
-  onDeleteSprint,
   onAddTask,
 }: Props) {
   const formatDate = (iso?: string) => {
@@ -70,7 +63,7 @@ export function TaskBoardHeader({
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Chọn sprint" />
         </SelectTrigger>
-        <SelectContent className="mt-25 max-h-[320px] overflow-y-auto">
+        <SelectContent className="mt-18 max-h-[320px] overflow-y-auto">
           {isSprintsLoading ? (
             <SelectItem value="__loading" disabled>
               Đang tải sprint...
@@ -87,47 +80,12 @@ export function TaskBoardHeader({
 
       {currentSprint && (
         <div className="flex items-center gap-2">
-          {isLeader && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100"
-                onClick={onEditSprint}
-                title="Sửa sprint"
-              >
-                <Pencil className="h-4 w-4 mr-1" />
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900/60 dark:hover:bg-red-900/50"
-                onClick={onDeleteSprint}
-                title="Xóa sprint"
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-              </Button>
-            </>
-          )}
           {sprintOverdue && (
             <Badge variant="destructive" className="text-[11px]">
               Quá hạn
             </Badge>
           )}
         </div>
-      )}
-
-      {isLeader && (
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-emerald-300 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
-          onClick={onAddSprint}
-          title="Thêm sprint"
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Thêm sprint
-        </Button>
       )}
 
       <Button
@@ -141,36 +99,13 @@ export function TaskBoardHeader({
       </div>
 
       {currentSprint && sprintMeta && (
-        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span className="font-medium">Trạng thái:</span>
-            <Badge
-              variant={
-                sprintMeta.state === "active"
-                  ? "default"
-                  : sprintMeta.state === "closed"
-                    ? "destructive"
-                    : "outline"
-              }
-              className={
-                sprintMeta.state === "active"
-                  ? "bg-emerald-500 text-white"
-                  : sprintMeta.state === "closed"
-                    ? "bg-red-500 text-white"
-                  : "border-slate-300"
-              }
-            >
-              {sprintMeta.state || "unknown"}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-4">
-            <span>
-              Bắt đầu: <span className="font-medium">{formatDate(sprintMeta.start_date)}</span>
-            </span>
-            <span>
-              Kết thúc: <span className="font-medium">{formatDate(sprintMeta.end_date)}</span>
-            </span>
-          </div>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <span>
+            Bắt đầu: <span className="font-medium">{formatDate(sprintMeta.start_date)}</span>
+          </span>
+          <span>
+            Kết thúc: <span className="font-medium">{formatDate(sprintMeta.end_date)}</span>
+          </span>
         </div>
       )}
     </div>

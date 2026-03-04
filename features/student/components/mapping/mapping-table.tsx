@@ -92,7 +92,7 @@ export function MappingTable({
                   return (
                     <TableRow
                       key={member._id}
-                      className="group hover:bg-slate-50/50 transition-colors"
+                      className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors"
                     >
                       <TableCell className="pl-6 py-4">
                         <div className="flex items-center gap-4">
@@ -108,7 +108,7 @@ export function MappingTable({
                               {isCurrentUser && (
                                 <Badge
                                   variant="outline"
-                                  className="text-[10px] px-1.5 py-0 h-4 border-indigo-200 text-indigo-600 bg-indigo-50"
+                                  className="text-[10px] px-1.5 py-0 h-4 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30"
                                 >
                                   Bạn
                                 </Badge>
@@ -189,8 +189,8 @@ export function MappingTable({
                               className={cn(
                                 "w-4 h-4",
                                 member.mapping_status?.github
-                                  ? "text-black"
-                                  : "text-slate-300",
+                                  ? "text-gray-900 dark:text-slate-100"
+                                  : "text-slate-300 dark:text-slate-600",
                               )}
                             />
                           </div>

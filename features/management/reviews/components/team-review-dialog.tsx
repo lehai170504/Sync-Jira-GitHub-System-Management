@@ -9,9 +9,10 @@ import {
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTeamReviews } from "@/features/management/reviews/hooks/use-team-reviews";
-import { Star, Loader2, Users } from "lucide-react";
+import { Star, Loader2, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TeamReviewDialogProps {
@@ -32,25 +33,13 @@ export function TeamReviewDialog({
   const hasData =
     data && data.evaluation_summary && data.evaluation_summary.length > 0;
 
-  if (open && teamId && data) {
-    // Debug: xem chính xác response từ GET /reviews/team/{teamId}
-    // Expected shape:
-    // {
-    //   team_id: string,
-    //   total_reviews_submitted: number,
-    //   evaluation_summary: [...]
-    // }
-    // eslint-disable-next-line no-console
-    console.log(
-      "[TeamReviewDialog] /reviews/team payload:",
-      JSON.stringify(data, null, 2),
-    );
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh] p-0 overflow-hidden rounded-[28px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-sans">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 backdrop-blur">
+      <DialogContent
+        className="sm:max-w-3xl max-h-[90vh] p-0 overflow-hidden rounded-[28px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-sans"
+        showCloseButton={false}
+      >
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 backdrop-blur relative">
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-1">
               <DialogTitle className="text-xl md:text-2xl font-black tracking-tight text-slate-900 dark:text-slate-50">
@@ -72,11 +61,20 @@ export function TeamReviewDialog({
               </DialogDescription>
             </div>
             {data && (
-              <Badge className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800 text-[10px] font-black uppercase tracking-widest px-2 py-1 h-auto">
+              <Badge className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800 text-[10px] font-black uppercase tracking-widest px-2 py-1 h-auto shrink-0">
                 {data.total_reviews_submitted} lượt đánh giá
               </Badge>
             )}
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-1 right-1 h-9 w-9 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
+            onClick={() => onOpenChange(false)}
+            aria-label="Đóng"
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </DialogHeader>
 
         <ScrollArea className="max-h-[70vh]">
@@ -215,17 +213,6 @@ export function TeamReviewDialog({
                 );
               })}
 
-            {/* Hiển thị JSON thô từ API để dễ kiểm tra */}
-            {!isLoading && data && (
-              <div className="mt-4 border border-slate-100 dark:border-slate-800 rounded-2xl bg-slate-50/60 dark:bg-slate-900/40 p-3">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-2">
-                  Dữ liệu gốc từ API /reviews/team/{data.team_id}
-                </p>
-                <pre className="text-[11px] font-mono text-slate-700 dark:text-slate-200 max-h-64 overflow-auto whitespace-pre-wrap break-all">
-                  {JSON.stringify(data, null, 2)}
-                </pre>
-              </div>
-            )}
           </div>
         </ScrollArea>
       </DialogContent>

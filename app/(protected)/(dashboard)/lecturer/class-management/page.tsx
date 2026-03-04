@@ -180,6 +180,7 @@ export default function ClassManagementPage() {
                 <StudentList
                   classId={classId}
                   students={students}
+                  teams={teamsData?.teams || []}
                   filterTerm={searchTerm}
                   onRefresh={refetchStudents}
                 />

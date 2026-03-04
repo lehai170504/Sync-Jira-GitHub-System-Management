@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getTeamReviewsByTeamApi,
   TeamReviewSummaryResponse,
-} from "@/features/management/reviews/api/review-api";
+} from "@/features/management/reviews/api/review-api-client";
 
 export const useTeamReviews = (teamId: string | null, enabled: boolean) => {
   return useQuery<TeamReviewSummaryResponse>({

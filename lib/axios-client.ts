@@ -16,12 +16,9 @@ axiosClient.interceptors.request.use((config) => {
 
 // --- 2. RESPONSE INTERCEPTOR (Xử lý khi Token hết hạn) ---
 
-// Biến cờ để kiểm tra xem có đang refresh token không
 let isRefreshing = false;
-// Hàng đợi lưu các request bị lỗi để chạy lại sau khi refresh xong
 let failedQueue: any[] = [];
 
-// Hàm xử lý hàng đợi
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -33,6 +30,24 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+// Hàm tiện ích: Xóa sạch dữ liệu và ép văng về trang chủ ("/")
+const forceLogout = () => {
+  const opt = { path: "/" as const };
+  Cookies.remove("token", opt);
+  Cookies.remove("refreshToken", opt);
+  Cookies.remove("user_role", opt);
+  Cookies.remove("user_email", opt);
+  Cookies.remove("user_name", opt);
+
+  if (typeof window !== "undefined") {
+    localStorage.setItem("logout_event", Date.now().toString());
+    // Đảm bảo chỉ redirect nếu chưa ở trang "/"
+    if (window.location.pathname !== "/") {
+      window.location.href = "/";
+    }
+  }
+};
+
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -40,9 +55,7 @@ axiosClient.interceptors.response.use(
 
     // Nếu lỗi là 401 (Unauthorized) và request chưa từng được retry
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Nếu đang có một tiến trình refresh token chạy rồi
       if (isRefreshing) {
-        // Đẩy request này vào hàng đợi, đợi khi nào có token mới thì chạy lại
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
         })
@@ -55,61 +68,49 @@ axiosClient.interceptors.response.use(
           });
       }
 
-      // Đánh dấu request này đã được retry để tránh lặp vô tận
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        // 1. Lấy Refresh Token từ Cookie
         const refreshToken = Cookies.get("refreshToken");
 
+        // 🚨 NẾU KHÔNG CÓ REFRESH TOKEN -> CHƯA ĐĂNG NHẬP HOẶC MẤT PHIÊN -> ĐÁ VỀ "/"
         if (!refreshToken) {
-          throw new Error("No refresh token available");
+          forceLogout();
+          return Promise.reject(new Error("No refresh token available"));
         }
 
-        // 2. Gọi API làm mới token
+        // Gọi API làm mới token
         const data = await refreshTokenApi(refreshToken);
 
-        // 3. Lưu Token mới vào Cookie
-        // (Lưu ý: set lại thời gian hết hạn phù hợp với BE trả về)
+        // Lưu Token mới vào Cookie
         Cookies.set("token", data.access_token, { path: "/", expires: 1 });
         Cookies.set("refreshToken", data.refresh_token, {
           path: "/",
           expires: 7,
         });
 
-        // 4. Gắn token mới vào header của request ban đầu
         axiosClient.defaults.headers.common["Authorization"] =
           "Bearer " + data.access_token;
         originalRequest.headers["Authorization"] =
           "Bearer " + data.access_token;
 
-        // 5. Giải quyết hàng đợi (cho các request khác đang chờ)
         processQueue(null, data.access_token);
 
-        // 6. Gọi lại request ban đầu
         return axiosClient(originalRequest);
       } catch (refreshError) {
-        // Nếu Refresh Token cũng hết hạn hoặc lỗi -> Logout bắt buộc
+        // 🚨 NẾU REFRESH TOKEN CŨNG HẾT HẠN HOẶC LỖI -> ĐÁ VỀ "/"
         processQueue(refreshError, null);
-
-        const opt = { path: "/" as const };
-        Cookies.remove("token", opt);
-        Cookies.remove("refreshToken", opt);
-        Cookies.remove("user_role", opt);
-        Cookies.remove("user_email", opt);
-        Cookies.remove("user_name", opt);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("logout_event", Date.now().toString());
-          if (window.location.pathname !== "/login") {
-            window.location.href = "/login";
-          }
-        }
-
+        forceLogout();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
+    }
+
+    // 🚨 QUAN TRỌNG: Nếu lỗi 401 xảy ra ở bất kỳ đâu khác (VD: gọi api retry vẫn 401) -> Bắt buộc Logout
+    if (error.response?.status === 401) {
+      forceLogout();
     }
 
     return Promise.reject(error);

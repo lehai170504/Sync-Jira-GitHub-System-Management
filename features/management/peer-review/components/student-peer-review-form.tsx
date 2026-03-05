@@ -50,6 +50,7 @@ export function PeerReviewForm() {
       );
       if (myTeam?._id) {
         setTeamId(myTeam._id);
+      } else {
         setTeamId(teamsData.teams[0]._id);
       }
     }

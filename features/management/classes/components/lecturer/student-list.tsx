@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Users } from "lucide-react";
+import { Users, Star } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -22,11 +22,15 @@ import { StudentTableRow } from "./student-table-row";
 import { EditStudentDialog } from "./edit-student-dialog";
 import { DeleteStudentAlert } from "./delete-student-alert";
 import { SendStudentNotification } from "@/features/notifications/components/SendStudentNotification";
+import { TeamReviewDialog } from "@/features/management/reviews/components/team-review-dialog";
 import { ClassStudent } from "@/features/management/classes/types/class-types";
+import { Team } from "@/features/student/types/team-types";
+import { Button } from "@/components/ui/button";
 
 interface StudentListProps {
   classId?: string;
   students: ClassStudent[];
+  teams?: Team[];
   filterTerm: string;
   onRefresh?: () => void;
   lastUpdatedId?: string | null;
@@ -35,10 +39,15 @@ interface StudentListProps {
 export function StudentList({
   classId = "",
   students,
+  teams = [],
   filterTerm,
   onRefresh,
   lastUpdatedId,
 }: StudentListProps) {
+  const [reviewDialogTeamId, setReviewDialogTeamId] = useState<string | null>(
+    null,
+  );
+  const [reviewDialogTeamName, setReviewDialogTeamName] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<ClassStudent | null>(
     null,
   );
@@ -116,7 +125,7 @@ export function StudentList({
             className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[32px] shadow-sm overflow-hidden transition-all hover:shadow-md dark:hover:shadow-none"
           >
             <AccordionItem value={group} className="border-0">
-              <div className="flex items-center justify-between px-8 py-5 bg-slate-50/30 dark:bg-slate-950/50">
+              <div className="flex items-center justify-between px-8 py-5 bg-slate-50/30 dark:bg-slate-950/50 gap-3">
                 <AccordionTrigger className="hover:no-underline py-0 flex-1">
                   <div className="flex items-center gap-5">
                     <div
@@ -145,6 +154,25 @@ export function StudentList({
                     </div>
                   </div>
                 </AccordionTrigger>
+                {group !== "Chưa có nhóm" && (() => {
+                  const team = teams.find((t) => t.project_name === group);
+                  if (!team) return null;
+                  return (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 gap-2 border-amber-100 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 h-9"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setReviewDialogTeamId(team._id);
+                        setReviewDialogTeamName(team.project_name || group);
+                      }}
+                    >
+                      <Star className="w-3.5 h-3.5" />
+                      <span className="text-xs">Xem đánh giá</span>
+                    </Button>
+                  );
+                })()}
               </div>
 
               {/* AccordionContent chỉ render khi mở -> Tự động tối ưu DOM */}
@@ -215,6 +243,13 @@ export function StudentList({
           />
         </>
       )}
+
+      <TeamReviewDialog
+        open={!!reviewDialogTeamId}
+        onOpenChange={(open) => !open && setReviewDialogTeamId(null)}
+        teamId={reviewDialogTeamId}
+        teamName={reviewDialogTeamName}
+      />
     </div>
   );
 }

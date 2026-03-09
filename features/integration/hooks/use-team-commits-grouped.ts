@@ -8,10 +8,11 @@ import { getIntegrationTeamCommitsGroupedApi } from "../api/team-commits-api";
 export function useIntegrationTeamCommitsGrouped(
   teamId: string | undefined,
   enabled: boolean,
+  branch?: string,
 ) {
   return useQuery({
-    queryKey: ["integration-team-commits-grouped", teamId],
-    queryFn: () => getIntegrationTeamCommitsGroupedApi(teamId!),
+    queryKey: ["integration-team-commits-grouped", teamId, branch],
+    queryFn: () => getIntegrationTeamCommitsGroupedApi(teamId!, branch),
     enabled: enabled && !!teamId,
     staleTime: 30 * 1000,
     refetchOnWindowFocus: true,

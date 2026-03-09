@@ -108,6 +108,8 @@ export interface TeamCommitItem {
   is_counted: boolean;
   message: string;
   rejection_reason?: string | null;
+  /** Mảng các nhánh chứa commit (BE trả về) */
+  branches?: string[];
   __v?: number;
 }
 

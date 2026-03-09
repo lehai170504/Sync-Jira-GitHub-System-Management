@@ -9,16 +9,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CheckCircle2, XCircle, GitCommit } from "lucide-react";
+import { CheckCircle2, XCircle, GitCommit, Eye } from "lucide-react";
 import type { CommitItem } from "./types";
 import { getValidation } from "./utils";
 
 interface CommitListTableProps {
   commits: CommitItem[];
   onCommitClick: (commitId: string) => void;
+  /** Thông báo khi danh sách trống (ví dụ: nhánh chưa đồng bộ) */
+  emptyMessage?: string;
+  /** URL repo GitHub để gọi API chi tiết patch (optional) */
+  repoUrl?: string;
+  /** Callback khi bấm nút "Xem chi tiết" - mở modal patch */
+  onViewPatch?: (commit: CommitItem) => void;
 }
 
-export function CommitListTable({ commits, onCommitClick }: CommitListTableProps) {
+export function CommitListTable({ commits, onCommitClick, emptyMessage, repoUrl, onViewPatch }: CommitListTableProps) {
   const formatDate_ddMMyyyy = (dateStr?: string) => {
     if (!dateStr) return "—";
     const d = new Date(dateStr);
@@ -65,15 +71,19 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                   <TableHead className="font-semibold">Branch</TableHead>
                   <TableHead className="font-semibold">Ngày</TableHead>
                   <TableHead className="text-right font-semibold">Lý do loại</TableHead>
+                  <TableHead className="w-[60px] text-center font-semibold">Chi tiết</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {commits.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12">
+                    <TableCell colSpan={8} className="text-center py-12">
                       <div className="flex flex-col items-center gap-2 text-muted-foreground">
                         <GitCommit className="h-8 w-8 opacity-50" />
-                        <p className="text-sm font-medium">Không có commit trong khoảng thời gian này</p>
+                        <p className="text-sm font-medium">
+                          {emptyMessage ||
+                            "Không có commit trong khoảng thời gian này"}
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -125,7 +135,24 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                           {c.id.substring(0, 7)}
                         </code>
                       </TableCell>
-                      <TableCell className="font-medium max-w-md truncate">{c.message}</TableCell>
+                      <TableCell className="font-medium max-w-md">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="truncate">{c.message}</span>
+                          {(c.jira_issues && c.jira_issues.length > 0) && (
+                            <span className="flex flex-wrap gap-1 shrink-0">
+                              {c.jira_issues.map((key) => (
+                                <Badge
+                                  key={key}
+                                  variant="outline"
+                                  className="text-[10px] font-mono font-semibold bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800"
+                                >
+                                  {key}
+                                </Badge>
+                              ))}
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div className="h-6 w-6 rounded-full bg-linear-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white text-xs font-semibold">
@@ -135,12 +162,31 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant="outline"
-                          className="text-[11px] font-mono border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-200 bg-purple-50 dark:bg-purple-950/40"
-                        >
-                          {c.branch}
-                        </Badge>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(c.branches && c.branches.length > 0
+                            ? c.branches
+                            : [c.branch]
+                          ).map((b, idx) => {
+                            const colors = [
+                              "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800",
+                              "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
+                              "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800",
+                              "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800",
+                              "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-800",
+                            ];
+                            const colorClass =
+                              colors[idx % colors.length];
+                            return (
+                              <Badge
+                                key={`${b}-${idx}`}
+                                variant="outline"
+                                className={`text-[10px] font-mono font-semibold border ${colorClass}`}
+                              >
+                                {b}
+                              </Badge>
+                            );
+                          })}
+                        </div>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {formatDate_ddMMyyyy(c.date)}
@@ -170,6 +216,29 @@ export function CommitListTable({ commits, onCommitClick }: CommitListTableProps
                           >
                             —
                           </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {repoUrl && onViewPatch ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onViewPatch(c);
+                                }}
+                                className="p-2 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 text-purple-600 dark:text-purple-400 transition-colors"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <span className="text-xs">Xem chi tiết</span>
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
                     </TableRow>

@@ -15,6 +15,7 @@ type Props = {
   currentUserId: string;
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
+  onViewTask?: (task: Task) => void;
   disableActions?: boolean; // Nếu true, sẽ ẩn các nút edit và delete
 };
 
@@ -26,6 +27,7 @@ export function MemberTableView({
   currentUserId,
   onEditTask,
   onDeleteTask,
+  onViewTask,
   disableActions = false,
 }: Props) {
   return (
@@ -92,7 +94,13 @@ export function MemberTableView({
                         <span className={`font-mono text-[11px] text-muted-foreground ${task.status === "done" ? "line-through" : ""}`}>
                           {task.key ?? task.id}
                         </span>
-                        <span className="font-medium">{task.title}</span>
+                        <span
+                          className={`font-medium ${onViewTask ? "cursor-pointer hover:text-primary" : ""}`}
+                          onClick={() => onViewTask?.(task)}
+                          role={onViewTask ? "button" : undefined}
+                        >
+                          {task.title}
+                        </span>
                         {overdue && (
                           <Badge
                             variant="outline"

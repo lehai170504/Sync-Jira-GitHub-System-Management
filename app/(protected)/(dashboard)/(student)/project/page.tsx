@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useState, useMemo, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { useMyProject } from "@/features/projects/hooks/use-my-project";
@@ -16,13 +16,24 @@ import {
   Rocket,
   AlertTriangle,
   RefreshCw,
+  GitBranch,
+  Check,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { syncProjectApi } from "@/features/integration/api/sync-api";
+import { getProjectGithubBranchesApi } from "@/features/integration/api/github-branches-api";
 
 export default function ProjectDetailsPage() {
   const classId = Cookies.get("student_class_id");
@@ -34,6 +45,7 @@ export default function ProjectDetailsPage() {
 
   const queryClient = useQueryClient();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
 
   // Lấy project phù hợp với lớp đang chọn (project đầu tiên match class_id)
   const project = useMemo(() => {
@@ -58,6 +70,23 @@ export default function ProjectDetailsPage() {
   const showEmptyState = !project || !projectClassMatches;
   const isLoading = isProjectLoading;
 
+  const {
+    data: branchesData,
+    isLoading: isBranchesLoading,
+  } = useQuery({
+    queryKey: ["project-github-branches", project?._id],
+    queryFn: () => getProjectGithubBranchesApi(project!._id),
+    enabled: !!project?._id && !!project.githubRepoUrl,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const displayBranch =
+    selectedBranch || branchesData?.branches?.[0] || "Git Branches";
+
+  useEffect(() => {
+    setSelectedBranch(null);
+  }, [project?._id]);
+
   const handleSyncProject = async () => {
     if (!project?._id) {
       toast.error("Không tìm thấy dự án để đồng bộ.");
@@ -66,7 +95,8 @@ export default function ProjectDetailsPage() {
 
     try {
       setIsSyncing(true);
-      const res = await syncProjectApi(project._id);
+      const branch = displayBranch && displayBranch !== "Git Branches" ? displayBranch : undefined;
+      const res = await syncProjectApi(project._id, branch ? { branch } : undefined);
 
       const { github, jira, errors = [] } = res.stats || {};
       const description =
@@ -173,6 +203,63 @@ export default function ProjectDetailsPage() {
                 </>
               )}
             </Button>
+          )}
+
+          {project.githubRepoUrl && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="rounded-xl gap-2 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 shadow-sm transition-all active:scale-95"
+                >
+                  {isBranchesLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-gray-500 dark:text-slate-400" />
+                  ) : (
+                    <GitBranch className="w-4 h-4 text-gray-900 dark:text-slate-100" />
+                  )}
+                  <span className="text-xs font-bold uppercase">
+                    Branch: {displayBranch}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-56 rounded-2xl shadow-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700"
+              >
+                <DropdownMenuLabel className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                  GitHub branches
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {isBranchesLoading && (
+                  <DropdownMenuItem disabled className="text-xs">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang tải...
+                  </DropdownMenuItem>
+                )}
+                {!isBranchesLoading &&
+                  (branchesData?.branches?.length ? (
+                    branchesData.branches.map((branch) => (
+                      <DropdownMenuItem
+                        key={branch}
+                        className="text-xs cursor-pointer"
+                        onSelect={() => setSelectedBranch(branch)}
+                      >
+                        {branch}
+                        {displayBranch === branch && (
+                          <Check className="ml-auto h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        )}
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <DropdownMenuItem
+                      disabled
+                      className="text-xs text-slate-400 dark:text-slate-500"
+                    >
+                      Không có branch nào
+                    </DropdownMenuItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
 
           <Button

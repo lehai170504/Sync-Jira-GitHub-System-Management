@@ -43,6 +43,8 @@ import { useTeamMembers } from "@/features/student/hooks/use-team-members";
 import { useMemberTasks } from "@/features/integration/hooks/use-member-tasks";
 import { useTeamAllTasks } from "@/features/integration/hooks/use-team-all-tasks";
 import { useMyTasks } from "@/features/integration/hooks/use-my-tasks";
+import { useTeamDetail } from "@/features/student/hooks/use-team-detail";
+import { TaskDetailSheet } from "./task-detail-sheet";
 
 export function TaskBoard() {
   const [role, setRole] = useState<UserRole>("STUDENT");
@@ -73,6 +75,7 @@ export function TaskBoard() {
   });
 
 
+  const [viewTask, setViewTask] = useState<Task | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "task" | "sprint";
@@ -86,6 +89,9 @@ export function TaskBoard() {
   const { data: teamsData } = useClassTeams(classId);
   const myTeamInfo = teamsData?.teams?.find((t: any) => t.project_name === myTeamName);
   const resolvedTeamId = myTeamInfo?._id || teamsData?.teams?.[0]?._id;
+
+  const { data: teamDetailData } = useTeamDetail(resolvedTeamId);
+  const projectId = teamDetailData?.project?._id;
 
   // Fetch sprints từ Jira
   const { data: teamSprintsData, isLoading: isSprintsLoading } = useTeamSprints(resolvedTeamId);
@@ -743,6 +749,7 @@ export function TaskBoard() {
                 setFormTask(task);
                 setDialogOpen(true);
               }}
+              onViewTask={setViewTask}
               onDeleteTask={handleDeleteTask}
               onTaskStatusChange={(taskId, newStatus) => {
                 const task = tasks.find((t) => t.id === taskId);
@@ -831,6 +838,7 @@ export function TaskBoard() {
                 setFormTask(task);
                 setDialogOpen(true);
               }}
+              onViewTask={setViewTask}
               onDeleteTask={handleDeleteTask}
               disableActions={true}
             />
@@ -852,6 +860,20 @@ export function TaskBoard() {
         sprints={sprints}
         isLeader={isLeader}
         currentUserId={currentUserId}
+      />
+
+      <TaskDetailSheet
+        open={!!viewTask}
+        onOpenChange={(open) => !open && setViewTask(null)}
+        task={viewTask}
+        members={members}
+        projectId={projectId}
+        onEditTask={(task) => {
+          setViewTask(null);
+          setEditingTask(task);
+          setFormTask(task);
+          setDialogOpen(true);
+        }}
       />
 
       <DeleteConfirmDialog

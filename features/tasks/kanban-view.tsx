@@ -23,6 +23,7 @@ type Props = {
   currentUserId: string;
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
+  onViewTask?: (task: Task) => void;
   onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
 };
 
@@ -35,6 +36,7 @@ export function KanbanView({
   currentUserId,
   onEditTask,
   onDeleteTask,
+  onViewTask,
   onTaskStatusChange,
 }: Props) {
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
@@ -159,7 +161,11 @@ export function KanbanView({
                         {/* Row 1: Title + Edit + Delete */}
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                            <p className="text-sm font-semibold leading-snug truncate">
+                            <p
+                              className={`text-sm font-semibold leading-snug truncate ${onViewTask ? "cursor-pointer hover:text-primary" : ""}`}
+                              onClick={(e) => { e.stopPropagation(); onViewTask?.(task); }}
+                              role={onViewTask ? "button" : undefined}
+                            >
                               {task.title}
                             </p>
                             {canEdit && (

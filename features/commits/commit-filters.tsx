@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Filter, X, Crown, GraduationCap, RefreshCw, Loader2 } from "lucide-react";
+import { Filter, X, GraduationCap, RefreshCw, Loader2, GitBranch } from "lucide-react";
 import { toast } from "sonner";
 import { syncTeamApi, type TeamSyncResponse } from "@/features/integration/api/team-sync-api";
 
@@ -32,11 +32,15 @@ interface CommitFiltersProps {
   onReset: () => void;
   isLeader?: boolean;
   currentUserAuthorName?: string;
-  leaderNames?: string[]; // Danh sách tên các leader để đánh dấu
-  classOptions?: ClassOption[]; // Danh sách classes từ API
-  selectedClassId?: string; // Class ID đang được chọn
-  onClassChange?: (classId: string) => void; // Callback khi chọn class
-  teamId?: string; // Team ID để gọi API sync
+  leaderNames?: string[];
+  classOptions?: ClassOption[];
+  selectedClassId?: string;
+  onClassChange?: (classId: string) => void;
+  teamId?: string;
+  /** Lọc theo nhánh Git */
+  branchFilter?: string;
+  onBranchChange?: (value: string) => void;
+  branchOptions?: string[];
 }
 
 export function CommitFilters({
@@ -55,6 +59,9 @@ export function CommitFilters({
   selectedClassId = "",
   onClassChange,
   teamId,
+  branchFilter = "",
+  onBranchChange,
+  branchOptions = [],
 }: CommitFiltersProps) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<TeamSyncResponse | null>(null);
@@ -62,6 +69,7 @@ export function CommitFilters({
   const hasActiveFilters =
     fromDate ||
     toDate ||
+    branchFilter ||
     (selectedClassId && classOptions.length > 1);
 
   const handleSync = async () => {
@@ -141,7 +149,32 @@ export function CommitFilters({
             </div>
           )}
 
-          {/* Date filters, Nút Xóa lọc và Nút Đồng bộ - Bên phải */}
+          {/* Branch filter */}
+          {branchOptions.length > 0 && onBranchChange && (
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                <GitBranch className="h-4 w-4 text-purple-600" />
+                Nhánh
+              </label>
+              <Select value={branchFilter || "ALL"} onValueChange={(v) => onBranchChange(v === "ALL" ? "" : v)}>
+                <SelectTrigger className="w-full md:w-[200px] border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+                  <SelectValue placeholder="Tất cả nhánh" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL" className="text-xs">
+                    Tất cả nhánh
+                  </SelectItem>
+                  {branchOptions.map((b) => (
+                    <SelectItem key={b} value={b} className="text-xs">
+                      {b}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Date filters, Nút Xóa lọc - Bên phải */}
           <div className="flex flex-col sm:flex-row gap-4 items-end">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex flex-col gap-2">

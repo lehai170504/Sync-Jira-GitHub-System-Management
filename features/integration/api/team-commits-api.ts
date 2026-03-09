@@ -9,6 +9,7 @@ export interface TeamCommitItem {
   message: string;
   author: string;
   branch: string;
+  branches?: string[];
   date: string; // ISO date
   sha?: string;
   url?: string;
@@ -27,9 +28,12 @@ export interface TeamCommitsResponse {
 
 export const getTeamCommitsApi = async (
   teamId: string,
+  branch?: string,
 ): Promise<TeamCommitsResponse> => {
+  const params = branch ? { branch } : {};
   const { data } = await axiosClient.get<TeamCommitsResponse>(
     `/integrations/team/${teamId}/commits`,
+    { params },
   );
   return data;
 };
@@ -53,9 +57,12 @@ export interface MemberCommitsResponse {
 export const getMemberCommitsApi = async (
   teamId: string,
   memberId: string,
+  branch?: string,
 ): Promise<MemberCommitsResponse> => {
+  const params = branch ? { branch } : {};
   const { data } = await axiosClient.get<MemberCommitsResponse>(
     `/integrations/team/${teamId}/member/${memberId}/commits`,
+    { params },
   );
   return data;
 };
@@ -98,6 +105,7 @@ export interface IntegrationTeamCommitsGroupedResponse {
       is_counted: boolean;
       message: string;
       rejection_reason?: string | null;
+      branches?: string[];
       __v?: number;
     }>;
   }>;
@@ -105,9 +113,12 @@ export interface IntegrationTeamCommitsGroupedResponse {
 
 export async function getIntegrationTeamCommitsGroupedApi(
   teamId: string,
+  branch?: string,
 ): Promise<IntegrationTeamCommitsGroupedResponse> {
+  const params = branch ? { branch } : {};
   const { data } = await axiosClient.get<IntegrationTeamCommitsGroupedResponse>(
     `/integrations/team/${teamId}/commits`,
+    { params },
   );
   return data;
 }

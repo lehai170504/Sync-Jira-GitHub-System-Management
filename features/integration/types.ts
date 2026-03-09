@@ -37,6 +37,8 @@ export interface MyCommitItem {
   message: string;
   author: string;
   branch: string;
+  /** Mảng các nhánh chứa commit (BE có thể trả về) */
+  branches?: string[];
   date: string; // ISO date
   sha?: string;
   url?: string;

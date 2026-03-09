@@ -1,8 +1,10 @@
 import type { CommitValidation } from "./types";
-import { mockValidation } from "./mock-data";
 
-export function getValidation(commit: { id: string; is_counted?: boolean; rejection_reason?: string | null }): CommitValidation {
-  // Ưu tiên data thật từ BE (teams/:teamId/commits)
+export function getValidation(commit: {
+  id: string;
+  is_counted?: boolean;
+  rejection_reason?: string | null;
+}): CommitValidation {
   if (commit.rejection_reason) {
     return {
       status: "rejected",
@@ -24,14 +26,10 @@ export function getValidation(commit: { id: string; is_counted?: boolean; reject
       reason: "Commit được tính điểm.",
     };
   }
-
-  // Fallback: mock validation theo id (dữ liệu demo)
-  return (
-    mockValidation[commit.id] ?? {
-      status: "valid",
-      label: "Hợp lệ",
-      reason: "Không có quy tắc loại trừ.",
-    }
-  );
+  return {
+    status: "valid",
+    label: "Hợp lệ",
+    reason: "Chưa có thông tin xác minh từ hệ thống.",
+  };
 }
 

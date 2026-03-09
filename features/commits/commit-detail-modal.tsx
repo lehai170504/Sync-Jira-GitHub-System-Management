@@ -152,7 +152,7 @@ export function CommitDetailModal({
                             colSpan={4}
                             className="text-center py-8 text-sm text-muted-foreground"
                           >
-                            Không có dữ liệu file/LOC (mock).
+                            Không có dữ liệu chi tiết file.
                           </TableCell>
                         </TableRow>
                       )}

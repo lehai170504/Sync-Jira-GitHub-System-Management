@@ -65,9 +65,12 @@ export const getJiraUsersApi = async (
  */
 export const getTeamCommitsFromTeamApi = async (
   teamId: string,
+  branch?: string,
 ): Promise<TeamCommitsResponse> => {
+  const params = branch ? { branch } : {};
   const { data } = await axiosClient.get<TeamCommitsResponse>(
     `/teams/${teamId}/commits`,
+    { params },
   );
   return data;
 };

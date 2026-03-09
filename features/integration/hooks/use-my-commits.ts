@@ -3,13 +3,14 @@ import { getMyCommitsApi } from "../api/my-commits-api";
 
 /**
  * Hook để lấy danh sách commits của bản thân (cho MEMBER)
+ * @param branch - Lọc theo nhánh. Không truyền thì trả tất cả.
  */
-export const useMyCommits = () => {
+export const useMyCommits = (branch?: string) => {
   return useQuery({
-    queryKey: ["my-commits"],
-    queryFn: getMyCommitsApi,
-    staleTime: 30 * 1000, // Cache 30 giây
-    refetchOnWindowFocus: true, // Tự động refetch khi focus lại cửa sổ
+    queryKey: ["my-commits", branch],
+    queryFn: () => getMyCommitsApi(branch),
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 

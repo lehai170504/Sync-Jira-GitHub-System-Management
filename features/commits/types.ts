@@ -3,6 +3,10 @@ export type CommitItem = {
   message: string;
   author: string;
   branch: string;
+  /** Mảng các nhánh chứa commit này (dùng để vẽ Badge màu) */
+  branches?: string[];
+  /** Mảng Jira issue keys (VD: SCRUM-12) liên kết qua Smart Linking */
+  jira_issues?: string[];
   date: string; // ISO date
   is_counted?: boolean;
   rejection_reason?: string | null;

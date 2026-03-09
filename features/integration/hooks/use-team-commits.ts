@@ -5,13 +5,17 @@ import { getTeamCommitsApi, getMemberCommitsApi } from "../api/team-commits-api"
  * Hook để lấy danh sách commits của team
  * Chỉ gọi khi isLeader === true và authorFilter === "ALL"
  */
-export const useTeamCommits = (teamId: string | undefined, enabled: boolean) => {
+export const useTeamCommits = (
+  teamId: string | undefined,
+  enabled: boolean,
+  branch?: string,
+) => {
   return useQuery({
-    queryKey: ["team-commits", teamId],
-    queryFn: () => getTeamCommitsApi(teamId!),
-    enabled: enabled && !!teamId, // Chỉ chạy khi enabled và có teamId
-    staleTime: 30 * 1000, // Cache 30 giây
-    refetchOnWindowFocus: true, // Tự động refetch khi focus lại cửa sổ
+    queryKey: ["team-commits", teamId, branch],
+    queryFn: () => getTeamCommitsApi(teamId!, branch),
+    enabled: enabled && !!teamId,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -23,13 +27,14 @@ export const useMemberCommits = (
   teamId: string | undefined,
   memberId: string | undefined,
   enabled: boolean,
+  branch?: string,
 ) => {
   return useQuery({
-    queryKey: ["member-commits", teamId, memberId],
-    queryFn: () => getMemberCommitsApi(teamId!, memberId!),
-    enabled: enabled && !!teamId && !!memberId, // Chỉ chạy khi enabled và có teamId, memberId
-    staleTime: 30 * 1000, // Cache 30 giây
-    refetchOnWindowFocus: true, // Tự động refetch khi focus lại cửa sổ
+    queryKey: ["member-commits", teamId, memberId, branch],
+    queryFn: () => getMemberCommitsApi(teamId!, memberId!, branch),
+    enabled: enabled && !!teamId && !!memberId,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 

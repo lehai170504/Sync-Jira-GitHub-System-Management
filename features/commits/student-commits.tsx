@@ -12,23 +12,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { GitCommit, Loader2, AlertCircle } from "lucide-react";
-import { mockCommits, mockCommitDetails } from "./mock-data";
 import { CommitFilters } from "./commit-filters";
 import { CommitListTable } from "./commit-list-table";
 import { CommitDetailModal } from "./commit-detail-modal";
+import { CommitPatchModal } from "./commit-patch-modal";
 import { getValidation } from "./utils";
 import { UserRole } from "@/components/layouts/sidebar-config";
 import type { CommitItem } from "./types";
 import { useTeamMembers } from "@/features/student/hooks/use-team-members";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
-import {
-  useTeamCommits,
-  useMemberCommits,
-} from "@/features/integration/hooks/use-team-commits";
+import { useMemberCommits } from "@/features/integration/hooks/use-team-commits";
 import { useMyCommits } from "@/features/integration/hooks/use-my-commits";
 import { useTeamCommitsFromTeam } from "@/features/management/teams/hooks/use-team-commits";
 import { useIntegrationTeamCommitsGrouped } from "@/features/integration/hooks/use-team-commits-grouped";
+import { useTeamDetail } from "@/features/student/hooks/use-team-detail";
+import { useQuery } from "@tanstack/react-query";
+import { getProjectGithubBranchesApi } from "@/features/integration/api/github-branches-api";
 
 interface LeaderCommitsProps {
   role?: UserRole;
@@ -48,6 +48,8 @@ export function LeaderCommits({
   const [selectedCommitId, setSelectedCommitId] = useState<string | null>(null);
   const [leaderView, setLeaderView] = useState<"list" | "grouped">("list");
   const [groupedMemberFilter, setGroupedMemberFilter] = useState<string>("ALL");
+  const [branchFilter, setBranchFilter] = useState<string>("");
+  const [selectedPatchCommit, setSelectedPatchCommit] = useState<CommitItem | null>(null);
 
   // 1. Lấy danh sách lớp học
   const { data: myClassesData, isLoading: isClassesLoading } = useMyClasses();
@@ -97,6 +99,17 @@ export function LeaderCommits({
 
   const isLeader = propIsLeader !== undefined ? propIsLeader : isLeaderState;
 
+  const { data: teamDetailData } = useTeamDetail(resolvedTeamId);
+  const projectId = teamDetailData?.project?._id;
+  const repoUrl = teamDetailData?.project?.githubRepoUrl || teamDetailData?.team?.github_repo_url;
+  const { data: branchesData } = useQuery({
+    queryKey: ["project-github-branches", projectId],
+    queryFn: () => getProjectGithubBranchesApi(projectId!),
+    enabled: !!projectId,
+    staleTime: 5 * 60 * 1000,
+  });
+  const branchOptions = branchesData?.branches || [];
+
   // Leader UI: grouped commits by member (GET /integrations/team/:teamId/commits - grouped)
   const shouldFetchGrouped =
     isLeader && leaderView === "grouped" && !!resolvedTeamId;
@@ -104,7 +117,11 @@ export function LeaderCommits({
     data: groupedCommitsData,
     isLoading: isGroupedLoading,
     isError: isGroupedError,
-  } = useIntegrationTeamCommitsGrouped(resolvedTeamId, shouldFetchGrouped);
+  } = useIntegrationTeamCommitsGrouped(
+    resolvedTeamId,
+    shouldFetchGrouped,
+    branchFilter || undefined,
+  );
 
   // Mapping dữ liệu thành viên an toàn
   const validMembers = useMemo(
@@ -124,7 +141,11 @@ export function LeaderCommits({
   const shouldFetchTeamCommitsAll =
     isLeader && authorFilter === "ALL" && !!resolvedTeamId;
   const { data: teamCommitsAllData, isLoading: isTeamCommitsAllLoading } =
-    useTeamCommitsFromTeam(resolvedTeamId, shouldFetchTeamCommitsAll);
+    useTeamCommitsFromTeam(
+      resolvedTeamId,
+      shouldFetchTeamCommitsAll,
+      branchFilter || undefined,
+    );
 
   const selectedMemberId =
     authorFilter !== "ALL" ? authorToMemberIdMap[authorFilter] : undefined;
@@ -138,9 +159,12 @@ export function LeaderCommits({
       resolvedTeamId,
       selectedMemberId,
       shouldFetchMemberCommits,
+      branchFilter || undefined,
     );
 
-  const { data: myCommitsData, isLoading: isMyCommitsLoading } = useMyCommits();
+  const { data: myCommitsData, isLoading: isMyCommitsLoading } = useMyCommits(
+    branchFilter || undefined,
+  );
 
   // Map dữ liệu Commits từ API về format chuẩn của UI
   const allCommits: CommitItem[] = useMemo(() => {
@@ -151,28 +175,32 @@ export function LeaderCommits({
       rawData = myCommitsData?.commits || [];
     }
 
-    if (rawData.length === 0) return mockCommits; // Fallback
+    if (rawData.length === 0) return [];
 
     return rawData.map((c: any) => {
+      const branches = c.branches ?? (c.branch ? [c.branch] : ["main"]);
+      const branch = branches[0] || "main";
       // Endpoint mới: GET /teams/:teamId/commits
       if (c?.hash && c?.commit_date) {
         return {
           id: c.hash,
           message: c.message,
           author: c.author_email || "unknown",
-          branch: "main",
+          branch,
+          branches,
+          jira_issues: c.jira_issues ?? [],
           date: c.commit_date,
           is_counted: c.is_counted,
           rejection_reason: c.rejection_reason,
         };
       }
-
-      // Fallback cho các endpoint cũ (integrations/*)
       return {
         id: c._id || c.id,
         message: c.message,
         author: c.author,
-        branch: c.branch || "main",
+        branch,
+        branches,
+        jira_issues: c.jira_issues ?? [],
         date: c.date,
       };
     });
@@ -205,11 +233,13 @@ export function LeaderCommits({
     const items: CommitItem[] = [];
     groupedMembers.forEach((mc: any) => {
       (mc?.commits || []).forEach((c: any) => {
+        const branches = c.branches ?? (c.branch ? [c.branch] : ["main"]);
         items.push({
           id: c.hash,
           message: c.message,
           author: c.author_email || "unknown",
-          branch: "main",
+          branch: branches[0] || "main",
+          branches,
           date: c.commit_date,
           is_counted: c.is_counted,
           rejection_reason: c.rejection_reason,
@@ -241,15 +271,19 @@ export function LeaderCommits({
     if (groupedMemberFilter === "ALL") return groupedCommitsFlat;
     const mc = groupedMembers.find((x: any) => x?.member?._id === groupedMemberFilter);
     if (!mc) return [];
-    return (mc?.commits || []).map((c: any) => ({
-      id: c.hash,
-      message: c.message,
-      author: c.author_email || "unknown",
-      branch: "main",
-      date: c.commit_date,
-      is_counted: c.is_counted,
-      rejection_reason: c.rejection_reason,
-    }));
+    return (mc?.commits || []).map((c: any) => {
+      const branches = c.branches ?? (c.branch ? [c.branch] : ["main"]);
+      return {
+        id: c.hash,
+        message: c.message,
+        author: c.author_email || "unknown",
+        branch: branches[0] || "main",
+        branches,
+        date: c.commit_date,
+        is_counted: c.is_counted,
+        rejection_reason: c.rejection_reason,
+      };
+    });
   }, [groupedMembers, groupedMemberFilter, groupedCommitsFlat]);
 
   // Thông tin Header lọc
@@ -283,6 +317,7 @@ export function LeaderCommits({
     setFromDate("");
     setToDate("");
     setAuthorFilter("ALL");
+    setBranchFilter("");
   };
 
   // Trạng thái Loading tổng hợp
@@ -400,11 +435,26 @@ export function LeaderCommits({
                 selectedClassId={selectedClassId}
                 onClassChange={setSelectedClassId}
                 teamId={resolvedTeamId}
+                branchFilter={branchFilter}
+                onBranchChange={setBranchFilter}
+                branchOptions={branchOptions}
               />
             </div>
 
             {/* LIST */}
-            <CommitListTable commits={filteredCommits} onCommitClick={setSelectedCommitId} />
+            <CommitListTable
+              commits={filteredCommits}
+              onCommitClick={setSelectedCommitId}
+              repoUrl={repoUrl}
+              onViewPatch={setSelectedPatchCommit}
+              emptyMessage={
+                filteredCommits.length === 0
+                  ? branchFilter
+                    ? `Nhánh "${branchFilter}" chưa được đồng bộ. Vui lòng đồng bộ dữ liệu tại trang Project.`
+                    : "Chưa có dữ liệu commit. Vui lòng đồng bộ dữ liệu tại trang Project."
+                  : undefined
+              }
+            />
           </TabsContent>
 
           <TabsContent value="grouped" className="space-y-6">
@@ -475,6 +525,15 @@ export function LeaderCommits({
                     <CommitListTable
                       commits={groupedCommitsForSelectedMember}
                       onCommitClick={setSelectedCommitId}
+                      repoUrl={repoUrl}
+                      onViewPatch={setSelectedPatchCommit}
+                      emptyMessage={
+                        groupedCommitsForSelectedMember.length === 0
+                          ? branchFilter
+                            ? `Nhánh "${branchFilter}" chưa được đồng bộ. Vui lòng đồng bộ dữ liệu tại trang Project.`
+                            : "Chưa có dữ liệu commit. Vui lòng đồng bộ dữ liệu tại trang Project."
+                          : undefined
+                      }
                     />
                   </div>
                 </div>
@@ -521,9 +580,24 @@ export function LeaderCommits({
               selectedClassId={selectedClassId}
               onClassChange={setSelectedClassId}
               teamId={resolvedTeamId}
+              branchFilter={branchFilter}
+              onBranchChange={setBranchFilter}
+              branchOptions={branchOptions}
             />
           </div>
-          <CommitListTable commits={filteredCommits} onCommitClick={setSelectedCommitId} />
+          <CommitListTable
+            commits={filteredCommits}
+            onCommitClick={setSelectedCommitId}
+            repoUrl={repoUrl}
+            onViewPatch={setSelectedPatchCommit}
+            emptyMessage={
+              filteredCommits.length === 0
+                ? branchFilter
+                  ? `Nhánh "${branchFilter}" chưa được đồng bộ. Vui lòng đồng bộ dữ liệu tại trang Project.`
+                  : "Chưa có dữ liệu commit. Vui lòng đồng bộ dữ liệu tại trang Project."
+                : undefined
+            }
+          />
         </>
       )}
 
@@ -537,9 +611,14 @@ export function LeaderCommits({
                 : allCommits.find((c) => c.id === selectedCommitId))
             : undefined
         }
-        detail={
-          selectedCommitId ? mockCommitDetails[selectedCommitId] : undefined
-        }
+        detail={undefined}
+      />
+
+      <CommitPatchModal
+        open={!!selectedPatchCommit}
+        onOpenChange={(open) => !open && setSelectedPatchCommit(null)}
+        commit={selectedPatchCommit ?? undefined}
+        repoUrl={repoUrl}
       />
     </div>
   );

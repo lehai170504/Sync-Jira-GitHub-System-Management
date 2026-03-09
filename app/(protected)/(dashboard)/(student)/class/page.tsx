@@ -10,6 +10,7 @@ import {
   GraduationCap,
   LayoutGrid,
   CheckCircle2,
+  Github,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { toast } from "sonner";
 // Components
 import { StudentList } from "@/features/management/classes/components/student-class-list";
 import { AddProjectDialog } from "@/features/projects/components/add-project-dialog";
+import { QuickCreateRepoModal } from "@/features/projects/components/quick-create-repo-modal";
 
 // Hooks
 import { useClassStudents } from "@/features/management/classes/hooks/use-classes";
@@ -32,6 +34,7 @@ export default function StudentClassListPage() {
   const isLeader = Cookies.get("student_is_leader") === "true";
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [quickCreateRepoOpen, setQuickCreateRepoOpen] = useState(false);
   const {
     data: studentsData,
     isLoading: isStudentsLoading,
@@ -174,12 +177,21 @@ export default function StudentClassListPage() {
               </Button>
             ) : (
               // Chưa có project hoặc project thuộc lớp khác → hiện nút khởi tạo
-              <AddProjectDialog
-                members={myTeamMembers}
-                classId={classId}
-                teamId={teamId}
-                onSuccess={() => refetchProject()}
-              />
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  onClick={() => setQuickCreateRepoOpen(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-bold uppercase tracking-tight rounded-xl gap-2 px-4 h-10 text-xs shadow-sm transition-all active:scale-95"
+                >
+                  <Github className="w-4 h-4" />
+                  Tạo nhanh Repo GitHub
+                </Button>
+                <AddProjectDialog
+                  members={myTeamMembers}
+                  classId={classId}
+                  teamId={teamId}
+                  onSuccess={() => refetchProject()}
+                />
+              </div>
             )}
           </div>
         )}
@@ -243,6 +255,15 @@ export default function StudentClassListPage() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
+
+      <QuickCreateRepoModal
+        open={quickCreateRepoOpen}
+        onOpenChange={setQuickCreateRepoOpen}
+        members={myTeamMembers}
+        classId={classId}
+        teamId={teamId}
+        onSuccess={() => refetchProject()}
+      />
 
       {/* --- DATA LIST SECTION --- */}
       <div className="relative min-h-[400px]">

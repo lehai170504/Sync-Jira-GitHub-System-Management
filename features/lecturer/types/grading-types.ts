@@ -50,3 +50,12 @@ export interface StudentFinalGrade {
   normalizedFactor: number; // Hệ số chuẩn hóa
   finalGrade: number; // Điểm cá nhân cuối cùng
 }
+
+// Định nghĩa kiểu dữ liệu trả về từ API sau khi update thành công
+export interface GradingConfigResponse {
+  message?: string;
+  data?: {
+    gradeStructure: GradeColumn[];
+    contributionConfig: ContributionConfig;
+  };
+}

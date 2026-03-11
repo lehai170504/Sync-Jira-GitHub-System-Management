@@ -28,6 +28,7 @@ export type SprintItem = {
   start: string;
   end: string;
   state?: string;
+  isCompleted?: boolean;
 };
 
 interface SprintTimelineViewProps {
@@ -95,6 +96,24 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
       })
       .filter((s) => s.startDate && s.endDate);
   }, [sprints]);
+
+  // Ưu tiên Sprint đang chạy luôn ở trên cùng danh sách
+  const sortedSprints = useMemo(() => {
+    const getPriority = (s: typeof parsedSprints[number]) => {
+      if (s.state === "active") return 0;
+      if (s.state === "future") return 1;
+      // Sprint đã hoàn thành hoặc trạng thái khác
+      if (s.isCompleted || s.state === "closed") return 2;
+      return 3;
+    };
+    return [...parsedSprints].sort((a, b) => {
+      const pa = getPriority(a);
+      const pb = getPriority(b);
+      if (pa !== pb) return pa - pb;
+      // Nếu cùng priority thì sort theo ngày bắt đầu
+      return a.startDate.getTime() - b.startDate.getTime();
+    });
+  }, [parsedSprints]);
 
   const timelineRange = useMemo(() => {
     if (parsedSprints.length === 0) {
@@ -221,7 +240,7 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
         {viewMode === "month" ? (
           <div className="min-w-full">
             <div className="flex border-b border-slate-200 dark:border-slate-800">
-              <div className="w-[140px] shrink-0 border-r border-slate-200 dark:border-slate-800 px-3 py-3" />
+              <div className="w-[220px] shrink-0 border-r border-slate-200 dark:border-slate-800 px-3 py-3" />
               <div className="flex-1 flex">
                 {monthViewData.map((m) => (
                   <div
@@ -233,17 +252,40 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
                 ))}
               </div>
             </div>
-            {parsedSprints.map((sprint) => {
+            {sortedSprints.map((sprint) => {
               const style = getMonthBarStyle(sprint);
               return (
                 <div
                   key={sprint.id ?? sprint.name}
                   className="flex border-b border-slate-200/80 dark:border-slate-800/80 last:border-b-0"
                 >
-                  <div className="w-[140px] shrink-0 border-r border-slate-200/80 dark:border-slate-800/80 px-3 py-3">
-                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate block">
-                      {sprint.name}
-                    </span>
+                  <div
+                    className={cn(
+                      "w-[220px] shrink-0 border-r border-slate-200/80 dark:border-slate-800/80 px-3 py-3",
+                      (sprint.isCompleted || sprint.state === "closed") && "opacity-60"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate block">
+                        {sprint.name}
+                      </span>
+                      {/* Badges trạng thái Sprint */}
+                      {sprint.state === "active" && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border border-emerald-200/80 animate-pulse">
+                          Đang chạy
+                        </span>
+                      )}
+                      {(sprint.isCompleted || sprint.state === "closed") && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/80">
+                          Đã hoàn thành
+                        </span>
+                      )}
+                      {sprint.state === "future" && !sprint.isCompleted && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200/80">
+                          Sắp tới
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex-1 relative min-h-[48px] px-1 py-2">
                     <button
@@ -251,7 +293,8 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
                       onClick={() => setZoomedSprint(sprint)}
                       className={cn(
                         "absolute inset-y-2 rounded-lg flex items-center justify-center px-3 overflow-hidden cursor-pointer text-white transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.99]",
-                        getSprintBarColors(sprint.state)
+                        getSprintBarColors(sprint.state),
+                        (sprint.isCompleted || sprint.state === "closed") && "opacity-60"
                       )}
                       style={{ left: style.left, width: style.width, boxShadow: "0 2px 8px rgb(0 0 0 / 0.15)" }}
                     >
@@ -267,7 +310,7 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
         ) : (
           <div className="min-w-max">
             <div className="flex border-b border-slate-200 dark:border-slate-800">
-              <div className="w-[140px] shrink-0 border-r border-slate-200 dark:border-slate-800 px-3 py-2" />
+              <div className="w-[220px] shrink-0 border-r border-slate-200 dark:border-slate-800 px-3 py-2" />
               <div className="flex">
                 {weekViewData.days.map((d) => (
                   <div
@@ -284,7 +327,7 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
               </div>
             </div>
             <div className="flex border-b border-slate-200 dark:border-slate-800">
-              <div className="w-[140px] shrink-0 border-r border-slate-200 dark:border-slate-800" />
+              <div className="w-[220px] shrink-0 border-r border-slate-200 dark:border-slate-800" />
               <div className="flex">
                 {weekViewData.days.map((d) => (
                   <button
@@ -305,17 +348,39 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
                 ))}
               </div>
             </div>
-            {parsedSprints.map((sprint) => {
+            {sortedSprints.map((sprint) => {
               const style = getWeekBarStyle(sprint);
               return (
                 <div
                   key={sprint.id ?? sprint.name}
                   className="flex border-b border-slate-200/80 dark:border-slate-800/80 last:border-b-0"
                 >
-                  <div className="w-[140px] shrink-0 border-r border-slate-200/80 dark:border-slate-800/80 px-3 py-2">
-                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate block">
-                      {sprint.name}
-                    </span>
+                  <div
+                    className={cn(
+                      "w-[220px] shrink-0 border-r border-slate-200/80 dark:border-slate-800/80 px-3 py-2",
+                      (sprint.isCompleted || sprint.state === "closed") && "opacity-60"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate block">
+                        {sprint.name}
+                      </span>
+                      {sprint.state === "active" && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border border-emerald-200/80 animate-pulse">
+                          Đang chạy
+                        </span>
+                      )}
+                      {(sprint.isCompleted || sprint.state === "closed") && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/80">
+                          Đã hoàn thành
+                        </span>
+                      )}
+                      {sprint.state === "future" && !sprint.isCompleted && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200/80">
+                          Sắp tới
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div
                     className="relative min-h-[48px] flex-1 px-1 py-2"
@@ -326,7 +391,8 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
                       onClick={() => setZoomedSprint(sprint)}
                       className={cn(
                         "absolute inset-y-2 rounded-lg flex items-center justify-center px-3 overflow-hidden cursor-pointer text-white transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.99]",
-                        getSprintBarColors(sprint.state)
+                        getSprintBarColors(sprint.state),
+                        (sprint.isCompleted || sprint.state === "closed") && "opacity-60"
                       )}
                       style={{ left: style.left, width: style.width, boxShadow: "0 2px 8px rgb(0 0 0 / 0.15)" }}
                     >
@@ -421,10 +487,18 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
                 <span
                   className={cn(
                     "inline-flex px-2.5 py-1 rounded-md text-xs font-medium",
-                    getStateBadgeColors(zoomedSprint.state)
+                    getStateBadgeColors(
+                      zoomedSprint.isCompleted ? "closed" : zoomedSprint.state
+                    )
                   )}
                 >
-                  {zoomedSprint.state ?? "—"}
+                  {zoomedSprint.isCompleted
+                    ? "Đã hoàn thành"
+                    : zoomedSprint.state === "active"
+                    ? "Đang chạy"
+                    : zoomedSprint.state === "future"
+                    ? "Sắp tới"
+                    : zoomedSprint.state ?? "—"}
                 </span>
               </div>
             </div>

@@ -1,30 +1,52 @@
-// Cấu trúc một cột điểm (Assignment, Lab, Project...)
+// --- PHẦN CŨ GIỮ NGUYÊN ---
 export interface GradeColumn {
   name: string;
-  weight: number; // 0.1, 0.2 ... tổng phải = 1.0
+  weight: number;
   isGroupGrade: boolean;
   _id?: string;
 }
 
-// Cấu hình điểm đóng góp (Contribution)
 export interface ContributionConfig {
-  jiraWeight: number; // Tổng 3 cái này phải = 1.0
+  jiraWeight: number;
   gitWeight: number;
   reviewWeight: number;
-  allowOverCeiling: boolean; // Cho phép điểm > 10 hay không
+  allowOverCeiling: boolean;
 }
 
-// Payload gửi lên (Body)
 export interface GradingConfigPayload {
   gradeStructure: GradeColumn[];
   contributionConfig: ContributionConfig;
 }
 
-// Response trả về
-export interface GradingConfigResponse {
-  message: string;
-  data: {
-    gradeStructure: GradeColumn[];
-    contributionConfig: ContributionConfig;
-  };
+// --- THÊM PHẦN MỚI NÀY VÀO ---
+
+// Dữ liệu thô của 1 sinh viên thu thập được từ Jira, Git, và Form Review
+export interface StudentRawData {
+  studentId: string;
+  studentName?: string;
+  storyPointsDone: number; // Task đã Done
+  validCommits: number; // Commit hợp lệ
+  receivedStars: number; // Số sao nhận được từ review
+}
+
+// Tham số đầu vào cần thiết cho hệ thống (Bước 1 của bạn)
+export interface GroupGradingContext {
+  groupGrade: number; // Điểm nhóm (Hệ 10)
+  groupSize: number; // Sĩ số nhóm
+  totalGroupStoryPoints: number; // Tổng Story Points Done của cả nhóm
+  totalGroupCommits: number; // Tổng Commit hợp lệ của cả nhóm
+  totalGroupStars: number; // Tổng sao review cả nhóm nhận được
+  config: ContributionConfig; // Trọng số cấu hình (Jira, Git, Review, Trần điểm)
+}
+
+// Kết quả tính toán cuối cùng trả về cho 1 sinh viên
+export interface StudentFinalGrade {
+  studentId: string;
+  studentName?: string;
+  percentJira: number; // %Jira
+  percentGit: number; // %Git
+  percentReview: number; // %Review
+  baseContribution: number; // Cổ phần đóng góp
+  normalizedFactor: number; // Hệ số chuẩn hóa
+  finalGrade: number; // Điểm cá nhân cuối cùng
 }

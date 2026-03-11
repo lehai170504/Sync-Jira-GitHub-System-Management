@@ -43,7 +43,7 @@ const forceLogout = () => {
     localStorage.setItem("logout_event", Date.now().toString());
     // Đảm bảo chỉ redirect nếu chưa ở trang "/"
     if (window.location.pathname !== "/") {
-      window.location.href = "/";
+      window.location.href = "/login";
     }
   }
 };
@@ -114,5 +114,5 @@ axiosClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  },
+  }
 );

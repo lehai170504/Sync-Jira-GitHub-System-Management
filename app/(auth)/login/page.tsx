@@ -26,7 +26,8 @@ export default function LoginPage() {
   const { startTour } = useAuthTour(isRegisterMode);
 
   return (
-    <div className="min-h-screen w-full bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center p-0 lg:p-0 relative transition-colors duration-300">
+    // Dùng min-h-[100dvh] thay vì min-h-screen để xử lý tốt hơn trên thanh trình duyệt mobile
+    <div className="min-h-[100dvh] w-full bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center p-0 lg:p-0 relative transition-colors duration-300">
       {/* Nút Help (Floating) */}
       <div className="absolute top-6 right-6 z-50 animate-in fade-in zoom-in duration-500 delay-300">
         <TooltipProvider>
@@ -51,87 +52,83 @@ export default function LoginPage() {
         </TooltipProvider>
       </div>
 
-      <div className="relative w-full h-full min-h-screen lg:min-h-screen max-w-[1920px] bg-white dark:bg-slate-950 shadow-2xl overflow-hidden flex rounded-none">
-        {/* --- KHỐI FORM --- */}
+      <div className="relative w-full h-full min-h-[100dvh] max-w-[1920px] bg-white dark:bg-slate-950 shadow-2xl overflow-hidden flex rounded-none">
+        {/* --- KHỐI FORM LỆNH TRÁI --- */}
         <motion.div
           initial={false}
           animate={{ x: isRegisterMode ? "100%" : "0%", opacity: 1 }}
           transition={{ type: "spring", stiffness: 200, damping: 25 }}
           className="absolute top-0 left-0 w-full lg:w-1/2 h-full bg-white dark:bg-slate-950 z-20 flex flex-col transition-colors duration-300"
         >
-          {/* Header với ID cho Driver */}
-          <div id="auth-logo-area" className="px-8 pt-8">
+          {/* Header - Thêm shrink-0 để không bị bóp */}
+          <div id="auth-logo-area" className="px-8 pt-6 lg:pt-8 shrink-0">
             <AuthHeader />
           </div>
 
-          {/* Form Area với ID cho Driver */}
+          {/* Form Area - Đã bỏ justify-center để sửa lỗi cắt chữ, tinh chỉnh padding */}
           <div
             id="auth-form-area"
-            className="flex-1 flex flex-col justify-center px-8 sm:px-12 md:px-20 lg:px-24 xl:px-32 overflow-y-auto scrollbar-hide py-10 relative"
+            className="flex-1 flex flex-col px-6 sm:px-12 md:px-20 lg:px-24 xl:px-32 overflow-y-auto scrollbar-hide py-4 relative"
           >
-            <AnimatePresence mode="wait">
-              {!isRegisterMode ? (
-                <motion.div
-                  key="login"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
-                  className="w-full"
-                >
-                  <div className="mb-8 text-center lg:text-left space-y-2">
-                    <h1 className="text-4xl font-black text-slate-900 dark:text-slate-50 tracking-tighter uppercase transition-colors">
-                      Đăng nhập
-                    </h1>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium transition-colors">
-                      Chào mừng trở lại! Nhập thông tin để tiếp tục.
-                    </p>
-                  </div>
-                  <LoginForm />
+            {/* Thẻ bọc my-auto giúp content ở giữa màn to, nhưng tự bung ra ở màn nhỏ */}
+            <div className="my-auto w-full pb-6">
+              <AnimatePresence mode="wait">
+                {!isRegisterMode ? (
+                  <motion.div
+                    key="login"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-full"
+                  >
+                    <LoginForm />
 
-                  <div className="lg:hidden mt-8 text-center text-sm border-t border-slate-100 dark:border-slate-800 pt-6 text-slate-600 dark:text-slate-400">
-                    Chưa có tài khoản?{" "}
-                    <button
-                      onClick={toggleMode}
-                      className="text-[#F27124] dark:text-orange-400 font-black uppercase tracking-wider ml-1 hover:underline"
-                    >
-                      Đăng ký ngay
-                    </button>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="register"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="w-full"
-                >
-                  <RegisterFormContainer onSwitchToLogin={toggleMode} />
+                    <div className="lg:hidden mt-8 text-center text-sm border-t border-slate-100 dark:border-slate-800 pt-6 text-slate-600 dark:text-slate-400">
+                      Chưa có tài khoản?{" "}
+                      <button
+                        onClick={toggleMode}
+                        className="text-[#F27124] dark:text-orange-400 font-black uppercase tracking-wider ml-1 hover:underline"
+                      >
+                        Đăng ký ngay
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="register"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-full"
+                  >
+                    <RegisterFormContainer onSwitchToLogin={toggleMode} />
 
-                  <div className="lg:hidden mt-8 text-center text-sm border-t border-slate-100 dark:border-slate-800 pt-6 text-slate-600 dark:text-slate-400">
-                    Đã có tài khoản?{" "}
-                    <button
-                      onClick={toggleMode}
-                      className="text-[#F27124] dark:text-orange-400 font-black uppercase tracking-wider ml-1 hover:underline"
-                    >
-                      Đăng nhập
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                    <div className="lg:hidden mt-8 text-center text-sm border-t border-slate-100 dark:border-slate-800 pt-6 text-slate-600 dark:text-slate-400">
+                      Đã có tài khoản?{" "}
+                      <button
+                        onClick={toggleMode}
+                        className="text-[#F27124] dark:text-orange-400 font-black uppercase tracking-wider ml-1 hover:underline"
+                      >
+                        Đăng nhập
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
-          <div className="px-8 py-6 text-center sm:text-left bg-white dark:bg-slate-950 transition-colors duration-300">
+          {/* Footer - Thêm shrink-0 */}
+          <div className="px-8 py-4 shrink-0 text-center sm:text-left bg-white dark:bg-slate-950 transition-colors duration-300">
             <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">
               &copy; 2026 SyncSystem. All rights reserved.
             </p>
           </div>
         </motion.div>
 
-        {/* --- KHỐI BANNER --- */}
+        {/* --- KHỐI BANNER BÊN PHẢI --- */}
         <motion.div
           id="auth-banner-section"
           initial={false}

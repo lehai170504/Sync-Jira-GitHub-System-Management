@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -25,7 +25,9 @@ import { useClassDetails } from "@/features/management/classes/hooks/use-class-d
 export default function SettingsPage() {
   const searchParams = useSearchParams();
   const urlClassId = searchParams.get("classId") ?? undefined;
-  const [classId, setClassId] = useState<string | undefined>(urlClassId ?? undefined);
+  const [classId, setClassId] = useState<string | undefined>(
+    urlClassId ?? undefined
+  );
 
   useEffect(() => {
     if (urlClassId) {
@@ -34,7 +36,9 @@ export default function SettingsPage() {
     }
 
     const cookieClassId =
-      Cookies.get("lecturer_class_id") || Cookies.get("student_class_id") || undefined;
+      Cookies.get("lecturer_class_id") ||
+      Cookies.get("student_class_id") ||
+      undefined;
 
     setClassId((prev) => prev ?? cookieClassId);
   }, [urlClassId]);
@@ -117,8 +121,13 @@ export default function SettingsPage() {
 
         {/* --- TAB 1: CLASS CONFIGURATION --- */}
         <TabsContent value="class-config" className="outline-none">
-          {/* Truyền classId vào GradingConfig nếu component con cần dùng để refetch API */}
-          <GradingConfig />
+          {classId ? (
+            <GradingConfig classId={classId} />
+          ) : (
+            <div className="text-center p-4 text-slate-500">
+              Đang tải Class ID...
+            </div>
+          )}
         </TabsContent>
 
         {/* --- TAB 2: SYSTEM SETTINGS --- */}

@@ -37,6 +37,19 @@ export function CommitDetailModal({
   if (!commit) return null;
 
   const validation = getValidation(commit);
+  const formatDateTimeVN = (iso?: string) => {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return new Intl.DateTimeFormat("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(d);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,14 +63,17 @@ export function CommitDetailModal({
               Chi tiết Commit
             </span>
           </DialogTitle>
-          <DialogDescription className="pt-2 flex items-center gap-2 text-sm">
-            <code className="bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-200 px-2 py-1 rounded font-mono text-xs">
-              {commit.id}
-            </code>
-            <span className="text-muted-foreground">•</span>
-            <span className="font-medium text-foreground">{commit.author}</span>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-muted-foreground">{commit.date}</span>
+          <DialogDescription className="pt-2 text-sm">
+            <div className="space-y-1">
+              <code className="bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-200 px-2 py-1 rounded font-mono text-xs inline-block">
+                {commit.id}
+              </code>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] ml-2 text-muted-foreground">
+                <span className="truncate max-w-[520px]">{commit.author}</span>
+                <span className="opacity-60">•</span>
+                <span>{formatDateTimeVN(commit.date)}</span>
+              </div>
+            </div>
           </DialogDescription>
         </DialogHeader>
 

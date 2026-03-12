@@ -13,14 +13,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
-  LineChart,
-  Line,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   Legend,
-  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import {
   CheckCircle2,
@@ -34,31 +37,8 @@ import { StatCard } from "./stat-card";
 import { useTeamDashboard } from "@/features/management/teams/hooks/use-team-dashboard";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 
-// Mock data: Burndown Chart (Tiến độ Sprint)
-const burnDownData = [
-  { day: "Day 1", planned: 100, actual: 100 },
-  { day: "Day 2", planned: 90, actual: 95 },
-  { day: "Day 3", planned: 80, actual: 85 },
-  { day: "Day 4", planned: 70, actual: 75 },
-  { day: "Day 5", planned: 60, actual: 65 },
-  { day: "Day 6", planned: 50, actual: 55 },
-  { day: "Day 7", planned: 40, actual: 50 }, // Chậm hơn kế hoạch
-  { day: "Day 8", planned: 30, actual: 45 },
-  { day: "Day 9", planned: 20, actual: 35 },
-  { day: "Day 10", planned: 10, actual: 25 },
-  { day: "Day 11", planned: 0, actual: 15 },
-];
-
-// Mock data: Commit của nhóm theo ngày
-const commitData = [
-  { date: "T2", commits: 12 },
-  { date: "T3", commits: 18 },
-  { date: "T4", commits: 15 },
-  { date: "T5", commits: 22 },
-  { date: "T6", commits: 19 },
-  { date: "T7", commits: 8 },
-  { date: "CN", commits: 3 },
-];
+// NOTE: Dashboard API hiện chỉ trả số liệu tổng quan (không có time-series),
+// nên biểu đồ sẽ hiển thị breakdown theo trạng thái và tổng hợp.
 
 // Mock data: Cảnh báo rủi ro
 const riskAlerts = [
@@ -196,6 +176,31 @@ export function LeaderOverviewTab() {
     total: tasks.total,
   };
 
+  const taskBreakdownData = [
+    { name: "To Do", value: taskStats.todo },
+    { name: "In Progress", value: Math.max(0, taskStats.inProgress) },
+    { name: "Done", value: taskStats.done },
+  ];
+
+  const storyPointData = [
+    { name: "Done", value: tasks.story_point_done },
+    {
+      name: "Còn lại",
+      value: Math.max(0, tasks.story_point_total - tasks.story_point_done),
+    },
+  ];
+
+  const commitData = [
+    { name: "Counted", value: commits.counted },
+    {
+      name: "Chưa tính",
+      value: Math.max(0, commits.total - commits.counted),
+    },
+  ];
+
+  const pieTaskColors = ["#94a3b8", "#3b82f6", "#F27124"];
+  const pieCommitColors = ["#16a34a", "#64748b"];
+
   return (
     <div className="space-y-6">
       {/* HEADER: Team Info */}
@@ -204,16 +209,64 @@ export function LeaderOverviewTab() {
           <h2 className="text-2xl font-bold">
             {dashboardData?.team.project_name || "Nhóm"}
           </h2>
-          <p className="text-slate-300 mt-1">
-            {sprints.active > 0
-              ? `Đang có ${sprints.active} sprint hoạt động`
-              : "Chưa có sprint nào"}
-            {dashboardData?.team.last_sync_at && (
-              <span className="ml-2 text-xs">
-                • Đồng bộ: {new Date(dashboardData.team.last_sync_at).toLocaleString("vi-VN")}
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-300">
+            <span>
+              {sprints.active > 0
+                ? `Đang có ${sprints.active} sprint hoạt động`
+                : "Chưa có sprint nào"}
+            </span>
+            <span className="opacity-70">•</span>
+            <span>
+              Sprint:{" "}
+              <span className="font-semibold text-white">
+                {sprints.active}/{sprints.total}
               </span>
+            </span>
+            <span className="opacity-70">•</span>
+            <span>
+              Jira:{" "}
+              <span className="font-semibold text-white">
+                {tasks.done}/{tasks.total}
+              </span>{" "}
+              task •{" "}
+              <span className="font-semibold text-white">
+                {tasks.story_point_done}/{tasks.story_point_total}
+              </span>{" "}
+              SP
+            </span>
+            <span className="opacity-70">•</span>
+            <span>
+              GitHub:{" "}
+              <span className="font-semibold text-white">
+                {commits.counted}/{commits.total}
+              </span>{" "}
+              counted commits
+            </span>
+            {commits.last_commit_date && (
+              <>
+                <span className="opacity-70">•</span>
+                <span>
+                  Commit gần nhất:{" "}
+                  <span className="font-semibold text-white">
+                    {new Date(commits.last_commit_date).toLocaleString("vi-VN")}
+                  </span>
+                </span>
+              </>
             )}
-          </p>
+            {dashboardData?.team.last_sync_at && (
+              <>
+                <span className="opacity-70">•</span>
+                <span>
+                  Đồng bộ lần cuối:{" "}
+                  <span className="font-semibold text-white">
+                    {new Date(dashboardData.team.last_sync_at).toLocaleString(
+                      "vi-VN",
+                    )}
+                  </span>
+                </span>
+              </>
+            )}
+          </div>
         </div>
         <div className="text-right">
           <div className="text-3xl font-bold text-[#F27124]">
@@ -250,25 +303,25 @@ export function LeaderOverviewTab() {
 
       {/* MAIN GRID: Charts */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        {/* BURNDOWN CHART: Tiến độ Sprint */}
+        {/* TASK BREAKDOWN */}
         <Card className="col-span-4 shadow-sm">
           <CardHeader>
-            <CardTitle>Biểu đồ Burndown (Tiến độ Sprint)</CardTitle>
+            <CardTitle>Phân bổ Task theo trạng thái</CardTitle>
             <CardDescription>
-              So sánh khối lượng công việc dự kiến và thực tế theo thời gian.
+              Tổng quan số lượng task To Do / In Progress / Done.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[350px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={burnDownData}>
+                <BarChart data={taskBreakdownData} barGap={12}>
                   <CartesianGrid
                     strokeDasharray="3 3"
                     stroke="#E5E7EB"
                     vertical={false}
                   />
                   <XAxis
-                    dataKey="day"
+                    dataKey="name"
                     stroke="#888888"
                     fontSize={12}
                     tickLine={false}
@@ -279,7 +332,6 @@ export function LeaderOverviewTab() {
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    domain={[0, 100]}
                   />
                   <Tooltip
                     contentStyle={{
@@ -288,95 +340,173 @@ export function LeaderOverviewTab() {
                       boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                     }}
                   />
-                  <Legend wrapperStyle={{ paddingTop: "20px" }} />
-                  <Line
-                    type="monotone"
-                    dataKey="planned"
-                    name="Kế hoạch"
-                    stroke="#94a3b8"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={false}
+                  <Legend />
+                  <Bar
+                    dataKey="value"
+                    name="Số task"
+                    fill="#F27124"
+                    radius={[6, 6, 0, 0]}
+                    barSize={48}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="actual"
-                    name="Thực tế"
-                    stroke="#F27124"
-                    strokeWidth={3}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* COMMIT CHART: Tổng số commit của nhóm */}
+        {/* PIE CHARTS */}
         <Card className="col-span-3 shadow-sm">
           <CardHeader>
-            <CardTitle>Tổng số Commit của nhóm</CardTitle>
+            <CardTitle>Tỷ lệ (Pie)</CardTitle>
             <CardDescription>
-              Hoạt động commit theo ngày trong tuần.
+              Tỷ lệ task theo trạng thái và commits được tính điểm.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[350px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={commitData}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#E5E7EB"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="date"
-                    stroke="#888888"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    stroke="#888888"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "8px",
-                      border: "none",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="commits"
-                    name="Số Commit"
-                    stroke="#1e293b"
-                    strokeWidth={3}
-                    activeDot={{ r: 6 }}
-                    dot={{ r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 flex items-center justify-center gap-6 text-sm">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-[#F27124]">
-                  {commits.total}
+            <div className="grid gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-muted/20 p-3">
+                  <div className="text-xs font-semibold text-muted-foreground mb-2">
+                    Task status
+                  </div>
+                  <div className="h-[170px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={taskBreakdownData}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={45}
+                          outerRadius={70}
+                          paddingAngle={2}
+                        >
+                          {taskBreakdownData.map((_, i) => (
+                            <Cell
+                              key={`task-cell-${i}`}
+                              fill={pieTaskColors[i % pieTaskColors.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            borderRadius: "8px",
+                            border: "none",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                          }}
+                        />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  Tổng số commits
+
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-muted/20 p-3">
+                  <div className="text-xs font-semibold text-muted-foreground mb-2">
+                    Commits
+                  </div>
+                  <div className="h-[170px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={commitData}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={45}
+                          outerRadius={70}
+                          paddingAngle={2}
+                        >
+                          {commitData.map((_, i) => (
+                            <Cell
+                              key={`commit-cell-${i}`}
+                              fill={pieCommitColors[i % pieCommitColors.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            borderRadius: "8px",
+                            border: "none",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                          }}
+                        />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
-              <div className="h-12 w-px bg-gray-200" />
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {commits.counted}
+
+              <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+                <span>
+                  Task done:{" "}
+                  <span className="font-semibold text-foreground">
+                    {tasks.done}/{tasks.total}
+                  </span>
+                </span>
+                <span>
+                  Commits counted:{" "}
+                  <span className="font-semibold text-foreground">
+                    {commits.counted}/{commits.total}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* STORY POINT + COMMITS */}
+        <Card className="col-span-7 shadow-sm">
+          <CardHeader>
+            <CardTitle>Story points & Commits</CardTitle>
+            <CardDescription>
+              Tiến độ story points và commits được tính điểm.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-6">
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground mb-2">
+                  Story points ({tasks.story_point_done}/{tasks.story_point_total})
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  Đã được tính điểm
+                <div className="h-[140px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={storyPointData} layout="vertical" barCategoryGap={12}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+                      <XAxis type="number" hide />
+                      <YAxis type="category" dataKey="name" width={70} tickLine={false} axisLine={false} />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: "8px",
+                          border: "none",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        }}
+                      />
+                      <Bar dataKey="value" name="SP" fill="#F27124" radius={[6, 6, 6, 6]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs font-semibold text-muted-foreground mb-2">
+                  Commits counted ({commits.counted}/{commits.total})
+                </div>
+                <div className="h-[140px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={commitData} layout="vertical" barCategoryGap={12}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+                      <XAxis type="number" hide />
+                      <YAxis type="category" dataKey="name" width={70} tickLine={false} axisLine={false} />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: "8px",
+                          border: "none",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        }}
+                      />
+                      <Bar dataKey="value" name="Commits" fill="#1e293b" radius={[6, 6, 6, 6]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>

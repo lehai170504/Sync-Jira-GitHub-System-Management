@@ -9,7 +9,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CheckCircle2, XCircle, GitCommit, Eye } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, XCircle, GitCommit, Eye, ExternalLink } from "lucide-react";
 import type { CommitItem } from "./types";
 import { getValidation } from "./utils";
 
@@ -131,9 +132,30 @@ export function CommitListTable({ commits, onCommitClick, emptyMessage, repoUrl,
                         </Tooltip>
                       </TableCell>
                       <TableCell>
-                        <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-purple-700 dark:text-purple-300">
-                          {c.id.substring(0, 7)}
-                        </code>
+                        <div className="flex items-center gap-2">
+                          <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-purple-700 dark:text-purple-300">
+                            {c.id.substring(0, 7)}
+                          </code>
+                          {c.url && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Link
+                                  href={c.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 text-purple-600 dark:text-purple-400 transition-colors"
+                                  aria-label="Mở commit trên GitHub"
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </Link>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <span className="text-xs">Mở trên GitHub</span>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="font-medium max-w-md">
                         <div className="flex flex-wrap items-center gap-1.5">

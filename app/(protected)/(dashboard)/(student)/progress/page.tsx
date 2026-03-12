@@ -33,6 +33,7 @@ export default function LeaderProgressPage() {
   const [role, setRole] = useState<UserRole>("STUDENT");
   const [isLeader, setIsLeader] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [openMembers, setOpenMembers] = useState<Record<string, boolean>>({});
 
   // Resolve teamId giống trang /tasks và /config
   const classId = Cookies.get("student_class_id") || "";
@@ -69,6 +70,10 @@ export default function LeaderProgressPage() {
         id: member.member_id,
         name: studentName,
         initials,
+        email: member.student?.email || "",
+        studentCode: member.student?.student_code || "",
+        jiraAccountId: member.mapping?.jira_account_id || "",
+        githubUsername: member.mapping?.github_username || "",
         progress,
         tasksDone: member.jira.done_tasks,
         totalTasks: member.jira.total_tasks,
@@ -233,30 +238,94 @@ export default function LeaderProgressPage() {
             {memberProgress.map((m) => (
               <div
                 key={m.id}
-                className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-muted/40 px-3 py-2"
+                className="rounded-lg border border-slate-200 dark:border-slate-800 bg-muted/40 overflow-hidden"
               >
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8 border bg-background">
-                    <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-semibold">
-                      {m.initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-semibold">{m.name}</p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenMembers((prev) => ({ ...prev, [m.id]: !prev[m.id] }))
+                  }
+                  className="w-full flex items-center justify-between gap-4 px-4 py-3 text-left hover:bg-muted/60 transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar className="h-9 w-9 border bg-background shrink-0">
+                      <AvatarFallback className="text-[11px] bg-primary/10 text-primary font-semibold">
+                        {m.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate">{m.name}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
+                        <span>
+                          Jira task:{" "}
+                          <span className="font-medium text-foreground">
+                            {m.tasksDone}/{m.totalTasks}
+                          </span>
+                        </span>
+                        <span>
+                          SP:{" "}
+                          <span className="font-medium text-foreground">
+                            {m.storyPointsDone}/{m.storyPointsTotal}
+                          </span>
+                        </span>
+                        <span>
+                          Commits:{" "}
+                          <span className="font-medium text-foreground">
+                            {m.commits}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                      {m.progress}%
+                    </p>
                     <p className="text-[11px] text-muted-foreground">
-                      {m.tasksDone}/{m.totalTasks} task hoàn thành
-                      {m.commits > 0 && ` • ${m.commits} commits`}
+                      {openMembers[m.id] ? "Thu gọn" : "Xem chi tiết"}
                     </p>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                    {m.progress}%
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    So với mục tiêu 100%
-                  </p>
-                </div>
+                </button>
+
+                {openMembers[m.id] && (
+                  <div className="border-t border-slate-200 dark:border-slate-800 bg-background/40 px-4 py-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-[11px]">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">Email:</span>
+                        <span className="font-medium text-foreground truncate">
+                          {m.email || "—"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">
+                          Student code:
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {m.studentCode || "—"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">Role:</span>
+                        <span className="font-medium text-foreground">
+                          {m.role || "—"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">GitHub:</span>
+                        <span className="font-medium text-foreground">
+                          {m.githubUsername || "—"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 sm:col-span-2">
+                        <span className="text-muted-foreground">Jira ID:</span>
+                        <span className="font-medium text-foreground truncate">
+                          {m.jiraAccountId || "—"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </CardContent>

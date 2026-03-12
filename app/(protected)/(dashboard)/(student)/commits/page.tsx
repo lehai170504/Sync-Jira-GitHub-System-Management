@@ -31,7 +31,7 @@ export default function LeaderCommitListPage() {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
-              Lịch sử Commit
+              Commit
             </h2>
             <p className="text-muted-foreground">
               Trang này chỉ dành cho Sinh viên.

@@ -199,6 +199,7 @@ export function LeaderCommits({
           date: c.commit_date,
           is_counted: c.is_counted,
           rejection_reason: c.rejection_reason,
+          url: c.url,
         };
       }
       return {
@@ -250,6 +251,7 @@ export function LeaderCommits({
           date: c.commit_date,
           is_counted: c.is_counted,
           rejection_reason: c.rejection_reason,
+          url: c.url,
         });
       });
     });
@@ -342,7 +344,7 @@ export function LeaderCommits({
         </div>
         <div>
           <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-50 uppercase">
-            Lịch sử Commit
+            Commit
           </h2>
           <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             {isLeader
@@ -470,9 +472,9 @@ export function LeaderCommits({
                 {/* Summary + Branch filter */}
                 {groupedCommitsData?.summary && (
                   <div className="rounded-[20px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                      <div className="flex flex-wrap items-center gap-4">
-                        <div>
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="rounded-xl border border-slate-200/70 dark:border-slate-800 bg-muted/20 px-4 py-3">
                           <div className="text-xs text-muted-foreground uppercase tracking-widest">
                             Nhóm
                           </div>
@@ -480,7 +482,7 @@ export function LeaderCommits({
                             {groupedCommitsData.team?.project_name || "—"}
                           </div>
                         </div>
-                        <div>
+                        <div className="rounded-xl border border-slate-200/70 dark:border-slate-800 bg-muted/20 px-4 py-3">
                           <div className="text-xs text-muted-foreground uppercase tracking-widest">
                             Tổng thành viên
                           </div>
@@ -488,7 +490,7 @@ export function LeaderCommits({
                             {groupedCommitsData.summary.total_members}
                           </div>
                         </div>
-                        <div>
+                        <div className="rounded-xl border border-slate-200/70 dark:border-slate-800 bg-muted/20 px-4 py-3">
                           <div className="text-xs text-muted-foreground uppercase tracking-widest">
                             Tổng commits
                           </div>
@@ -497,7 +499,7 @@ export function LeaderCommits({
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 justify-end">
                         <span className="text-xs text-muted-foreground font-medium">
                           Nhánh:
                         </span>
@@ -558,6 +560,7 @@ export function LeaderCommits({
                           date: c.commit_date,
                           is_counted: c.is_counted,
                           rejection_reason: c.rejection_reason,
+                          url: c.url,
                         };
                       }
                     );

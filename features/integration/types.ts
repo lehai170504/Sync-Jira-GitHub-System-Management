@@ -31,26 +31,33 @@ export interface SyncResponse {
   };
 }
 
+export interface IntegrationProjectRef {
+  _id: string;
+  name: string;
+  team_id: string;
+}
+
 // Commit types for my-commits API
 export interface MyCommitItem {
   _id: string;
-  message: string;
-  author: string;
-  branch: string;
+  team_id: string;
+  hash: string;
+  author_email: string;
+  author_name?: string;
+  branch?: string;
   /** Mảng các nhánh chứa commit (BE có thể trả về) */
   branches?: string[];
-  date: string; // ISO date
-  sha?: string;
+  commit_date: string; // ISO date
+  is_counted: boolean;
+  jira_issues?: any[];
+  message: string;
+  rejection_reason?: string | null;
   url?: string;
-  additions?: number;
-  deletions?: number;
+  __v?: number;
 }
 
 export interface MyCommitsResponse {
-  project: {
-    _id: string;
-    name: string;
-  };
+  projects: IntegrationProjectRef[];
   total: number;
   commits: MyCommitItem[];
 }

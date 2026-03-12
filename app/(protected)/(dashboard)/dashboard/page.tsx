@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { useProfile } from "@/features/auth/hooks/use-profile";
 
 // Import các Dashboard Component
 import { AdminDashboard } from "@/features/admin/components/dashboard/admin-dashboard";
@@ -32,6 +33,8 @@ export default function DashboardPage() {
     urlClassId,
   );
 
+  const { data: profileData } = useProfile();
+
   useEffect(() => {
     const token = Cookies.get("token");
     if (!token) {
@@ -54,13 +57,13 @@ export default function DashboardPage() {
     if (savedRole) {
       setUser({
         role: savedRole,
-        name: savedName || "Người dùng",
+        name: savedName || "",
         email: savedEmail || "",
       });
     } else {
       setUser({
         role: "STUDENT",
-        name: "Sinh viên",
+        name: "",
         email: "",
       });
     }
@@ -79,6 +82,13 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
+  const displayName =
+    profileData?.user?.full_name ||
+    user.name ||
+    profileData?.user?.email ||
+    user.email ||
+    "—";
+
   return (
     // FIX: bg-white -> bg-white dark:bg-slate-950
     <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
@@ -96,7 +106,7 @@ export default function DashboardPage() {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="mb-6">
               <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-50">
-                Xin chào, {user.name}!
+                {displayName}
               </h2>
               <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
                 Chúc bạn một ngày học tập hiệu quả.

@@ -163,7 +163,7 @@ export const routeGroups: RouteGroup[] = [
         color: "text-emerald-400",
       },
       {
-        label: "Lịch sử Commit",
+        label: "Commit",
         icon: GitCommit,
         href: "/commits",
         color: "text-slate-300",

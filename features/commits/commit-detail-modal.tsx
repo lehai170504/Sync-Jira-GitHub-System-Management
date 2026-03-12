@@ -3,7 +3,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -63,18 +62,16 @@ export function CommitDetailModal({
               Chi tiết Commit
             </span>
           </DialogTitle>
-          <DialogDescription className="pt-2 text-sm">
-            <div className="space-y-1">
-              <code className="bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-200 px-2 py-1 rounded font-mono text-xs inline-block">
-                {commit.id}
-              </code>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] ml-2 text-muted-foreground">
-                <span className="truncate max-w-[520px]">{commit.author}</span>
-                <span className="opacity-60">•</span>
-                <span>{formatDateTimeVN(commit.date)}</span>
-              </div>
+          <div className="pt-2 text-sm text-muted-foreground space-y-1">
+            <code className="bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-200 px-2 py-1 rounded font-mono text-xs inline-block">
+              {commit.id}
+            </code>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] ml-2 text-muted-foreground">
+              <span className="truncate max-w-[520px]">{commit.author}</span>
+              <span className="opacity-60">•</span>
+              <span>{formatDateTimeVN(commit.date)}</span>
             </div>
-          </DialogDescription>
+          </div>
         </DialogHeader>
 
         <div className="border-2 border-slate-200 dark:border-slate-800 rounded-lg flex-1 overflow-hidden bg-linear-to-br from-white to-purple-50/20 dark:from-slate-950 dark:to-slate-900/80">

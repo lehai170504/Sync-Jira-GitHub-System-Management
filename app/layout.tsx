@@ -32,20 +32,18 @@ export default function RootLayout({
     <html lang="vi" suppressHydrationWarning>
       <body
         suppressHydrationWarning={true}
-        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans bg-gray-50/50 text-slate-900`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans bg-background text-foreground`}
       >
         <Providers>
           <AuthWatcher />
           <main className="min-h-screen">{children}</main>
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            className="font-sans"
+          />
         </Providers>
-
-        <Toaster
-          position="top-right"
-          richColors
-          closeButton
-          theme="light"
-          className="font-sans"
-        />
       </body>
     </html>
   );

@@ -62,15 +62,19 @@ export const getJiraUsersApi = async (
 /**
  * GET /api/teams/:teamId/commits
  * Lấy danh sách commits của team (khi filter "Tất cả thành viên" ở /commits)
+ * Mặc định BE trả 10. Truyền limit (1–100) để lấy thêm, ví dụ: ?limit=30
  */
 export const getTeamCommitsFromTeamApi = async (
   teamId: string,
   branch?: string,
+  limit?: number,
 ): Promise<TeamCommitsResponse> => {
-  const params = branch ? { branch } : {};
+  const params: Record<string, string | number> = {};
+  if (branch) params.branch = branch;
+  if (limit != null && limit > 0) params.limit = Math.min(100, limit);
   const { data } = await axiosClient.get<TeamCommitsResponse>(
     `/teams/${teamId}/commits`,
-    { params },
+    { params: Object.keys(params).length ? params : undefined },
   );
   return data;
 };

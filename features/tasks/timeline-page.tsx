@@ -67,12 +67,15 @@ export function TimelinePage() {
           ? s.end_date
           : `${s.end_date}T23:59:59`
         : new Date().toISOString();
+
       return {
         id,
         name: s.name,
         start,
         end,
         state: s.state,
+        // BE Jira: sprint đã hoàn thành
+        isCompleted: s.isCompleted,
       };
     });
   }, [teamSprintsData]);

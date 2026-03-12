@@ -8,6 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -54,6 +57,8 @@ export function TaskBoard() {
   const [selectedPrint, setSelectedPrint] = useState<string>("");
   // Bộ lọc theo thành viên (dropdown)
   const [selectedAssigneeFilter, setSelectedAssigneeFilter] = useState<string>("all");
+  // Member detail (tab bảng tất cả thành viên)
+  const [selectedTableMemberId, setSelectedTableMemberId] = useState<string | null>(null);
   // Tab hiện tại (board hoặc table)
   const [currentTab, setCurrentTab] = useState<string>("board");
 
@@ -117,14 +122,14 @@ export function TaskBoard() {
 
   // Xác định memberId từ selectedAssigneeFilter
   const selectedMemberId = useMemo(() => {
-    if (selectedAssigneeFilter === "all" || selectedAssigneeFilter === "__unassigned") {
+    if (selectedAssigneeFilter === "all") {
       return undefined;
     }
     return memberIdMap.get(selectedAssigneeFilter);
   }, [selectedAssigneeFilter, memberIdMap]);
 
   // Fetch tasks theo sprint (chỉ Leader) - dùng khi chọn "Tất cả thành viên"
-  const shouldFetchTeamTasks = selectedAssigneeFilter === "all" || selectedAssigneeFilter === "__unassigned";
+  const shouldFetchTeamTasks = selectedAssigneeFilter === "all";
   const {
     data: teamTasksData,
     isLoading: isTeamTasksLoading,
@@ -154,7 +159,7 @@ export function TaskBoard() {
   // Kết hợp dữ liệu tasks cho board: Leader dùng team/member tasks, Member dùng my-tasks
   const teamTasksDataFinal = useMemo(() => {
     if (isLeaderState) {
-      if (selectedAssigneeFilter !== "all" && selectedAssigneeFilter !== "__unassigned") {
+      if (selectedAssigneeFilter !== "all") {
         return memberTasksData;
       }
       return teamTasksData;
@@ -163,23 +168,24 @@ export function TaskBoard() {
   }, [isLeaderState, selectedAssigneeFilter, memberTasksData, teamTasksData, myTasksData]);
 
   const isTasksLoading = isLeaderState
-    ? (selectedAssigneeFilter !== "all" && selectedAssigneeFilter !== "__unassigned"
+    ? selectedAssigneeFilter !== "all"
         ? isMemberTasksLoading
-        : isTeamTasksLoading)
+        : isTeamTasksLoading
     : isMyTasksLoading;
   const isTasksError = isLeaderState
-    ? (selectedAssigneeFilter !== "all" && selectedAssigneeFilter !== "__unassigned"
+    ? selectedAssigneeFilter !== "all"
         ? isMemberTasksError
-        : isTeamTasksError)
+        : isTeamTasksError
     : isMyTasksError;
 
-  // Fetch tasks cho tab "Bảng tất cả thành viên" - chỉ fetch khi tab "table" được chọn
+  // Fetch tasks cho các tab thống kê theo thành viên (Board Member / Board Team)
+  const isMemberBoardTab = currentTab === "board-member" || currentTab === "board-team";
   const {
     data: teamAllTasksData,
     isLoading: isTeamAllTasksLoading,
     isError: isTeamAllTasksError,
-  } = useTeamAllTasks(currentTab === "table" ? resolvedTeamId : undefined);
-  
+  } = useTeamAllTasks(isMemberBoardTab ? resolvedTeamId : undefined);
+
   // Hook để tạo sprint mới
   // Hook để cập nhật sprint
   // Hook để tạo task mới
@@ -293,9 +299,9 @@ export function TaskBoard() {
 
   const isLeader = isLeaderState;
 
-  // Đảm bảo nếu không phải Leader thì không thể ở tab "table"
+  // Đảm bảo nếu không phải Leader thì không thể ở tab Leader-only
   useEffect(() => {
-    if (!isLeader && currentTab === "table") {
+    if (!isLeader && currentTab === "board-member") {
       setCurrentTab("board");
     }
   }, [isLeader, currentTab]);
@@ -320,9 +326,6 @@ export function TaskBoard() {
 
   const members = useMemo(() => {
     const map = new Map<string, { id: string; name: string; initials: string }>();
-
-    // Special "Unassigned" bucket so table view can still show tasks without assignee
-    map.set("__unassigned", { id: "__unassigned", name: "Unassigned", initials: "NA" });
 
     // Prefer team members (mapped Jira account id) - chỉ lấy student.full_name
     (teamMembersData?.members || []).forEach((m: any) => {
@@ -396,6 +399,8 @@ export function TaskBoard() {
         const sprintId = typeof t.sprint_id === "object" && t.sprint_id?._id
           ? t.sprint_id._id
           : t.sprint_id || selectedPrint;
+        const sprintName = typeof t.sprint_id === "object" ? t.sprint_id?.name : undefined;
+        const sprintState = typeof t.sprint_id === "object" ? t.sprint_id?.state : undefined;
         allTasks.push({
           id,
           key: t.issue_key || id,
@@ -408,6 +413,8 @@ export function TaskBoard() {
           type: "Jira",
           courseId: "",
           printId: sprintId,
+          sprintName,
+          sprintState,
           deadline: t.due_date ? formatDateVN_yyyyMMdd(t.due_date) : "",
           startDate: t.start_date ? formatDateVN_yyyyMMdd(t.start_date) : undefined,
         });
@@ -416,6 +423,44 @@ export function TaskBoard() {
     
     return allTasks;
   }, [teamAllTasksData, selectedPrint]);
+
+  const tableSummary = useMemo(() => {
+    if (!teamAllTasksData) return { teamName: "", totalMembers: 0, totalTasks: 0 };
+    return {
+      teamName: teamAllTasksData.team?.project_name || "",
+      totalMembers: teamAllTasksData.summary?.total_members ?? 0,
+      totalTasks: teamAllTasksData.summary?.total_tasks ?? 0,
+    };
+  }, [teamAllTasksData]);
+
+  const tableMemberOptions = useMemo(() => {
+    if (!teamAllTasksData?.members_tasks) return [];
+    return teamAllTasksData.members_tasks.map((mt: any) => {
+      const m = mt.member || {};
+      const student = m.student || {};
+      const name =
+        student.full_name ||
+        student.student_code ||
+        m.github_username ||
+        `Member ${m._id?.slice(-4) || ""}`;
+      return {
+        id: m._id as string,
+        displayName: name,
+        initials: getInitials(name),
+        role: m.role_in_team as string | undefined,
+        studentCode: student.student_code as string | undefined,
+        email: student.email as string | undefined,
+        total: Number(mt.total ?? 0) || 0,
+        tasks: Array.isArray(mt.tasks) ? mt.tasks : [],
+      };
+    });
+  }, [teamAllTasksData]);
+
+  const selectedTableMember = useMemo(() => {
+    if (!tableMemberOptions.length) return null;
+    const id = selectedTableMemberId ?? tableMemberOptions[0].id;
+    return tableMemberOptions.find((m) => m.id === id) ?? tableMemberOptions[0];
+  }, [tableMemberOptions, selectedTableMemberId]);
 
   // Đồng bộ tasks state từ API mỗi khi sprint thay đổi / refetch xong (cho tab board)
   useEffect(() => {
@@ -431,6 +476,8 @@ export function TaskBoard() {
       const sprintId = typeof t.sprint_id === "object" && t.sprint_id?._id
         ? t.sprint_id._id
         : t.sprint_id || selectedPrint;
+      const sprintName = typeof t.sprint_id === "object" ? t.sprint_id?.name : undefined;
+      const sprintState = typeof t.sprint_id === "object" ? t.sprint_id?.state : undefined;
       return {
         id,
         key: t.issue_key || id,
@@ -443,6 +490,8 @@ export function TaskBoard() {
         type: "Jira",
         courseId: "",
         printId: sprintId,
+        sprintName,
+        sprintState,
         deadline: t.due_date ? formatDateVN_yyyyMMdd(t.due_date) : "",
         startDate: t.start_date ? formatDateVN_yyyyMMdd(t.start_date) : undefined,
       };
@@ -610,56 +659,28 @@ export function TaskBoard() {
           </p>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
-          <TaskBoardHeader
-            sprints={sprints}
-            selectedSprint={selectedPrint}
-            onSprintChange={(v) => {
-              setSelectedPrint(v);
-              setFormTask((prev) => ({ ...prev, printId: v }));
-            }}
-            isSprintsLoading={isSprintsLoading}
-            currentSprint={currentSprint}
-            sprintOverdue={sprintOverdue}
-            isLeader={isLeader}
-            sprintMeta={currentSprintMeta}
-            onAddTask={() => {
-              setEditingTask(null);
-              resetTaskForm();
-              setDialogOpen(true);
-            }}
-          />
-
-          {/* Dropdown lọc theo thành viên (chỉ hiển thị khi ở tab board và là Leader) */}
-          {currentTab === "board" && isLeader && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="font-medium">Lọc theo thành viên:</span>
-              <Select
-                value={selectedAssigneeFilter}
-                onValueChange={setSelectedAssigneeFilter}
-              >
-                <SelectTrigger className="h-8 w-[200px] text-xs">
-                  <SelectValue placeholder="Tất cả thành viên" />
-                </SelectTrigger>
-                <SelectContent className="mt-15">
-                  <SelectItem value="all" className="text-xs">
-                    Tất cả thành viên
-                  </SelectItem>
-                  {members
-                    .filter((m) => m.id !== "__unassigned")
-                    .map((m) => (
-                      <SelectItem key={m.id} value={m.id} className="text-xs">
-                        {m.name}
-                      </SelectItem>
-                    ))}
-                  <SelectItem value="__unassigned" className="text-xs">
-                    Unassigned
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
+        {currentTab === "board" && (
+          <div className="flex flex-col items-end gap-2">
+            <TaskBoardHeader
+              sprints={sprints}
+              selectedSprint={selectedPrint}
+              onSprintChange={(v) => {
+                setSelectedPrint(v);
+                setFormTask((prev) => ({ ...prev, printId: v }));
+              }}
+              isSprintsLoading={isSprintsLoading}
+              currentSprint={currentSprint}
+              sprintOverdue={sprintOverdue}
+              isLeader={isLeader}
+              sprintMeta={currentSprintMeta}
+              onAddTask={() => {
+                setEditingTask(null);
+                resetTaskForm();
+                setDialogOpen(true);
+              }}
+            />
+          </div>
+        )}
       </div>
 
       <Separator />
@@ -687,7 +708,7 @@ export function TaskBoard() {
         </Alert>
       )}
 
-      {/* VIEW SWITCHER: TABLE / KANBAN */}
+      {/* VIEW SWITCHER: TABLE / KANBAN / BOARD MEMBER */}
       <Tabs defaultValue="board" value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
         <TabsList className="h-9 bg-slate-100 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-800 rounded-xl">
           <TabsTrigger value="board" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
@@ -695,10 +716,16 @@ export function TaskBoard() {
             Board
           </TabsTrigger>
           {isLeader && (
-            <TabsTrigger value="table" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
-              <ListChecks className="h-4 w-4" />
-              Bảng tất cả thành viên
-            </TabsTrigger>
+            <>
+              <TabsTrigger value="board-member" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
+                <LayoutDashboard className="h-4 w-4" />
+                Board Team
+              </TabsTrigger>
+              <TabsTrigger value="board-team" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
+                <ListChecks className="h-4 w-4" />
+                Board Member
+              </TabsTrigger>
+            </>
           )}
         </TabsList>
 
@@ -793,7 +820,7 @@ export function TaskBoard() {
 
         {isLeader && (
           <TabsContent
-            value="table"
+            value="board-member"
             className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-2"
           >
           {isTeamAllTasksLoading ? (
@@ -841,7 +868,273 @@ export function TaskBoard() {
               onViewTask={setViewTask}
               onDeleteTask={handleDeleteTask}
               disableActions={true}
+              teamName={tableSummary.teamName}
+              totalMembers={tableSummary.totalMembers}
+              totalTasks={tableSummary.totalTasks}
             />
+          )}
+          </TabsContent>
+        )}
+
+        {isLeader && (
+          <TabsContent
+            value="board-team"
+            className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-2"
+          >
+          {isTeamAllTasksLoading ? (
+            <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Đang tải tasks...
+            </div>
+          ) : isTeamAllTasksError ? (
+            <Alert className="bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-100">
+              <AlertTitle>Lỗi tải tasks</AlertTitle>
+              <AlertDescription>
+                Không thể lấy danh sách tasks từ server. Vui lòng thử lại.
+              </AlertDescription>
+            </Alert>
+          ) : !teamAllTasksData || tableTasks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-muted/20">
+              <p className="text-muted-foreground text-center mb-4">
+                Chưa có tasks. Vui lòng đồng bộ Jira tại trang Thông tin dự án hoặc thêm task mới.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Button variant="outline" asChild>
+                  <Link href="/project">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Đồng bộ Jira
+                  </Link>
+                </Button>
+                <Button onClick={() => { setEditingTask(null); resetTaskForm(); setDialogOpen(true); }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Thêm task
+                </Button>
+              </div>
+            </div>
+          ) : (
+            tableMemberOptions.length > 0 &&
+            selectedTableMember && (
+              <Card className="shadow-sm border border-slate-200 dark:border-slate-800">
+                <CardHeader className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-9 w-9 border bg-background">
+                      <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
+                        {selectedTableMember.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate">
+                        {selectedTableMember.displayName}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {selectedTableMember.email ||
+                          selectedTableMember.studentCode ||
+                          "—"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={
+                          selectedTableMemberId ?? selectedTableMember.id
+                        }
+                        onValueChange={(v) => setSelectedTableMemberId(v)}
+                      >
+                        <SelectTrigger className="h-8 w-full text-xs">
+                          <SelectValue placeholder="Chọn thành viên" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {tableMemberOptions.map((opt) => (
+                            <SelectItem
+                              key={opt.id}
+                              value={opt.id}
+                              className="text-xs"
+                            >
+                              {opt.displayName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {selectedTableMember.role && (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] px-2 py-0.5"
+                        >
+                          {selectedTableMember.role === "Leader"
+                            ? "Leader"
+                            : "Member"}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-[11px]">
+                      <Badge variant="outline">
+                        Tổng task:
+                        <span className="ml-1 font-semibold">
+                          {selectedTableMember.total}
+                        </span>
+                      </Badge>
+                      <Badge variant="outline">
+                        Hoàn thành:
+                        <span className="ml-1 font-semibold">
+                          {selectedTableMember.tasks.filter(
+                            (t: any) =>
+                              (t.status_category || "")
+                                .toLowerCase()
+                                .trim() === "done"
+                          ).length}
+                        </span>
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-2 max-h-[380px] overflow-y-auto">
+                  {selectedTableMember.tasks.length === 0 ? (
+                    <p className="text-[11px] text-muted-foreground italic">
+                      Thành viên này chưa có task nào.
+                    </p>
+                  ) : (
+                    selectedTableMember.tasks.map((t: any) => {
+                      const status = mapApiTaskToStatus(
+                        t.status_category,
+                        t.status_name
+                      );
+                      const deadline = t.due_date
+                        ? formatDateVN_ddMMyyyy(t.due_date)
+                        : "";
+                      const start = t.start_date
+                        ? formatDateVN_ddMMyyyy(t.start_date)
+                        : "";
+                      const overdue =
+                        t.due_date &&
+                        status !== "done" &&
+                        isDateOverdue(t.due_date);
+
+                      const mappedTask: Task = {
+                        id: t._id || t.issue_id || t.issue_key,
+                        key: t.issue_key || t.issue_id,
+                        title: t.summary || t.issue_key || "",
+                        description: t.description,
+                        assigneeId: t.assignee_account_id || selectedTableMember.id,
+                        status,
+                        storyPoints: Number(t.story_point ?? 0) || 0,
+                        priority: "Medium",
+                        type: "Jira",
+                        courseId: "",
+                        printId:
+                          typeof t.sprint_id === "object" && t.sprint_id?._id
+                            ? t.sprint_id._id
+                            : t.sprint_id || "",
+                        sprintName: typeof t.sprint_id === "object" ? t.sprint_id?.name : undefined,
+                        sprintState: typeof t.sprint_id === "object" ? t.sprint_id?.state : undefined,
+                        deadline: t.due_date ? formatDateVN_yyyyMMdd(t.due_date) : "",
+                        startDate: t.start_date ? formatDateVN_yyyyMMdd(t.start_date) : undefined,
+                      };
+
+                      return (
+                        <div
+                          key={t._id || t.issue_id || t.issue_key}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => setViewTask(mappedTask)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setViewTask(mappedTask);
+                            }
+                          }}
+                          className={
+                            "rounded-lg border px-4 py-3 text-xs space-y-2 transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60 " +
+                            (overdue
+                              ? "border-red-300 bg-red-50/70"
+                              : "border-slate-200 bg-background")
+                          }
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Badge
+                                variant="outline"
+                                className="font-mono text-[10px] px-1.5 py-0.5"
+                              >
+                                {t.issue_key || t.issue_id}
+                              </Badge>
+                              <span className="font-medium truncate">
+                                {t.summary || t.issue_key}
+                              </span>
+                            </div>
+                            <Badge
+                              variant="outline"
+                              className={
+                                "text-[10px] px-1.5 py-0.5 " +
+                                (status === "done"
+                                  ? "border-emerald-300 text-emerald-700 bg-emerald-50"
+                                  : status === "in-progress"
+                                  ? "border-blue-300 text-blue-700 bg-blue-50"
+                                  : status === "review"
+                                  ? "border-amber-300 text-amber-700 bg-amber-50"
+                                  : "border-slate-300 text-slate-700 bg-slate-50")
+                              }
+                            >
+                              {t.status_name || "Unknown"}
+                            </Badge>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+                            {t.sprint_id?.name && (
+                              <span className="flex items-center gap-1.5">
+                                Sprint:{" "}
+                                <span className="font-medium">
+                                  {t.sprint_id.name}
+                                </span>
+                                {t.sprint_id?.state && (
+                                  <Badge
+                                    variant="outline"
+                                    className={
+                                      "text-[9px] px-1 py-0 " +
+                                      (t.sprint_id.state === "active"
+                                        ? "border-emerald-300 text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40"
+                                        : t.sprint_id.state === "closed"
+                                        ? "border-slate-300 text-slate-500 bg-slate-50 dark:bg-slate-800 opacity-70"
+                                        : "border-blue-300 text-blue-700 bg-blue-50 dark:bg-blue-950/40")
+                                    }
+                                  >
+                                    {t.sprint_id.state === "active"
+                                      ? "Đang chạy"
+                                      : t.sprint_id.state === "closed"
+                                      ? "Đã đóng"
+                                      : "Sắp tới"}
+                                  </Badge>
+                                )}
+                              </span>
+                            )}
+                            {start && (
+                              <span>
+                                Bắt đầu:{" "}
+                                <span className="font-medium">{start}</span>
+                              </span>
+                            )}
+                            {deadline && (
+                              <span>
+                                Hạn:{" "}
+                                <span className="font-medium">
+                                  {deadline}
+                                </span>
+                              </span>
+                            )}
+                            <span>{t.story_point ?? 0} SP</span>
+                          </div>
+                          {overdue && (
+                            <span className="inline-flex items-center text-[10px] text-red-600">
+                              Quá hạn
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </CardContent>
+              </Card>
+            )
           )}
           </TabsContent>
         )}

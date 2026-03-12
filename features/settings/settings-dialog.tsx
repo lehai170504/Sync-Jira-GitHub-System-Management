@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +14,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import Cookies from "js-cookie";
 import { AppearanceSettings } from "./appearance-card";
 import { NotificationSettings } from "./notification-card";
 // Lưu ý: Đảm bảo đường dẫn import của GradingConfig là chính xác
@@ -44,7 +39,7 @@ export function SettingsDialog({
     "hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50/80 dark:hover:bg-slate-800/50",
     "data-[state=active]:text-[#F27124] dark:data-[state=active]:text-orange-400",
     "data-[state=active]:bg-orange-50 dark:data-[state=active]:bg-orange-900/10",
-    "data-[state=active]:border-orange-100 dark:data-[state=active]:border-orange-900/30",
+    "data-[state=active]:border-orange-100 dark:data-[state=active]:border-orange-900/30"
   );
 
   return (
@@ -151,7 +146,10 @@ export function SettingsDialog({
                     Cấu hình lớp học
                   </h3>
                 </div>
-                <GradingConfig />
+
+                <GradingConfig
+                  classId={Cookies.get("lecturer_class_id") || ""}
+                />
               </TabsContent>
             )}
           </div>

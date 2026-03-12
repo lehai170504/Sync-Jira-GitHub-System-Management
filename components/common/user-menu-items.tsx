@@ -97,7 +97,7 @@ export function UserMenuItems({
                     <CreditCard className="h-4 w-4 text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                   </div>
                   <span className="text-[11px] font-bold italic text-slate-700 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    Điểm số của tôi
+                    Lớp học của tôi
                   </span>
                 </div>
                 <ChevronRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400" />

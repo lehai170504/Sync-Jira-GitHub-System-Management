@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
+import { useState } from "react";
+// Bỏ import Cookies vì không cần thiết ở file này nữa
 import { Loader2, Save, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -12,8 +12,12 @@ import { GradeColumn } from "@/features/lecturer/types/grading-types";
 import { GradeStructureCard } from "@/features/lecturer/components/grading-config/grade-structure-card";
 import { ContributionConfigCard } from "@/features/lecturer/components/grading-config/contribution-config-card";
 
-export function GradingConfig() {
-  const classId = Cookies.get("lecturer_class_id") || "";
+interface GradingConfigProps {
+  classId: string;
+}
+
+export function GradingConfig({ classId }: GradingConfigProps) {
+  // ĐÃ XÓA DÒNG CONST CLASSID Ở ĐÂY VÌ ĐÃ CÓ TỪ PROPS
   const { mutate: updateConfig, isPending } = useUpdateGradingConfig(classId);
 
   // State
@@ -34,22 +38,22 @@ export function GradingConfig() {
   const handleSave = () => {
     // Validate trước khi submit
     const totalGrade = Math.round(
-      gradeStructure.reduce((sum, i) => sum + Number(i.weight), 0) * 100,
+      gradeStructure.reduce((sum, i) => sum + Number(i.weight), 0) * 100
     );
     const totalContrib = Math.round(
       (contribution.jiraWeight +
         contribution.gitWeight +
         contribution.reviewWeight) *
-        100,
+        100
     );
 
     if (totalGrade !== 100)
       return toast.error(
-        `Tổng trọng số cột điểm phải bằng 100%. Hiện tại: ${totalGrade}%`,
+        `Tổng trọng số cột điểm phải bằng 100%. Hiện tại: ${totalGrade}%`
       );
     if (totalContrib !== 100)
       return toast.error(
-        `Tổng trọng số đánh giá nhóm phải bằng 100%. Hiện tại: ${totalContrib}%`,
+        `Tổng trọng số đánh giá nhóm phải bằng 100%. Hiện tại: ${totalContrib}%`
       );
 
     updateConfig({ gradeStructure, contributionConfig: contribution });

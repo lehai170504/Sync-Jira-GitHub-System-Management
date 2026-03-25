@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Cookies from "js-cookie";
 import { toast } from "sonner";
 // Import từ file API user-api mà chúng ta đã thống nhất
 import {
@@ -10,10 +11,12 @@ import {
 
 // --- GET PROFILE ---
 export const useProfile = () => {
+  const hasToken = !!Cookies.get("token");
   return useQuery({
     // 👇 QUAN TRỌNG: Đổi key thành "user-profile" để khớp với GithubFormLeader
     queryKey: ["user-profile"],
     queryFn: getUserProfileApi,
+    enabled: hasToken,
     staleTime: 5 * 60 * 1000, // 5 phút (Cache)
     retry: 1,
     // Khi user focus lại vào tab, fetch lại để cập nhật trạng thái kết nối mới nhất

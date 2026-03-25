@@ -8,7 +8,9 @@ export const socket: Socket = io(SOCKET_URL, {
   reconnection: true,
   reconnectionAttempts: 10,
   reconnectionDelay: 2000,
-  transports: ["websocket"],
+  // Cho phép fallback nếu WebSocket bị đóng trước khi handshake xong.
+  // Tránh trường hợp chỉ có `["websocket"]` thì sẽ không connect được.
+  transports: ["websocket", "polling"],
   upgrade: false,
   auth: (cb) => {
     cb({ token: Cookies.get("token") });

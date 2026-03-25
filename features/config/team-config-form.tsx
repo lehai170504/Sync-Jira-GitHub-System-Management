@@ -562,6 +562,27 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
 
       {/* SUBMIT BUTTON */}
       <div className="flex justify-end gap-3">
+        {existingConfig && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleSyncAll}
+            disabled={isSyncing || isPending || !teamId}
+            className="h-10"
+          >
+            {isSyncing ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                Đang đồng bộ...
+              </>
+            ) : (
+              <>
+                <Zap className="mr-2 h-4 w-4 fill-yellow-300 text-yellow-100" />
+                Đồng bộ tất cả
+              </>
+            )}
+          </Button>
+        )}
         {isEditMode && (
           <Button
             type="button"

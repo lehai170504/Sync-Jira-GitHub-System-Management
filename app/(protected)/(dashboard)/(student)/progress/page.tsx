@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Cookies from "js-cookie";
 import { UserRole } from "@/components/layouts/sidebar-config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Activity, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   BarChart,
   Bar,
@@ -20,6 +21,7 @@ import {
 } from "recharts";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useTeamRanking } from "@/features/management/teams/hooks/use-team-ranking";
+import { useTeamLeaderboardRealtime } from "@/features/management/teams/hooks/use-team-leaderboard-rt";
 
 // Helper function để lấy initials từ tên
 const getInitials = (name?: string) => {
@@ -34,6 +36,7 @@ export default function LeaderProgressPage() {
   const [isLeader, setIsLeader] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [openMembers, setOpenMembers] = useState<Record<string, boolean>>({});
+  const warnedMissingLeaderboardFieldsRef = useRef(false);
 
   // Resolve teamId giống trang /tasks và /config
   const classId = Cookies.get("student_class_id") || "";
@@ -44,6 +47,7 @@ export default function LeaderProgressPage() {
 
   // Fetch ranking data từ API
   const { data: rankingData, isLoading, error } = useTeamRanking(resolvedTeamId);
+  const { data: leaderboardRt } = useTeamLeaderboardRealtime(resolvedTeamId);
 
   useEffect(() => {
     const savedRole = Cookies.get("user_role") as UserRole;
@@ -53,6 +57,52 @@ export default function LeaderProgressPage() {
     setIsLeader(leaderStatus);
     setMounted(true);
   }, []);
+
+  const contributionPercentByMemberId = useMemo(() => {
+    const rows = leaderboardRt?.leaderboard;
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+
+    const map = new Map<string, number>();
+
+    for (const raw of rows) {
+      const r: any = raw;
+      const memberId: string | undefined =
+        r?.member_id ?? r?.memberId ?? r?.team_member_id ?? r?.teamMemberId;
+
+      const percentRaw =
+        r?.contribution_percent ??
+        r?.contributionPercent ??
+        r?.contribution_percentage ??
+        r?.contributionPercentage ??
+        r?.percent ??
+        r?.percentage;
+
+      const percent =
+        typeof percentRaw === "number"
+          ? percentRaw
+          : typeof percentRaw === "string"
+            ? Number(percentRaw)
+            : NaN;
+
+      if (memberId && Number.isFinite(percent)) {
+        map.set(memberId, percent);
+      }
+    }
+
+    if (map.size === 0) return { map, ok: false as const };
+    return { map, ok: true as const };
+  }, [leaderboardRt]);
+
+  useEffect(() => {
+    if (!contributionPercentByMemberId) return;
+    if (contributionPercentByMemberId.ok) return;
+    if (warnedMissingLeaderboardFieldsRef.current) return;
+    warnedMissingLeaderboardFieldsRef.current = true;
+    toast.warning("Payload LEADERBOARD_UPDATED thiếu field để map % đóng góp", {
+      description:
+        "Cần `member_id` (hoặc tương đương) và `contribution_percent` (hoặc tương đương) cho từng entry.",
+    });
+  }, [contributionPercentByMemberId]);
 
   // Map API data sang format cho UI
   const memberProgress = useMemo(() => {
@@ -65,6 +115,11 @@ export default function LeaderProgressPage() {
       const progress = member.jira.total_tasks > 0
         ? Math.round((member.jira.done_tasks / member.jira.total_tasks) * 100)
         : 0;
+
+      const contributionPercent =
+        contributionPercentByMemberId && contributionPercentByMemberId.ok
+          ? contributionPercentByMemberId.map.get(member.member_id)
+          : undefined;
       
       return {
         id: member.member_id,
@@ -81,14 +136,16 @@ export default function LeaderProgressPage() {
         storyPointsTotal: member.jira.total_story_points,
         commits: member.github.counted_commits,
         role: member.role_in_team,
+        contributionPercent,
       };
     });
-  }, [rankingData]);
+  }, [rankingData, contributionPercentByMemberId]);
 
   const chartData = useMemo(() => {
     return memberProgress.map((m) => ({
       name: m.initials,
       progress: m.progress,
+      contribution: typeof m.contributionPercent === "number" ? m.contributionPercent : null,
     }));
   }, [memberProgress]);
 
@@ -179,7 +236,7 @@ export default function LeaderProgressPage() {
         <Card className="md:col-span-3 shadow-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <CardHeader>
             <CardTitle className="text-base">
-              Tiến độ theo thành viên (% hoàn thành)
+              Tiến độ theo thành viên (% hoàn thành) & % đóng góp (AI)
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -219,6 +276,13 @@ export default function LeaderProgressPage() {
                     name="Hoàn thành (%)"
                     radius={[4, 4, 0, 0]}
                     fill="#F27124"
+                    barSize={32}
+                  />
+                  <Bar
+                    dataKey="contribution"
+                    name="Đóng góp (AI) (%)"
+                    radius={[4, 4, 0, 0]}
+                    fill="#10B981"
                     barSize={32}
                   />
                 </BarChart>
@@ -272,6 +336,14 @@ export default function LeaderProgressPage() {
                           Commits:{" "}
                           <span className="font-medium text-foreground">
                             {m.commits}
+                          </span>
+                        </span>
+                        <span>
+                          Đóng góp (AI):{" "}
+                          <span className="font-medium text-foreground">
+                            {typeof m.contributionPercent === "number"
+                              ? `${m.contributionPercent.toFixed(0)}%`
+                              : "—"}
                           </span>
                         </span>
                       </div>

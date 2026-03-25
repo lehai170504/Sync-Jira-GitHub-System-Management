@@ -16,6 +16,7 @@ import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useTeamMembers } from "@/features/student/hooks/use-team-members";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
+import { useClassDetails } from "@/features/management/classes/hooks/use-class-details";
 
 type ReviewData = {
   revieweeId: string;
@@ -31,6 +32,7 @@ export function PeerReviewForm() {
   const { data: profile } = useProfile();
   const { data: myClasses } = useMyClasses();
   const { data: teamsData } = useClassTeams(classId);
+  const { data: classDetails, isLoading: isClassDetailsLoading } = useClassDetails(classId);
   const { data: membersData, isLoading: isMembersLoading } =
     useTeamMembers(teamId);
 
@@ -106,6 +108,61 @@ export function PeerReviewForm() {
     new Set(),
   );
   const [isSubmittingAll, setIsSubmittingAll] = useState(false);
+
+  const reviewWindow = useMemo(() => {
+    const endDateRaw = classDetails?.class?.semester_id?.end_date;
+    if (!endDateRaw) {
+      return {
+        canSubmit: true,
+        reason: "",
+        openDateLabel: "",
+        endDateLabel: "",
+      };
+    }
+
+    const endDate = new Date(endDateRaw);
+    if (Number.isNaN(endDate.getTime())) {
+      return {
+        canSubmit: true,
+        reason: "",
+        openDateLabel: "",
+        endDateLabel: "",
+      };
+    }
+
+    const endDay = new Date(
+      endDate.getFullYear(),
+      endDate.getMonth(),
+      endDate.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
+    const openDay = new Date(endDay);
+    openDay.setDate(openDay.getDate() - 14);
+    openDay.setHours(0, 0, 0, 0);
+
+    const now = new Date();
+    const inWindow = now >= openDay && now <= endDay;
+    const format = (d: Date) =>
+      new Intl.DateTimeFormat("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }).format(d);
+
+    return {
+      canSubmit: inWindow,
+      reason: inWindow
+        ? ""
+        : now < openDay
+          ? "Đánh giá chéo chỉ mở trong 14 ngày cuối của học kỳ."
+          : "Đã quá hạn nộp đánh giá chéo của học kỳ này.",
+      openDateLabel: format(openDay),
+      endDateLabel: format(endDay),
+    };
+  }, [classDetails?.class?.semester_id?.end_date]);
 
   const handleRatingChange = (memberId: string, rating: number) => {
     setReviews((prev) => ({
@@ -188,12 +245,40 @@ export function PeerReviewForm() {
     }
   };
 
-  if (isMembersLoading || !teamId) {
+  if (isMembersLoading || isClassDetailsLoading || !teamId) {
     return (
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
+      </div>
+    );
+  }
+
+  if (!reviewWindow.canSubmit) {
+    return (
+      <div className="p-6 space-y-6 font-mono text-slate-900 dark:text-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+            <Users className="h-6 w-6 text-indigo-600 dark:text-indigo-300" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Đánh giá chéo (Peer Review)</h1>
+            <p className="text-sm text-muted-foreground">
+              Chỉ mở trong 14 ngày cuối trước khi kết thúc học kỳ.
+            </p>
+          </div>
+        </div>
+        <Card className="border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/30">
+          <CardContent className="pt-6 space-y-2">
+            <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+              {reviewWindow.reason}
+            </p>
+            <p className="text-xs text-amber-800/90 dark:text-amber-200/90">
+              Thời gian mở: {reviewWindow.openDateLabel} - {reviewWindow.endDateLabel}
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }

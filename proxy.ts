@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // 1. Lấy token và role từ cookie
   const token = request.cookies.get("token")?.value;
   const role = request.cookies.get("user_role")?.value;
@@ -77,3 +77,4 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico|images).*)"],
 };
+

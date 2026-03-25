@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -11,7 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { GitCommit, Loader2, AlertCircle } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { GitCommit, Loader2, AlertCircle, ChevronDown } from "lucide-react";
 import { CommitFilters } from "./commit-filters";
 import { CommitListTable } from "./commit-list-table";
 import { CommitDetailModal } from "./commit-detail-modal";
@@ -47,8 +49,12 @@ export function LeaderCommits({
   const [authorFilter, setAuthorFilter] = useState<string>("ALL");
   const [selectedCommitId, setSelectedCommitId] = useState<string | null>(null);
   const [leaderView, setLeaderView] = useState<"list" | "grouped">("list");
-  const [groupedMemberFilter, setGroupedMemberFilter] = useState<string>("ALL");
+  const [openGroupedMembers, setOpenGroupedMembers] = useState<Record<string, boolean>>({});
+  const [groupedMemberCommitLimits, setGroupedMemberCommitLimits] = useState<
+    Record<string, number>
+  >({});
   const [branchFilter, setBranchFilter] = useState<string>("");
+  const [commitLimit, setCommitLimit] = useState<number>(10);
   const [selectedPatchCommit, setSelectedPatchCommit] = useState<CommitItem | null>(null);
 
   // 1. Lấy danh sách lớp học
@@ -145,6 +151,7 @@ export function LeaderCommits({
       resolvedTeamId,
       shouldFetchTeamCommitsAll,
       branchFilter || undefined,
+      commitLimit,
     );
 
   const selectedMemberId =
@@ -249,43 +256,6 @@ export function LeaderCommits({
     return items;
   }, [groupedMembers]);
 
-  const groupedMemberOptions = useMemo(() => {
-    return groupedMembers.map((mc: any) => {
-      const m = mc?.member;
-      const label =
-        m?.student?.full_name ||
-        m?.github_username ||
-        `Member ${m?._id?.slice(-4)}`;
-      return {
-        id: m?._id as string,
-        label,
-        role: m?.role_in_team as string,
-        github: m?.github_username as string | null,
-        total: (mc?.total ?? (mc?.commits || []).length) as number,
-      };
-    });
-  }, [groupedMembers]);
-
-  const groupedCommitsForSelectedMember: CommitItem[] = useMemo(() => {
-    if (!groupedMembers.length) return [];
-    if (groupedMemberFilter === "ALL") return groupedCommitsFlat;
-    const mc = groupedMembers.find((x: any) => x?.member?._id === groupedMemberFilter);
-    if (!mc) return [];
-    return (mc?.commits || []).map((c: any) => {
-      const branches = c.branches ?? (c.branch ? [c.branch] : ["main"]);
-      return {
-        id: c.hash,
-        message: c.message,
-        author: c.author_email || "unknown",
-        branch: branches[0] || "main",
-        branches,
-        date: c.commit_date,
-        is_counted: c.is_counted,
-        rejection_reason: c.rejection_reason,
-      };
-    });
-  }, [groupedMembers, groupedMemberFilter, groupedCommitsFlat]);
-
   // Thông tin Header lọc
   const authors = useMemo(
     () =>
@@ -318,7 +288,18 @@ export function LeaderCommits({
     setToDate("");
     setAuthorFilter("ALL");
     setBranchFilter("");
+    setCommitLimit(10);
   };
+
+  const handleLoadMoreCommits = () => {
+    setCommitLimit((prev) => Math.min(100, prev + 10));
+  };
+
+  const canLoadMore =
+    isLeader &&
+    authorFilter === "ALL" &&
+    (teamCommitsAllData?.commits?.length ?? 0) >= commitLimit &&
+    commitLimit < 100;
 
   // Trạng thái Loading tổng hợp
   const isLoading =
@@ -431,9 +412,6 @@ export function LeaderCommits({
                   )?.student.full_name || ""
                 }
                 leaderNames={leaderNames}
-                classOptions={classOptions}
-                selectedClassId={selectedClassId}
-                onClassChange={setSelectedClassId}
                 teamId={resolvedTeamId}
                 branchFilter={branchFilter}
                 onBranchChange={setBranchFilter}
@@ -442,19 +420,39 @@ export function LeaderCommits({
             </div>
 
             {/* LIST */}
-            <CommitListTable
-              commits={filteredCommits}
-              onCommitClick={setSelectedCommitId}
-              repoUrl={repoUrl}
-              onViewPatch={setSelectedPatchCommit}
-              emptyMessage={
-                filteredCommits.length === 0
-                  ? branchFilter
-                    ? `Nhánh "${branchFilter}" chưa được đồng bộ. Vui lòng đồng bộ dữ liệu tại trang Project.`
-                    : "Chưa có dữ liệu commit. Vui lòng đồng bộ dữ liệu tại trang Project."
-                  : undefined
-              }
-            />
+            <div className="space-y-4">
+              <CommitListTable
+                commits={filteredCommits}
+                onCommitClick={setSelectedCommitId}
+                repoUrl={repoUrl}
+                onViewPatch={setSelectedPatchCommit}
+                emptyMessage={
+                  filteredCommits.length === 0
+                    ? branchFilter
+                      ? `Nhánh "${branchFilter}" chưa được đồng bộ. Vui lòng đồng bộ dữ liệu tại trang Project.`
+                      : "Chưa có dữ liệu commit. Vui lòng đồng bộ dữ liệu tại trang Project."
+                    : undefined
+                }
+              />
+              {canLoadMore && (
+                <div className="flex justify-center pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadMoreCommits}
+                    disabled={isTeamCommitsAllLoading}
+                    className="border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30"
+                  >
+                    {isTeamCommitsAllLoading ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 mr-2" />
+                    )}
+                    Xem thêm
+                  </Button>
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="grouped" className="space-y-6">
@@ -464,78 +462,200 @@ export function LeaderCommits({
                 Đang tải commits của team...
               </div>
             ) : isGroupedError ? (
-              <div className="p-6 rounded-[24px] border border-red-200 bg-red-50 text-red-900 text-sm">
+              <div className="p-6 rounded-[24px] border border-red-200 bg-red-50 text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-100 text-sm">
                 Không thể tải dữ liệu commits theo thành viên. Vui lòng thử lại.
               </div>
             ) : (
-              <div className="space-y-6">
-                {/* Summary */}
+              <div className="space-y-4">
+                {/* Summary + Branch filter */}
                 {groupedCommitsData?.summary && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="rounded-[20px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-                      <div className="text-xs text-muted-foreground uppercase tracking-widest">
-                        Tổng thành viên
+                  <div className="rounded-[20px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex flex-wrap items-center gap-4">
+                        <div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-widest">
+                            Nhóm
+                          </div>
+                          <div className="text-lg font-bold truncate">
+                            {groupedCommitsData.team?.project_name || "—"}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-widest">
+                            Tổng thành viên
+                          </div>
+                          <div className="text-2xl font-black">
+                            {groupedCommitsData.summary.total_members}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-widest">
+                            Tổng commits
+                          </div>
+                          <div className="text-2xl font-black">
+                            {groupedCommitsData.summary.total_commits}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-2xl font-black">
-                        {groupedCommitsData.summary.total_members}
-                      </div>
-                    </div>
-                    <div className="rounded-[20px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-                      <div className="text-xs text-muted-foreground uppercase tracking-widest">
-                        Tổng commits
-                      </div>
-                      <div className="text-2xl font-black">
-                        {groupedCommitsData.summary.total_commits}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground font-medium">
+                          Nhánh:
+                        </span>
+                        <Select
+                          value={branchFilter || "__all__"}
+                          onValueChange={(v) =>
+                            setBranchFilter(v === "__all__" ? "" : v)
+                          }
+                        >
+                          <SelectTrigger className="h-8 w-[180px] text-xs border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-foreground">
+                            <SelectValue placeholder="Tất cả nhánh" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                            <SelectItem value="__all__" className="text-xs">
+                              Tất cả nhánh
+                            </SelectItem>
+                            {branchOptions.map((b) => (
+                              <SelectItem key={b} value={b} className="text-xs">
+                                {b}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Filter + Single table */}
-                <div className="rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-muted/30 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="font-bold truncate">Danh sách commit của team</div>
-                      <div className="text-xs text-muted-foreground">
-                        Lọc theo thành viên để xem commit chi tiết.
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground font-medium">
-                        Thành viên:
-                      </span>
-                      <Select value={groupedMemberFilter} onValueChange={setGroupedMemberFilter}>
-                        <SelectTrigger className="h-8 w-[280px] text-xs">
-                          <SelectValue placeholder="Tất cả thành viên" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ALL" className="text-xs">
-                            Tất cả thành viên
-                          </SelectItem>
-                          {groupedMemberOptions.map((o) => (
-                            <SelectItem key={o.id} value={o.id} className="text-xs">
-                              {o.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="p-3">
-                    <CommitListTable
-                      commits={groupedCommitsForSelectedMember}
-                      onCommitClick={setSelectedCommitId}
-                      repoUrl={repoUrl}
-                      onViewPatch={setSelectedPatchCommit}
-                      emptyMessage={
-                        groupedCommitsForSelectedMember.length === 0
-                          ? branchFilter
-                            ? `Nhánh "${branchFilter}" chưa được đồng bộ. Vui lòng đồng bộ dữ liệu tại trang Project.`
-                            : "Chưa có dữ liệu commit. Vui lòng đồng bộ dữ liệu tại trang Project."
-                          : undefined
+                {/* Danh sách thành viên – accordion */}
+                <div className="space-y-3">
+                  {groupedMembers.map((mc: any, idx: number) => {
+                    const m = mc?.member;
+                    const memberId = (m?._id as string) || `mc-${idx}`;
+                    const displayName =
+                      m?.student?.full_name ||
+                      m?.github_username ||
+                      `Member ${m?._id?.slice(-4)}`;
+                    const initials =
+                      displayName
+                        .split(/\s+/)
+                        .slice(0, 2)
+                        .map((w: string) => w[0] || "")
+                        .join("")
+                        .toUpperCase() || "?";
+                    const total = mc?.total ?? (mc?.commits || []).length ?? 0;
+                    const isOpen = openGroupedMembers[memberId] ?? false;
+
+                    const allMemberCommits: CommitItem[] = (mc?.commits || []).map(
+                      (c: any) => {
+                        const branches =
+                          c.branches ?? (c.branch ? [c.branch] : ["main"]);
+                        return {
+                          id: c.hash,
+                          message: c.message,
+                          author: c.author_email || "unknown",
+                          branch: branches[0] || "main",
+                          branches,
+                          date: c.commit_date,
+                          is_counted: c.is_counted,
+                          rejection_reason: c.rejection_reason,
+                        };
                       }
-                    />
-                  </div>
+                    );
+                    const limit = groupedMemberCommitLimits[memberId] ?? 10;
+                    const memberCommits = allMemberCommits.slice(0, limit);
+                    const hasMore = allMemberCommits.length > limit;
+
+                    return (
+                      <div
+                        key={memberId}
+                        className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden"
+                      >
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenGroupedMembers((prev) => ({
+                              ...prev,
+                              [memberId]: !prev[memberId],
+                            }))
+                          }
+                          className="w-full px-4 py-4 flex items-center justify-between gap-3 text-left hover:bg-muted/50 dark:hover:bg-slate-800/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <Avatar className="h-10 w-10 shrink-0 border bg-background">
+                              <AvatarFallback className="text-sm font-semibold bg-primary/10 text-primary">
+                                {initials}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold truncate">
+                                {displayName}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {m?.student?.email ||
+                                  m?.student?.student_code ||
+                                  m?.github_username ||
+                                  "—"}
+                              </p>
+                            </div>
+                            {m?.role_in_team && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 text-muted-foreground shrink-0">
+                                {m.role_in_team}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className="text-xs text-muted-foreground">
+                              <span className="font-semibold text-foreground">
+                                {total}
+                              </span>{" "}
+                              commit
+                            </span>
+                            <ChevronDown
+                              className={
+                                "h-4 w-4 text-muted-foreground transition-transform " +
+                                (isOpen ? "rotate-180" : "")
+                              }
+                            />
+                          </div>
+                        </button>
+
+                        {isOpen && (
+                          <div className="border-t border-slate-200 dark:border-slate-800 p-3 bg-muted/20 space-y-3">
+                            <CommitListTable
+                              commits={memberCommits}
+                              onCommitClick={setSelectedCommitId}
+                              repoUrl={repoUrl}
+                              onViewPatch={setSelectedPatchCommit}
+                              emptyMessage={
+                                allMemberCommits.length === 0
+                                  ? "Thành viên này chưa có commit nào."
+                                  : undefined
+                              }
+                            />
+                            {hasMore && (
+                              <div className="flex justify-center pt-1">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setGroupedMemberCommitLimits((prev) => ({
+                                      ...prev,
+                                      [memberId]: (prev[memberId] ?? 10) + 10,
+                                    }));
+                                  }}
+                                  className="border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30"
+                                >
+                                  <ChevronDown className="h-4 w-4 mr-2" />
+                                  Xem thêm
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -575,11 +695,8 @@ export function LeaderCommits({
                   (m) => m.student._id === currentStudentIdFromCookie,
                 )?.student.full_name || ""
               }
-              leaderNames={leaderNames}
-              classOptions={classOptions}
-              selectedClassId={selectedClassId}
-              onClassChange={setSelectedClassId}
-              teamId={resolvedTeamId}
+            leaderNames={leaderNames}
+            teamId={resolvedTeamId}
               branchFilter={branchFilter}
               onBranchChange={setBranchFilter}
               branchOptions={branchOptions}

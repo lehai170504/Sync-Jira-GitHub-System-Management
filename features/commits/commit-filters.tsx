@@ -69,8 +69,7 @@ export function CommitFilters({
   const hasActiveFilters =
     fromDate ||
     toDate ||
-    branchFilter ||
-    (selectedClassId && classOptions.length > 1);
+    branchFilter;
 
   const handleSync = async () => {
     if (!teamId) {
@@ -120,35 +119,8 @@ export function CommitFilters({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Class Filter và Date Filters - Cùng hàng với justify-between */}
+        {/* Bộ lọc nhánh + ngày */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          {/* Class Filter - Bên trái */}
-          {classOptions.length > 1 && onClassChange && (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                <GraduationCap className="h-4 w-4 text-purple-600" />
-                Lớp học
-              </label>
-              <Select value={selectedClassId} onValueChange={onClassChange}>
-                <SelectTrigger className="w-full md:w-[280px] border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-                  <SelectValue placeholder="Chọn lớp học" />
-                </SelectTrigger>
-                <SelectContent>
-                  {classOptions.map((cls) => (
-                    <SelectItem key={cls.id} value={cls.id}>
-                      <div className="flex items-center gap-2">
-                        <span>{cls.name}</span>
-                        {cls.code && (
-                          <span className="text-xs text-muted-foreground">({cls.code})</span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
           {/* Branch filter */}
           {branchOptions.length > 0 && onBranchChange && (
             <div className="flex flex-col gap-2">

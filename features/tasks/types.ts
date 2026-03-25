@@ -32,6 +32,8 @@ export type Task = {
   type: string;
   courseId: string;
   printId: string; // sprint id (legacy naming kept for compatibility)
+  sprintName?: string; // sprint name from sprint_id.name
+  sprintState?: string; // active | closed | future
   deadline: string; // yyyy-MM-dd (due_date)
   startDate?: string; // yyyy-MM-dd (start_date)
 };

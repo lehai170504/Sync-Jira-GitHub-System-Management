@@ -110,19 +110,44 @@ export function TaskDetailSheet({
           <div className="flex-1 min-h-0 overflow-hidden pt-4">
             <TabsContent value="summary" className="m-0 h-full">
               <ScrollArea className="h-full">
-                <div className="space-y-4 pr-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Trạng thái:</span>
+                <div className="space-y-5 pr-3">
+                  <div className="flex items-center gap-3 py-1">
+                    <span className="text-sm text-muted-foreground min-w-[100px]">Trạng thái:</span>
                     <Badge variant="outline" className={getStatusBadgeClass(task.status)}>
                       {mapStatusToStatusName(task.status)}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Story points:</span>
+                  <div className="flex items-center gap-3 py-1">
+                    <span className="text-sm text-muted-foreground min-w-[100px]">Story points:</span>
                     <span className="font-medium text-foreground">{task.storyPoints}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Assignee:</span>
+                  {(task.sprintName || task.printId) && (
+                    <div className="flex items-center gap-3 flex-wrap py-1">
+                      <span className="text-sm text-muted-foreground min-w-[100px]">Sprint:</span>
+                      <span className="font-medium text-foreground">{task.sprintName || task.printId}</span>
+                      {task.sprintState && (
+                        <Badge
+                          variant="outline"
+                          className={
+                            "text-[10px] px-1.5 py-0.5 " +
+                            (task.sprintState === "active"
+                              ? "border-emerald-300 text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300 animate-pulse"
+                              : task.sprintState === "closed"
+                              ? "border-slate-300 text-slate-500 bg-slate-50 dark:bg-slate-800 dark:text-slate-400 opacity-70"
+                              : "border-blue-300 text-blue-700 bg-blue-50 dark:bg-blue-950/40 dark:text-blue-300")
+                          }
+                        >
+                          {task.sprintState === "active"
+                            ? "Đang chạy"
+                            : task.sprintState === "closed"
+                            ? "Đã đóng"
+                            : "Sắp tới"}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 py-1">
+                    <span className="text-sm text-muted-foreground min-w-[100px]">Assignee:</span>
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6 border border-slate-200 dark:border-slate-700">
                         <AvatarFallback className="text-xs bg-teal-500/15 text-teal-700 dark:bg-teal-400/20 dark:text-teal-100">
@@ -133,8 +158,8 @@ export function TaskDetailSheet({
                     </div>
                   </div>
                   {task.deadline && (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-3 py-1">
+                      <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
                       <span className="text-sm text-muted-foreground">Hạn:</span>
                       <span className="text-sm text-foreground">{formatDate(task.deadline)}</span>
                     </div>
@@ -159,7 +184,7 @@ export function TaskDetailSheet({
 
             <TabsContent value="development" className="m-0 h-full">
               <ScrollArea className="h-full">
-                <div className="space-y-4 pr-3">
+                <div className="space-y-5 pr-3">
                   <p className="text-sm text-muted-foreground">
                     Lịch sử code – commits liên kết với {task.key} qua Smart Linking.
                   </p>

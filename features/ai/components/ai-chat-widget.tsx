@@ -156,6 +156,8 @@ export function AiChatWidget() {
       const msg =
         isQuotaError
           ? `AI đang quá tải quota. Vui lòng thử lại sau ${retrySeconds ?? 60} giây.`
+          : !status && /network error/i.test(String(e?.message ?? ""))
+            ? "Không kết nối được AI server (Network Error). Kiểm tra backend đang chạy/không sleep và CORS."
           : (typeof data?.message === "string" && data.message) ||
             (typeof data?.error === "string" && data.error) ||
             e?.message ||

@@ -13,6 +13,7 @@ import {
   Activity,
   Star,
   Settings,
+  Calculator,
   LucideIcon,
   Users,
   Briefcase,
@@ -113,6 +114,18 @@ export const routeGroups: RouteGroup[] = [
         href: "/lecturer/settings",
         color: "text-slate-500",
       },
+      // {
+      //   label: "Trọng số đóng góp",
+      //   icon: Settings,
+      //   href: "/lecturer/contribution-config",
+      //   color: "text-orange-500",
+      // },
+      {
+        label: "Tính điểm cá nhân",
+        icon: Calculator,
+        href: "/lecturer/reviews/calculate",
+        color: "text-amber-500",
+      },
     ],
   },
   {
@@ -163,7 +176,7 @@ export const routeGroups: RouteGroup[] = [
         color: "text-emerald-400",
       },
       {
-        label: "Lịch sử Commit",
+        label: "Commit",
         icon: GitCommit,
         href: "/commits",
         color: "text-slate-300",

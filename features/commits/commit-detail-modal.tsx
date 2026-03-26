@@ -3,7 +3,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -37,6 +36,19 @@ export function CommitDetailModal({
   if (!commit) return null;
 
   const validation = getValidation(commit);
+  const formatDateTimeVN = (iso?: string) => {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return new Intl.DateTimeFormat("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(d);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,15 +62,16 @@ export function CommitDetailModal({
               Chi tiết Commit
             </span>
           </DialogTitle>
-          <DialogDescription className="pt-2 flex items-center gap-2 text-sm">
-            <code className="bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-200 px-2 py-1 rounded font-mono text-xs">
+          <div className="pt-2 text-sm text-muted-foreground space-y-1">
+            <code className="bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-200 px-2 py-1 rounded font-mono text-xs inline-block">
               {commit.id}
             </code>
-            <span className="text-muted-foreground">•</span>
-            <span className="font-medium text-foreground">{commit.author}</span>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-muted-foreground">{commit.date}</span>
-          </DialogDescription>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] ml-2 text-muted-foreground">
+              <span className="truncate max-w-[520px]">{commit.author}</span>
+              <span className="opacity-60">•</span>
+              <span>{formatDateTimeVN(commit.date)}</span>
+            </div>
+          </div>
         </DialogHeader>
 
         <div className="border-2 border-slate-200 dark:border-slate-800 rounded-lg flex-1 overflow-hidden bg-linear-to-br from-white to-purple-50/20 dark:from-slate-950 dark:to-slate-900/80">

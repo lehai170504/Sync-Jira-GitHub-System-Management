@@ -151,8 +151,8 @@ export function KanbanView({
                       className={
                         "shadow-xs hover:shadow-md transition-shadow select-none " +
                         (overdue
-                          ? "border border-red-300 bg-red-50"
-                          : "border border-slate-200") +
+                          ? "border border-red-300 bg-red-50 dark:border-red-900 dark:bg-red-950/30"
+                          : "border border-slate-200 dark:border-slate-800") +
                         (isDragging ? " opacity-50" : "") +
                         (onTaskStatusChange ? " cursor-grab active:cursor-grabbing" : "")
                       }
@@ -182,7 +182,7 @@ export function KanbanView({
                               <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); onDeleteTask(task.id); }}
-                                className="shrink-0 p-0.5 rounded hover:bg-red-50 text-red-600 hover:text-red-700"
+                                className="shrink-0 p-0.5 rounded hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                                 aria-label="Xóa"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />

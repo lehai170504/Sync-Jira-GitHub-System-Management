@@ -10,6 +10,8 @@ export type CommitItem = {
   date: string; // ISO date
   is_counted?: boolean;
   rejection_reason?: string | null;
+  /** Link tới commit trên GitHub (BE trả về) */
+  url?: string;
 };
 
 export type CommitFile = {

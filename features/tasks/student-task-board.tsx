@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { KanbanSquare, LayoutDashboard, ListChecks, Loader2, RefreshCw, Plus } from "lucide-react";
+import { KanbanSquare, LayoutDashboard, Loader2, RefreshCw, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { statusColumns } from "./mock-data";
@@ -32,7 +32,6 @@ import {
 } from "./utils";
 import { TaskBoardHeader } from "./task-board-header";
 import { KanbanView } from "./kanban-view";
-import { MemberTableView } from "./member-table-view";
 import { TaskDialog } from "./task-dialog";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
@@ -178,8 +177,8 @@ export function TaskBoard() {
         : isTeamTasksError
     : isMyTasksError;
 
-  // Fetch tasks cho các tab thống kê theo thành viên (Board Member / Board Team)
-  const isMemberBoardTab = currentTab === "board-member" || currentTab === "board-team";
+  // Fetch tasks cho tab Board Team
+  const isMemberBoardTab = currentTab === "board-team";
   const {
     data: teamAllTasksData,
     isLoading: isTeamAllTasksLoading,
@@ -369,22 +368,6 @@ export function TaskBoard() {
     return options;
   }, [jiraUsersData, teamMembersData, currentUserId]);
 
-  // Map dữ liệu từ API team-all-tasks cho tab "Bảng tất cả thành viên"
-  const tableMembers = useMemo(() => {
-    if (!teamAllTasksData?.members_tasks) return [];
-    
-    return teamAllTasksData.members_tasks.map((mt: any) => {
-      const member = mt.member;
-      const jiraId = member?.jira_account_id || `__member_${member?._id}`;
-      const fullName = member?.student?.full_name || `Member ${member?._id?.slice(-4)}`;
-      return {
-        id: jiraId,
-        name: fullName,
-        initials: getInitials(fullName),
-      };
-    });
-  }, [teamAllTasksData]);
-
   const tableTasks = useMemo(() => {
     if (!teamAllTasksData?.members_tasks) return [];
     
@@ -423,15 +406,6 @@ export function TaskBoard() {
     
     return allTasks;
   }, [teamAllTasksData, selectedPrint]);
-
-  const tableSummary = useMemo(() => {
-    if (!teamAllTasksData) return { teamName: "", totalMembers: 0, totalTasks: 0 };
-    return {
-      teamName: teamAllTasksData.team?.project_name || "",
-      totalMembers: teamAllTasksData.summary?.total_members ?? 0,
-      totalTasks: teamAllTasksData.summary?.total_tasks ?? 0,
-    };
-  }, [teamAllTasksData]);
 
   const tableMemberOptions = useMemo(() => {
     if (!teamAllTasksData?.members_tasks) return [];
@@ -708,7 +682,7 @@ export function TaskBoard() {
         </Alert>
       )}
 
-      {/* VIEW SWITCHER: TABLE / KANBAN / BOARD MEMBER */}
+      {/* VIEW SWITCHER: BOARD / BOARD TEAM */}
       <Tabs defaultValue="board" value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
         <TabsList className="h-9 bg-slate-100 dark:bg-slate-900/70 border border-slate-200/70 dark:border-slate-800 rounded-xl">
           <TabsTrigger value="board" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
@@ -716,16 +690,10 @@ export function TaskBoard() {
             Board
           </TabsTrigger>
           {isLeader && (
-            <>
-              <TabsTrigger value="board-member" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
-                <LayoutDashboard className="h-4 w-4" />
-                Board Team
-              </TabsTrigger>
-              <TabsTrigger value="board-team" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
-                <ListChecks className="h-4 w-4" />
-                Board Member
-              </TabsTrigger>
-            </>
+            <TabsTrigger value="board-team" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800">
+              <LayoutDashboard className="h-4 w-4" />
+              Board Team
+            </TabsTrigger>
           )}
         </TabsList>
 
@@ -817,64 +785,6 @@ export function TaskBoard() {
             />
           )}
         </TabsContent>
-
-        {isLeader && (
-          <TabsContent
-            value="board-member"
-            className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-2"
-          >
-          {isTeamAllTasksLoading ? (
-            <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Đang tải tasks...
-            </div>
-          ) : isTeamAllTasksError ? (
-            <Alert className="bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-100">
-              <AlertTitle>Lỗi tải tasks</AlertTitle>
-              <AlertDescription>
-                Không thể lấy danh sách tasks từ server. Vui lòng thử lại.
-              </AlertDescription>
-            </Alert>
-          ) : !teamAllTasksData || tableTasks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-muted/20">
-              <p className="text-muted-foreground text-center mb-4">
-                Chưa có tasks. Vui lòng đồng bộ Jira tại trang Thông tin dự án hoặc thêm task mới.
-              </p>
-              <div className="flex flex-wrap gap-3 justify-center">
-                <Button variant="outline" asChild>
-                  <Link href="/project">
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Đồng bộ Jira
-                  </Link>
-                </Button>
-                <Button onClick={() => { setEditingTask(null); resetTaskForm(); setDialogOpen(true); }}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Thêm task
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <MemberTableView
-              members={tableMembers}
-              tasks={tableTasks}
-              isTaskOverdue={isTaskOverdue}
-              isLeader={isLeader}
-              currentUserId={currentUserId}
-              onEditTask={(task) => {
-                setEditingTask(task);
-                setFormTask(task);
-                setDialogOpen(true);
-              }}
-              onViewTask={setViewTask}
-              onDeleteTask={handleDeleteTask}
-              disableActions={true}
-              teamName={tableSummary.teamName}
-              totalMembers={tableSummary.totalMembers}
-              totalTasks={tableSummary.totalTasks}
-            />
-          )}
-          </TabsContent>
-        )}
 
         {isLeader && (
           <TabsContent
@@ -1047,7 +957,7 @@ export function TaskBoard() {
                           className={
                             "rounded-lg border px-4 py-3 text-xs space-y-2 transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60 " +
                             (overdue
-                              ? "border-red-300 bg-red-50/70"
+                              ? "border-red-300 bg-red-50/70 dark:border-red-900 dark:bg-red-950/30 dark:hover:bg-red-950/40"
                               : "border-slate-200 bg-background")
                           }
                         >
@@ -1124,7 +1034,7 @@ export function TaskBoard() {
                             <span>{t.story_point ?? 0} SP</span>
                           </div>
                           {overdue && (
-                            <span className="inline-flex items-center text-[10px] text-red-600">
+                            <span className="inline-flex items-center text-[10px] text-red-600 dark:text-red-400">
                               Quá hạn
                             </span>
                           )}

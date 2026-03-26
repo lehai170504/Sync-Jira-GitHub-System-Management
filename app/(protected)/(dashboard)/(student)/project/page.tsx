@@ -18,6 +18,7 @@ import {
   RefreshCw,
   GitBranch,
   Check,
+  FileDown,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,6 +35,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { syncProjectApi } from "@/features/integration/api/sync-api";
 import { getProjectGithubBranchesApi } from "@/features/integration/api/github-branches-api";
+import { exportSrsMarkdownApi } from "@/features/ai/api/export-srs-api";
 
 export default function ProjectDetailsPage() {
   const classId = Cookies.get("student_class_id");
@@ -45,6 +47,7 @@ export default function ProjectDetailsPage() {
 
   const queryClient = useQueryClient();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isExportingSrs, setIsExportingSrs] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
 
   // Lấy project phù hợp với lớp đang chọn (project đầu tiên match class_id)
@@ -121,6 +124,36 @@ export default function ProjectDetailsPage() {
       toast.error(msg);
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleExportSrs = async () => {
+    if (!project?._id) return;
+    try {
+      setIsExportingSrs(true);
+      const { blob, filename } = await exportSrsMarkdownApi(project._id);
+      const suggested =
+        filename ||
+        `${(project.name || "SRS").replace(/[\\/:*?"<>|]+/g, "-")}-SRS.md`;
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = suggested;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Đã xuất báo cáo SRS", { description: suggested });
+    } catch (e: any) {
+      const msg =
+        e?.response?.data?.message ||
+        e?.message ||
+        "Không thể xuất báo cáo SRS.";
+      toast.error(msg);
+    } finally {
+      setIsExportingSrs(false);
     }
   };
 
@@ -204,6 +237,28 @@ export default function ProjectDetailsPage() {
               )}
             </Button>
           )}
+
+          <Button
+            variant="outline"
+            className="rounded-xl gap-2 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 shadow-sm transition-all active:scale-95"
+            onClick={handleExportSrs}
+            disabled={!project?._id || isExportingSrs}
+            title="Tải file Markdown báo cáo SRS"
+          >
+            {isExportingSrs ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-xs font-bold uppercase">Đang tải...</span>
+              </>
+            ) : (
+              <>
+                <FileDown className="w-4 h-4" />
+                <span className="text-xs font-bold uppercase">
+                  Xuất Báo Cáo SRS
+                </span>
+              </>
+            )}
+          </Button>
 
           {project.githubRepoUrl && (
             <DropdownMenu>

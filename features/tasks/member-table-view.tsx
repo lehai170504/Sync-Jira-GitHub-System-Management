@@ -189,7 +189,7 @@ export function MemberTableView({
                       className={
                         "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs rounded-lg px-4 py-3 border transition-colors cursor-pointer " +
                         (overdue
-                          ? "border-red-200 bg-red-50/70 hover:bg-red-50"
+                          ? "border-red-200 bg-red-50/70 hover:bg-red-50 dark:border-red-900 dark:bg-red-950/30 dark:hover:bg-red-950/40"
                           : "border-slate-100 bg-background hover:bg-slate-50 dark:hover:bg-slate-800/60")
                       }
                       onClick={() => onViewTask?.(task)}
@@ -210,7 +210,7 @@ export function MemberTableView({
                           {overdue && (
                             <Badge
                               variant="outline"
-                              className="text-[10px] px-1.5 py-0.5 border-red-400 text-red-600 bg-red-50"
+                              className="text-[10px] px-1.5 py-0.5 border-red-400 text-red-600 bg-red-50 dark:border-red-900 dark:text-red-400 dark:bg-red-950/40"
                             >
                               Quá hạn
                             </Badge>

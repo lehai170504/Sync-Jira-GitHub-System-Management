@@ -4,9 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileInfoTab } from "./profile-info-tab";
 import { SecurityTab } from "./security-tab";
 import { IntegrationTab } from "./integration-tab";
+import { ContributionHistoryTab } from "./contribution-history-tab";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { cn } from "@/lib/utils";
-import { User, ShieldCheck, Zap, Loader2 } from "lucide-react";
+import { User, ShieldCheck, Zap, Loader2, History } from "lucide-react";
 
 export function ProfileTabs() {
   const { data: profile, isLoading } = useProfile();
@@ -48,6 +49,13 @@ export function ProfileTabs() {
               </TabsTrigger>
             )}
 
+            {userRole === "STUDENT" && (
+              <TabsTrigger value="history" className={tabTriggerStyle}>
+                <History className="w-4 h-4" />
+                Lịch sử đóng góp
+              </TabsTrigger>
+            )}
+
             <TabsTrigger value="security" className={tabTriggerStyle}>
               <ShieldCheck className="w-4 h-4" />
               Bảo mật tài khoản
@@ -70,6 +78,15 @@ export function ProfileTabs() {
               className="mt-0 outline-none border-none"
             >
               <IntegrationTab />
+            </TabsContent>
+          )}
+
+          {userRole === "STUDENT" && (
+            <TabsContent
+              value="history"
+              className="mt-0 outline-none border-none"
+            >
+              <ContributionHistoryTab />
             </TabsContent>
           )}
 

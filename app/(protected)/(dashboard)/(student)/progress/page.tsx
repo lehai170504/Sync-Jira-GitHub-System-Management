@@ -22,6 +22,7 @@ import {
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useTeamRanking } from "@/features/management/teams/hooks/use-team-ranking";
 import { useTeamLeaderboardRealtime } from "@/features/management/teams/hooks/use-team-leaderboard-rt";
+import { useSocket } from "@/components/providers/socket-provider";
 
 // Helper function để lấy initials từ tên
 const getInitials = (name?: string) => {
@@ -38,12 +39,23 @@ export default function LeaderProgressPage() {
   const [openMembers, setOpenMembers] = useState<Record<string, boolean>>({});
   const warnedMissingLeaderboardFieldsRef = useRef(false);
 
+  const { isConnected, socket } = useSocket();
+
   // Resolve teamId giống trang /tasks và /config
   const classId = Cookies.get("student_class_id") || "";
   const myTeamName = Cookies.get("student_team_name");
   const { data: teamsData } = useClassTeams(classId);
   const myTeamInfo = teamsData?.teams?.find((t: any) => t.project_name === myTeamName);
   const resolvedTeamId = myTeamInfo?._id || teamsData?.teams?.[0]?._id;
+
+  // Đảm bảo Socket.io đã join đúng room team cho trang /progress,
+  // để nhận event `LEADERBOARD_UPDATED` (không cần F5/polling).
+  useEffect(() => {
+    if (!isConnected || !resolvedTeamId) return;
+    socket.emit("join_team", resolvedTeamId);
+    socket.emit("joinTeam", resolvedTeamId);
+    Cookies.set("student_team_id", resolvedTeamId);
+  }, [isConnected, resolvedTeamId, socket]);
 
   // Fetch ranking data từ API
   const { data: rankingData, isLoading, error } = useTeamRanking(resolvedTeamId);

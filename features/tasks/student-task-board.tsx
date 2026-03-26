@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { UserRole } from "@/components/layouts/sidebar-config";
@@ -47,15 +48,132 @@ import { useTeamAllTasks } from "@/features/integration/hooks/use-team-all-tasks
 import { useMyTasks } from "@/features/integration/hooks/use-my-tasks";
 import { useTeamDetail } from "@/features/student/hooks/use-team-detail";
 import { TaskDetailSheet } from "./task-detail-sheet";
+import { useSocket } from "@/components/providers/socket-provider";
 
 export function TaskBoard() {
+  const { isConnected, socket } = useSocket();
+  const queryClient = useQueryClient();
   const [role, setRole] = useState<UserRole>("STUDENT");
   const [isLeaderState, setIsLeaderState] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [selectedPrint, setSelectedPrint] = useState<string>("");
+  const ALL_SPRINTS_ID = "__all_sprints__";
+  const isAllSprints = selectedPrint === ALL_SPRINTS_ID;
   // Bộ lọc theo thành viên (dropdown)
   const [selectedAssigneeFilter, setSelectedAssigneeFilter] = useState<string>("all");
+  const lastJiraRefetchAtRef = useRef<number | null>(null);
+  const [rtJiraUpdateSeq, setRtJiraUpdateSeq] = useState(0);
+
+  // Fallback/refetch chắc ăn cho Kanban:
+  // SocketProvider luôn dispatch `rt:jira-issue-updated` khi nhận `JIRA_ISSUE_UPDATED`,
+  // nên UI không phụ thuộc vào logic "đang ở /tasks" trong SocketProvider.
+  useEffect(() => {
+    let t1: number | null = null;
+    let t2: number | null = null;
+
+    const refetchTaskQueries = () => {
+      const keyRoots = ["team-tasks", "team-all-tasks", "member-tasks", "my-tasks"];
+      const queries = queryClient
+        .getQueryCache()
+        .findAll({
+          predicate: (q) => {
+            const k = q.queryKey;
+            return (
+              Array.isArray(k) &&
+              typeof k[0] === "string" &&
+              keyRoots.includes(k[0])
+            );
+          },
+        });
+
+      queries.forEach((q) => {
+        queryClient.refetchQueries({ queryKey: q.queryKey, exact: true, type: "all" });
+      });
+
+      // Force re-mapping UI ngay sau khi refetch
+      setRtJiraUpdateSeq((v) => v + 1);
+    };
+
+    const handler = (event?: Event) => {
+      const now = Date.now();
+      const last = lastJiraRefetchAtRef.current;
+      if (last != null && now - last < 1200) return;
+      lastJiraRefetchAtRef.current = now;
+
+      // Optimistic update ngay lập tức để Kanban "nhảy liền"
+      // dù API có thể trễ vài giây sau khi webhook emit.
+      const detail = (event as CustomEvent<any> | undefined)?.detail;
+      const issueKeyRaw =
+        detail?.issueKey ??
+        detail?.issue_key ??
+        detail?.issue?.key;
+      const nextStatusRaw =
+        detail?.status ??
+        detail?.status_name ??
+        detail?.issue?.fields?.status?.name;
+      const issueKey = typeof issueKeyRaw === "string" ? issueKeyRaw.trim() : "";
+      const nextStatus =
+        typeof nextStatusRaw === "string"
+          ? mapApiTaskToStatus(undefined, nextStatusRaw)
+          : null;
+      if (issueKey && nextStatus) {
+        setTasks((prev) =>
+          prev.map((t) => {
+            const k = String(t.key || t.id || "").trim();
+            return k.toLowerCase() === issueKey.toLowerCase()
+              ? { ...t, status: nextStatus }
+              : t;
+          }),
+        );
+      }
+
+      // Refetch ngay + retry nhẹ để tránh case BE emit event trước khi DB/API kịp cập nhật.
+      refetchTaskQueries();
+
+      if (t1) window.clearTimeout(t1);
+      if (t2) window.clearTimeout(t2);
+      t1 = window.setTimeout(refetchTaskQueries, 1200);
+      t2 = window.setTimeout(refetchTaskQueries, 3000);
+    };
+
+    window.addEventListener("rt:jira-issue-updated", handler as EventListener);
+    return () => {
+      window.removeEventListener("rt:jira-issue-updated", handler as EventListener);
+      if (t1) window.clearTimeout(t1);
+      if (t2) window.clearTimeout(t2);
+    };
+  }, [queryClient]);
+
+  // Bắt trực tiếp socket event tại /tasks để tránh phụ thuộc bridge window event.
+  useEffect(() => {
+    const directHandler = (data: any) => {
+      if (typeof window === "undefined") return;
+      window.dispatchEvent(
+        new CustomEvent("rt:jira-issue-updated", {
+          detail: data,
+        }),
+      );
+    };
+
+    socket.on("JIRA_ISSUE_UPDATED", directHandler);
+    socket.on("jira_issue_updated", directHandler);
+    socket.on("JIRA_ISSUE_UPDATE", directHandler);
+    socket.on("jira_issue_update", directHandler);
+    socket.on("jiraIssueUpdated", directHandler);
+    socket.on("MEMBER_UPDATED", directHandler);
+    socket.on("member_updated", directHandler);
+
+    return () => {
+      socket.off("JIRA_ISSUE_UPDATED", directHandler);
+      socket.off("jira_issue_updated", directHandler);
+      socket.off("JIRA_ISSUE_UPDATE", directHandler);
+      socket.off("jira_issue_update", directHandler);
+      socket.off("jiraIssueUpdated", directHandler);
+      socket.off("MEMBER_UPDATED", directHandler);
+      socket.off("member_updated", directHandler);
+    };
+  }, [socket]);
   // Member detail (tab bảng tất cả thành viên)
   const [selectedTableMemberId, setSelectedTableMemberId] = useState<string | null>(null);
   // Tab hiện tại (board hoặc table)
@@ -90,9 +208,21 @@ export function TaskBoard() {
   // Resolve teamId giống trang /commits và /config
   const classId = Cookies.get("student_class_id") || "";
   const myTeamName = Cookies.get("student_team_name");
+  // Ưu tiên teamId đã được lưu ở cookie (tránh join nhầm room do student_team_name chưa kịp sync)
+  const cookieTeamId =
+    Cookies.get("student_team_id") || Cookies.get("lecturer_team_id") || "";
   const { data: teamsData } = useClassTeams(classId);
   const myTeamInfo = teamsData?.teams?.find((t: any) => t.project_name === myTeamName);
-  const resolvedTeamId = myTeamInfo?._id || teamsData?.teams?.[0]?._id;
+  const resolvedTeamId = cookieTeamId || myTeamInfo?._id || teamsData?.teams?.[0]?._id;
+
+  // Đảm bảo room team luôn được join tại chính trang /tasks
+  // để nhận event realtime emit theo team room.
+  useEffect(() => {
+    if (!isConnected || !resolvedTeamId) return;
+    socket.emit("join_team", resolvedTeamId);
+    socket.emit("joinTeam", resolvedTeamId);
+    Cookies.set("student_team_id", resolvedTeamId);
+  }, [isConnected, resolvedTeamId, socket]);
 
   const { data: teamDetailData } = useTeamDetail(resolvedTeamId);
   const projectId = teamDetailData?.project?._id;
@@ -128,14 +258,15 @@ export function TaskBoard() {
   }, [selectedAssigneeFilter, memberIdMap]);
 
   // Fetch tasks theo sprint (chỉ Leader) - dùng khi chọn "Tất cả thành viên"
-  const shouldFetchTeamTasks = selectedAssigneeFilter === "all";
+  const shouldFetchTeamTasks =
+    isLeaderState && selectedAssigneeFilter === "all" && !isAllSprints;
   const {
     data: teamTasksData,
     isLoading: isTeamTasksLoading,
     isError: isTeamTasksError,
   } = useTeamTasks(
-    isLeaderState && shouldFetchTeamTasks ? resolvedTeamId : undefined,
-    isLeaderState && shouldFetchTeamTasks ? selectedPrint : undefined
+    shouldFetchTeamTasks ? resolvedTeamId : undefined,
+    shouldFetchTeamTasks ? selectedPrint : undefined,
   );
 
   // Fetch tasks theo member (chỉ Leader khi chọn một thành viên cụ thể)
@@ -155,25 +286,67 @@ export function TaskBoard() {
     isError: isMyTasksError,
   } = useMyTasks(!isLeaderState);
 
+  const shouldFetchTeamAllTasksForBoard =
+    isLeaderState && currentTab === "board" && selectedAssigneeFilter === "all" && isAllSprints;
+  const {
+    data: teamAllTasksDataForBoard,
+    isLoading: isTeamAllTasksForBoardLoading,
+    isError: isTeamAllTasksForBoardError,
+  } = useTeamAllTasks(shouldFetchTeamAllTasksForBoard ? resolvedTeamId : undefined);
+
+  const teamAllTasksFlatForBoard = useMemo(() => {
+    const data = teamAllTasksDataForBoard;
+    if (!data?.members_tasks || !Array.isArray(data.members_tasks)) return [] as any[];
+    const allTasks: any[] = [];
+    data.members_tasks.forEach((mt: any) => {
+      const member = mt.member;
+      const jiraId = member?.jira_account_id || `__member_${member?._id}`;
+      (Array.isArray(mt.tasks) ? mt.tasks : []).forEach((t: any) => {
+        // Trả về shape giống API tasks để effect map phía dưới hoạt động.
+        allTasks.push({
+          ...t,
+          assignee_account_id: jiraId,
+        });
+      });
+    });
+
+    return allTasks;
+  }, [teamAllTasksDataForBoard]);
+
   // Kết hợp dữ liệu tasks cho board: Leader dùng team/member tasks, Member dùng my-tasks
   const teamTasksDataFinal = useMemo(() => {
     if (isLeaderState) {
       if (selectedAssigneeFilter !== "all") {
         return memberTasksData;
       }
+      if (isAllSprints) {
+        return teamAllTasksFlatForBoard;
+      }
       return teamTasksData;
     }
     return myTasksData ?? [];
-  }, [isLeaderState, selectedAssigneeFilter, memberTasksData, teamTasksData, myTasksData]);
+  }, [
+    isLeaderState,
+    selectedAssigneeFilter,
+    memberTasksData,
+    teamTasksData,
+    myTasksData,
+    isAllSprints,
+    teamAllTasksFlatForBoard,
+  ]);
 
   const isTasksLoading = isLeaderState
     ? selectedAssigneeFilter !== "all"
-        ? isMemberTasksLoading
+      ? isMemberTasksLoading
+      : isAllSprints
+        ? isTeamAllTasksForBoardLoading
         : isTeamTasksLoading
     : isMyTasksLoading;
   const isTasksError = isLeaderState
     ? selectedAssigneeFilter !== "all"
-        ? isMemberTasksError
+      ? isMemberTasksError
+      : isAllSprints
+        ? isTeamAllTasksForBoardError
         : isTeamTasksError
     : isMyTasksError;
 
@@ -271,7 +444,9 @@ export function TaskBoard() {
   useEffect(() => {
     if (!sprints || sprints.length === 0) return;
 
-    const exists = !!selectedPrint && sprints.some((sp) => sp.id === selectedPrint);
+    const exists =
+      selectedPrint === ALL_SPRINTS_ID ||
+      (!!selectedPrint && sprints.some((sp) => sp.id === selectedPrint));
     if (exists) return;
 
     const activeFromApi = teamSprintsData?.find((s: any) => s.state === "active");
@@ -439,7 +614,7 @@ export function TaskBoard() {
   // Đồng bộ tasks state từ API mỗi khi sprint thay đổi / refetch xong (cho tab board)
   useEffect(() => {
     // Chỉ update tasks state khi đang ở tab board
-    if (currentTab !== "board" || !teamTasksDataFinal) return;
+    if (currentTab !== "board") return;
 
     const taskList = Array.isArray(teamTasksDataFinal) ? teamTasksDataFinal : [];
     const mapped: Task[] = taskList.map((t: any) => {
@@ -472,7 +647,7 @@ export function TaskBoard() {
     });
 
     setTasks(mapped);
-  }, [teamTasksDataFinal, selectedPrint, currentTab]);
+  }, [teamTasksDataFinal, selectedPrint, currentTab, rtJiraUpdateSeq]);
 
   const resetTaskForm = () => {
     const defaultAssigneeId = isLeader
@@ -598,19 +773,19 @@ export function TaskBoard() {
   const visibleTasks = useMemo(
     () =>
       tasks
-        .filter((t) => t.printId === selectedPrint)
+        .filter((t) => (isAllSprints ? true : t.printId === selectedPrint))
         .filter((t) =>
           selectedAssigneeFilter === "all" ? true : t.assigneeId === selectedAssigneeFilter,
         ),
-    [tasks, selectedPrint, selectedAssigneeFilter],
+    [tasks, selectedPrint, selectedAssigneeFilter, isAllSprints],
   );
 
   const currentSprint = useMemo(
-    () => sprints.find((p) => p.id === selectedPrint),
-    [sprints, selectedPrint],
+    () => (isAllSprints ? undefined : sprints.find((p) => p.id === selectedPrint)),
+    [sprints, selectedPrint, isAllSprints],
   );
   const sprintOverdue = isDateOverdue(currentSprint?.deadline);
-  const currentSprintMeta = sprintMetaMap[selectedPrint] || undefined;
+  const currentSprintMeta = !isAllSprints ? sprintMetaMap[selectedPrint] || undefined : undefined;
 
   // NOTE: Sprints được lấy từ Jira nên không cho thao tác CRUD thủ công tại UI /tasks.
 
@@ -628,6 +803,18 @@ export function TaskBoard() {
             <LayoutDashboard className="h-7 w-7 text-[#F27124]" />
             Team Task Board
           </h2>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="outline"
+              className={
+                isConnected
+                  ? "border-emerald-300 text-emerald-700 bg-emerald-50/60 dark:border-emerald-800 dark:text-emerald-300 dark:bg-emerald-950/30"
+                  : "border-slate-300 text-slate-500 bg-slate-50/60 dark:border-slate-800 dark:text-slate-400 dark:bg-slate-900/20"
+              }
+            >
+              Socket.io: {isConnected ? "Connected" : "Disconnected"}
+            </Badge>
+          </div>
           <p className="text-muted-foreground">
             Theo dõi danh sách task của từng thành viên
           </p>
@@ -640,7 +827,9 @@ export function TaskBoard() {
               selectedSprint={selectedPrint}
               onSprintChange={(v) => {
                 setSelectedPrint(v);
-                setFormTask((prev) => ({ ...prev, printId: v }));
+                  const nextSprintId =
+                    v === ALL_SPRINTS_ID ? sprints[0]?.id || "" : v;
+                  setFormTask((prev) => ({ ...prev, printId: nextSprintId }));
               }}
               isSprintsLoading={isSprintsLoading}
               currentSprint={currentSprint}

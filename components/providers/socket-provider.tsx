@@ -67,20 +67,48 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    const socketAuthToken = token ? `Bearer ${token}` : "";
+
     const emitJoinRooms = () => {
       const uid = userIdRef.current;
-      const cid = activeClassIdRef.current;
-      const tid = activeTeamIdRef.current;
+      // Cookie có thể đổi sau khi socket đã connect (do user điều hướng trang),
+      // nên đọc lại trực tiếp để tránh join nhầm room.
+      const cid =
+        Cookies.get("lecturer_class_id") ||
+        Cookies.get("student_class_id") ||
+        activeClassIdRef.current;
+      const tid =
+        Cookies.get("student_team_id") ||
+        Cookies.get("lecturer_team_id") ||
+        activeTeamIdRef.current;
 
       if (uid) {
+        try {
+          // eslint-disable-next-line no-console
+          console.log("[RT] emit join_user", { uid });
+        } catch {
+          // ignore
+        }
         socket.emit("join_user", uid);
         socket.emit("joinUser", uid);
       }
       if (cid) {
+        try {
+          // eslint-disable-next-line no-console
+          console.log("[RT] emit join_class", { cid });
+        } catch {
+          // ignore
+        }
         socket.emit("join_class", cid);
         socket.emit("joinClass", cid);
       }
       if (tid) {
+        try {
+          // eslint-disable-next-line no-console
+          console.log("[RT] emit join_team", { tid });
+        } catch {
+          // ignore
+        }
         socket.emit("join_team", tid);
         socket.emit("joinTeam", tid);
       }
@@ -96,18 +124,51 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       return false;
     };
 
+    // Debug throttle: log các event liên quan Jira nếu FE nhận được.
+    // Trường hợp hiện tại bạn đang thấy "không có gì", log này sẽ giúp biết có event nào tới không.
+    let lastJiraAnyEventLogAt = 0;
+    let lastAnyEventLogAt = 0;
+
     function onConnect() {
       setIsConnected(true);
+      try {
+        // eslint-disable-next-line no-console
+        console.log("[RT] socket connected", {
+          tokenPresent: !!token,
+          userId: userIdRef.current,
+          classIdCookie:
+            Cookies.get("lecturer_class_id") || Cookies.get("student_class_id") || "",
+          teamIdCookie:
+            Cookies.get("student_team_id") || Cookies.get("lecturer_team_id") || "",
+          classIdRef: activeClassIdRef.current,
+          teamIdRef: activeTeamIdRef.current,
+        });
+      } catch {
+        // ignore
+      }
       emitJoinRooms();
     }
 
     function onDisconnect() {
       setIsConnected(false);
+      try {
+        // eslint-disable-next-line no-console
+        console.log("[RT] socket disconnected");
+      } catch {
+        // ignore
+      }
     }
 
     function onConnectError(err: any) {
+      try {
+        // eslint-disable-next-line no-console
+        console.log("[RT] socket connect_error", { message: err?.message, err });
+      } catch {
+        // ignore
+      }
       if (err.message === "Authentication error") {
-        socket.auth = { token: Cookies.get("token") };
+        const nextToken = Cookies.get("token");
+        socket.auth = { token: nextToken ? `Bearer ${nextToken}` : "" };
         socket.connect();
       }
     }
@@ -130,38 +191,144 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     function onGithubNewCommits(data: any) {
       const message = data?.message || "Có code mới từ GitHub";
       const commitsCount = typeof data?.commitsCount === "number" ? data.commitsCount : undefined;
+      const projectName = typeof data?.projectName === "string" ? data.projectName : undefined;
       const toastKey = `gh:${message}:${commitsCount ?? "na"}`;
       if (isDuplicatedToast(toastKey)) return;
+      const title = projectName ? `${projectName}: ${message}` : message;
       toast.success(
-        commitsCount !== undefined ? `${message} (${commitsCount} commits)` : message,
+        commitsCount !== undefined ? `${title} (${commitsCount} commits)` : title,
       );
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("rt:github-new-commits", {
+            detail: data,
+          }),
+        );
+      }
     }
 
     function onJiraIssueUpdated(data: any) {
       const message = data?.message || "Kanban Jira vừa có cập nhật!";
-      const issueKey = data?.issueKey ?? "";
-      const status = data?.status ?? "";
+      const issueKey =
+        data?.issueKey ??
+        data?.issue_key ??
+        data?.issue?.key ??
+        "";
+      const status =
+        data?.status ??
+        data?.status_name ??
+        data?.issue?.fields?.status?.name ??
+        "";
+      // Debug: giúp xác nhận FE có nhận event socket từ BE hay không.
+      // Nếu log này không xuất hiện => vấn đề nằm ở socket room/join hoặc event name.
+      try {
+        // eslint-disable-next-line no-console
+        console.log("[RT] JIRA_ISSUE_UPDATED", { issueKey, status, raw: data });
+      } catch {
+        // ignore
+      }
       const toastKey = `jira:${message}:${issueKey}:${status}`;
-      if (isDuplicatedToast(toastKey)) return;
-      toast.info(`${message}${issueKey || status ? ` - Task ${issueKey} -> ${status}` : ""}`);
+      const shouldToast = !isDuplicatedToast(toastKey);
+      if (shouldToast) {
+        toast.info(
+          `${message}${issueKey || status ? ` - Task ${issueKey} -> ${status}` : ""}`,
+        );
+      }
 
       const p = pathnameRef.current || "";
       if (isOnTasksPage(p)) {
-        // Refetch Kanban tasks theo role hiện tại (bao gồm cả filter theo member/team)
-        queryClient.invalidateQueries({ queryKey: ["team-tasks"], exact: false });
-        queryClient.invalidateQueries({ queryKey: ["team-all-tasks"], exact: false });
-        queryClient.invalidateQueries({ queryKey: ["member-tasks"], exact: false });
-        queryClient.invalidateQueries({ queryKey: ["my-tasks"], exact: false });
-        // Ép refetch ngay để UI cập nhật tức thì, không chờ vòng re-render kế tiếp
-        queryClient.refetchQueries({ queryKey: ["team-tasks"], exact: false, type: "active" });
-        queryClient.refetchQueries({ queryKey: ["team-all-tasks"], exact: false, type: "active" });
-        queryClient.refetchQueries({ queryKey: ["member-tasks"], exact: false, type: "active" });
-        queryClient.refetchQueries({ queryKey: ["my-tasks"], exact: false, type: "active" });
+        // Dedupe giữa SocketProvider và listener ở `student-task-board` (tránh refetch 2 lần).
+        // Lưu ý: không được `return` ở đây vì vẫn cần dispatch window event để UI /tasks tự refetch.
+        let shouldRefetch = true;
+        if (typeof window !== "undefined") {
+          const now = Date.now();
+          const last = (window as any).__rtJiraRefreshAt as number | undefined;
+          if (typeof last === "number" && now - last < 1200) {
+            shouldRefetch = false;
+          } else {
+            (window as any).__rtJiraRefreshAt = now;
+          }
+        }
+        if (shouldRefetch) {
+          // Refetch theo predicate thay vì prefix queryKey (tránh case "lúc được lúc không").
+          // Chỉ cần queryKey[0] khớp là ta refetch đúng mọi biến thể queryKey có sprint/team/member id đi kèm.
+          const keyRoots = ["team-tasks", "team-all-tasks", "member-tasks", "my-tasks"];
+          const queries = queryClient
+            .getQueryCache()
+            .findAll({
+              predicate: (q) => {
+                const k = q.queryKey;
+                return (
+                  Array.isArray(k) &&
+                  typeof k[0] === "string" &&
+                  keyRoots.includes(k[0])
+                );
+              },
+            });
+
+          // Ép refetch ngay để UI cập nhật tức thì.
+          queries.forEach((q) => {
+            queryClient.refetchQueries({
+              queryKey: q.queryKey,
+              exact: true,
+              type: "all",
+            });
+          });
+        }
       }
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("rt:jira-issue-updated", {
+            // luôn dispatch payload đã normalize để /tasks không phụ thuộc format BE
+            detail: {
+              ...data,
+              issueKey,
+              status,
+              message,
+            },
+          }),
+        );
+      }
+    }
+
+    function onMemberUpdated(data: any) {
+      // Một số BE emit generic MEMBER_UPDATED sau Jira webhook.
+      // Treat as Kanban update trigger để UI tự đồng bộ.
+      onJiraIssueUpdated({
+        message: data?.message || "Dữ liệu task vừa được cập nhật",
+        issueKey: data?.issueKey || data?.issue_key || "",
+        status: data?.status || data?.status_name || "",
+      });
     }
 
     function onAnyEvent(eventName: string, data: any) {
       const ev = String(eventName || "").toLowerCase();
+      const now = Date.now();
+      if (now - lastAnyEventLogAt > 5000) {
+        lastAnyEventLogAt = now;
+        try {
+          // eslint-disable-next-line no-console
+            console.log("[RT] onAnyEvent", {
+            eventName,
+            dataType: typeof data,
+          });
+        } catch {
+          // ignore
+        }
+      }
+      if (ev.includes("jira")) {
+        if (now - lastJiraAnyEventLogAt > 2000) {
+          lastJiraAnyEventLogAt = now;
+          try {
+            // eslint-disable-next-line no-console
+          console.log("[RT] onAnyEvent (jira)", { eventName, data });
+          } catch {
+            // ignore
+          }
+        }
+      }
       if (ev.includes("github") && ev.includes("commit")) {
         onGithubNewCommits(data);
         return;
@@ -200,9 +367,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     socket.on("jira_issue_update", onJiraIssueUpdated);
     socket.on("jiraIssueUpdated", onJiraIssueUpdated);
     socket.on("leaderboard_updated", onLeaderboardUpdated);
+    socket.on("MEMBER_UPDATED", onMemberUpdated);
+    socket.on("member_updated", onMemberUpdated);
     socket.onAny(onAnyEvent);
 
-    socket.auth = { token };
+    socket.auth = { token: socketAuthToken };
     if (socket.connected) {
       // Tránh miss connect event nếu socket đã lên trước khi bind listeners
       onConnect();
@@ -227,6 +396,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("jira_issue_update", onJiraIssueUpdated);
       socket.off("jiraIssueUpdated", onJiraIssueUpdated);
       socket.off("leaderboard_updated", onLeaderboardUpdated);
+      socket.off("MEMBER_UPDATED", onMemberUpdated);
+      socket.off("member_updated", onMemberUpdated);
       socket.offAny(onAnyEvent);
       socket.disconnect();
     };

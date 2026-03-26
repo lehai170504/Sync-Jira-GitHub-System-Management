@@ -12,6 +12,8 @@ import {
 import { Plus } from "lucide-react";
 import type { Sprint } from "./types";
 
+const ALL_SPRINTS_VALUE = "__all_sprints__";
+
 type Props = {
   sprints: Sprint[];
   selectedSprint: string;
@@ -69,11 +71,16 @@ export function TaskBoardHeader({
               Đang tải sprint...
             </SelectItem>
           ) : (
-            sprints.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.name}
-              </SelectItem>
-            ))
+            <>
+              {sprints.length > 0 && (
+                <SelectItem value={ALL_SPRINTS_VALUE}>All Sprints</SelectItem>
+              )}
+              {sprints.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </>
           )}
         </SelectContent>
       </Select>

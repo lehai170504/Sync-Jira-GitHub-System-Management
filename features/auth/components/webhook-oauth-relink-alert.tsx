@@ -23,6 +23,7 @@ export function WebhookOAuthRelinkAlert() {
 
   const linkedGithub = !!user?.integrations?.github;
   const linkedJira = !!user?.integrations?.jira;
+  const hasBothIntegrations = linkedGithub && linkedJira;
 
   const [relinkRunId, setRelinkRunId] = useState(0);
 
@@ -45,8 +46,7 @@ export function WebhookOAuthRelinkAlert() {
   const { connectToJira, isConnecting: isJiraConnecting } = useJiraIntegration();
   const { mutateAsync: disconnectJiraAsync, isPending: isDisconnectingJira } = useDisconnectJira();
 
-  // Dùng ref để điều khiển luồng reconnect "cả hai" theo kiểu tuần tự:
-  // open GitHub trước, khi callback GitHub thành công thì mới mở Jira.
+  // Dùng ref để theo dõi trạng thái reconnect cả hai provider.
   const relinkFlowRef = useRef<{
     active: boolean;
     expectGithub: boolean;
@@ -63,14 +63,12 @@ export function WebhookOAuthRelinkAlert() {
 
   const githubPopupRef = useRef<Window | null>(null);
   const jiraPopupRef = useRef<Window | null>(null);
-  const jiraRedirectUrlRef = useRef<string | null>(null);
-
   useEffect(() => {
     if (!shouldPrompt) return;
     setOpen(true);
   }, [shouldPrompt]);
 
-  // Lắng nghe OAuth callback để mở Jira sau khi GitHub đã thành công.
+  // Lắng nghe OAuth callback từ popup GitHub/Jira.
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const data = event.data as any;
@@ -87,27 +85,20 @@ export function WebhookOAuthRelinkAlert() {
       if (!relinkFlowRef.current.active) return;
 
       const success = data.success === true || data.success === "true";
+      const errorText = typeof data.error === "string" && data.error.trim() ? data.error.trim() : "";
+      // Một số trường hợp backend vẫn set `success=true` nhưng kèm `error` (vd scope mismatch khi register webhook).
+      const effectiveSuccess = success && !errorText;
       // Note: tránh log debug quá nhiều ở production.
 
       if (normalizedProvider === "github") {
         const prevDone = relinkFlowRef.current.githubDone;
-        relinkFlowRef.current.githubDone = success;
-        if (success && !prevDone) {
+        relinkFlowRef.current.githubDone = effectiveSuccess;
+        if (effectiveSuccess && !prevDone) {
           toast.success("Kết nối GitHub thành công!");
-
-          // Điều hướng Jira OAuth popup sau khi GitHub OK
-          if (
-            relinkFlowRef.current.expectJira &&
-            !relinkFlowRef.current.jiraDone &&
-            jiraPopupRef.current &&
-            jiraRedirectUrlRef.current
-          ) {
-            jiraPopupRef.current.location.href = jiraRedirectUrlRef.current;
-          }
         }
-        if (!success) {
+        if (!effectiveSuccess) {
           toast.error(
-            `Kết nối GitHub thất bại: ${data.error || "Bad credentials"}`,
+            `Kết nối GitHub thất bại: ${errorText || "Bad credentials"}`,
           );
           relinkFlowRef.current.active = false;
         }
@@ -115,8 +106,8 @@ export function WebhookOAuthRelinkAlert() {
 
       if (normalizedProvider === "jira") {
         const prevDone = relinkFlowRef.current.jiraDone;
-        relinkFlowRef.current.jiraDone = success;
-        if (success && !prevDone) {
+        relinkFlowRef.current.jiraDone = effectiveSuccess;
+        if (effectiveSuccess && !prevDone) {
           toast.success("Kết nối Jira thành công!");
 
           // Khi cả hai (nếu được yêu cầu) đã xong thì ack + đóng popup.
@@ -125,8 +116,8 @@ export function WebhookOAuthRelinkAlert() {
             (!relinkFlowRef.current.expectJira || relinkFlowRef.current.jiraDone);
           if (shouldClose) closeAndAck();
         }
-        if (!success) {
-          toast.error(`Kết nối Jira thất bại: ${data.error || "Error"}`);
+        if (!effectiveSuccess) {
+          toast.error(`Kết nối Jira thất bại: ${errorText || "Error"}`);
           relinkFlowRef.current.active = false;
         }
       }
@@ -212,6 +203,19 @@ export function WebhookOAuthRelinkAlert() {
     setOpen(false);
   };
 
+  const relinkButtonLabel = useMemo(() => {
+    if (linkedGithub && linkedJira) return "Hủy liên kết & kết nối lại cả hai";
+    if (linkedGithub) return "Hủy liên kết & kết nối lại GitHub";
+    if (linkedJira) return "Hủy liên kết & kết nối lại Jira";
+    return "Hủy liên kết & kết nối lại";
+  }, [linkedGithub, linkedJira]);
+
+  const enforceButtonLabel = useMemo(() => {
+    if (linkedGithub && !linkedJira) return "Kết nối Jira ngay (bắt buộc)";
+    if (!linkedGithub && linkedJira) return "Kết nối GitHub ngay (bắt buộc)";
+    return relinkButtonLabel;
+  }, [linkedGithub, linkedJira, relinkButtonLabel]);
+
   const handleRelinkGithub = async () => {
     if (!linkedGithub || isAnyBusy) return;
     setBusy("github");
@@ -253,11 +257,13 @@ export function WebhookOAuthRelinkAlert() {
         jiraDone: false,
       };
 
-      // Important:
-      // OAuth luôn cần user xác nhận trên provider (GitHub/Jira), FE không thể auto-approve.
-      // Tuy nhiên để không bị popup blocker và không "random" thứ tự,
-      // ta mở popup trống cho cả 2 ngay trong 1 user click, rồi điều hướng tuần tự:
-      // GitHub trước -> Jira sau.
+      // Bắt buộc: ngắt liên kết cũ trước khi connect lại để BE lấy lại scope webhook mới.
+      if (linkedGithub) {
+        await disconnectGithubAsync();
+      }
+      if (linkedJira) {
+        await disconnectJiraAsync();
+      }
 
       const width = 500;
       const height = 600;
@@ -277,10 +283,18 @@ export function WebhookOAuthRelinkAlert() {
         linkedJira ? getJiraConnectUrlApi() : Promise.resolve<string | null>(null),
       ]);
 
-      jiraRedirectUrlRef.current = jiraRedirectUrl;
-
       if (githubPopupRef.current && githubRedirectUrl) {
         githubPopupRef.current.location.href = githubRedirectUrl;
+      }
+      if (linkedGithub && !githubPopupRef.current) {
+        toast.error("Popup GitHub bị chặn. Vui lòng cho phép popup và thử lại.");
+      }
+
+      if (jiraPopupRef.current && jiraRedirectUrl) {
+        jiraPopupRef.current.location.href = jiraRedirectUrl;
+      }
+      if (linkedJira && !jiraPopupRef.current) {
+        toast.error("Popup Jira bị chặn. Vui lòng cho phép popup và thử lại.");
       }
 
       toast.message("Đang kết nối lại jira và github...");
@@ -293,12 +307,84 @@ export function WebhookOAuthRelinkAlert() {
     }
   };
 
+  const handleConnectMissing = async () => {
+    if (isAnyBusy) return;
+    setBusy("all");
+    try {
+      relinkFlowRef.current = {
+        active: true,
+        expectGithub: !linkedGithub,
+        expectJira: !linkedJira,
+        githubDone: linkedGithub,
+        jiraDone: linkedJira,
+      };
+
+      const width = 500;
+      const height = 600;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      const featureStr = `width=${width},height=${height},top=${top},left=${left},status=no,menubar=no,toolbar=no`;
+
+      if (!linkedGithub) {
+        githubPopupRef.current = window.open("about:blank", "GithubOAuthPopup", featureStr);
+      } else {
+        githubPopupRef.current = null;
+      }
+
+      if (!linkedJira) {
+        jiraPopupRef.current = window.open("about:blank", "JiraOAuthPopup", featureStr);
+      } else {
+        jiraPopupRef.current = null;
+      }
+
+      const [githubRedirectUrl, jiraRedirectUrl] = await Promise.all([
+        !linkedGithub ? getGithubConnectUrlApi() : Promise.resolve<string | null>(null),
+        !linkedJira ? getJiraConnectUrlApi() : Promise.resolve<string | null>(null),
+      ]);
+
+      if (!linkedGithub && githubPopupRef.current && githubRedirectUrl) {
+        githubPopupRef.current.location.href = githubRedirectUrl;
+      }
+      if (!linkedJira && jiraPopupRef.current && jiraRedirectUrl) {
+        jiraPopupRef.current.location.href = jiraRedirectUrl;
+      }
+
+      if (!linkedGithub && !githubPopupRef.current) {
+        toast.error("Popup GitHub bị chặn. Vui lòng cho phép popup và thử lại.");
+      }
+      if (!linkedJira && !jiraPopupRef.current) {
+        toast.error("Popup Jira bị chặn. Vui lòng cho phép popup và thử lại.");
+      }
+
+      toast.message("Vui lòng hoàn tất kết nối provider còn thiếu...");
+      setRelinkRunId((x) => x + 1);
+    } catch (e: any) {
+      toast.error(e?.message || "Không thể mở kết nối provider còn thiếu");
+      relinkFlowRef.current.active = false;
+    } finally {
+      setBusy(null);
+    }
+  };
+
   if (!user) return null;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        // Force user to reconnect OAuth. Block closing until we have ack in localStorage.
+        if (!nextOpen) {
+          const ack =
+            typeof window !== "undefined" &&
+            window.localStorage.getItem(LS_WEBHOOK_OAUTH_RELINK_V2_ACK) === "true";
+          if (!ack) return;
+        }
+        setOpen(nextOpen);
+      }}
+    >
       <DialogContent
         className="w-[calc(100vw-2rem)] sm:max-w-[720px] max-w-[720px] bg-white dark:bg-slate-950 border-none rounded-3xl p-0 overflow-y-auto max-h-[90vh]"
+        showCloseButton={false}
       >
         <div className="p-6 sm:p-8">
           <DialogHeader className="space-y-2">
@@ -326,23 +412,24 @@ export function WebhookOAuthRelinkAlert() {
                 {linkedJira ? "Đang được link" : "Chưa link"}
               </div>
             </div>
+            {!hasBothIntegrations && (
+              <Alert className="rounded-2xl border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40">
+                <AlertTitle className="text-amber-800 dark:text-amber-200">
+                  Thiếu tích hợp bắt buộc
+                </AlertTitle>
+                <AlertDescription className="text-amber-700 dark:text-amber-300">
+                  Bạn cần kết nối đủ Jira và GitHub để kích hoạt luồng Real-time + Auto-Webhook.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
         </div>
 
         <DialogFooter className="bg-slate-50/60 dark:bg-slate-900/30 px-6 sm:px-8 py-4 gap-3 flex flex-col sm:flex-row sm:items-center">
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Button
-              variant="outline"
-              className="w-full rounded-xl whitespace-normal wrap-break-word"
-              onClick={() => closeAndAck()}
-              disabled={isAnyBusy}
-            >
-              Để sau
-            </Button>
-
+          <div className="w-full grid grid-cols-1 gap-3">
             <Button
               className="w-full rounded-xl whitespace-normal wrap-break-word bg-orange-500 text-white hover:bg-orange-600 dark:bg-orange-500 dark:hover:bg-orange-400 focus-visible:ring-orange-400"
-              onClick={handleRelinkAll}
+              onClick={hasBothIntegrations ? handleRelinkAll : handleConnectMissing}
               disabled={isAnyBusy || (!linkedGithub && !linkedJira)}
             >
               {busy === "all" || isAnyBusy ? (
@@ -350,7 +437,7 @@ export function WebhookOAuthRelinkAlert() {
               ) : (
                 <RotateCcw className="h-4 w-4 mr-2" />
               )}
-              Hủy liên kết & kết nối lại cả hai
+              {enforceButtonLabel}
             </Button>
           </div>
         </DialogFooter>

@@ -8,6 +8,21 @@ import { toast } from "sonner";
  */
 export const useCreateTask = (teamId: string | undefined) => {
   const queryClient = useQueryClient();
+  const invalidateTaskQueries = () => {
+    const keyRoots = ["team-tasks", "team-all-tasks", "member-tasks", "my-tasks"];
+    const queries = queryClient
+      .getQueryCache()
+      .findAll({
+        predicate: (q) =>
+          Array.isArray(q.queryKey) &&
+          typeof q.queryKey[0] === "string" &&
+          keyRoots.includes(q.queryKey[0]),
+      });
+
+    queries.forEach((q) => {
+      queryClient.invalidateQueries({ queryKey: q.queryKey, exact: true });
+    });
+  };
 
   return useMutation({
     mutationFn: (payload: Omit<CreateTaskPayload, "team_id">) => {
@@ -16,7 +31,7 @@ export const useCreateTask = (teamId: string | undefined) => {
     },
     onSuccess: (data) => {
       toast.success(data.message || "✅ Thêm task thành công!");
-      queryClient.invalidateQueries({ queryKey: ["team-tasks"] });
+      invalidateTaskQueries();
     },
     onError: (error: any) => {
       const errorMessage =

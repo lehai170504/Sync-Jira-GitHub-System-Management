@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
@@ -14,8 +14,11 @@ import {
   AlertTriangle,
   RefreshCw,
   CheckCircle2,
+  LayoutDashboard,
 } from "lucide-react";
 import { SiGithub, SiJira } from "react-icons/si";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,13 +28,17 @@ import { cn } from "@/lib/utils";
 
 // --- HOOKS ---
 import { useTeamDetail } from "@/features/student/hooks/use-team-detail";
-import { useSyncProjectManual } from "@/features/lecturer/hooks/use-sync-team";
+
 // --- TYPES ---
 import {
   TeamDetailResponse,
   TeamMemberDetail,
 } from "@/features/student/types/team-types";
+
+// --- COMPONENTS ---
 import { TeamReviewsTab } from "@/features/management/classes/components/lecturer/team-reviews-tab";
+import { TeamGithubTab } from "@/features/lecturer/components/team/team-github-tab";
+import { TeamJiraTab } from "@/features/lecturer/components/team/team-jira-tab";
 
 export default function LecturerProjectDetailPage({
   params,
@@ -40,8 +47,12 @@ export default function LecturerProjectDetailPage({
 }) {
   const router = useRouter();
   const { teamId } = use(params);
+  const queryClient = useQueryClient();
 
-  // Fetch dữ liệu nhóm
+  // Trạng thái cho nút Refresh
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Fetch dữ liệu chi tiết nhóm
   const { data: detailData, isLoading } = useTeamDetail(teamId);
   const data = detailData as TeamDetailResponse | undefined;
 
@@ -52,16 +63,31 @@ export default function LecturerProjectDetailPage({
 
   const githubUrl = project?.githubRepoUrl || team?.github_repo_url;
   const jiraKey = project?.jiraProjectKey || team?.jira_project_key;
-  const jiraUrl = team?.jira_url;
-  // Gọi Hook Sync thủ công
-  const { mutate: syncData, isPending: isSyncing } = useSyncProjectManual(
-    project?._id || "",
-    teamId
-  );
+  const jiraUrl = team?.jira_url; // Khai báo rõ ràng biến jiraUrl
+
+  // Xử lý Làm mới dữ liệu (Thay thế cho hàm Sync cũ)
+  const handleRefreshData = async () => {
+    setIsRefreshing(true);
+    try {
+      // Invalidate Queries để React Query tự động fetch lại các API GET
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["team-detail", teamId] }),
+        queryClient.invalidateQueries({ queryKey: ["team-commits", teamId] }),
+        queryClient.invalidateQueries({ queryKey: ["team-tasks", teamId] }),
+      ]);
+      toast.success("Đã làm mới dữ liệu thành công!");
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi làm mới dữ liệu.");
+    } finally {
+      // Delay 1 chút cho animation mượt mà
+      setTimeout(() => setIsRefreshing(false), 500);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-transparent font-sans pb-20 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-transparent font-sans pb-10 animate-in fade-in duration-500">
       {/* --- NÚT QUAY LẠI --- */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-4">
         <Button
           variant="ghost"
           onClick={() => router.back()}
@@ -98,7 +124,7 @@ export default function LecturerProjectDetailPage({
                   </Badge>
                   {team?.last_sync_at && (
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded">
-                      <Clock className="w-3 h-3" /> Sync:{" "}
+                      <Clock className="w-3 h-3" /> Cập nhật lần cuối:{" "}
                       {format(new Date(team.last_sync_at), "HH:mm dd/MM")}
                     </span>
                   )}
@@ -119,187 +145,174 @@ export default function LecturerProjectDetailPage({
                   </p>
                 )}
               </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 w-full md:w-auto mt-4 md:mt-0">
-                <Button
-                  className="flex-1 md:flex-none h-12 px-6 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 font-black rounded-2xl shadow-sm transition-all"
-                  disabled={!githubUrl}
-                  onClick={() => githubUrl && window.open(githubUrl, "_blank")}
-                >
-                  <SiGithub className="w-4 h-4 mr-2" /> GitHub Repo
-                </Button>
-                <Button
-                  className="flex-1 md:flex-none h-12 px-6 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl shadow-sm transition-all"
-                  disabled={!jiraKey && !jiraUrl}
-                  onClick={() => {
-                    const targetUrl =
-                      jiraUrl || (jiraKey ? `https://id.atlassian.com/` : null);
-                    if (targetUrl) window.open(targetUrl, "_blank");
-                  }}
-                >
-                  <SiJira className="w-4 h-4 mr-2" /> Jira Board
-                </Button>
-              </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* LEFT COLUMN: KÊNH TÍCH HỢP & STATS */}
-              <div className="space-y-8 w-full overflow-hidden">
-                {/* Stats Grid */}
-                <section className="grid grid-cols-2 gap-4">
-                  <StatCard
-                    icon={Users}
-                    label="Thành viên"
-                    value={stats?.members}
-                    color="orange"
-                  />
-                  <StatCard
-                    icon={GitCommit}
-                    label="Commits"
-                    value={stats?.commits}
-                    color="blue"
-                  />
-                  <StatCard
-                    icon={ListTodo}
-                    label="Tasks"
-                    value={stats?.tasks}
-                    color="emerald"
-                  />
-                  <StatCard
-                    icon={History}
-                    label="Sprints"
-                    value={stats?.sprints}
-                    color="purple"
-                  />
-                </section>
-
-                {/* Kênh đồng bộ */}
-                <section className="space-y-3 bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm w-full overflow-hidden">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 ml-1">
-                    Kênh đồng bộ
-                  </h3>
-                  <div className="grid gap-3 w-full">
-                    <ConnectionRow
-                      isConnected={!!githubUrl}
-                      label="GitHub Repository"
-                      subLabel={
-                        githubUrl
-                          ? githubUrl.replace("https://github.com/", "")
-                          : undefined
-                      }
-                      icon={SiGithub}
-                      colorClass="bg-slate-900 dark:bg-slate-800 text-white"
-                    />
-                    <ConnectionRow
-                      isConnected={!!jiraKey}
-                      label="Jira Workspace"
-                      subLabel={jiraKey ? `Key: ${jiraKey}` : undefined}
-                      icon={SiJira}
-                      colorClass="bg-blue-600 text-white"
-                    />
-                  </div>
-                </section>
-              </div>
-
-              {/* RIGHT COLUMN: TABS CONTENT */}
-              <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 overflow-hidden flex flex-col">
-                <Tabs
-                  defaultValue="members"
-                  className="w-full flex-1 flex flex-col"
-                >
-                  {/* Bọc TabsList và Nút Sync vào chung 1 hàng */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                    <TabsList className="w-full sm:w-auto bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-wrap h-auto">
-                      <TabsTrigger
-                        value="members"
-                        className="rounded-xl text-[11px] font-black uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-md transition-all text-slate-500 py-2 px-4"
-                      >
-                        Thành viên
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="reviews"
-                        className="rounded-xl text-[11px] font-black uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-[#F27124] data-[state=active]:shadow-md transition-all text-slate-500 py-2 px-4"
-                      >
-                        Đánh giá
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="github"
-                        className="rounded-xl text-[11px] font-black uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-md transition-all text-slate-500 py-2 px-4 flex items-center gap-1.5"
-                      >
-                        <SiGithub className="w-3 h-3" /> GitHub
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="jira"
-                        className="rounded-xl text-[11px] font-black uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-md transition-all text-slate-500 py-2 px-4 flex items-center gap-1.5"
-                      >
-                        <SiJira className="w-3 h-3" /> Jira
-                      </TabsTrigger>
-                    </TabsList>
-
-                    {/* NÚT SYNC THỦ CÔNG */}
-                    <Button
-                      onClick={() => syncData()}
-                      disabled={isSyncing || !project?._id}
-                      className="w-full sm:w-auto bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shadow-sm rounded-xl font-bold transition-all"
-                    >
-                      {isSyncing ? (
-                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                      )}
-                      {isSyncing ? "Đang đồng bộ..." : "Đồng bộ ngay"}
-                    </Button>
-                  </div>
-
-                  {/* NỘI DUNG CÁC TABS */}
-                  <TabsContent
-                    value="members"
-                    className="space-y-3 outline-none mt-0"
+            {/* 2. MAIN CONTENT AREA (Với 3 Tab Lớn) */}
+            <Tabs defaultValue="overview" className="w-full space-y-6">
+              {/* TABS MENU & REFRESH BUTTON */}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <TabsList className="bg-transparent h-auto p-0 flex flex-wrap gap-2">
+                  <TabsTrigger
+                    value="overview"
+                    className="data-[state=active]:bg-orange-100 dark:data-[state=active]:bg-orange-900/30 data-[state=active]:text-orange-700 dark:data-[state=active]:text-orange-400 text-slate-500 rounded-xl px-5 py-3 text-sm font-bold transition-all gap-2"
                   >
-                    {members.map((mem) => (
-                      <MemberItem key={mem._id} mem={mem} />
-                    ))}
-                  </TabsContent>
-
-                  <TabsContent value="reviews" className="outline-none mt-0">
-                    <TeamReviewsTab teamId={team._id} />
-                  </TabsContent>
-
-                  {/* PLACEHOLDER CHO TAB GITHUB */}
-                  <TabsContent
+                    <LayoutDashboard className="w-4 h-4" /> Tổng quan nhóm
+                  </TabsTrigger>
+                  <TabsTrigger
                     value="github"
-                    className="outline-none mt-0 flex-1 flex items-center justify-center min-h-[300px] border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl"
+                    className="data-[state=active]:bg-slate-800 dark:data-[state=active]:bg-slate-100 data-[state=active]:text-white dark:data-[state=active]:text-slate-900 text-slate-500 rounded-xl px-5 py-3 text-sm font-bold transition-all gap-2"
                   >
-                    <div className="text-center">
-                      <SiGithub className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-700 mb-3" />
-                      <p className="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                        Giao diện GitHub
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">
-                        Sẽ thêm biểu đồ Commit và PRs vào đây.
-                      </p>
-                    </div>
-                  </TabsContent>
-
-                  {/* PLACEHOLDER CHO TAB JIRA */}
-                  <TabsContent
+                    <SiGithub className="w-4 h-4" /> Lịch sử GitHub
+                  </TabsTrigger>
+                  <TabsTrigger
                     value="jira"
-                    className="outline-none mt-0 flex-1 flex items-center justify-center min-h-[300px] border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl"
+                    className="data-[state=active]:bg-blue-100 dark:data-[state=active]:bg-blue-900/30 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-400 text-slate-500 rounded-xl px-5 py-3 text-sm font-bold transition-all gap-2"
                   >
-                    <div className="text-center">
-                      <SiJira className="w-10 h-10 mx-auto text-blue-200 dark:text-blue-900/30 mb-3" />
-                      <p className="text-sm font-bold text-blue-300 dark:text-blue-800 uppercase tracking-widest">
-                        Bảng Kanban Jira
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">
-                        Sẽ thêm danh sách Tasks và Sprints vào đây.
-                      </p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                    <SiJira className="w-4 h-4" /> Bảng công việc Jira
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* NÚT LÀM MỚI DỮ LIỆU */}
+                <Button
+                  onClick={handleRefreshData}
+                  disabled={isRefreshing}
+                  className="w-full md:w-auto bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm rounded-xl font-bold px-6 py-5 transition-all"
+                >
+                  <RefreshCw
+                    className={cn(
+                      "w-4 h-4 mr-2 transition-transform",
+                      isRefreshing && "animate-spin"
+                    )}
+                  />
+                  {isRefreshing ? "Đang tải dữ liệu..." : "Làm mới dữ liệu"}
+                </Button>
               </div>
-            </div>
+
+              {/* =========================================
+                  TAB 1: TỔNG QUAN (Layout chia 2 cột như cũ)
+                  ========================================= */}
+              <TabsContent
+                value="overview"
+                className="outline-none mt-0 animate-in fade-in duration-500"
+              >
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* LEFT COLUMN: KÊNH TÍCH HỢP & STATS */}
+                  <div className="space-y-8 w-full overflow-hidden">
+                    <section className="grid grid-cols-2 gap-4">
+                      <StatCard
+                        icon={Users}
+                        label="Thành viên"
+                        value={stats?.members}
+                        color="orange"
+                      />
+                      <StatCard
+                        icon={GitCommit}
+                        label="Commits"
+                        value={stats?.commits}
+                        color="blue"
+                      />
+                      <StatCard
+                        icon={ListTodo}
+                        label="Tasks"
+                        value={stats?.tasks}
+                        color="emerald"
+                      />
+                      <StatCard
+                        icon={History}
+                        label="Sprints"
+                        value={stats?.sprints}
+                        color="purple"
+                      />
+                    </section>
+
+                    <section className="space-y-3 bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm w-full overflow-hidden">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 ml-1">
+                        Cấu hình đồng bộ
+                      </h3>
+                      <div className="grid gap-3 w-full">
+                        <ConnectionRow
+                          isConnected={!!githubUrl}
+                          label="GitHub Repository"
+                          subLabel={
+                            githubUrl
+                              ? githubUrl.replace("https://github.com/", "")
+                              : undefined
+                          }
+                          icon={SiGithub}
+                          colorClass="bg-slate-900 dark:bg-slate-800 text-white"
+                        />
+                        <ConnectionRow
+                          isConnected={!!jiraKey}
+                          label="Jira Workspace"
+                          subLabel={jiraKey ? `Key: ${jiraKey}` : undefined}
+                          icon={SiJira}
+                          colorClass="bg-blue-600 text-white"
+                        />
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* RIGHT COLUMN: DANH SÁCH THÀNH VIÊN VÀ ĐÁNH GIÁ */}
+                  <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 overflow-hidden flex flex-col">
+                    <Tabs
+                      defaultValue="members"
+                      className="w-full flex-1 flex flex-col"
+                    >
+                      <TabsList className="w-full sm:w-fit bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl border border-slate-200 dark:border-slate-800 flex h-auto mb-6">
+                        <TabsTrigger
+                          value="members"
+                          className="rounded-xl text-[11px] font-black uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:shadow-sm py-2 px-6"
+                        >
+                          Danh sách sinh viên
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="reviews"
+                          className="rounded-xl text-[11px] font-black uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-[#F27124] data-[state=active]:shadow-sm py-2 px-6"
+                        >
+                          Kết quả Đánh giá
+                        </TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent
+                        value="members"
+                        className="space-y-3 outline-none mt-0"
+                      >
+                        {members.map((mem) => (
+                          <MemberItem key={mem._id} mem={mem} />
+                        ))}
+                      </TabsContent>
+
+                      <TabsContent
+                        value="reviews"
+                        className="outline-none mt-0"
+                      >
+                        <TeamReviewsTab teamId={team._id} />
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* =========================================
+                  TAB 2: GITHUB (Hiển thị full màn hình)
+                  ========================================= */}
+              <TabsContent
+                value="github"
+                className="outline-none mt-0 animate-in fade-in duration-500"
+              >
+                <TeamGithubTab teamId={teamId} />
+              </TabsContent>
+
+              {/* =========================================
+                  TAB 3: JIRA (Hiển thị full màn hình)
+                  ========================================= */}
+              <TabsContent
+                value="jira"
+                className="outline-none mt-0 animate-in fade-in duration-500"
+              >
+                <TeamJiraTab teamId={teamId} jiraUrl={jiraUrl} />
+              </TabsContent>
+            </Tabs>
           </>
         )}
       </div>
@@ -307,10 +320,8 @@ export default function LecturerProjectDetailPage({
   );
 }
 
+// ... CÁC SUB-COMPONENTS BÊN DƯỚI ...
 // ==========================================
-// SUB COMPONENTS
-// ==========================================
-
 function StatCard({ icon: Icon, label, value, color }: any) {
   const colors = {
     orange:

@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 
 import { ProjectCard } from "@/features/projects/components/project-card";
 import { StatCard } from "@/features/projects/components/stat-card";
-
 import { useClassProjects } from "@/features/projects/hooks/use-class-projects";
 import { useClassDetails } from "@/features/management/classes/hooks/use-class-details";
 
@@ -35,17 +34,15 @@ export default function LecturerProjectManagementPage() {
       setClassId(urlClassId);
       return;
     }
-
     const cookieClassId = Cookies.get("lecturer_class_id") ?? undefined;
     setClassId((prev) => prev ?? cookieClassId);
   }, [urlClassId]);
 
   const { data, isLoading: isProjectsLoading } = useClassProjects(classId);
-
   const { data: classDetailData, isLoading: isClassDetailLoading } =
     useClassDetails(classId);
-  const className = classDetailData?.class?.name || "Lớp học";
 
+  const className = classDetailData?.class?.name || "Lớp học";
   const projects = data?.projects || [];
 
   const filteredProjects = projects.filter(

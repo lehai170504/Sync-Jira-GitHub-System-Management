@@ -19,7 +19,8 @@ import {
 import { SiGithub, SiJira } from "react-icons/si";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
+import { exportProjectSrsApi } from "@/features/lecturer/api/ai-api";
+import { FileDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -64,7 +65,33 @@ export default function LecturerProjectDetailPage({
   const githubUrl = project?.githubRepoUrl || team?.github_repo_url;
   const jiraKey = project?.jiraProjectKey || team?.jira_project_key;
   const jiraUrl = team?.jira_url; // Khai báo rõ ràng biến jiraUrl
+  const [isExporting, setIsExporting] = useState(false);
 
+  const handleExportSRS = async () => {
+    if (!project?._id) return;
+    setIsExporting(true);
+    toast.info("AI đang tổng hợp báo cáo SRS, vui lòng đợi...");
+
+    try {
+      const blob = await exportProjectSrsApi(project._id);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `SRS_Report_${team?.project_name || "Project"}.md`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+
+      toast.success("Xuất báo cáo SRS thành công!");
+    } catch (error) {
+      toast.error("Xuất báo cáo thất bại. Vui lòng thử lại!");
+    } finally {
+      setIsExporting(false);
+    }
+  };
   // Xử lý Làm mới dữ liệu (Thay thế cho hàm Sync cũ)
   const handleRefreshData = async () => {
     setIsRefreshing(true);
@@ -144,6 +171,20 @@ export default function LecturerProjectDetailPage({
                     </span>
                   </p>
                 )}
+              </div>
+              <div className="flex gap-3 w-full md:w-auto mt-4 md:mt-0">
+                <Button
+                  onClick={handleExportSRS}
+                  disabled={isExporting || !project?._id}
+                  className="h-12 px-6 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-2xl shadow-sm transition-all"
+                >
+                  {isExporting ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <FileDown className="w-4 h-4 mr-2" />
+                  )}
+                  Xuất Báo Cáo SRS
+                </Button>
               </div>
             </div>
 

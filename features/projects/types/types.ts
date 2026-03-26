@@ -37,6 +37,7 @@ export interface ProjectUser {
 export interface ProjectDetail {
   _id: string;
   name: string;
+  team_id: string;
   leader_id: ProjectUser;
   lecturer_id: ProjectUser;
   members: ProjectUser[];
@@ -71,6 +72,7 @@ export interface ProjectMember {
 export interface ProjectManagement {
   _id: string;
   name: string;
+  team_id: string;
   leader_id: ProjectMember;
   lecturer_id?: ProjectMember;
   members: ProjectMember[];

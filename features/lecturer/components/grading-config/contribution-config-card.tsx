@@ -60,7 +60,7 @@ export function ContributionConfigCard({
 
         <CardContent className="p-6 space-y-8">
           {/* Hộp thoại thông tin Công thức */}
-          <Alert className="bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 rounded-xl">
+          {/* <Alert className="bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 rounded-xl">
             <Calculator className="h-4 w-4" />
             <AlertTitle className="font-bold mb-1">
               Công thức tính Hệ số chuẩn hóa
@@ -77,7 +77,7 @@ export function ContributionConfigCard({
                 * Điểm cá nhân = Điểm nhóm × Hệ số chuẩn hóa.
               </span>
             </AlertDescription>
-          </Alert>
+          </Alert> */}
 
           {/* Jira */}
           <div className="space-y-3">

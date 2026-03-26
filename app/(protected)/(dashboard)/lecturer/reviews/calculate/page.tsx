@@ -3,27 +3,40 @@
 import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
 import { useSearchParams } from "next/navigation";
-import { Calculator, FileDown, Loader2 } from "lucide-react";
+import { Calculator, FileDown, Loader2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 import { useClassDetails } from "@/features/management/classes/hooks/use-class-details";
-import { useReviewCalculate } from "@/features/lecturer/hooks/use-review-calculate";
-import type { StudentFinalGrade } from "@/features/lecturer/types/grading-types";
+// Import 2 Hook mình vừa làm
+import {
+  useReviewCalculate,
+  useClassGrades,
+} from "@/features/lecturer/hooks/use-review-calculate";
 import { exportClassGradesExcelApi } from "@/features/lecturer/api/class-grades-export-api";
 import { toast } from "sonner";
-
-function pickGradeArray(res: any): StudentFinalGrade[] {
-  const a = res?.results ?? res?.students ?? res?.data;
-  return Array.isArray(a) ? a : [];
-}
 
 export default function LecturerReviewCalculatePage() {
   const searchParams = useSearchParams();
@@ -39,10 +52,16 @@ export default function LecturerReviewCalculatePage() {
     setClassId((prev) => prev ?? cookieClassId);
   }, [urlClassId]);
 
-  const { data: classDetails, isLoading: isClassLoading, isError: isClassError } =
-    useClassDetails(classId);
+  const {
+    data: classDetails,
+    isLoading: isClassLoading,
+    isError: isClassError,
+  } = useClassDetails(classId);
 
-  const teams = useMemo(() => classDetails?.teams ?? [], [classDetails]);
+  const teams = useMemo(
+    () => classDetails?.class?.teams ?? classDetails?.teams ?? [],
+    [classDetails]
+  );
 
   const [teamId, setTeamId] = useState<string>("");
   useEffect(() => {
@@ -52,8 +71,21 @@ export default function LecturerReviewCalculatePage() {
   const [groupGrade, setGroupGrade] = useState<string>("10");
   const [isExportingGrades, setIsExportingGrades] = useState(false);
 
-  const { mutate: calculate, data: calcRes, isPending } = useReviewCalculate();
-  const grades = useMemo(() => pickGradeArray(calcRes), [calcRes]);
+  // --- KẾT NỐI API Ở ĐÂY ---
+  // 1. Lấy bảng điểm CỦA CẢ LỚP
+  const { data: classGradesRes, isFetching: isGradesFetching } =
+    useClassGrades(classId);
+  const allGrades = useMemo(() => classGradesRes?.data || [], [classGradesRes]);
+
+  // Lọc ra danh sách sinh viên chỉ thuộc về teamId đang chọn trên giao diện
+  const teamGrades = useMemo(
+    () => allGrades.filter((g: any) => g.team?._id === teamId),
+    [allGrades, teamId]
+  );
+
+  // 2. Tính điểm cho nhóm
+  const { mutate: calculate, isPending: isCalculating } =
+    useReviewCalculate(classId);
 
   const canSubmit = !!teamId && Number(groupGrade) >= 0;
 
@@ -75,7 +107,7 @@ export default function LecturerReviewCalculatePage() {
       setIsExportingGrades(true);
       const { blob, filename } = await exportClassGradesExcelApi(
         classId,
-        classDetails?.class?.name,
+        classDetails?.class?.name
       );
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -103,10 +135,11 @@ export default function LecturerReviewCalculatePage() {
         <div className="space-y-1">
           <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <Calculator className="h-7 w-7 text-[#F27124]" />
-            Tính điểm cá nhân
+            Chốt điểm & Bảng điểm
           </h2>
           <p className="text-muted-foreground">
-            Chọn team, nhập điểm nhóm (hệ 10) để tính điểm từng thành viên.
+            Nhập điểm cho từng nhóm (Thang 10). Hệ thống sẽ tự động phân bổ điểm
+            cá nhân.
           </p>
         </div>
         <Button
@@ -119,13 +152,15 @@ export default function LecturerReviewCalculatePage() {
           ) : (
             <FileDown className="h-4 w-4 mr-2" />
           )}
-          Xuất bảng điểm Excel
+          Xuất bảng điểm toàn Lớp
         </Button>
       </div>
 
-      <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+      <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
         <CardHeader className="pb-4">
-          <CardTitle className="text-base">Tham số tính điểm</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-500" /> Tham số tính điểm
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           {isClassLoading ? (
@@ -150,7 +185,7 @@ export default function LecturerReviewCalculatePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Team</Label>
+                <Label>Chọn Nhóm (Team)</Label>
                 <Select value={teamId} onValueChange={setTeamId}>
                   <SelectTrigger className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                     <SelectValue placeholder="Chọn team" />
@@ -158,7 +193,7 @@ export default function LecturerReviewCalculatePage() {
                   <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                     {teams.map((t: any) => (
                       <SelectItem key={t._id} value={t._id}>
-                        {t.project_name || t._id}
+                        {t.project_name || t.name || t._id}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -168,25 +203,33 @@ export default function LecturerReviewCalculatePage() {
               <div className="space-y-2 md:col-span-1">
                 <Label>Điểm nhóm (0–10)</Label>
                 <Input
+                  type="number"
+                  min={0}
+                  max={10}
+                  step={0.1}
                   value={groupGrade}
-                  onChange={(e) => setGroupGrade(e.target.value)}
-                  inputMode="decimal"
-                  className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val > 10) setGroupGrade("10");
+                    else if (val < 0) setGroupGrade("0");
+                    else setGroupGrade(e.target.value);
+                  }}
+                  className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-bold text-lg text-blue-600"
                 />
               </div>
 
               <div className="md:col-span-2 flex items-end">
                 <Button
                   onClick={handleSubmit}
-                  disabled={!canSubmit || isPending}
+                  disabled={!canSubmit || isCalculating}
                   className="bg-[#F27124] hover:bg-[#d65d1b] text-white"
                 >
-                  {isPending ? (
+                  {isCalculating ? (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   ) : (
                     <Calculator className="h-4 w-4 mr-2" />
                   )}
-                  Tính điểm
+                  {isCalculating ? "Đang tính toán..." : "Chốt điểm Nhóm này"}
                 </Button>
               </div>
             </div>
@@ -194,90 +237,148 @@ export default function LecturerReviewCalculatePage() {
         </CardContent>
       </Card>
 
-      {calcRes && (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="text-xs">
-              Kết quả: {grades.length} thành viên
-            </Badge>
-            {typeof (calcRes as any)?.message === "string" && (
-              <span className="text-xs text-muted-foreground">
-                {(calcRes as any).message}
-              </span>
-            )}
-          </div>
+      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge variant="outline" className="text-xs font-medium">
+            Đang xem kết quả nhóm: {teamGrades.length} thành viên
+          </Badge>
 
-          <Separator />
+          {isGradesFetching && (
+            <span className="flex items-center text-xs font-bold text-blue-500">
+              <Loader2 className="w-3 h-3 mr-1 animate-spin" /> Đang cập nhật
+              bảng điểm...
+            </span>
+          )}
+        </div>
 
-          <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Bảng điểm cá nhân</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              {grades.length === 0 ? (
-                <Alert className="bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/30 dark:border-amber-900/60 dark:text-amber-100">
-                  <AlertTitle>Chưa có dữ liệu</AlertTitle>
-                  <AlertDescription>
-                    API trả về không có danh sách điểm. Bạn có thể kiểm tra payload
-                    hoặc sprint/team đã chọn.
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Thành viên</TableHead>
-                        <TableHead className="text-right">%Jira</TableHead>
-                        <TableHead className="text-right">%Git</TableHead>
-                        <TableHead className="text-right">%Review</TableHead>
-                        <TableHead className="text-right">Base</TableHead>
-                        <TableHead className="text-right">Factor</TableHead>
-                        <TableHead className="text-right">Điểm</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {grades.map((g) => (
-                        <TableRow key={g.studentId}>
+        <Separator />
+
+        <Card
+          className={cn(
+            "border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm transition-opacity",
+            isGradesFetching && "opacity-60 pointer-events-none"
+          )}
+        >
+          <CardHeader className="pb-3 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+            <CardTitle className="text-base">
+              Kết quả phân bổ Điểm Cá nhân
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            {teamGrades.length === 0 ? (
+              <Alert className="bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/30 dark:border-amber-900/60 dark:text-amber-100">
+                <AlertTitle>Nhóm chưa được chấm điểm</AlertTitle>
+                <AlertDescription>
+                  Nhóm này chưa có dữ liệu điểm. Vui lòng nhập điểm nhóm và nhấn
+                  "Chốt điểm" ở trên.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-slate-50 dark:bg-slate-900">
+                    <TableRow>
+                      <TableHead>Thành viên</TableHead>
+                      <TableHead>Vai trò</TableHead>
+                      <TableHead className="text-right">
+                        Điểm gốc Nhóm
+                      </TableHead>
+                      <TableHead className="text-right">
+                        Hệ số (Factor)
+                      </TableHead>
+                      <TableHead className="text-right font-black text-[#F27124]">
+                        Điểm Nhận Được
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {teamGrades.map((g: any, index: number) => {
+                      const student = g.student || {};
+                      const gradesInfo = g.grades?.[0] || {}; // Lấy cục điểm từ mảng grades theo JSON trả về
+
+                      const factor = Number(
+                        gradesInfo.contribution_factor ?? 0
+                      );
+
+                      return (
+                        <TableRow
+                          key={student._id || index}
+                          className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
+                        >
+                          {/* Cột 1: Thông tin sinh viên có Avatar */}
                           <TableCell className="min-w-[220px]">
-                            <div className="space-y-0.5">
-                              <div className="font-medium">
-                                {g.studentName || "—"}
-                              </div>
-                              <div className="text-[11px] text-muted-foreground font-mono">
-                                {g.studentId}
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10 border border-slate-200 dark:border-slate-700">
+                                <AvatarImage src={student.avatar_url} />
+                                <AvatarFallback className="bg-blue-100 text-blue-600 font-bold text-xs">
+                                  {student.full_name?.charAt(0) || "?"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="space-y-0.5">
+                                <div className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                                  {student.full_name || "Chưa rõ tên"}
+                                </div>
+                                <div className="text-[10px] text-slate-500 font-mono bg-slate-100 dark:bg-slate-800 w-fit px-1.5 rounded">
+                                  {student.student_code || "Unknown"}
+                                </div>
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell className="text-right">
-                            {Math.round((g.percentJira ?? 0) * 100)}%
+
+                          {/* Cột 2: Vai trò */}
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "text-[10px] font-bold px-2",
+                                g.role_in_team === "Leader"
+                                  ? "bg-yellow-50 text-yellow-700 border-yellow-200"
+                                  : "bg-slate-50 text-slate-600"
+                              )}
+                            >
+                              {g.role_in_team || "Member"}
+                            </Badge>
                           </TableCell>
-                          <TableCell className="text-right">
-                            {Math.round((g.percentGit ?? 0) * 100)}%
+
+                          {/* Cột 3: Điểm Nhóm */}
+                          <TableCell className="text-right font-medium text-slate-600 dark:text-slate-400">
+                            {Number(gradesInfo.group_grade ?? 0).toFixed(1)}
                           </TableCell>
+
+                          {/* Cột 4: Hệ số Factor */}
                           <TableCell className="text-right">
-                            {Math.round((g.percentReview ?? 0) * 100)}%
+                            <Badge
+                              variant={
+                                factor > 1.05
+                                  ? "default"
+                                  : factor < 0.95
+                                  ? "destructive"
+                                  : "secondary"
+                              }
+                              className={cn(
+                                "font-mono px-2",
+                                factor > 1.05 &&
+                                  "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none shadow-none dark:bg-emerald-900/30 dark:text-emerald-400"
+                              )}
+                            >
+                              {factor.toFixed(2)}
+                            </Badge>
                           </TableCell>
-                          <TableCell className="text-right">
-                            {Number(g.baseContribution ?? 0).toFixed(3)}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {Number(g.normalizedFactor ?? 0).toFixed(3)}
-                          </TableCell>
-                          <TableCell className="text-right font-semibold">
-                            {Number(g.finalGrade ?? 0).toFixed(2)}
+
+                          {/* Cột 5: Điểm cuối cùng */}
+                          <TableCell className="text-right font-black text-xl text-slate-900 dark:text-white">
+                            {Number(gradesInfo.final_score ?? 0).toFixed(2)}
                           </TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
-

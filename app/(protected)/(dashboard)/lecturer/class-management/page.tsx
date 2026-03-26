@@ -1,17 +1,15 @@
- "use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
-import { Search, Loader2, Users, Layers, AlertCircle } from "lucide-react";
+import { Search, Loader2, AlertCircle } from "lucide-react";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 
 import { ClassHeader } from "@/features/management/classes/components/class-header";
 import { ClassStats } from "@/features/management/classes/components/lecturer/class-stats-lecturer";
 import { StudentList } from "@/features/management/classes/components/lecturer/student-list";
-import { TeamList } from "@/features/management/classes/components/lecturer/team-list";
 
 import { useClassDetails } from "@/features/management/classes/hooks/use-class-details";
 import { useClassStudents } from "@/features/management/classes/hooks/use-classes";
@@ -23,7 +21,9 @@ import { ClassStudent } from "@/features/management/classes/types/class-types";
 export default function ClassManagementPage() {
   const searchParams = useSearchParams();
   const urlClassId = searchParams.get("classId") ?? undefined;
-  const [classId, setClassId] = useState<string | undefined>(urlClassId ?? undefined);
+  const [classId, setClassId] = useState<string | undefined>(
+    urlClassId ?? undefined
+  );
 
   useEffect(() => {
     if (urlClassId) {
@@ -44,11 +44,8 @@ export default function ClassManagementPage() {
     refetch: refetchStudents,
   } = useClassStudents(classId);
 
-  const {
-    data: teamsData,
-    isLoading: isTeamsLoading,
-    refetch: refetchTeams,
-  } = useClassTeams(classId);
+  // Vẫn giữ lại teamsData vì StudentList cần dùng để hiển thị/map sinh viên với nhóm
+  const { data: teamsData, refetch: refetchTeams } = useClassTeams(classId);
 
   const { socket, isConnected } = useSocket();
   const [students, setStudents] = useState<ClassStudent[]>([]);
@@ -57,7 +54,7 @@ export default function ClassManagementPage() {
   useEffect(() => {
     if (studentsData?.students) {
       setStudents(
-        studentsData.students.map((s: any) => ({ ...s, _id: s._id || s.id })),
+        studentsData.students.map((s: any) => ({ ...s, _id: s._id || s.id }))
       );
     }
   }, [studentsData]);
@@ -147,60 +144,25 @@ export default function ClassManagementPage() {
           />
         </div>
 
-        {/* TABS CONTENT */}
-        <Tabs defaultValue="students" className="w-full">
-          <TabsList className="bg-slate-100 dark:bg-slate-900 p-1 rounded-xl mb-6 h-auto inline-flex border border-slate-200/60 dark:border-slate-800">
-            <TabsTrigger
-              value="students"
-              className="rounded-lg px-6 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm transition-all gap-2"
-            >
-              <Users className="w-4 h-4" /> Danh sách Sinh viên
-            </TabsTrigger>
-            <TabsTrigger
-              value="teams"
-              className="rounded-lg px-6 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm transition-all gap-2"
-            >
-              <Layers className="w-4 h-4" /> Danh sách Nhóm
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm min-h-125 overflow-hidden transition-colors">
-            <TabsContent
-              value="students"
-              className="mt-0 outline-none p-4 md:p-6"
-            >
-              {isStudentsLoading ? (
-                <div className="flex flex-col items-center justify-center h-64 gap-4">
-                  <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium animate-pulse">
-                    Đang tải danh sách...
-                  </p>
-                </div>
-              ) : (
-                <StudentList
-                  classId={classId}
-                  students={students}
-                  teams={teamsData?.teams || []}
-                  filterTerm={searchTerm}
-                  onRefresh={refetchStudents}
-                />
-              )}
-            </TabsContent>
-
-            <TabsContent value="teams" className="mt-0 outline-none p-4 md:p-6">
-              <TeamList
-                teams={
-                  teamsData?.teams?.filter((t: any) =>
-                    t.project_name
-                      ?.toLowerCase()
-                      .includes(searchTerm.toLowerCase()),
-                  ) || []
-                }
-                isLoading={isTeamsLoading}
-              />
-            </TabsContent>
-          </div>
-        </Tabs>
+        {/* DANH SÁCH SINH VIÊN (Bỏ Tabs) */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm min-h-125 overflow-hidden transition-colors p-4 md:p-6">
+          {isStudentsLoading ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium animate-pulse">
+                Đang tải danh sách...
+              </p>
+            </div>
+          ) : (
+            <StudentList
+              classId={classId}
+              students={students}
+              teams={teamsData?.teams || []}
+              filterTerm={searchTerm}
+              onRefresh={refetchStudents}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

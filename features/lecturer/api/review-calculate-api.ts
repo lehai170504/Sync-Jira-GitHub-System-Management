@@ -1,32 +1,24 @@
 import { axiosClient } from "@/lib/axios-client";
-import type { StudentFinalGrade } from "@/features/lecturer/types/grading-types";
 
 export interface ReviewCalculateRequest {
   teamId: string;
   groupGrade: number;
 }
 
-export interface ReviewCalculateResponse {
-  message?: string;
-  teamId?: string;
-  groupGrade?: number;
-  results?: StudentFinalGrade[];
-  students?: StudentFinalGrade[];
-  data?: StudentFinalGrade[];
-  [key: string]: unknown;
-}
-
 /**
  * POST /reviews/calculate
- * Lecturer calculate individual grades for a team.
+ * Giảng viên chốt điểm cho 1 nhóm
  */
-export async function calculateReviewsApi(
-  payload: ReviewCalculateRequest,
-): Promise<ReviewCalculateResponse> {
-  const { data } = await axiosClient.post<ReviewCalculateResponse>(
-    "/reviews/calculate",
-    payload,
-  );
+export async function calculateReviewsApi(payload: ReviewCalculateRequest) {
+  const { data } = await axiosClient.post("/reviews/calculate", payload);
   return data;
 }
 
+/**
+ * GET /reviews/classes/{classId}/grades
+ * Lấy bảng điểm tổng hợp của toàn bộ sinh viên trong Lớp
+ */
+export async function getClassGradesApi(classId: string) {
+  const { data } = await axiosClient.get(`/reviews/classes/${classId}/grades`);
+  return data;
+}

@@ -1,15 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
 import { Sidebar } from "@/components/layouts/sidebar";
 import { UserNav } from "@/components/layouts/user-nav";
 import { NotificationsNav } from "@/components/layouts/notifications-nav";
 import { Footer } from "@/components/layouts/footer";
-import { ThemeToggle } from "@/components/ui/theme-toggle"; // Import mới
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { Skeleton } from "@/components/ui/skeleton";
+
+// IMPORT BONG BÓNG CHAT AI
+import { OmniAgentChat } from "@/features/lecturer/components/omni-agent-chat";
 
 export default function DashboardLayout({
   children,
@@ -17,14 +21,34 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  // Dùng useSearchParams để bắt sự thay đổi URL
+  const searchParams = useSearchParams();
+
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [activeClassId, setActiveClassId] = useState<string | null>(null);
+
   const { data, isLoading } = useProfile();
   const user = data?.user;
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const urlClassId = searchParams.get("classId");
+
+    const cookieClassId = Cookies.get("lecturer_class_id");
+
+    if (urlClassId) {
+      setActiveClassId(urlClassId);
+      Cookies.set("lecturer_class_id", urlClassId); // Lưu ngược lại cookie cho chắc
+    } else if (cookieClassId) {
+      setActiveClassId(cookieClassId);
+    }
+  }, [pathname, searchParams, mounted]);
 
   const isFullScreenPage = ["/lecturer/courses", "/courses"].includes(pathname);
 
@@ -43,13 +67,13 @@ export default function DashboardLayout({
   if (!mounted) return null;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F8FAFC] dark:bg-slate-950 font-mono tracking-tight text-slate-900 dark:text-slate-100 transition-colors duration-300">
+    <div className="flex h-screen overflow-hidden bg-[#F8FAFC] dark:bg-slate-950 font-mono tracking-tight text-slate-900 dark:text-slate-100 transition-colors duration-300 relative">
       {/* --- SIDEBAR --- */}
       <aside
         className={cn(
           "hidden h-full md:flex md:flex-col fixed inset-y-0 left-0 z-[80] transition-all duration-500 ease-in-out shadow-2xl bg-[#0B0F1A] dark:bg-black border-r dark:border-slate-800",
           "overflow-visible",
-          isCollapsed ? "w-[80px]" : "w-72",
+          isCollapsed ? "w-[80px]" : "w-72"
         )}
       >
         <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
@@ -59,7 +83,7 @@ export default function DashboardLayout({
       <div
         className={cn(
           "flex flex-col flex-1 transition-all duration-500 ease-in-out",
-          isCollapsed ? "md:ml-[80px]" : "md:ml-72",
+          isCollapsed ? "md:ml-[80px]" : "md:ml-72"
         )}
       >
         {/* --- HEADER --- */}
@@ -73,11 +97,8 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Theme Toggle Button */}
             <ThemeToggle />
-
             <NotificationsNav />
-
             <div className="h-8 w-[1.5px] bg-slate-200 dark:bg-slate-800" />
 
             <div className="flex items-center gap-4 group cursor-pointer">
@@ -98,8 +119,8 @@ export default function DashboardLayout({
                         user?.role === "ADMIN"
                           ? "text-violet-600 border-violet-200 bg-violet-50 dark:bg-violet-900/30 dark:border-violet-800 dark:text-violet-300"
                           : user?.role === "LECTURER"
-                            ? "text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300"
-                            : "text-[#F27124] border-orange-200 bg-orange-50 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-300",
+                          ? "text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300"
+                          : "text-[#F27124] border-orange-200 bg-orange-50 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-300"
                       )}
                     >
                       {user?.role || "STUDENT"}
@@ -128,6 +149,10 @@ export default function DashboardLayout({
           </div>
         </footer>
       </div>
+
+      {/* --- OMNI AGENT CHAT BOT --- */}
+      {/* Chỉ render nếu đang có classId (tức là giảng viên đang ở trong ngữ cảnh 1 lớp cụ thể) */}
+      {activeClassId && <OmniAgentChat classId={activeClassId} />}
     </div>
   );
 }

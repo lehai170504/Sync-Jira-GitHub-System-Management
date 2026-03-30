@@ -31,6 +31,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const userIdRef = useRef<string | undefined>(userId);
   const activeClassIdRef = useRef<string>("");
   const activeTeamIdRef = useRef<string>("");
+  const activeProjectIdRef = useRef<string>("");
   const lastEventToastRef = useRef<{ key: string; at: number }>({ key: "", at: 0 });
 
   useEffect(() => {
@@ -42,12 +43,16 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   const classIdFromUrl = searchParams.get("classId") ?? "";
   const teamIdFromUrl = searchParams.get("teamId") ?? "";
+  const projectIdFromUrl = searchParams.get("projectId") ?? "";
   const classIdFromCookie =
     Cookies.get("lecturer_class_id") || Cookies.get("student_class_id") || "";
   const teamIdFromCookie =
     Cookies.get("student_team_id") || Cookies.get("lecturer_team_id") || "";
+  const projectIdFromCookie =
+    Cookies.get("student_project_id") || Cookies.get("lecturer_project_id") || "";
   const activeClassId = classIdFromUrl || classIdFromCookie;
   const activeTeamId = teamIdFromUrl || teamIdFromCookie;
+  const activeProjectId = projectIdFromUrl || projectIdFromCookie;
 
   useEffect(() => {
     activeClassIdRef.current = activeClassId;
@@ -55,6 +60,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     activeTeamIdRef.current = activeTeamId;
   }, [activeTeamId]);
+  useEffect(() => {
+    activeProjectIdRef.current = activeProjectId;
+  }, [activeProjectId]);
 
   const isOnTasksPage = useMemo(() => {
     return (p: string) =>
@@ -81,6 +89,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         Cookies.get("student_team_id") ||
         Cookies.get("lecturer_team_id") ||
         activeTeamIdRef.current;
+      const pid =
+        Cookies.get("student_project_id") ||
+        Cookies.get("lecturer_project_id") ||
+        activeProjectIdRef.current;
 
       if (uid) {
         try {
@@ -111,6 +123,17 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         }
         socket.emit("join_team", tid);
         socket.emit("joinTeam", tid);
+      }
+      if (pid) {
+        const normalizedProjectId = String(pid).replace(/^project:/, "");
+        try {
+          // eslint-disable-next-line no-console
+          console.log("[RT] emit join_project", { pid: normalizedProjectId });
+        } catch {
+          // ignore
+        }
+        socket.emit("join_project", normalizedProjectId);
+        socket.emit("joinProject", normalizedProjectId);
       }
     };
 
@@ -293,6 +316,40 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       }
     }
 
+    function onTaskCreated(data: any) {
+      onJiraIssueUpdated({
+        message: data?.message || "Task Jira mới vừa được tạo",
+        issueKey: data?.issue_key || data?.issueKey || data?.issue?.key || "",
+        status:
+          data?.status_name ||
+          data?.status ||
+          data?.issue?.fields?.status?.name ||
+          "",
+        ...data,
+      });
+    }
+
+    function onTaskUpdated(data: any) {
+      // payload có thể là taskData hoặc { action:'delete', issueKey, ... }
+      const action = String(data?.action || "").toLowerCase();
+      const issueKey = data?.issueKey || data?.issue_key || data?.issue?.key || "";
+      const status =
+        data?.status ||
+        data?.status_name ||
+        data?.issue?.fields?.status?.name ||
+        "";
+      onJiraIssueUpdated({
+        message:
+          action === "delete"
+            ? "Task Jira vừa bị xóa"
+            : data?.message || "Task Jira vừa được cập nhật",
+        issueKey,
+        status,
+        action,
+        ...data,
+      });
+    }
+
     function onMemberUpdated(data: any) {
       // Một số BE emit generic MEMBER_UPDATED sau Jira webhook.
       // Treat as Kanban update trigger để UI tự đồng bộ.
@@ -358,6 +415,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     socket.on("GITHUB_NEW_COMMITS", onGithubNewCommits);
     socket.on("JIRA_ISSUE_UPDATED", onJiraIssueUpdated);
     socket.on("LEADERBOARD_UPDATED", onLeaderboardUpdated);
+    socket.on("task_created", onTaskCreated);
+    socket.on("task_updated", onTaskUpdated);
     // Fallback: hỗ trợ event names khác casing/format
     socket.on("github_new_commits", onGithubNewCommits);
     socket.on("GITHUB_NEW_COMMIT", onGithubNewCommits);
@@ -388,6 +447,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("GITHUB_NEW_COMMITS", onGithubNewCommits);
       socket.off("JIRA_ISSUE_UPDATED", onJiraIssueUpdated);
       socket.off("LEADERBOARD_UPDATED", onLeaderboardUpdated);
+      socket.off("task_created", onTaskCreated);
+      socket.off("task_updated", onTaskUpdated);
       socket.off("github_new_commits", onGithubNewCommits);
       socket.off("GITHUB_NEW_COMMIT", onGithubNewCommits);
       socket.off("github_new_commit", onGithubNewCommits);

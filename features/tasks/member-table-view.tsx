@@ -154,7 +154,7 @@ export function MemberTableView({
                           key={opt.key}
                           type="button"
                           variant={statusFilter === opt.key ? "default" : "outline"}
-                          size="xs"
+                          size="sm"
                           className={
                             "h-6 px-2 text-[11px]" +
                             (statusFilter === opt.key

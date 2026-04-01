@@ -70,6 +70,7 @@ export function TaskBoard() {
   const isLeaderRef = useRef(isLeaderState);
   const selectedAssigneeFilterRef = useRef(selectedAssigneeFilter);
   const lastAutoSwitchAllSprintsAtRef = useRef<number>(0);
+  const sprintsRef = useRef<Sprint[]>(sprints);
 
   // Resolve teamId giống trang /commits và /config (đưa lên trước để dùng trong effects realtime)
   const classId = Cookies.get("student_class_id") || "";
@@ -94,7 +95,8 @@ export function TaskBoard() {
     isAllSprintsRef.current = isAllSprints;
     isLeaderRef.current = isLeaderState;
     selectedAssigneeFilterRef.current = selectedAssigneeFilter;
-  }, [selectedPrint, isAllSprints, isLeaderState, selectedAssigneeFilter]);
+    sprintsRef.current = sprints;
+  }, [selectedPrint, isAllSprints, isLeaderState, selectedAssigneeFilter, sprints]);
 
   // Fallback/refetch chắc ăn cho Kanban:
   // SocketProvider luôn dispatch `rt:jira-issue-updated` khi nhận `JIRA_ISSUE_UPDATED`,
@@ -140,25 +142,47 @@ export function TaskBoard() {
         isLeaderRef.current &&
         selectedAssigneeFilterRef.current === "all"
       ) {
+        const detail = (event as CustomEvent<any> | undefined)?.detail;
+        const sprintRaw =
+          detail?.sprint_id ??
+          detail?.sprintId ??
+          detail?.sprint?.id ??
+          detail?.task?.sprint_id;
+        const sprintIdFromEvent =
+          typeof sprintRaw === "object" && sprintRaw?._id
+            ? String(sprintRaw._id)
+            : typeof sprintRaw === "string"
+              ? sprintRaw
+              : "";
+
+        const sprintExists = !!sprintIdFromEvent && sprintsRef.current.some((s) => s.id === sprintIdFromEvent);
+
         const lastSwitch = lastAutoSwitchAllSprintsAtRef.current;
         if (now - lastSwitch > 4000) {
           lastAutoSwitchAllSprintsAtRef.current = now;
-          setSelectedPrint(ALL_SPRINTS_ID);
-          // Prefetch ngay data "All Sprints" để tránh trạng thái rỗng/ẩn task sau khi switch filter.
-          // (Hook `useTeamAllTasks` sẽ reuse cache key này.)
-          if (resolvedTeamId) {
-            queryClient
-              .fetchQuery({
-                queryKey: ["team-all-tasks", resolvedTeamId],
-                queryFn: () => getTeamAllTasksApi(resolvedTeamId),
-              })
-              .catch(() => {
-                // ignore (toast sẽ được handle ở UI error state nếu cần)
-              });
+          if (sprintExists) {
+            setSelectedPrint(sprintIdFromEvent);
+            toast.message("Kanban vừa có cập nhật từ Jira", {
+              description: "Đã tự chuyển filter về đúng sprint của task vừa cập nhật.",
+            });
+          } else {
+            setSelectedPrint(ALL_SPRINTS_ID);
+            // Prefetch ngay data "All Sprints" để tránh trạng thái rỗng/ẩn task sau khi switch filter.
+            // (Hook `useTeamAllTasks` sẽ reuse cache key này.)
+            if (resolvedTeamId) {
+              queryClient
+                .fetchQuery({
+                  queryKey: ["team-all-tasks", resolvedTeamId],
+                  queryFn: () => getTeamAllTasksApi(resolvedTeamId),
+                })
+                .catch(() => {
+                  // ignore (toast sẽ được handle ở UI error state nếu cần)
+                });
+            }
+            toast.message("Kanban vừa có cập nhật từ Jira", {
+              description: "Không tìm thấy sprint của task trong danh sách hiện tại, đã chuyển sang 'All Sprints'.",
+            });
           }
-          toast.message("Kanban vừa có cập nhật từ Jira", {
-            description: "Đã tự chuyển filter sang 'All Sprints' để tránh task bị ẩn theo sprint.",
-          });
         }
       }
 
@@ -182,9 +206,19 @@ export function TaskBoard() {
         setTasks((prev) =>
           prev.map((t) => {
             const k = String(t.key || t.id || "").trim();
-            return k.toLowerCase() === issueKey.toLowerCase()
-              ? { ...t, status: nextStatus }
-              : t;
+            if (k.toLowerCase() !== issueKey.toLowerCase()) return t;
+            const sprintRaw =
+              detail?.sprint_id ??
+              detail?.sprintId ??
+              detail?.sprint?.id ??
+              detail?.task?.sprint_id;
+            const nextPrintId =
+              typeof sprintRaw === "object" && sprintRaw?._id
+                ? String(sprintRaw._id)
+                : typeof sprintRaw === "string"
+                  ? sprintRaw
+                  : t.printId;
+            return { ...t, status: nextStatus, printId: nextPrintId || t.printId };
           }),
         );
       }
@@ -618,7 +652,7 @@ export function TaskBoard() {
         // Xử lý sprint_id: có thể là string hoặc object { _id, name, state }
         const sprintId = typeof t.sprint_id === "object" && t.sprint_id?._id
           ? t.sprint_id._id
-          : t.sprint_id || selectedPrint;
+          : t.sprint_id || "";
         const sprintName = typeof t.sprint_id === "object" ? t.sprint_id?.name : undefined;
         const sprintState = typeof t.sprint_id === "object" ? t.sprint_id?.state : undefined;
         allTasks.push({
@@ -686,7 +720,7 @@ export function TaskBoard() {
       // Xử lý sprint_id: có thể là string hoặc object { _id, name, state }
       const sprintId = typeof t.sprint_id === "object" && t.sprint_id?._id
         ? t.sprint_id._id
-        : t.sprint_id || selectedPrint;
+        : t.sprint_id || "";
       const sprintName = typeof t.sprint_id === "object" ? t.sprint_id?.name : undefined;
       const sprintState = typeof t.sprint_id === "object" ? t.sprint_id?.state : undefined;
       return {

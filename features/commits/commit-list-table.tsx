@@ -241,7 +241,7 @@ export function CommitListTable({ commits, onCommitClick, emptyMessage, repoUrl,
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        {repoUrl && onViewPatch ? (
+                        {onViewPatch ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button

@@ -1,12 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { socket } from "@/lib/socket";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProfile } from "@/features/auth/hooks/use-profile";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 interface SocketContextType {
   isConnected: boolean;
@@ -25,18 +25,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   const { data: profileData } = useProfile();
   const userId = profileData?.user?._id;
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const pathnameRef = useRef(pathname);
   const userIdRef = useRef<string | undefined>(userId);
   const activeClassIdRef = useRef<string>("");
   const activeTeamIdRef = useRef<string>("");
   const activeProjectIdRef = useRef<string>("");
   const lastEventToastRef = useRef<{ key: string; at: number }>({ key: "", at: 0 });
 
-  useEffect(() => {
-    pathnameRef.current = pathname;
-  }, [pathname]);
   useEffect(() => {
     userIdRef.current = userId;
   }, [userId]);
@@ -63,11 +58,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     activeProjectIdRef.current = activeProjectId;
   }, [activeProjectId]);
-
-  const isOnTasksPage = useMemo(() => {
-    return (p: string) =>
-      p === "/tasks" || p.startsWith("/tasks") || p.includes("/tasks");
-  }, []);
 
   useEffect(() => {
     if (!token) {
@@ -147,6 +137,27 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       return false;
     };
 
+    /** Refetch mọi query đang mount có queryKey[0] thuộc roots (React Query — không polling HTTP). */
+    function refetchQueriesByKeyRoots(roots: string[]) {
+      const queries = queryClient.getQueryCache().findAll({
+        predicate: (q) => {
+          const k = q.queryKey;
+          return (
+            Array.isArray(k) &&
+            typeof k[0] === "string" &&
+            roots.includes(k[0])
+          );
+        },
+      });
+      queries.forEach((q) => {
+        void queryClient.refetchQueries({
+          queryKey: q.queryKey,
+          exact: true,
+          type: "all",
+        });
+      });
+    }
+
     // Debug throttle: log các event liên quan Jira nếu FE nhận được.
     // Trường hợp hiện tại bạn đang thấy "không có gì", log này sẽ giúp biết có event nào tới không.
     let lastJiraAnyEventLogAt = 0;
@@ -218,9 +229,22 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       const toastKey = `gh:${message}:${commitsCount ?? "na"}`;
       if (isDuplicatedToast(toastKey)) return;
       const title = projectName ? `${projectName}: ${message}` : message;
-      toast.success(
-        commitsCount !== undefined ? `${title} (${commitsCount} commits)` : title,
-      );
+      const descParts: string[] = [];
+      if (projectName) descParts.push(`Dự án: ${projectName}`);
+      if (commitsCount !== undefined) descParts.push(`${commitsCount} commit mới`);
+      toast.success(title, {
+        description: descParts.length ? descParts.join(" · ") : undefined,
+        className: "border-l-4 border-l-emerald-500",
+      });
+
+      refetchQueriesByKeyRoots([
+        "team-commits",
+        "team-commits-by-team",
+        "member-commits",
+        "my-commits",
+        "integration-team-commits-grouped",
+        "jira-issue-commits",
+      ]);
 
       if (typeof window !== "undefined") {
         window.dispatchEvent(
@@ -254,51 +278,34 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       const toastKey = `jira:${message}:${issueKey}:${status}`;
       const shouldToast = !isDuplicatedToast(toastKey);
       if (shouldToast) {
-        toast.info(
-          `${message}${issueKey || status ? ` - Task ${issueKey} -> ${status}` : ""}`,
-        );
+        const desc =
+          [issueKey && `Task ${issueKey}`, status && `Trạng thái: ${status}`]
+            .filter(Boolean)
+            .join(" · ") || undefined;
+        toast.info(message, {
+          description: desc,
+          className: "border-l-4 border-l-sky-500",
+        });
       }
 
-      const p = pathnameRef.current || "";
-      if (isOnTasksPage(p)) {
-        // Dedupe giữa SocketProvider và listener ở `student-task-board` (tránh refetch 2 lần).
-        // Lưu ý: không được `return` ở đây vì vẫn cần dispatch window event để UI /tasks tự refetch.
-        let shouldRefetch = true;
-        if (typeof window !== "undefined") {
-          const now = Date.now();
-          const last = (window as any).__rtJiraRefreshAt as number | undefined;
-          if (typeof last === "number" && now - last < 1200) {
-            shouldRefetch = false;
-          } else {
-            (window as any).__rtJiraRefreshAt = now;
-          }
+      // Kanban / task list: refetch React Query (socket-driven, không dùng polling).
+      let shouldRefetch = true;
+      if (typeof window !== "undefined") {
+        const now = Date.now();
+        const last = (window as any).__rtJiraRefreshAt as number | undefined;
+        if (typeof last === "number" && now - last < 1200) {
+          shouldRefetch = false;
+        } else {
+          (window as any).__rtJiraRefreshAt = now;
         }
-        if (shouldRefetch) {
-          // Refetch theo predicate thay vì prefix queryKey (tránh case "lúc được lúc không").
-          // Chỉ cần queryKey[0] khớp là ta refetch đúng mọi biến thể queryKey có sprint/team/member id đi kèm.
-          const keyRoots = ["team-tasks", "team-all-tasks", "member-tasks", "my-tasks"];
-          const queries = queryClient
-            .getQueryCache()
-            .findAll({
-              predicate: (q) => {
-                const k = q.queryKey;
-                return (
-                  Array.isArray(k) &&
-                  typeof k[0] === "string" &&
-                  keyRoots.includes(k[0])
-                );
-              },
-            });
-
-          // Ép refetch ngay để UI cập nhật tức thì.
-          queries.forEach((q) => {
-            queryClient.refetchQueries({
-              queryKey: q.queryKey,
-              exact: true,
-              type: "all",
-            });
-          });
-        }
+      }
+      if (shouldRefetch) {
+        refetchQueriesByKeyRoots([
+          "team-tasks",
+          "team-all-tasks",
+          "member-tasks",
+          "my-tasks",
+        ]);
       }
 
       if (typeof window !== "undefined") {
@@ -464,22 +471,36 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [token, queryClient]); // listener effect nên ổn định
 
-  // Xử lý case: nếu socket đã connect trước khi API profile trả về userId
+  /**
+   * Sau khi connect (hoặc khi đổi class/team/project trong session): join room để BE bắn
+   * GITHUB_NEW_COMMITS / LEADERBOARD_UPDATED đúng client.
+   * Nếu vẫn không thấy event: kiểm tra GitHub webhook → URL BE, và author commit khớp TeamMember (email/github_username).
+   */
   useEffect(() => {
-    if (isConnected && userId) {
+    if (!isConnected) return;
+
+    if (userId) {
       socket.emit("join_user", userId);
       socket.emit("joinUser", userId);
     }
-    if (isConnected && activeClassId) {
+    if (activeClassId) {
       socket.emit("join_class", activeClassId);
       socket.emit("joinClass", activeClassId);
     }
-    const tid = activeTeamIdRef.current;
-    if (isConnected && tid) {
-      socket.emit("join_team", tid);
-      socket.emit("joinTeam", tid);
+    if (activeTeamId) {
+      socket.emit("join_team", activeTeamId);
+      socket.emit("joinTeam", activeTeamId);
     }
-  }, [isConnected, userId, activeClassId]);
+    const pid =
+      Cookies.get("student_project_id") ||
+      Cookies.get("lecturer_project_id") ||
+      activeProjectId;
+    if (pid) {
+      const normalizedProjectId = String(pid).replace(/^project:/, "");
+      socket.emit("join_project", normalizedProjectId);
+      socket.emit("joinProject", normalizedProjectId);
+    }
+  }, [isConnected, userId, activeClassId, activeTeamId, activeProjectId]);
 
   return (
     <SocketContext.Provider value={{ isConnected, socket }}>

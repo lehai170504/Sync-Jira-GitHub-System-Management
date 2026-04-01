@@ -7,12 +7,13 @@ const SOCKET_URL =
   "https://wdp-be-ama3.onrender.com";
 
 export const socket: Socket = io(SOCKET_URL, {
+  path: "/socket.io",
   autoConnect: false,
   reconnection: true,
   reconnectionAttempts: 10,
-  reconnectionDelay: 2000,
-  // Vercel/Render: tránh long-polling (upgrade/polling) — chỉ WebSocket thuần
-  transports: ["websocket"],
+  reconnectionDelay: 1000,
+  // Khớp BE + Capacitor/WebView (polling → upgrade websocket). Nếu môi trường chặt chỉ WS, có thể đổi thành ["websocket"].
+  transports: ["polling", "websocket"],
   withCredentials: true,
   auth: (cb) => {
     const token = Cookies.get("token");

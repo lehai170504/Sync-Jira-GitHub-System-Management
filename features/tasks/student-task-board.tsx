@@ -1316,7 +1316,7 @@ export function TaskBoard() {
                           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
                             {t.sprint_id?.name && (
                               <span className="flex items-center gap-1.5">
-                                Sprint:{" "}
+                                Tên sprint:{" "}
                                 <span className="font-medium">
                                   {t.sprint_id.name}
                                 </span>

@@ -214,29 +214,27 @@ export default function ProjectDetailsPage() {
         </div>
 
         <div className="flex flex-wrap gap-3 items-center">
-          {isLeader && (
-            <Button
-              className="rounded-xl gap-2 bg-[#F27124] hover:bg-[#d65d1b] text-white shadow-sm active:scale-95"
-              onClick={handleSyncProject}
-              disabled={isSyncing}
-            >
-              {isSyncing ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-xs font-bold uppercase">
-                    Đang đồng bộ...
-                  </span>
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="w-4 h-4" />
-                  <span className="text-xs font-bold uppercase">
-                    Đồng bộ dữ liệu
-                  </span>
-                </>
-              )}
-            </Button>
-          )}
+          <Button
+            className="rounded-xl gap-2 bg-[#F27124] hover:bg-[#d65d1b] text-white shadow-sm active:scale-95"
+            onClick={handleSyncProject}
+            disabled={isSyncing}
+          >
+            {isSyncing ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-xs font-bold uppercase">
+                  Đang đồng bộ...
+                </span>
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4" />
+                <span className="text-xs font-bold uppercase">
+                  Đồng bộ dữ liệu
+                </span>
+              </>
+            )}
+          </Button>
 
           <Button
             variant="outline"

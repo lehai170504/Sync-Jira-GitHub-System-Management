@@ -15,12 +15,21 @@ import {
 } from "@/components/ui/dialog";
 import { TeamMember } from "@/features/student/types/member-types";
 
+export type ProfileMappingDefaults = {
+  jiraAccountId?: string;
+  githubUsername?: string;
+};
+
 interface MappingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   member: TeamMember | null;
   onSubmit: (data: { jira: string; github: string }) => void;
   isSubmitting: boolean;
+  /** student._id của user đang đăng nhập — chỉ auto-fill OAuth cho đúng dòng này */
+  currentUserStudentId?: string;
+  /** Jira/GitHub lấy từ OAuth (auth/me) khi member chưa có mapping sau sync/project */
+  profileIntegrationDefaults?: ProfileMappingDefaults | null;
 }
 
 export function MappingDialog({
@@ -29,22 +38,62 @@ export function MappingDialog({
   member,
   onSubmit,
   isSubmitting,
+  currentUserStudentId,
+  profileIntegrationDefaults,
 }: MappingDialogProps) {
   const [formData, setFormData] = useState({ jira: "", github: "" });
 
-  // Reset form khi mở dialog với member mới
+  // Reset form khi mở dialog: ưu tiên dữ liệu đã lưu trên member; nếu trống và là chính mình thì gợi ý từ OAuth Jira/GitHub
   useEffect(() => {
-    if (open && member) {
-      setFormData({
-        jira: member.jira_account_id || "",
-        github: member.github_username || "",
-      });
-    }
-  }, [open, member]);
+    if (!open || !member) return;
+
+    const isSelf =
+      !!currentUserStudentId &&
+      !!member.student?._id &&
+      member.student._id === currentUserStudentId;
+
+    const jiraFromApi = (member.jira_account_id || "").trim();
+    const githubFromApi = (member.github_username || "").trim();
+
+    const jiraSuggest = (profileIntegrationDefaults?.jiraAccountId || "").trim();
+    const githubSuggest = (profileIntegrationDefaults?.githubUsername || "").trim();
+
+    setFormData({
+      jira: jiraFromApi || (isSelf ? jiraSuggest : ""),
+      github: githubFromApi || (isSelf ? githubSuggest : ""),
+    });
+  }, [
+    open,
+    member,
+    currentUserStudentId,
+    profileIntegrationDefaults?.jiraAccountId,
+    profileIntegrationDefaults?.githubUsername,
+  ]);
 
   const handleSubmit = () => {
     onSubmit(formData);
   };
+
+  const isSelf =
+    !!currentUserStudentId &&
+    !!member?.student?._id &&
+    member.student._id === currentUserStudentId;
+
+  const jiraHintOAuth =
+    isSelf &&
+    member &&
+    !(member.jira_account_id || "").trim() &&
+    (profileIntegrationDefaults?.jiraAccountId || "").trim() &&
+    formData.jira.trim() ===
+      (profileIntegrationDefaults?.jiraAccountId || "").trim();
+
+  const githubHintOAuth =
+    isSelf &&
+    member &&
+    !(member.github_username || "").trim() &&
+    (profileIntegrationDefaults?.githubUsername || "").trim() &&
+    formData.github.trim() ===
+      (profileIntegrationDefaults?.githubUsername || "").trim();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -81,6 +130,11 @@ export function MappingDialog({
             <p className="text-[11px] text-slate-400 dark:text-slate-500 pl-1">
               * Tìm trong URL profile Jira của bạn.
             </p>
+            {jiraHintOAuth ? (
+              <p className="text-[11px] text-sky-600 dark:text-sky-400 pl-1 font-medium">
+                Đã gợi ý từ Jira đã liên kết ở Hồ sơ — bấm Lưu để ghi vào nhóm.
+              </p>
+            ) : null}
           </div>
 
           {/* GitHub Input */}
@@ -101,6 +155,11 @@ export function MappingDialog({
                 className="pl-12 h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-950 focus:border-gray-800 font-medium transition-all text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
+            {githubHintOAuth ? (
+              <p className="text-[11px] text-sky-600 dark:text-sky-400 pl-1 font-medium">
+                Đã gợi ý từ GitHub đã liên kết ở Hồ sơ — bấm Lưu để ghi vào nhóm.
+              </p>
+            ) : null}
           </div>
         </div>
 

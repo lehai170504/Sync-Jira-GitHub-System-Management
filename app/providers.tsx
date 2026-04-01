@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { getQueryClient } from "@/lib/get-query-client";
@@ -18,7 +19,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RoleGuard>
+      <Suspense fallback={null}>
+        <RoleGuard>
         {/* 2. Bọc ThemeProvider vào đây. 
           Nó nên nằm trong QueryClient (để dùng được state nếu cần) 
           nhưng bọc ngoài các Provider logic khác. */}
@@ -35,7 +37,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             <FCMTokenProvider>{children}</FCMTokenProvider>
           </SocketProvider>
         </ThemeProvider>
-      </RoleGuard>
+        </RoleGuard>
+      </Suspense>
 
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

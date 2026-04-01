@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Cookies from "js-cookie";
 import { AlertCircle } from "lucide-react";
 
@@ -28,6 +28,17 @@ export default function AccountMappingPage() {
     profile?.user?._id || Cookies.get("student_id") || undefined;
   const currentUserEmail = profile?.user?.email?.trim().toLowerCase();
   const isLeader = Cookies.get("student_is_leader") === "true";
+
+  const profileIntegrationDefaults = useMemo(
+    () => ({
+      jiraAccountId: profile?.user?.integrations?.jira?.jiraAccountId,
+      githubUsername: profile?.user?.integrations?.github?.username,
+    }),
+    [
+      profile?.user?.integrations?.jira?.jiraAccountId,
+      profile?.user?.integrations?.github?.username,
+    ],
+  );
 
   // --- 2. Logic Data ---
   const { data: teamsData, isLoading: isTeamLoading } = useClassTeams(classId);
@@ -104,6 +115,8 @@ export default function AccountMappingPage() {
         member={selectedMember}
         onSubmit={handleSave}
         isSubmitting={isUpdating}
+        currentUserStudentId={profile?.user?._id}
+        profileIntegrationDefaults={profileIntegrationDefaults}
       />
     </div>
   );

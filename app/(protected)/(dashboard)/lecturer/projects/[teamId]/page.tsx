@@ -1,4 +1,5 @@
-"use client";
+export const dynamic = "force-dynamic";
+("use client");
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -29,7 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { cn } from "@/lib/utils";
 
 // --- CHARTS ---

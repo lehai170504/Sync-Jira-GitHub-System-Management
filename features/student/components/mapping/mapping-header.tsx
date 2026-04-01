@@ -12,8 +12,9 @@ export function MappingHeader() {
         </h1>
       </div>
       <p className="text-gray-500 dark:text-slate-400 pl-[52px] max-w-2xl">
-        Liên kết tài khoản <b>Jira</b> và <b>GitHub</b> của các thành viên để hệ
-        thống tự động đồng bộ tiến độ và commit.
+        <b>Leader</b> có thể ánh xạ cho cả nhóm; <b>thành viên</b> chỉnh được{" "}
+        <b>dòng của mình</b>. Liên kết <b>Jira</b> và <b>GitHub</b> để hệ thống
+        đồng bộ tiến độ và commit.
       </p>
     </div>
   );

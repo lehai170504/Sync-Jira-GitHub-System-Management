@@ -71,7 +71,7 @@ export function CommitListTable({ commits, onCommitClick, emptyMessage, repoUrl,
                   <TableHead className="font-semibold">Tác giả</TableHead>
                   <TableHead className="font-semibold">Branch</TableHead>
                   <TableHead className="font-semibold">Ngày</TableHead>
-                  <TableHead className="text-right font-semibold">Lý do loại</TableHead>
+                  <TableHead className="text-right font-semibold">Lý do penalty</TableHead>
                   <TableHead className="w-[60px] text-center font-semibold">Chi tiết</TableHead>
                 </TableRow>
               </TableHeader>
@@ -92,7 +92,10 @@ export function CommitListTable({ commits, onCommitClick, emptyMessage, repoUrl,
                 {commits.map((c) => {
                   const v = getValidation(c);
                   const rejectionReason =
-                    c.rejection_reason ?? (c.is_counted === false ? "Commit không được tính điểm." : null);
+                    c.rejection_reason ??
+                    (c.is_counted === false
+                      ? "Commit bị trừ điểm theo chính sách chất lượng."
+                      : null);
                   return (
                     <TableRow
                       key={c.id}
@@ -226,7 +229,7 @@ export function CommitListTable({ commits, onCommitClick, emptyMessage, repoUrl,
                             </TooltipTrigger>
                             <TooltipContent className="max-w-sm">
                               <div className="text-xs">
-                                <div className="font-semibold">Lý do loại</div>
+                                <div className="font-semibold">Lý do penalty</div>
                                 <div className="mt-1">{rejectionReason}</div>
                               </div>
                             </TooltipContent>

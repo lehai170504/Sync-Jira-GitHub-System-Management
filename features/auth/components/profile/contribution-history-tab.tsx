@@ -191,7 +191,7 @@ export function ContributionHistoryTab() {
                                     : "border-slate-300 text-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-slate-300")
                                 }
                               >
-                                {c.is_counted ? "Counted" : "Not counted"}
+                                {c.is_counted ? "Counted" : "Penalty"}
                               </Badge>
                             </div>
                             <p className="mt-2 text-sm font-medium text-foreground whitespace-pre-wrap wrap-break-word">

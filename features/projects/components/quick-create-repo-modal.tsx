@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -72,8 +73,15 @@ export function QuickCreateRepoModal({
   const projects = Array.isArray(jiraData)
     ? jiraData
     : (jiraData as any)?.projects || [];
+  const unenrolledMembers = useMemo(
+    () => members.filter((m) => m.status !== "Enrolled"),
+    [members],
+  );
 
-  const memberIds = members.map((m) => m._id).filter(Boolean) as string[];
+  const memberIds = members
+    .filter((m) => m.status === "Enrolled")
+    .map((m) => m._id)
+    .filter(Boolean) as string[];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +95,16 @@ export function QuickCreateRepoModal({
     }
     if (memberIds.length === 0) {
       toast.error("Chưa có thành viên");
+      return;
+    }
+    if (unenrolledMembers.length > 0) {
+      const names = unenrolledMembers
+        .map((m) => m.full_name || m.student_code)
+        .slice(0, 3)
+        .join(", ");
+      toast.error("Không thể tạo project", {
+        description: `Nhóm còn thành viên chưa tạo tài khoản: ${names}${unenrolledMembers.length > 3 ? "..." : ""}`,
+      });
       return;
     }
 
@@ -149,6 +167,13 @@ export function QuickCreateRepoModal({
 
         <form onSubmit={handleSubmit} className="flex flex-col">
           <div className="p-6 space-y-4 bg-white dark:bg-slate-950">
+            {unenrolledMembers.length > 0 && (
+              <Alert className="border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40">
+                <AlertDescription className="text-amber-800 dark:text-amber-200">
+                  Không thể tạo Repo/Project khi nhóm còn thành viên chưa tạo tài khoản.
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label htmlFor="repoName" className="text-slate-700 dark:text-slate-200">Tên Repo <span className="text-red-500">*</span></Label>
               <Input
@@ -249,7 +274,7 @@ export function QuickCreateRepoModal({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || unenrolledMembers.length > 0}
               className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white"
             >
               {isSubmitting ? (

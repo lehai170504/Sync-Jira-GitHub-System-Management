@@ -46,7 +46,9 @@ export const useLogin = () => {
           action: {
             label: "Nhập OTP",
             onClick: () =>
-              router.push(`/verify-otp?email=${errorData.email || ""}`),
+              router.push(
+                `/verify-otp?email=${encodeURIComponent(String(errorData.email || ""))}`,
+              ),
           },
         });
       } else if (error.response?.status === 401) {

@@ -118,6 +118,7 @@ export default function ClassManagementPage() {
         subjectCode={classInfo.subject_id?.code}
         semesterName={classInfo.semester_id?.name}
         classId={classId}
+        students={students}
         isConnected={isConnected}
         onRefresh={() => {
           refetchStudents();

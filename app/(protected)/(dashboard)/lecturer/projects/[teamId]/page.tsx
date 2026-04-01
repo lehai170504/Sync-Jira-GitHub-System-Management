@@ -59,6 +59,12 @@ import { TeamReviewsTab } from "@/features/management/classes/components/lecture
 import { TeamGithubTab } from "@/features/lecturer/components/team/team-github-tab";
 import { TeamJiraTab } from "@/features/lecturer/components/team/team-jira-tab";
 
+const clampScore0To10 = (value: unknown) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return Math.min(10, Math.max(0, n));
+};
+
 export default function LecturerProjectDetailPage({
   params,
 }: {
@@ -753,7 +759,7 @@ function MemberAnalyticsCard({
                 Điểm AI (Code)
               </p>
               <p className="text-base font-black text-emerald-600">
-                {Number(data.raw_scores?.git_ai_score || 0).toFixed(1)}
+                {clampScore0To10(data.raw_scores?.git_ai_score).toFixed(1)}
               </p>
             </div>
             <div className="w-px h-6 bg-slate-200 dark:bg-slate-700"></div>

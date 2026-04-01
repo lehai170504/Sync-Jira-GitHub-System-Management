@@ -27,7 +27,7 @@ export default function LoginPage() {
 
   return (
     // Dùng min-h-[100dvh] thay vì min-h-screen để xử lý tốt hơn trên thanh trình duyệt mobile
-    <div className="min-h-[100dvh] w-full bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center p-0 lg:p-0 relative transition-colors duration-300">
+    <div className="min-h-[100dvh] w-full bg-white dark:bg-slate-950 overflow-x-hidden flex items-center justify-center p-0 lg:p-0 relative transition-colors duration-300">
       {/* Nút Help (Floating) */}
       <div className="absolute top-6 right-6 z-50 animate-in fade-in zoom-in duration-500 delay-300">
         <TooltipProvider>
@@ -52,13 +52,13 @@ export default function LoginPage() {
         </TooltipProvider>
       </div>
 
-      <div className="relative w-full h-full min-h-[100dvh] max-w-[1920px] bg-white dark:bg-slate-950 shadow-2xl overflow-hidden flex rounded-none">
+      <div className="relative w-full h-full min-h-[100dvh] max-w-[1920px] bg-white dark:bg-slate-950 shadow-2xl overflow-x-hidden flex rounded-none">
         {/* --- KHỐI FORM LỆNH TRÁI --- */}
         <motion.div
           initial={false}
           animate={{ x: isRegisterMode ? "100%" : "0%", opacity: 1 }}
           transition={{ type: "spring", stiffness: 200, damping: 25 }}
-          className="absolute top-0 left-0 w-full lg:w-1/2 h-full bg-white dark:bg-slate-950 z-20 flex flex-col transition-colors duration-300"
+          className="absolute top-0 left-0 w-full lg:w-1/2 h-full bg-white dark:bg-slate-950 z-20 flex flex-col transition-colors duration-300 overflow-visible"
         >
           {/* Header - Thêm shrink-0 để không bị bóp */}
           <div id="auth-logo-area" className="px-8 pt-6 lg:pt-8 shrink-0">
@@ -68,7 +68,7 @@ export default function LoginPage() {
           {/* Form Area - Đã bỏ justify-center để sửa lỗi cắt chữ, tinh chỉnh padding */}
           <div
             id="auth-form-area"
-            className="flex-1 flex flex-col px-6 sm:px-12 md:px-20 lg:px-24 xl:px-32 overflow-y-auto scrollbar-hide py-4 relative"
+            className="flex-1 flex flex-col px-6 sm:px-12 md:px-20 lg:px-24 xl:px-32 overflow-y-auto overflow-x-visible scrollbar-hide py-4 relative z-30"
           >
             {/* Thẻ bọc my-auto giúp content ở giữa màn to, nhưng tự bung ra ở màn nhỏ */}
             <div className="my-auto w-full pb-6">

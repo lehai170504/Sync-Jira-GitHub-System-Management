@@ -80,7 +80,7 @@ export function UserMenuItems({
           </DropdownMenuItem>
         </motion.div>
 
-        {role === "STUDENT" && pathname !== "/student/my-score" && (
+        {role === "STUDENT" && pathname !== "/courses" && (
           <motion.div
             custom={1}
             initial="hidden"

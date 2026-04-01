@@ -30,7 +30,10 @@ import { TeamMember } from "@/features/student/types/member-types";
 interface MappingTableProps {
   members: TeamMember[];
   isLoading: boolean;
+  /** _id user/student hiện tại (từ profile hoặc cookie) */
   currentStudentId?: string;
+  /** Dự phòng khi BE dùng id khác với auth user */
+  currentUserEmail?: string;
   isLeader: boolean;
   onEdit: (member: TeamMember) => void;
 }
@@ -39,6 +42,7 @@ export function MappingTable({
   members,
   isLoading,
   currentStudentId,
+  currentUserEmail,
   isLeader,
   onEdit,
 }: MappingTableProps) {
@@ -85,8 +89,13 @@ export function MappingTable({
                 ?.filter((m) => m && m.student)
                 .map((member) => {
                   // FIX 2: Sử dụng Optional Chaining ?. để truy cập _id an toàn
+                  const email = member.student?.email?.trim().toLowerCase();
                   const isCurrentUser =
-                    member.student?._id === currentStudentId;
+                    (!!currentStudentId &&
+                      member.student?._id === currentStudentId) ||
+                    (!!currentUserEmail &&
+                      !!email &&
+                      email === currentUserEmail);
                   const canEdit = isLeader || isCurrentUser;
 
                   return (

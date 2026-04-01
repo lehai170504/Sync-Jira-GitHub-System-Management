@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import { Sidebar } from "@/components/layouts/sidebar";
@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 // IMPORT BONG BÓNG CHAT AI
 import { OmniAgentChat } from "@/features/lecturer/components/omni-agent-chat";
 
-export default function DashboardLayout({
+function DashboardLayoutContent({
   children,
 }: {
   children: React.ReactNode;
@@ -154,5 +154,21 @@ export default function DashboardLayout({
       {/* Chỉ render nếu đang có classId (tức là giảng viên đang ở trong ngữ cảnh 1 lớp cụ thể) */}
       {/* {activeClassId && <OmniAgentChat classId={activeClassId} />} */}
     </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen w-full bg-[#F8FAFC] dark:bg-slate-950" />
+      }
+    >
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </Suspense>
   );
 }

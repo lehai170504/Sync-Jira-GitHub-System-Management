@@ -11,10 +11,11 @@ import { ImportStudentDto } from "@/features/management/classes/types/class-type
 
 interface StudentImportProps {
   classId: string;
+  students: Array<{ student_code: string; email: string }>;
   onSuccess?: () => void;
 }
 
-export function StudentImport({ classId, onSuccess }: StudentImportProps) {
+export function StudentImport({ classId, students, onSuccess }: StudentImportProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { mutate: importStudents, isPending: isImporting } =
     useImportStudents();
@@ -105,6 +106,25 @@ export function StudentImport({ classId, onSuccess }: StudentImportProps) {
         toast.error(
           "Không tìm thấy dữ liệu hợp lệ (Cần có Email và RollNumber)",
         );
+        return;
+      }
+
+      const existingCodes = new Set(
+        students.map((s) => (s.student_code || "").trim().toLowerCase()),
+      );
+      const existingEmails = new Set(
+        students.map((s) => (s.email || "").trim().toLowerCase()),
+      );
+      const duplicatedRows = validStudents.filter(
+        (s) =>
+          existingCodes.has((s.RollNumber || "").trim().toLowerCase()) ||
+          existingEmails.has((s.Email || "").trim().toLowerCase()),
+      );
+      if (duplicatedRows.length > 0) {
+        toast.warning("File import có sinh viên đã tồn tại", {
+          description:
+            "Vui lòng loại bỏ các dòng trùng MSSV/email trong lớp trước khi import.",
+        });
         return;
       }
 

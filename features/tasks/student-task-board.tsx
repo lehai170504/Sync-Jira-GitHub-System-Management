@@ -787,6 +787,24 @@ export function TaskBoard() {
       toast.error("Vui lòng chọn ngày bắt đầu (start date)");
       return;
     }
+    if (!Number.isFinite(formTask.storyPoints) || formTask.storyPoints <= 0) {
+      toast.error("Story points phải là số dương");
+      return;
+    }
+    if (formTask.storyPoints > 100) {
+      toast.error("Story points không được vượt quá 100");
+      return;
+    }
+    const startDate = new Date(formTask.startDate);
+    const dueDate = new Date(formTask.deadline);
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(dueDate.getTime())) {
+      toast.error("Ngày bắt đầu hoặc hạn chót không hợp lệ");
+      return;
+    }
+    if (startDate > dueDate) {
+      toast.error("Ngày bắt đầu không được sau hạn chót");
+      return;
+    }
     if (!resolvedTeamId) {
       toast.error("Không tìm thấy team ID");
       return;

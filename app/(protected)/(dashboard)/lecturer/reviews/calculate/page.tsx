@@ -58,10 +58,7 @@ export default function LecturerReviewCalculatePage() {
     isError: isClassError,
   } = useClassDetails(classId);
 
-  const teams = useMemo(
-    () => classDetails?.class?.teams ?? classDetails?.teams ?? [],
-    [classDetails]
-  );
+  const teams = useMemo(() => classDetails?.teams ?? [], [classDetails]);
 
   const [teamId, setTeamId] = useState<string>("");
   useEffect(() => {

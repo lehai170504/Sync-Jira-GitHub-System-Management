@@ -1,141 +1,107 @@
-// src/features/admin/components/dashboard/dashboard-charts.tsx
 "use client";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip as RechartsTooltip,
-  XAxis,
-  YAxis,
 } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { chartData } from "./mock-data";
 
-// --- CUSTOM TOOLTIP (Để hỗ trợ Dark Mode tốt hơn) ---
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="rounded-xl border border-slate-100 bg-white p-3 shadow-xl dark:border-slate-800 dark:bg-slate-950">
-        <p className="mb-1 text-sm font-bold text-slate-900 dark:text-slate-100">
-          {label}
-        </p>
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-[#F27124]" />
-          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-            {payload[0].value}
-          </span>
-        </div>
-      </div>
-    );
-  }
-  return null;
-};
+export function DashboardCharts({ breakdown }: { breakdown?: any }) {
+  // Ráp data từ BE
+  const chartData = [
+    { name: "Sinh viên", value: breakdown?.students || 0, color: "#3b82f6" }, // Xanh dương
+    { name: "Giảng viên", value: breakdown?.lecturers || 0, color: "#f27124" }, // Cam WDP
+    { name: "Admins", value: breakdown?.admins || 0, color: "#8b5cf6" }, // Tím
+  ].filter((d) => d.value > 0);
 
-export function DashboardCharts() {
+  const total =
+    (breakdown?.students || 0) +
+    (breakdown?.lecturers || 0) +
+    (breakdown?.admins || 0);
+
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-      {/* Main Chart (Chiếm 4 phần) */}
-      <Card
-        id="revenue-chart"
-        className="col-span-4 rounded-[24px] border-slate-100 shadow-sm bg-white dark:bg-slate-900 dark:border-slate-800 transition-colors"
-      >
-        <CardHeader>
-          <CardTitle className="text-lg font-black text-slate-900 dark:text-slate-50">
-            Lưu lượng truy cập
-          </CardTitle>
-          <CardDescription className="text-slate-500 dark:text-slate-400">
-            Số lượng request và người dùng active trong 7 ngày qua.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pl-2">
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={chartData}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F27124" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#F27124" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="name"
-                  stroke="#94a3b8" // Màu trung tính hiển thị tốt trên cả 2 nền
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="#94a3b8"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => `${value}`}
-                />
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="#64748b" // Slate 500
-                  strokeOpacity={0.2}
-                />
-                <RechartsTooltip content={<CustomTooltip />} cursor={false} />
-                <Area
-                  type="monotone"
-                  dataKey="visits"
-                  stroke="#F27124"
-                  strokeWidth={3}
-                  fillOpacity={1}
-                  fill="url(#colorVisits)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+    <Card className="rounded-[24px] border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm h-full flex flex-col transition-colors">
+      <CardHeader className="pb-0">
+        <CardTitle className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
+          Quy mô Hệ thống
+        </CardTitle>
+        <p className="text-sm text-slate-500 font-medium">
+          Tỉ lệ phân bổ người dùng theo Role
+        </p>
+      </CardHeader>
 
-      {/* Side Chart (Chiếm 3 phần) */}
-      <Card className="col-span-3 rounded-[24px] border-slate-100 shadow-sm bg-white dark:bg-slate-900 dark:border-slate-800 transition-colors">
-        <CardHeader>
-          <CardTitle className="text-lg font-black text-slate-900 dark:text-slate-50">
-            Hoạt động Git/Jira
-          </CardTitle>
-          <CardDescription className="text-slate-500 dark:text-slate-400">
-            Tần suất commit và task update.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <XAxis
-                  dataKey="name"
-                  stroke="#94a3b8"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Bar dataKey="active" fill="#F27124" radius={[4, 4, 0, 0]} />
-                <RechartsTooltip
-                  cursor={{ fill: "rgba(242, 113, 36, 0.1)" }}
-                  content={<CustomTooltip />}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+      <CardContent className="flex-1 flex flex-col items-center justify-center p-8">
+        {chartData.length === 0 ? (
+          <p className="text-slate-400 italic">Chưa có người dùng nào</p>
+        ) : (
+          <>
+            <div className="relative w-56 h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                    strokeWidth={0}
+                    cornerRadius={8}
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color}
+                        className="outline-none"
+                      />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip
+                    contentStyle={{
+                      borderRadius: "12px",
+                      border: "none",
+                      boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                    }}
+                    itemStyle={{ fontWeight: "bold" }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-3xl font-black text-slate-900 dark:text-slate-100">
+                  {total}
+                </span>
+                <span className="text-[10px] text-slate-500 uppercase font-black">
+                  Tài khoản
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 w-full mt-6 gap-2">
+              {chartData.map((item) => (
+                <div
+                  key={item.name}
+                  className="flex flex-col items-center bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl"
+                >
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <div
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-[10px] font-bold text-slate-500 uppercase">
+                      {item.name}
+                    </span>
+                  </div>
+                  <span className="text-lg font-black text-slate-800 dark:text-slate-200">
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }

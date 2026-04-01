@@ -27,13 +27,19 @@ export function RecentUsersTable() {
 
   const recentUsers = useMemo(() => {
     const users = data?.users || [];
-    return [...users]
-      .sort((a, b) => {
-        const dateA = new Date(a.created_at || 0).getTime();
-        const dateB = new Date(b.created_at || 0).getTime();
-        return dateB - dateA;
-      })
-      .slice(0, 5);
+    return (
+      [...users]
+        // Lọc bỏ acc Admin ra khỏi danh sách
+        .filter(
+          (user) => user.role !== "ADMIN" && user.email !== "admin@gmail.com"
+        )
+        .sort((a, b) => {
+          const dateA = new Date(a.created_at || 0).getTime();
+          const dateB = new Date(b.created_at || 0).getTime();
+          return dateB - dateA;
+        })
+        .slice(0, 5)
+    );
   }, [data]);
 
   return (

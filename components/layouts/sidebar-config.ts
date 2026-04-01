@@ -152,12 +152,6 @@ export const routeGroups: RouteGroup[] = [
       },
       // ----------------
       {
-        label: "Kết quả học tập",
-        icon: Layers,
-        href: "/my-score",
-        color: "text-yellow-500",
-      },
-      {
         label: "Nhiệm vụ (Tasks)",
         icon: FileText,
         href: "/tasks",

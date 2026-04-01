@@ -21,7 +21,6 @@ export function proxy(request: NextRequest) {
     "/admin",
     "/student",
     "/profile",
-    "/my-score",
   ];
 
   // 👇 THÊM: Kiểm tra xem có phải trang chủ không

@@ -80,7 +80,7 @@ export function UserMenuItems({
           </DropdownMenuItem>
         </motion.div>
 
-        {role === "STUDENT" && pathname !== "/student/my-score" && (
+        {role === "STUDENT" && pathname !== "/courses" && (
           <motion.div
             custom={1}
             initial="hidden"
@@ -91,7 +91,7 @@ export function UserMenuItems({
               asChild
               className="group flex items-center justify-between gap-3 p-3 rounded-2xl cursor-pointer transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-none active:scale-95 border border-transparent hover:border-slate-100 dark:hover:border-slate-800"
             >
-              <Link href="/student/my-score">
+              <Link href="/courses">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     <CreditCard className="h-4 w-4 text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />

@@ -135,6 +135,10 @@ export interface TeamRankingResponse {
       jira_account_id: string | null;
       github_username: string | null;
     };
+    /** 0..1 — hiển thị ×10 */
+    git_score?: number;
+    /** 0..1 — root field, không dùng member.scores.jira_score */
+    jira_score?: number;
     jira: {
       done_tasks: number;
       done_story_points: number;

@@ -54,17 +54,15 @@ import {
   TeamMemberDetail,
 } from "@/features/student/types/team-types";
 import { TeamMemberBreakdown } from "@/features/lecturer/types/dashboard-types";
+import {
+  ratioToPercentDisplay,
+  scoreRatioToDisplay10,
+} from "@/lib/score-display";
 
 // --- COMPONENTS ---
 import { TeamReviewsTab } from "@/features/management/classes/components/lecturer/team-reviews-tab";
 import { TeamGithubTab } from "@/features/lecturer/components/team/team-github-tab";
 import { TeamJiraTab } from "@/features/lecturer/components/team/team-jira-tab";
-
-const clampScore0To10 = (value: unknown) => {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return 0;
-  return Math.min(10, Math.max(0, n));
-};
 
 export default function LecturerProjectDetailPage({
   params,
@@ -249,9 +247,9 @@ export default function LecturerProjectDetailPage({
                   <StatCard
                     icon={Code2}
                     label="Chất lượng Git"
-                    value={`${
-                      dashboardData.project_health?.total_git_ai_score || 0
-                    }%`}
+                    value={`${ratioToPercentDisplay(
+                      dashboardData.project_health?.total_git_ai_score,
+                    )}%`}
                     color="emerald"
                   />
 
@@ -266,14 +264,13 @@ export default function LecturerProjectDetailPage({
                       </p>
                       <div className="flex items-end gap-2">
                         <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tighter leading-none">
-                          {Number(
-                            dashboardData.project_health?.average_peer_review ||
-                              0
+                          {scoreRatioToDisplay10(
+                            dashboardData.project_health?.average_peer_review,
                           ).toFixed(1)}
                         </p>
-                        {Number(
-                          dashboardData.project_health?.average_peer_review
-                        ) === 5 && (
+                        {scoreRatioToDisplay10(
+                          dashboardData.project_health?.average_peer_review,
+                        ) >= 9.95 && (
                           <Trophy className="w-5 h-5 text-yellow-500 mb-0.5" />
                         )}
                       </div>
@@ -754,23 +751,34 @@ function MemberAnalyticsCard({
               </span>
             </p>
           </div>
-          <div className="p-2.5 bg-white dark:bg-slate-800/30 rounded-xl border border-slate-200 dark:border-slate-800 text-center col-span-2 flex justify-between items-center">
-            <div className="text-left">
+          <div className="p-2.5 bg-white dark:bg-slate-800/30 rounded-xl border border-slate-200 dark:border-slate-800 text-center col-span-2 grid grid-cols-3 gap-2 items-center">
+            <div className="text-center min-w-0">
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
-                Điểm AI (Code)
+                Điểm Git
               </p>
               <p className="text-base font-black text-emerald-600">
-                {clampScore0To10(data.raw_scores?.git_ai_score).toFixed(1)}
+                {scoreRatioToDisplay10(
+                  data.git_score ?? data.raw_scores?.git_ai_score,
+                ).toFixed(1)}
               </p>
             </div>
-            <div className="w-px h-6 bg-slate-200 dark:bg-slate-700"></div>
-            <div className="text-right">
+            <div className="text-center min-w-0 border-x border-slate-200 dark:border-slate-700 px-1">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                Điểm Jira
+              </p>
+              <p className="text-base font-black text-blue-600 dark:text-blue-400">
+                {scoreRatioToDisplay10(data.jira_score).toFixed(1)}
+              </p>
+            </div>
+            <div className="text-center min-w-0">
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                 Đánh giá chéo
               </p>
-              <p className="text-base font-black text-yellow-600 flex items-center justify-end gap-1">
-                {Number(data.raw_scores?.peer_review_score || 0).toFixed(1)}{" "}
-                <Star className="w-3 h-3 fill-yellow-600" />
+              <p className="text-base font-black text-yellow-600 flex items-center justify-center gap-1">
+                {scoreRatioToDisplay10(
+                  data.raw_scores?.peer_review_score,
+                ).toFixed(1)}
+                <Star className="w-3 h-3 fill-yellow-600 shrink-0" />
               </p>
             </div>
           </div>

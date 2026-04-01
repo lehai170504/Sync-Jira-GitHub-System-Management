@@ -235,6 +235,22 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     }
 
+    const GITHUB_DATA_QUERY_ROOTS = [
+      "team-commits",
+      "team-commits-by-team",
+      "member-commits",
+      "my-commits",
+      "integration-team-commits-grouped",
+      "jira-issue-commits",
+      "team-dashboard",
+      "team-ranking",
+      "team-detail",
+    ] as const;
+
+    function refetchGithubRelatedQueries() {
+      refetchQueriesByKeyRoots([...GITHUB_DATA_QUERY_ROOTS]);
+    }
+
     function onGithubNewCommits(data: any) {
       const message = data?.message || "Có code mới từ GitHub";
       const commitsCount = typeof data?.commitsCount === "number" ? data.commitsCount : undefined;
@@ -250,18 +266,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         className: "border-l-4 border-l-emerald-500",
       });
 
-      refetchQueriesByKeyRoots([
-        "team-commits",
-        "team-commits-by-team",
-        "member-commits",
-        "my-commits",
-        "integration-team-commits-grouped",
-        "jira-issue-commits",
-        // Leader overview: useTeamDashboard — overview.commits / thống kê
-        "team-dashboard",
-        // Trang tiến độ / ranking (mobile cũng invalidate team-ranking)
-        "team-ranking",
-      ]);
+      refetchGithubRelatedQueries();
 
       if (typeof window !== "undefined") {
         window.dispatchEvent(
@@ -269,6 +274,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
             detail: data,
           }),
         );
+      }
+    }
+
+    /** BE: sau khi job đồng bộ GitHub xong — refetch biểu đồ/dashboard không cần F5 */
+    function onSyncGithubCompleted(_data?: unknown) {
+      refetchGithubRelatedQueries();
+      void queryClient.invalidateQueries({ queryKey: ["my-project"] });
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("rt:sync-github-completed"));
       }
     }
 
@@ -416,6 +430,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         onGithubNewCommits(data);
         return;
       }
+      if (ev.includes("sync") && ev.includes("github") && ev.includes("completed")) {
+        onSyncGithubCompleted(data);
+        return;
+      }
       if (ev.includes("jira") && (ev.includes("issue") || ev.includes("task"))) {
         onJiraIssueUpdated(data);
       }
@@ -439,6 +457,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     socket.on("system_notification", onSystemNotification);
     socket.on("new_notification", onNewNotification);
     socket.on("GITHUB_NEW_COMMITS", onGithubNewCommits);
+    socket.on("sync_github_completed", onSyncGithubCompleted);
+    socket.on("SYNC_GITHUB_COMPLETED", onSyncGithubCompleted);
     socket.on("JIRA_ISSUE_UPDATED", onJiraIssueUpdated);
     socket.on("LEADERBOARD_UPDATED", onLeaderboardUpdated);
     socket.on("task_created", onTaskCreated);
@@ -471,6 +491,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("system_notification", onSystemNotification);
       socket.off("new_notification", onNewNotification);
       socket.off("GITHUB_NEW_COMMITS", onGithubNewCommits);
+      socket.off("sync_github_completed", onSyncGithubCompleted);
+      socket.off("SYNC_GITHUB_COMPLETED", onSyncGithubCompleted);
       socket.off("JIRA_ISSUE_UPDATED", onJiraIssueUpdated);
       socket.off("LEADERBOARD_UPDATED", onLeaderboardUpdated);
       socket.off("task_created", onTaskCreated);

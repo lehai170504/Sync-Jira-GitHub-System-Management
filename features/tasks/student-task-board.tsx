@@ -597,11 +597,13 @@ export function TaskBoard() {
   const members = useMemo(() => {
     const map = new Map<string, { id: string; name: string; initials: string }>();
 
-    // Prefer team members (mapped Jira account id) - chỉ lấy student.full_name
+    // Prefer team members (đã map Jira): hiển thị tên SV từ hồ sơ, không phụ thuộc Jira display_name
     (teamMembersData?.members || []).forEach((m: any) => {
       const jiraId = m?.jira_account_id;
-      const fullName = m?.student?.full_name;
-      // Chỉ hiển thị member khi có cả jira_account_id và full_name
+      const fullName =
+        m?.student?.full_name ||
+        m?.student?.student_code ||
+        m?.student?.email;
       if (!jiraId || !fullName) return;
       map.set(jiraId, { id: jiraId, name: fullName, initials: getInitials(fullName) });
     });
@@ -621,21 +623,43 @@ export function TaskBoard() {
     return Array.from(map.values());
   }, [teamMembersData, teamTasksData, memberTasksData, myTasksData, selectedAssigneeFilter, isLeaderState]);
 
-  // Assignee options từ Jira users (dùng cho dropdown khi thêm task) - dùng display_name từ API
+  // Dropdown assignee: ưu tiên tên từ thành viên nhóm (đã có jira_account_id), sau đó bổ sung user từ Jira API
   const assigneeOptions = useMemo(() => {
     const jiraUsers = jiraUsersData?.users || [];
     const teamMembers = teamMembersData?.members || [];
-    const options = jiraUsers.map((u: { jira_account_id: string; display_name?: string }) => {
-      const jiraId = u.jira_account_id;
-      const name = u.display_name || jiraId;
-      return { id: jiraId, name };
+    const byJira = new Map<string, { id: string; name: string }>();
+
+    teamMembers.forEach((m: any) => {
+      const jiraId = m?.jira_account_id;
+      if (!jiraId) return;
+      const name =
+        m?.student?.full_name ||
+        m?.student?.student_code ||
+        m?.student?.email ||
+        jiraId;
+      byJira.set(jiraId, { id: jiraId, name });
     });
-    // Đảm bảo currentUserId có trong options khi MEMBER (để form luôn có giá trị hợp lệ)
-    if (currentUserId && !options.some((o) => o.id === currentUserId)) {
+
+    jiraUsers.forEach((u: { jira_account_id: string; display_name?: string }) => {
+      const jiraId = u.jira_account_id;
+      if (!jiraId) return;
+      if (!byJira.has(jiraId)) {
+        byJira.set(jiraId, { id: jiraId, name: u.display_name || jiraId });
+      }
+    });
+
+    const options = Array.from(byJira.values());
+
+    if (currentUserId && !byJira.has(currentUserId)) {
       const member = teamMembers.find((m: any) => m?.jira_account_id === currentUserId);
-      const name = member?.student?.full_name || member?.student?.student_code || currentUserId;
+      const name =
+        member?.student?.full_name ||
+        member?.student?.student_code ||
+        member?.student?.email ||
+        currentUserId;
       options.push({ id: currentUserId, name });
     }
+
     return options;
   }, [jiraUsersData, teamMembersData, currentUserId]);
 
@@ -661,6 +685,10 @@ export function TaskBoard() {
           title: t.summary || t.title || t.issue_key || id,
           description: t.description,
           assigneeId: jiraId,
+          assigneeName:
+            t.assignee_name ||
+            member?.student?.full_name ||
+            member?.student?.student_code,
           status: mapApiTaskToStatus(t.status_category, t.status_name),
           storyPoints: Number(t.story_point ?? 0) || 0,
           priority: "Medium",
@@ -690,6 +718,7 @@ export function TaskBoard() {
         `Member ${m._id?.slice(-4) || ""}`;
       return {
         id: m._id as string,
+        jiraAccountId: (m.jira_account_id as string) || "",
         displayName: name,
         initials: getInitials(name),
         role: m.role_in_team as string | undefined,
@@ -729,6 +758,7 @@ export function TaskBoard() {
         title: t.summary || t.title || t.issue_key || id,
         description: t.description,
         assigneeId,
+        assigneeName: t.assignee_name,
         status: mapApiTaskToStatus(t.status_category, t.status_name),
         storyPoints: Number(t.story_point ?? 0) || 0,
         priority: "Medium",
@@ -807,18 +837,6 @@ export function TaskBoard() {
     }
     if (!resolvedTeamId) {
       toast.error("Không tìm thấy team ID");
-      return;
-    }
-
-    // MEMBER chỉ có thể thêm/sửa task cho chính mình
-    if (!isLeader && formTask.assigneeId !== currentUserId) {
-      toast.error("Bạn chỉ có thể thêm/sửa task cho chính mình");
-      return;
-    }
-
-    // MEMBER chỉ có thể sửa task của chính mình
-    if (!isLeader && editingTask && editingTask.assigneeId !== currentUserId) {
-      toast.error("Bạn chỉ có thể sửa task của chính mình");
       return;
     }
 
@@ -1040,8 +1058,6 @@ export function TaskBoard() {
               tasks={visibleTasks}
               members={members}
               isTaskOverdue={isTaskOverdue}
-              isLeader={isLeader}
-              currentUserId={currentUserId}
               onEditTask={(task) => {
                 setEditingTask(task);
                 setFormTask(task);
@@ -1229,7 +1245,12 @@ export function TaskBoard() {
                         key: t.issue_key || t.issue_id,
                         title: t.summary || t.issue_key || "",
                         description: t.description,
-                        assigneeId: t.assignee_account_id || selectedTableMember.id,
+                        assigneeId:
+                          t.assignee_account_id ||
+                          selectedTableMember.jiraAccountId ||
+                          "",
+                        assigneeName:
+                          t.assignee_name || selectedTableMember.displayName,
                         status,
                         storyPoints: Number(t.story_point ?? 0) || 0,
                         priority: "Medium",
@@ -1364,8 +1385,6 @@ export function TaskBoard() {
         members={members}
         assigneeOptions={assigneeOptions}
         sprints={sprints}
-        isLeader={isLeader}
-        currentUserId={currentUserId}
       />
 
       <TaskDetailSheet

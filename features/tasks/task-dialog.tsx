@@ -35,8 +35,6 @@ type Props = {
   /** Danh sách assignee từ Jira users (dùng cho dropdown khi thêm task) */
   assigneeOptions?: { id: string; name: string }[];
   sprints: Sprint[];
-  isLeader: boolean;
-  currentUserId: string;
 };
 
 export function TaskDialog({
@@ -50,19 +48,25 @@ export function TaskDialog({
   members,
   assigneeOptions,
   sprints,
-  isLeader,
-  currentUserId,
 }: Props) {
-  // MEMBER chỉ có thể assign task cho chính mình
-  const canChangeAssignee = isLeader;
-  const assigneeList = assigneeOptions && assigneeOptions.length > 0 ? assigneeOptions : members;
-  
-  // Đảm bảo MEMBER luôn assign cho chính mình khi mở dialog
-  React.useEffect(() => {
-    if (!isLeader && open && formTask.assigneeId !== currentUserId) {
-      setFormTask({ ...formTask, assigneeId: currentUserId });
+  // Đảm bảo Select luôn có item cho giá trị đang chọn (hiển thị tên, không chỉ id)
+  const assigneeListResolved = React.useMemo(() => {
+    const list =
+      assigneeOptions && assigneeOptions.length > 0 ? assigneeOptions : members;
+    const byId = new Map(list.map((m) => [m.id, m]));
+    if (formTask.assigneeId && !byId.has(formTask.assigneeId)) {
+      const hint = formTask.assigneeName?.trim();
+      return [
+        ...list,
+        {
+          id: formTask.assigneeId,
+          name: hint || formTask.assigneeId,
+        },
+      ];
     }
-  }, [open, isLeader, currentUserId, formTask, setFormTask]); // eslint-disable-line react-hooks/exhaustive-deps
+    return list;
+  }, [assigneeOptions, members, formTask.assigneeId, formTask.assigneeName]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700">
@@ -103,24 +107,18 @@ export function TaskDialog({
               <Select
                 value={formTask.assigneeId}
                 onValueChange={(v) => setFormTask({ ...formTask, assigneeId: v })}
-                disabled={!canChangeAssignee}
               >
                 <SelectTrigger className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
                   <SelectValue placeholder="Chọn thành viên" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                  {assigneeList.map((m) => (
+                  {assigneeListResolved.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
                       {m.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {!canChangeAssignee && (
-                <p className="text-xs text-muted-foreground">
-                  Bạn chỉ có thể thêm/sửa task cho chính mình
-                </p>
-              )}
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 dark:text-slate-200">

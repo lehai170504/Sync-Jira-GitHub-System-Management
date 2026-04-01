@@ -19,6 +19,14 @@ import { useJiraIssueCommits } from "@/features/integration/hooks/use-jira-issue
 import { mapStatusToStatusName } from "./utils";
 import type { TaskStatus } from "./types";
 
+function initialsFromDisplayName(name?: string) {
+  const s = (name || "").trim();
+  if (!s) return "NA";
+  const parts = s.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 function getStatusBadgeClass(status: TaskStatus): string {
   switch (status) {
     case "todo":
@@ -60,6 +68,9 @@ export function TaskDetailSheet({
 
   const commits = data?.commits ?? [];
   const assignee = task ? members.find((m) => m.id === task.assigneeId) : null;
+  const assigneeLabel = assignee?.name ?? task?.assigneeName ?? "—";
+  const assigneeInitials =
+    assignee?.initials ?? initialsFromDisplayName(task?.assigneeName);
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "—";
@@ -151,10 +162,10 @@ export function TaskDetailSheet({
                     <div className="flex items-center gap-2">
                       <Avatar className="h-6 w-6 border border-slate-200 dark:border-slate-700">
                         <AvatarFallback className="text-xs bg-teal-500/15 text-teal-700 dark:bg-teal-400/20 dark:text-teal-100">
-                          {assignee?.initials ?? "NA"}
+                          {assigneeInitials}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm text-foreground">{assignee?.name ?? "—"}</span>
+                      <span className="text-sm text-foreground">{assigneeLabel}</span>
                     </div>
                   </div>
                   {task.deadline && (

@@ -12,8 +12,9 @@ import { useTeamSprints } from "@/features/management/teams/hooks/use-team-sprin
 import { useCreateSprint } from "@/features/management/teams/hooks/use-create-sprint";
 import { useDeleteSprint } from "@/features/management/teams/hooks/use-delete-sprint";
 import { useUpdateSprint } from "@/features/management/teams/hooks/use-update-sprint";
+import { useStartSprint } from "@/features/management/teams/hooks/use-start-sprint";
 import { Button } from "@/components/ui/button";
-import { SprintTimelineView } from "./sprint-timeline-view";
+import { SprintTimelineView, parseDate } from "./sprint-timeline-view";
 import type { SprintItem } from "./sprint-timeline-view";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { SprintDialog } from "./sprint-dialog";
@@ -48,6 +49,8 @@ export function TimelinePage() {
   const { mutate: createSprint, isPending: isCreatingSprint } = useCreateSprint();
   const { mutate: deleteSprint, isPending: isDeletingSprint } = useDeleteSprint();
   const { mutate: updateSprint, isPending: isUpdatingSprint } = useUpdateSprint();
+  const { mutateAsync: startSprintAsync, isPending: isStartingSprint } =
+    useStartSprint();
 
   useEffect(() => {
     setIsLeader(Cookies.get("student_is_leader") === "true");
@@ -131,6 +134,26 @@ export function TimelinePage() {
       onSuccess: () => {
         setDeleteConfirmOpen(false);
         setDeleteSprintTarget(null);
+      },
+    });
+  };
+
+  const handleStartSprint = async (sprint: SprintItem) => {
+    if (!sprint.id) {
+      toast.error("Không xác định được sprint để bắt đầu.");
+      return;
+    }
+    const start = parseDate(sprint.start);
+    const end = parseDate(sprint.end);
+    if (!start || !end) {
+      toast.error("Sprint thiếu ngày bắt đầu hoặc kết thúc.");
+      return;
+    }
+    await startSprintAsync({
+      sprintId: sprint.id,
+      payload: {
+        start_date: start.toISOString(),
+        end_date: end.toISOString(),
       },
     });
   };
@@ -231,6 +254,8 @@ export function TimelinePage() {
         isLeader={isLeader}
         onEditSprint={handleEditSprint}
         onDeleteSprint={handleDeleteSprint}
+        onStartSprint={isLeader ? handleStartSprint : undefined}
+        isStartingSprint={isStartingSprint}
       />
       </div>
 

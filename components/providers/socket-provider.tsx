@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProfile } from "@/features/auth/hooks/use-profile";
+import { useTeamDetail } from "@/features/student/hooks/use-team-detail";
 import { useSearchParams } from "next/navigation";
 
 interface SocketContextType {
@@ -26,6 +27,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: profileData } = useProfile();
   const userId = profileData?.user?._id;
   const searchParams = useSearchParams();
+
   const userIdRef = useRef<string | undefined>(userId);
   const activeClassIdRef = useRef<string>("");
   const activeTeamIdRef = useRef<string>("");
@@ -48,6 +50,16 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const activeClassId = classIdFromUrl || classIdFromCookie;
   const activeTeamId = teamIdFromUrl || teamIdFromCookie;
   const activeProjectId = projectIdFromUrl || projectIdFromCookie;
+
+  /** Giống app mobile (useMyProject): join_project cần projectId — cookie `student_project_id` chỉ set ở /tasks; fallback từ team detail. */
+  const { data: teamDetailForSocket } = useTeamDetail(activeTeamId || undefined);
+  const projectIdFromTeamDetail = teamDetailForSocket?.project?._id
+    ? String(teamDetailForSocket.project._id)
+    : "";
+  const projectIdFromTeamRef = useRef("");
+  useEffect(() => {
+    projectIdFromTeamRef.current = projectIdFromTeamDetail;
+  }, [projectIdFromTeamDetail]);
 
   useEffect(() => {
     activeClassIdRef.current = activeClassId;
@@ -82,7 +94,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       const pid =
         Cookies.get("student_project_id") ||
         Cookies.get("lecturer_project_id") ||
-        activeProjectIdRef.current;
+        activeProjectIdRef.current ||
+        projectIdFromTeamRef.current;
 
       if (uid) {
         try {
@@ -494,13 +507,14 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const pid =
       Cookies.get("student_project_id") ||
       Cookies.get("lecturer_project_id") ||
-      activeProjectId;
+      activeProjectId ||
+      projectIdFromTeamDetail;
     if (pid) {
       const normalizedProjectId = String(pid).replace(/^project:/, "");
       socket.emit("join_project", normalizedProjectId);
       socket.emit("joinProject", normalizedProjectId);
     }
-  }, [isConnected, userId, activeClassId, activeTeamId, activeProjectId]);
+  }, [isConnected, userId, activeClassId, activeTeamId, activeProjectId, projectIdFromTeamDetail]);
 
   return (
     <SocketContext.Provider value={{ isConnected, socket }}>

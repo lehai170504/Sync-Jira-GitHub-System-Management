@@ -1,7 +1,7 @@
 // src/components/features/dashboard/leader-overview-tab.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
 import {
   Card,
@@ -11,7 +11,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Tooltip,
   ResponsiveContainer,
@@ -30,77 +29,34 @@ import {
   Clock,
   Circle,
   GitCommit,
-  AlertTriangle,
   Loader2,
 } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { useTeamDashboard } from "@/features/management/teams/hooks/use-team-dashboard";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
+import { useMyTasksResponse } from "@/features/integration/hooks/use-my-tasks-response";
+import { useTeamCommitsFromTeam } from "@/features/management/teams/hooks/use-team-commits";
+import { CommitListTable } from "@/features/commits/commit-list-table";
+import { CommitDetailModal } from "@/features/commits/commit-detail-modal";
+import { CommitPatchModal } from "@/features/commits/commit-patch-modal";
+import type { CommitItem } from "@/features/commits/types";
 
 // NOTE: Dashboard API hiện chỉ trả số liệu tổng quan (không có time-series),
 // nên biểu đồ sẽ hiển thị breakdown theo trạng thái và tổng hợp.
 
-// Mock data: Cảnh báo rủi ro
-const riskAlerts = [
-  {
-    id: 1,
-    type: "high",
-    title: "Task trễ deadline",
-    description: "Task 'API Authentication' đã quá hạn 2 ngày. Cần ưu tiên xử lý.",
-    assignee: "An Nguyễn",
-  },
-  {
-    id: 2,
-    type: "medium",
-    title: "Thiếu commit trong 3 ngày",
-    description: "Thành viên 'Bình Trần' chưa có commit từ 15/01. Kiểm tra tiến độ.",
-    assignee: "Bình Trần",
-  },
-  {
-    id: 3,
-    type: "low",
-    title: "PR chưa được review",
-    description: "Pull Request #42 đã mở 4 ngày. Cần review sớm để merge.",
-    assignee: "Cường Lê",
-  },
-];
-
-// Mock data: Task của Leader (Task Summary)
-const myTasks = [
-  {
-    id: "L-201",
-    title: "Review kiến trúc Sprint 4",
-    status: "In Progress",
-    statusColor: "bg-blue-100 text-blue-700",
-    due: "Hôm nay",
-  },
-  {
-    id: "L-202",
-    title: "Approve kế hoạch Sprint 5",
-    status: "To Do",
-    statusColor: "bg-gray-100 text-gray-700",
-    due: "Ngày mai",
-  },
-  {
-    id: "L-203",
-    title: "Họp 1-1 với các thành viên",
-    status: "Scheduled",
-    statusColor: "bg-amber-100 text-amber-700",
-    due: "Cuối tuần",
-  },
-  {
-    id: "L-204",
-    title: "Rà soát kết quả Contribution",
-    status: "Done",
-    statusColor: "bg-emerald-100 text-emerald-700",
-    due: "Hôm qua",
-  },
-];
-
 export function LeaderOverviewTab() {
   const [teamId, setTeamId] = useState<string | undefined>(undefined);
+  const [selectedCommitId, setSelectedCommitId] = useState<string | null>(null);
+  const [selectedPatchCommit, setSelectedPatchCommit] = useState<CommitItem | null>(null);
   const { data: myClasses } = useMyClasses();
   const { data: dashboardData, isLoading, error } = useTeamDashboard(teamId);
+  const { data: myTasksResponse, isLoading: isMyTasksLoading } = useMyTasksResponse(true);
+  const { data: teamCommitsData, isLoading: isTeamCommitsLoading } = useTeamCommitsFromTeam(
+    teamId,
+    !!teamId,
+    undefined,
+    100,
+  );
 
   // Lấy teamId từ class hiện tại hoặc từ myClasses
   useEffect(() => {
@@ -117,6 +73,68 @@ export function LeaderOverviewTab() {
       setTeamId(myClasses.classes[0].team_id);
     }
   }, [myClasses]);
+
+  const myTasks = useMemo(() => {
+    const tasks = (myTasksResponse?.tasks || []).filter((task) => task.team_id === teamId);
+    return tasks.slice(0, 4).map((task) => {
+      const normalized = String(task.status_category || "").toLowerCase();
+      const status =
+        normalized === "done"
+          ? "Done"
+          : normalized === "in progress"
+            ? "In Progress"
+            : normalized === "to do"
+              ? "To Do"
+              : task.status_name || task.status_category || "Unknown";
+      const statusColor =
+        normalized === "done"
+          ? "bg-emerald-100 text-emerald-700"
+          : normalized === "in progress"
+            ? "bg-blue-100 text-blue-700"
+            : "bg-gray-100 text-gray-700";
+      return {
+        id: task.issue_key || task._id,
+        title: task.summary || "Task không có tiêu đề",
+        status,
+        statusColor,
+        due: task.due_date
+          ? new Date(task.due_date).toLocaleDateString("vi-VN")
+          : "Không có hạn",
+      };
+    });
+  }, [myTasksResponse, teamId]);
+
+  const monthlyCommits = useMemo(() => {
+    const raw = teamCommitsData?.commits || [];
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    return raw
+      .filter((commit) => {
+        const commitDate = new Date(commit.commit_date || "");
+        return !Number.isNaN(commitDate.getTime()) && commitDate >= oneWeekAgo;
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.commit_date || "").getTime() -
+          new Date(a.commit_date || "").getTime(),
+      );
+  }, [teamCommitsData]);
+
+  const monthlyCommitItems = useMemo<CommitItem[]>(
+    () =>
+      monthlyCommits.map((c) => ({
+        id: c.hash,
+        message: c.message,
+        author: c.author_email || "unknown",
+        branch: c.branches?.[0] || "main",
+        branches: c.branches ?? (c.branches?.[0] ? [c.branches[0]] : ["main"]),
+        date: c.commit_date,
+        is_counted: c.is_counted,
+        rejection_reason: c.rejection_reason,
+        url: (c as { url?: string }).url,
+      })),
+    [monthlyCommits],
+  );
 
   // Loading state
   if (isLoading || !teamId) {
@@ -455,7 +473,7 @@ export function LeaderOverviewTab() {
         </Card>
 
         {/* STORY POINT + COMMITS */}
-        <Card className="col-span-7 shadow-sm">
+        <Card className="col-span-4 shadow-sm">
           <CardHeader>
             <CardTitle>Story points & Commits</CardTitle>
             <CardDescription>
@@ -512,89 +530,9 @@ export function LeaderOverviewTab() {
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      {/* RISK ALERTS + TASK SUMMARY */}
-      <div className="grid gap-6 md:grid-cols-5">
-        {/* RISK ALERTS: Cảnh báo rủi ro */}
-        <Card className="md:col-span-3 shadow-sm">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-red-500" />
-                  Cảnh báo rủi ro
-                </CardTitle>
-                <CardDescription>
-                  Các vấn đề cần chú ý và xử lý ngay.
-                </CardDescription>
-              </div>
-              <Badge
-                variant="destructive"
-                className="text-sm px-3 py-1 font-semibold"
-              >
-                {riskAlerts.length} Cảnh báo
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {riskAlerts.map((alert) => (
-              <Alert
-                key={alert.id}
-                className={`${
-                  alert.type === "high"
-                    ? "bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-100"
-                    : alert.type === "medium"
-                    ? "bg-orange-50 border-orange-200 text-orange-900 dark:bg-orange-950/40 dark:border-orange-900/60 dark:text-orange-100"
-                    : "bg-yellow-50 border-yellow-200 text-yellow-900 dark:bg-yellow-950/40 dark:border-yellow-900/60 dark:text-yellow-100"
-                }`}
-              >
-                <AlertTriangle
-                  className={`h-4 w-4 ${
-                    alert.type === "high"
-                      ? "text-red-600 dark:text-red-400"
-                      : alert.type === "medium"
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-yellow-600 dark:text-yellow-300"
-                  }`}
-                />
-                <AlertTitle className="flex items-center justify-between">
-                  <span>{alert.title}</span>
-                  <Badge
-                    variant={
-                      alert.type === "high"
-                        ? "destructive"
-                        : alert.type === "medium"
-                        ? "default"
-                        : "secondary"
-                    }
-                    className="ml-2 text-xs"
-                  >
-                    {alert.type === "high"
-                      ? "Cao"
-                      : alert.type === "medium"
-                      ? "Trung bình"
-                      : "Thấp"}
-                  </Badge>
-                </AlertTitle>
-                <AlertDescription className="mt-2">
-                  <p className="text-sm">{alert.description}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs font-medium text-muted-foreground">
-                      Người phụ trách:
-                    </span>
-                    <Badge variant="outline" className="text-xs">
-                      {alert.assignee}
-                    </Badge>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            ))}
-          </CardContent>
-        </Card>
 
         {/* TASK SUMMARY: Task của tôi */}
-        <Card className="md:col-span-2 shadow-sm">
+        <Card className="col-span-3 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base">Task của tôi</CardTitle>
             <CardDescription>
@@ -602,106 +540,89 @@ export function LeaderOverviewTab() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {myTasks.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2"
-              >
-                <div>
-                  <p className="text-sm font-semibold">{task.title}</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    Mã: <span className="font-mono">{task.id}</span> • Hạn:{" "}
-                    <span className="font-medium">{task.due}</span>
-                  </p>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className={`text-[11px] font-normal ${task.statusColor}`}
-                >
-                  {task.status}
-                </Badge>
+            {isMyTasksLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Đang tải task của bạn...
               </div>
-            ))}
+            ) : myTasks.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Chưa có task nào được giao cho bạn trong nhóm này.
+              </p>
+            ) : (
+              myTasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2"
+                >
+                  <div>
+                    <p className="text-sm font-semibold">{task.title}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Mã: <span className="font-mono">{task.id}</span> • Hạn:{" "}
+                      <span className="font-medium">{task.due}</span>
+                    </p>
+                  </div>
+                  <Badge
+                    variant="secondary"
+                    className={`text-[11px] font-normal ${task.statusColor}`}
+                  >
+                    {task.status}
+                  </Badge>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* COMMIT SUMMARY: Commit gần nhất */}
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <GitCommit className="h-5 w-5 text-slate-800" />
-            Commit gần nhất của nhóm
-          </CardTitle>
-          <CardDescription>
-            Danh sách một số commit mới nhất, giúp Leader nắm nhanh hoạt động code của team.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {[
-            {
-              id: "c1",
-              message: "Implement payment webhook handler",
-              author: "Nguyễn Văn An",
-              time: "10 phút trước",
-              branch: "feature/payment-webhook",
-            },
-            {
-              id: "c2",
-              message: "Refactor Auth middleware & fix bug token refresh",
-              author: "Trần Thị Bình",
-              time: "35 phút trước",
-              branch: "feature/auth-refactor",
-            },
-            {
-              id: "c3",
-              message: "Add unit test cho CartService",
-              author: "Lê Hoàng Cường",
-              time: "1 giờ trước",
-              branch: "test/cart-service",
-            },
-            {
-              id: "c4",
-              message: "Update README hướng dẫn deploy",
-              author: "Phạm Minh Dung",
-              time: "2 giờ trước",
-              branch: "chore/docs-deploy",
-            },
-          ].map((commit) => (
-            <div
-              key={commit.id}
-              className="flex items-start justify-between rounded-lg border bg-muted/40 px-3 py-2"
-            >
-              <div className="flex items-start gap-2">
-                <div className="mt-1 rounded-full bg-slate-900 text-white h-6 w-6 flex items-center justify-center">
-                  <GitCommit className="h-3 w-3" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold line-clamp-1">
-                    {commit.message}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    By <span className="font-medium">{commit.author}</span> •{" "}
-                    <span className="font-mono">{commit.branch}</span>
-                  </p>
-                </div>
+      {/* RECENT COMMITS */}
+      <div className="grid gap-6">
+        {/* COMMIT SUMMARY: Commit gần nhất */}
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <GitCommit className="h-5 w-5 text-slate-800" />
+              Commit gần nhất của nhóm
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isTeamCommitsLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Đang tải commit...
               </div>
-              <div className="flex flex-col items-end gap-1">
-                <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  <span>{commit.time}</span>
-                </div>
-                <Badge
-                  variant="outline"
-                  className="text-[10px] px-1.5 py-0.5 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200"
-                >
-                  MỚI
-                </Badge>
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+            ) : (
+              <CommitListTable
+                commits={monthlyCommitItems}
+                onCommitClick={setSelectedCommitId}
+                repoUrl={dashboardData?.team.github_repo_url}
+                onViewPatch={setSelectedPatchCommit}
+                emptyMessage="Không có commit nào trong 1 tuần gần nhất."
+              />
+            )}
+          </CardContent>
+        </Card>
+
+      </div>
+
+      <CommitDetailModal
+        open={!!selectedCommitId}
+        onOpenChange={(open) => !open && setSelectedCommitId(null)}
+        commit={
+          selectedCommitId
+            ? monthlyCommitItems.find((c) => c.id === selectedCommitId)
+            : undefined
+        }
+        detail={undefined}
+      />
+
+      <CommitPatchModal
+        open={!!selectedPatchCommit}
+        onOpenChange={(open) => !open && setSelectedPatchCommit(null)}
+        commit={selectedPatchCommit ?? undefined}
+        repoUrl={dashboardData?.team.github_repo_url}
+      />
+
     </div>
   );
 }

@@ -60,7 +60,7 @@ export default function UserManagementPage() {
   const totalFiltered = filteredUsers.length;
   const paginatedUsers = filteredUsers.slice(
     (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
   );
 
   const handleResetFilters = () => {
@@ -111,17 +111,15 @@ export default function UserManagementPage() {
                     className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-[#F27124] dark:hover:text-[#F27124]"
                   >
                     <RefreshCcw
-                      className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+                      className={`h-4 w-4 ${
+                        isRefetching ? "animate-spin" : ""
+                      }`}
                     />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Làm mới dữ liệu</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-
-            <Button className="bg-[#F27124] hover:bg-[#d65d1b] text-white font-bold rounded-xl shadow-lg shadow-orange-500/20 pl-4 pr-5 h-11">
-              <Plus className="mr-2 h-5 w-5" /> Thêm mới
-            </Button>
           </div>
         </div>
 

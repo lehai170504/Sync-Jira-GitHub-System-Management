@@ -1,9 +1,6 @@
 "use client";
 
-// 👉 FIX LỖI PRERENDER VERCEL: Ép trang này render động
-export const dynamic = "force-dynamic";
-
-import { useState, Suspense } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -31,20 +28,25 @@ import {
 } from "@/features/auth/hooks/use-forgot-password";
 import { toast } from "sonner";
 
-// --- COMPONENT CHỨA LOGIC CHÍNH ---
-function ForgotPasswordContent() {
-  const [step, setStep] = useState<1 | 2>(1);
+export default function ForgotPasswordPage() {
+  // --- STATE ---
+  const [step, setStep] = useState<1 | 2>(1); // 1: Email/Role, 2: OTP/NewPass
+
+  // Form Data
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"STUDENT" | "LECTURER">("STUDENT");
+
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // --- HOOKS ---
   const { mutate: requestOtp, isPending: isOtpLoading } = useRequestResetOtp(
     () => setStep(2),
   );
   const { mutate: resetPass, isPending: isResetLoading } = useResetPassword();
 
+  // --- HANDLERS ---
   const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
@@ -56,6 +58,7 @@ function ForgotPasswordContent() {
 
   const handleStep2Submit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (newPassword !== confirmPassword) {
       toast.error("Mật khẩu xác nhận không khớp!");
       return;
@@ -68,6 +71,7 @@ function ForgotPasswordContent() {
       toast.error("Mã OTP phải có 6 ký tự.");
       return;
     }
+
     resetPass({
       email,
       otp_code: otp,
@@ -78,6 +82,7 @@ function ForgotPasswordContent() {
 
   return (
     <div className="w-full h-screen lg:grid lg:grid-cols-2 overflow-hidden bg-white dark:bg-slate-950 transition-colors duration-300">
+      {/* --- CỘT TRÁI: FORM --- */}
       <div className="flex flex-col h-full relative overflow-y-auto">
         {/* Header */}
         <div className="px-8 py-6 flex items-center justify-between">
@@ -117,11 +122,13 @@ function ForgotPasswordContent() {
               </p>
             </div>
 
+            {/* --- STEP 1: NHẬP EMAIL & ROLE --- */}
             {step === 1 && (
               <form
                 onSubmit={handleStep1Submit}
                 className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300"
               >
+                {/* Role Selection */}
                 <div className="space-y-2">
                   <Label className="text-slate-700 dark:text-slate-300">
                     Bạn là?
@@ -132,20 +139,30 @@ function ForgotPasswordContent() {
                       setRole(val)
                     }
                   >
-                    <SelectTrigger className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+                    <SelectTrigger className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:ring-[#F27124]/20 transition-colors">
                       <SelectValue placeholder="Chọn vai trò" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-slate-900">
-                      <SelectItem value="STUDENT">
+                    <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                      <SelectItem
+                        value="STUDENT"
+                        className="dark:text-slate-200"
+                      >
                         Sinh viên (Student)
                       </SelectItem>
-                      <SelectItem value="LECTURER">
+                      <SelectItem
+                        value="LECTURER"
+                        className="dark:text-slate-200"
+                      >
                         Giảng viên (Lecturer)
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    *Tính năng này không hỗ trợ tài khoản Admin.
+                  </p>
                 </div>
 
+                {/* Email Input */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="email"
@@ -161,7 +178,7 @@ function ForgotPasswordContent() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={isOtpLoading}
-                      className="pl-10 h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                      className="pl-10 h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
                       required
                     />
                     <div className="absolute left-3 top-3 text-slate-400 dark:text-slate-500">
@@ -175,7 +192,7 @@ function ForgotPasswordContent() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="h-12 w-12 p-0 rounded-xl"
+                      className="h-12 w-12 p-0 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                     >
                       <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
                     </Button>
@@ -183,7 +200,7 @@ function ForgotPasswordContent() {
                   <Button
                     type="submit"
                     disabled={isOtpLoading}
-                    className="flex-1 h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] text-white"
+                    className="flex-1 h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] text-white transition-colors"
                   >
                     {isOtpLoading ? (
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -196,11 +213,13 @@ function ForgotPasswordContent() {
               </form>
             )}
 
+            {/* --- STEP 2: NHẬP OTP & NEW PASSWORD --- */}
             {step === 2 && (
               <form
                 onSubmit={handleStep2Submit}
                 className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300"
               >
+                {/* OTP Input */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="otp"
@@ -214,7 +233,7 @@ function ForgotPasswordContent() {
                       placeholder="123456"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
-                      className="pl-10 h-11 tracking-widest font-bold text-center text-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                      className="pl-10 h-11 tracking-widest font-bold text-center text-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
                       maxLength={6}
                       required
                     />
@@ -224,9 +243,13 @@ function ForgotPasswordContent() {
                   </div>
                 </div>
 
+                {/* New Password Fields */}
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="new-password" title="new-password">
+                    <Label
+                      htmlFor="new-password"
+                      className="text-slate-700 dark:text-slate-300"
+                    >
                       Mật khẩu mới
                     </Label>
                     <div className="relative">
@@ -236,7 +259,7 @@ function ForgotPasswordContent() {
                         placeholder="••••••"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="pl-10 h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                        className="pl-10 h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
                         required
                       />
                       <div className="absolute left-3 top-3 text-slate-400 dark:text-slate-500">
@@ -245,14 +268,19 @@ function ForgotPasswordContent() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirm">Nhập lại mật khẩu mới</Label>
+                    <Label
+                      htmlFor="confirm"
+                      className="text-slate-700 dark:text-slate-300"
+                    >
+                      Nhập lại mật khẩu mới
+                    </Label>
                     <Input
                       id="confirm"
                       type="password"
                       placeholder="••••••"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                      className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
                       required
                     />
                   </div>
@@ -263,14 +291,14 @@ function ForgotPasswordContent() {
                     type="button"
                     variant="outline"
                     onClick={() => setStep(1)}
-                    className="flex-none h-12 w-12 p-0 rounded-xl"
+                    className="flex-none h-12 w-12 p-0 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                   >
                     <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
                   </Button>
                   <Button
                     type="submit"
                     disabled={isResetLoading}
-                    className="flex-1 h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] text-white"
+                    className="flex-1 h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] text-white transition-colors"
                   >
                     {isResetLoading ? (
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -282,12 +310,13 @@ function ForgotPasswordContent() {
               </form>
             )}
 
+            {/* Back to Login Link */}
             {step === 1 && (
-              <div className="text-center text-sm text-slate-500 dark:text-slate-400">
+              <div className="text-center text-sm text-slate-500 dark:text-slate-400 transition-colors">
                 Nhớ mật khẩu rồi?{" "}
                 <Link
                   href="/login"
-                  className="font-bold text-[#F27124] hover:text-[#d65d1b] hover:underline transition-colors"
+                  className="font-bold text-[#F27124] hover:text-[#d65d1b] dark:text-orange-400 dark:hover:text-orange-300 hover:underline transition-colors"
                 >
                   Đăng nhập ngay
                 </Link>
@@ -296,6 +325,7 @@ function ForgotPasswordContent() {
           </div>
         </div>
 
+        {/* Footer */}
         <div className="px-8 py-6 text-center sm:text-left transition-colors">
           <p className="text-xs text-slate-400 dark:text-slate-500">
             &copy; 2026 SyncSystem. Subject Management Module.
@@ -303,7 +333,7 @@ function ForgotPasswordContent() {
         </div>
       </div>
 
-      {/* Banner Cột Phải */}
+      {/* --- CỘT PHẢI: BANNER --- */}
       <div className="hidden lg:block relative bg-[#0F172A]">
         <div className="absolute inset-0">
           <Image
@@ -315,17 +345,20 @@ function ForgotPasswordContent() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/80 to-transparent"></div>
         </div>
+
         <div className="relative h-full flex flex-col justify-end p-16 text-white z-10">
           <div className="max-w-xl mb-10 animate-fade-in-up">
             <div className="h-16 w-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-8 shadow-xl shadow-blue-600/20">
               <ShieldCheck className="h-8 w-8 text-white" />
             </div>
+
             <h2 className="text-5xl font-bold mb-6 leading-[1.15]">
               Khôi phục quyền <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
                 truy cập tài khoản.
               </span>
             </h2>
+
             <p className="text-lg text-slate-300 mb-8 leading-relaxed">
               "Bảo mật tài khoản là ưu tiên hàng đầu. Chúng tôi hỗ trợ bạn lấy
               lại mật khẩu nhanh chóng để không gián đoạn việc học tập và giảng
@@ -335,20 +368,5 @@ function ForgotPasswordContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-// --- EXPORT CHÍNH BỌC TRONG SUSPENSE ---
-export default function ForgotPasswordPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="h-screen w-full flex items-center justify-center bg-white dark:bg-slate-950">
-          <Loader2 className="h-8 w-8 animate-spin text-[#F27124]" />
-        </div>
-      }
-    >
-      <ForgotPasswordContent />
-    </Suspense>
   );
 }

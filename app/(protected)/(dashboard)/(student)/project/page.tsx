@@ -215,6 +215,17 @@ export default function ProjectDetailsPage() {
         </Alert>
       )}
 
+      <Alert className="mb-6 border-slate-200 bg-slate-50 dark:bg-slate-900/60 dark:border-slate-800">
+        <AlertTitle className="text-slate-800 dark:text-slate-200 text-sm">
+          Commit cá nhân & đồng bộ GitHub
+        </AlertTitle>
+        <AlertDescription className="text-slate-600 dark:text-slate-400 text-sm">
+          Hãy <strong>đăng nhập GitHub</strong> trong mục Hồ sơ — backend sẽ map commit
+          về đúng thành viên. Sau khi đồng bộ, dữ liệu biểu đồ cập nhật tự động qua
+          socket (không cần F5).
+        </AlertDescription>
+      </Alert>
+
       {/* Header Project */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-gray-100 dark:border-slate-800 pb-8">
         <div className="space-y-2">

@@ -20,6 +20,10 @@ export interface TeamMemberBreakdown {
   full_name: string;
   avatar_url: string;
   role: string;
+  /** 0..1 — ưu tiên cho điểm Git; UI: scoreRatioToDisplay10 */
+  git_score?: number;
+  /** 0..1 — ưu tiên cho điểm Jira (root, không dùng scores.jira_score lồng ghép) */
+  jira_score?: number;
   raw_counts: {
     total_commits: number;
     approved_commits: number;

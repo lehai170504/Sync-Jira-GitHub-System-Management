@@ -23,6 +23,7 @@ import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useTeamRanking } from "@/features/management/teams/hooks/use-team-ranking";
 import { useTeamLeaderboardRealtime } from "@/features/management/teams/hooks/use-team-leaderboard-rt";
 import { useSocket } from "@/components/providers/socket-provider";
+import { scoreRatioToDisplay10 } from "@/lib/score-display";
 
 // Helper function để lấy initials từ tên
 const getInitials = (name?: string) => {
@@ -149,6 +150,8 @@ export default function LeaderProgressPage() {
         commits: member.github.counted_commits,
         role: member.role_in_team,
         contributionPercent,
+        gitScore10: scoreRatioToDisplay10(member.git_score),
+        jiraScore10: scoreRatioToDisplay10(member.jira_score),
       };
     });
   }, [rankingData, contributionPercentByMemberId]);
@@ -405,6 +408,22 @@ export default function LeaderProgressPage() {
                         <span className="text-muted-foreground">Jira ID:</span>
                         <span className="font-medium text-foreground truncate">
                           {m.jiraAccountId || "—"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">
+                          Điểm Git (/10):
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {m.gitScore10.toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">
+                          Điểm Jira (/10):
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {m.jiraScore10.toFixed(1)}
                         </span>
                       </div>
                     </div>

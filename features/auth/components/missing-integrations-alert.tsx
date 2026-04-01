@@ -52,6 +52,8 @@ export function MissingIntegrationsAlert() {
           <AlertTitle>Khuyến nghị bắt buộc</AlertTitle>
           <AlertDescription>
             Vui lòng kết nối GitHub + Jira để đồng bộ commit/task và nhận cập nhật realtime đầy đủ.
+            Khi đã đăng nhập GitHub, hệ thống gán commit về đúng tên thành viên; nhớ hoàn tất liên kết
+            trước khi demo hoặc chấm điểm.
           </AlertDescription>
         </Alert>
 

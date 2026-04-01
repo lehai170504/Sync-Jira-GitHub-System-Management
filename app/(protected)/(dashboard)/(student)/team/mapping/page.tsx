@@ -16,12 +16,17 @@ import {
   useUpdateMapping,
 } from "@/features/student/hooks/use-team-members";
 import { TeamMember } from "@/features/student/types/member-types";
+import { useProfile } from "@/features/auth/hooks/use-profile";
 
 export default function AccountMappingPage() {
   // --- 1. Lấy Context ---
+  const { data: profile } = useProfile();
   const classId = Cookies.get("student_class_id");
   const myTeamName = Cookies.get("student_team_name");
-  const currentStudentId = Cookies.get("student_id");
+  /** Ưu tiên user._id từ /auth/me — cookie student_id không luôn được set khi vào lớp */
+  const currentStudentId =
+    profile?.user?._id || Cookies.get("student_id") || undefined;
+  const currentUserEmail = profile?.user?.email?.trim().toLowerCase();
   const isLeader = Cookies.get("student_is_leader") === "true";
 
   // --- 2. Logic Data ---
@@ -88,6 +93,7 @@ export default function AccountMappingPage() {
         members={membersData?.members || []}
         isLoading={isLoading}
         currentStudentId={currentStudentId}
+        currentUserEmail={currentUserEmail}
         isLeader={isLeader}
         onEdit={handleEditClick}
       />

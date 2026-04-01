@@ -54,7 +54,8 @@ export function MappingDialog({
             Liên kết tài khoản
           </DialogTitle>
           <DialogDescription>
-            Cập nhật thông tin cho <b>{member?.student.full_name}</b>.
+            Cập nhật thông tin cho{" "}
+            <b>{member?.student?.full_name ?? "—"}</b>.
           </DialogDescription>
         </DialogHeader>
 

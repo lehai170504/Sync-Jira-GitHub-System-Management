@@ -29,7 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { cn } from "@/lib/utils";
 
 // --- CHARTS ---
@@ -58,6 +58,8 @@ import { TeamMemberBreakdown } from "@/features/lecturer/types/dashboard-types";
 import { TeamReviewsTab } from "@/features/management/classes/components/lecturer/team-reviews-tab";
 import { TeamGithubTab } from "@/features/lecturer/components/team/team-github-tab";
 import { TeamJiraTab } from "@/features/lecturer/components/team/team-jira-tab";
+
+export const dynamic = "force-dynamic";
 
 const clampScore0To10 = (value: unknown) => {
   const n = Number(value);

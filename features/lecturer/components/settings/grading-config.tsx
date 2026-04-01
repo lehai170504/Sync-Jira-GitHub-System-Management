@@ -30,7 +30,6 @@ export function GradingConfig({ classId }: GradingConfigProps) {
     allowOverCeiling: false,
   });
 
-  // NẠP DỮ LIỆU: Lắng nghe khi API GET trả về data thì set vào State ngay
   useEffect(() => {
     if (classData?.class?.contributionConfig) {
       const config = classData.class.contributionConfig;

@@ -12,6 +12,7 @@ import {
   Github,
   AlertCircle,
   Clock,
+  UserX,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +29,9 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
       data.members_commits.length > 0 &&
       !selectedMemberId
     ) {
-      setSelectedMemberId(data.members_commits[0].member._id);
+      // FIX: An toàn check member có tồn tại không, nếu không thì dùng ID 'unassigned'
+      const firstId = data.members_commits[0].member?._id || "unassigned";
+      setSelectedMemberId(firstId);
     }
   }, [data, selectedMemberId]);
 
@@ -60,17 +63,20 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
       </div>
     );
 
+  // FIX: Tìm data của member đang active an toàn hơn
   const activeMemberData =
-    data.members_commits.find((m: any) => m.member._id === selectedMemberId) ||
-    data.members_commits[0];
+    data.members_commits.find((m: any) => {
+      const mId = m.member?._id || "unassigned";
+      return mId === selectedMemberId;
+    }) || data.members_commits[0];
 
   const activeStudent = activeMemberData?.member?.student;
   const activeCommits = activeMemberData?.commits || [];
+  const isUnassignedActive = !activeMemberData?.member; // Cờ kiểm tra đang xem tab Chưa định danh
 
   return (
-    // Đã thêm h-[700px] để khóa cứng chiều cao toàn bộ tab
     <div className="flex flex-col h-[700px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
-      {/* --- HEADER CHUNG (Cố định ở trên) --- */}
+      {/* --- HEADER CHUNG --- */}
       <div className="shrink-0 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-5 md:p-6 flex items-center justify-between z-10">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-slate-900 dark:bg-slate-100 rounded-2xl shadow-md">
@@ -85,17 +91,23 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
                 variant="secondary"
                 className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-100 border-none px-2 py-0.5 text-xs font-bold"
               >
-                {data.summary?.total_commits || 0} Commits
+                {data.summary?.total_commits || 0} Commits Toàn Đội
               </Badge>
-              <span className="text-xs text-slate-500 font-medium">
-                đã được hệ thống xử lý
-              </span>
+              {data.summary?.unassigned_commits > 0 && (
+                <Badge
+                  variant="destructive"
+                  className="px-2 py-0.5 text-[10px] font-bold shadow-none gap-1"
+                >
+                  <UserX className="w-3 h-3" />{" "}
+                  {data.summary.unassigned_commits} Ẩn danh
+                </Badge>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* --- BODY CHIA 2 CỘT --- Thêm min-h-0 để overflow hoạt động */}
+      {/* --- BODY CHIA 2 CỘT --- */}
       <div className="flex flex-col lg:flex-row flex-1 min-h-0 bg-slate-50/30 dark:bg-slate-900/10">
         {/* CỘT TRÁI: DANH SÁCH THÀNH VIÊN */}
         <div className="w-full lg:w-1/3 xl:w-[35%] flex flex-col shrink-0 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50">
@@ -106,22 +118,29 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
           </div>
 
           <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-            {data.members_commits.map((memberData: any) => {
-              const student = memberData.member.student;
-              const isSelected = selectedMemberId === memberData.member._id;
+            {data.members_commits.map((memberData: any, idx: number) => {
+              const student = memberData.member?.student;
+              const isUnassigned = !memberData.member;
+              const currentId = isUnassigned
+                ? "unassigned"
+                : memberData.member._id;
+              const isSelected = selectedMemberId === currentId;
               const validCommitsCount = (memberData.commits || []).filter(
                 (c: any) => c.is_counted
               ).length;
 
               return (
                 <button
-                  key={memberData.member._id}
-                  onClick={() => setSelectedMemberId(memberData.member._id)}
+                  key={currentId + idx}
+                  onClick={() => setSelectedMemberId(currentId)}
                   className={cn(
                     "w-full flex items-center justify-between p-3 rounded-2xl transition-all duration-200 text-left border",
                     isSelected
                       ? "bg-white dark:bg-slate-800 border-blue-500/50 dark:border-blue-500/50 shadow-sm ring-1 ring-blue-500/20"
-                      : "bg-transparent border-transparent hover:bg-white/50 dark:hover:bg-slate-800/30 hover:border-slate-200 dark:hover:border-slate-700"
+                      : "bg-transparent border-transparent hover:bg-white/50 dark:hover:bg-slate-800/30 hover:border-slate-200 dark:hover:border-slate-700",
+                    isUnassigned &&
+                      !isSelected &&
+                      "hover:border-red-200 dark:hover:border-red-900/50"
                   )}
                 >
                   <div className="flex items-center gap-3 overflow-hidden">
@@ -130,12 +149,25 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
                         "h-10 w-10 shrink-0 border-2 transition-colors",
                         isSelected
                           ? "border-blue-500"
-                          : "border-white dark:border-slate-800 shadow-sm"
+                          : "border-white dark:border-slate-800 shadow-sm",
+                        isUnassigned &&
+                          "border-dashed border-red-300 dark:border-red-800"
                       )}
                     >
                       <AvatarImage src={student?.avatar_url} />
-                      <AvatarFallback className="bg-slate-200 dark:bg-slate-700 font-bold text-slate-600 dark:text-slate-300 text-xs">
-                        {student?.full_name?.charAt(0) || "?"}
+                      <AvatarFallback
+                        className={cn(
+                          "font-bold text-xs",
+                          isUnassigned
+                            ? "bg-red-50 text-red-500"
+                            : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
+                        )}
+                      >
+                        {isUnassigned ? (
+                          <UserX className="w-4 h-4" />
+                        ) : (
+                          student?.full_name?.charAt(0) || "?"
+                        )}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
@@ -144,14 +176,26 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
                           "text-sm font-bold truncate",
                           isSelected
                             ? "text-blue-700 dark:text-blue-400"
-                            : "text-slate-900 dark:text-slate-100"
+                            : "text-slate-900 dark:text-slate-100",
+                          isUnassigned && "text-red-600 dark:text-red-400"
                         )}
                       >
-                        {student?.full_name || "Chưa gán sinh viên"}
+                        {isUnassigned
+                          ? "Commits Chưa định danh"
+                          : student?.full_name || "Chưa gán sinh viên"}
                       </p>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 bg-slate-200/50 dark:bg-slate-800/50 px-1.5 py-0.5 rounded">
-                          {student?.student_code || "Unknown"}
+                        <span
+                          className={cn(
+                            "text-[11px] font-mono px-1.5 py-0.5 rounded",
+                            isUnassigned
+                              ? "text-red-500 bg-red-50 dark:bg-red-900/20"
+                              : "text-slate-500 dark:text-slate-400 bg-slate-200/50 dark:bg-slate-800/50"
+                          )}
+                        >
+                          {isUnassigned
+                            ? "Chưa map tài khoản Git"
+                            : student?.student_code || "Unknown"}
                         </span>
                       </div>
                     </div>
@@ -163,10 +207,11 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
                         "text-xs font-black",
                         isSelected
                           ? "text-blue-700 dark:text-blue-400"
-                          : "text-slate-700 dark:text-slate-300"
+                          : "text-slate-700 dark:text-slate-300",
+                        isUnassigned && !isSelected && "text-red-500"
                       )}
                     >
-                      {validCommitsCount}/{memberData.total}
+                      {validCommitsCount}/{memberData.total_commits || 0}
                     </span>
                     <span className="text-[10px] font-medium text-slate-400">
                       hợp lệ
@@ -187,9 +232,16 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
               </span>
               <Badge
                 variant="outline"
-                className="bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-sm py-1"
+                className={cn(
+                  "text-sm py-1",
+                  isUnassignedActive
+                    ? "bg-red-50 dark:bg-red-900/20 text-red-600 border-red-200"
+                    : "bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700"
+                )}
               >
-                {activeStudent?.full_name}
+                {isUnassignedActive
+                  ? "Commits Chưa Định Danh"
+                  : activeStudent?.full_name}
               </Badge>
             </div>
             <div className="flex items-center gap-2 text-xs font-medium">
@@ -205,7 +257,9 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
               <div className="flex flex-col items-center justify-center h-full text-slate-400">
                 <GitCommit className="w-12 h-12 mb-3 opacity-20" />
                 <p className="text-sm font-medium">
-                  Sinh viên này chưa có commit nào.
+                  {isUnassignedActive
+                    ? "Không có commit ẩn danh nào."
+                    : "Sinh viên này chưa có commit nào."}
                 </p>
               </div>
             ) : (
@@ -246,6 +300,16 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
                                 "HH:mm, dd/MM/yyyy"
                               )}
                             </span>
+                            {/* Hiển thị thêm author name từ Github nếu là tab ẩn danh */}
+                            {isUnassignedActive && (
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] bg-slate-50 text-slate-500 border-slate-200 gap-1 px-1.5 py-0.5"
+                              >
+                                <UserX className="w-3 h-3" />{" "}
+                                {commit.author_name}
+                              </Badge>
+                            )}
                           </div>
                         </div>
 

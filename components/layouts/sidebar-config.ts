@@ -102,12 +102,12 @@ export const routeGroups: RouteGroup[] = [
         href: "/lecturer/projects",
         color: "text-violet-500",
       },
-      {
-        label: "Bài tập & Deadline",
-        icon: Layers,
-        href: "/lecturer/assignments",
-        color: "text-orange-500",
-      },
+      // {
+      //   label: "Bài tập & Deadline",
+      //   icon: Layers,
+      //   href: "/lecturer/assignments",
+      //   color: "text-orange-500",
+      // },
       {
         label: "Cấu hình môn học",
         icon: Settings2,

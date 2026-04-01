@@ -18,7 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Pencil, MoreVertical, Trash2, X } from "lucide-react";
+import { Loader2, Pencil, Play, MoreVertical, Trash2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type ViewMode = "week" | "month";
 
@@ -36,10 +37,13 @@ interface SprintTimelineViewProps {
   isLeader?: boolean;
   onEditSprint?: (sprint: SprintItem) => void;
   onDeleteSprint?: (sprint: SprintItem) => void;
+  /** POST /sprints/:id/start — body lấy từ start/end của sprint */
+  onStartSprint?: (sprint: SprintItem) => void | Promise<void>;
+  isStartingSprint?: boolean;
 }
 
 /** Parse date string (ISO hoặc yyyy-MM-dd) thành Date */
-function parseDate(str: string | undefined): Date | null {
+export function parseDate(str: string | undefined): Date | null {
   if (!str) return null;
   try {
     const d = str.includes("T") ? parseISO(str) : new Date(str + "T00:00:00");
@@ -77,7 +81,22 @@ function getStateBadgeColors(state?: string) {
   }
 }
 
-export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, onDeleteSprint }: SprintTimelineViewProps) {
+function canStartSprint(sprint: SprintItem) {
+  return (
+    sprint.state === "future" &&
+    !sprint.isCompleted &&
+    !!sprint.id
+  );
+}
+
+export function SprintTimelineView({
+  sprints,
+  isLeader = false,
+  onEditSprint,
+  onDeleteSprint,
+  onStartSprint,
+  isStartingSprint = false,
+}: SprintTimelineViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [weekOffset, setWeekOffset] = useState(0);
@@ -285,6 +304,24 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
                           Sắp tới
                         </span>
                       )}
+                      {isLeader && onStartSprint && canStartSprint(sprint) && (
+                        <button
+                          type="button"
+                          title="Bắt đầu sprint"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void Promise.resolve(onStartSprint(sprint)).catch(() => {});
+                          }}
+                          disabled={isStartingSprint}
+                          className="shrink-0 inline-flex items-center justify-center rounded-md p-1 text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 disabled:opacity-50"
+                        >
+                          {isStartingSprint ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Play className="h-3.5 w-3.5 fill-current" />
+                          )}
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div className="flex-1 relative min-h-[48px] px-1 py-2">
@@ -379,6 +416,24 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200/80">
                           Sắp tới
                         </span>
+                      )}
+                      {isLeader && onStartSprint && canStartSprint(sprint) && (
+                        <button
+                          type="button"
+                          title="Bắt đầu sprint"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void Promise.resolve(onStartSprint(sprint)).catch(() => {});
+                          }}
+                          disabled={isStartingSprint}
+                          className="shrink-0 inline-flex items-center justify-center rounded-md p-1 text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 disabled:opacity-50"
+                        >
+                          {isStartingSprint ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Play className="h-3.5 w-3.5 fill-current" />
+                          )}
+                        </button>
                       )}
                     </div>
                   </div>
@@ -502,6 +557,30 @@ export function SprintTimelineView({ sprints, isLeader = false, onEditSprint, on
                 </span>
               </div>
             </div>
+
+            {isLeader && onStartSprint && canStartSprint(zoomedSprint) && (
+              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <Button
+                  className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  onClick={async () => {
+                    try {
+                      await Promise.resolve(onStartSprint(zoomedSprint));
+                      setZoomedSprint(null);
+                    } catch {
+                      /* lỗi đã toast ở hook */
+                    }
+                  }}
+                  disabled={isStartingSprint}
+                >
+                  {isStartingSprint ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Play className="h-4 w-4 fill-current" />
+                  )}
+                  Bắt đầu sprint
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}

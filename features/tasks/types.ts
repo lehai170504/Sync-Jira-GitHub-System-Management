@@ -26,6 +26,8 @@ export type Task = {
   title: string;
   description?: string;
   assigneeId: string;
+  /** Tên người được giao từ API (hiển thị khi chưa khớp danh sách member local) */
+  assigneeName?: string;
   status: TaskStatus;
   storyPoints: number;
   priority: "Critical" | "High" | "Medium" | "Low";

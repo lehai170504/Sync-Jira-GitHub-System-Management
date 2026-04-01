@@ -14,13 +14,19 @@ import { AlertTriangle, Calendar, CheckCircle2, MoreHorizontal, Pencil, Trash2 }
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Member, StatusColumn, Task, TaskStatus } from "./types";
 
+function initialsFromDisplayName(name?: string) {
+  const s = (name || "").trim();
+  if (!s) return "NA";
+  const parts = s.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 type Props = {
   statusColumns: StatusColumn[];
   tasks: Task[];
   members: Member[];
   isTaskOverdue: (task: Task) => boolean;
-  isLeader: boolean;
-  currentUserId: string;
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
   onViewTask?: (task: Task) => void;
@@ -32,8 +38,6 @@ export function KanbanView({
   tasks,
   members,
   isTaskOverdue,
-  isLeader,
-  currentUserId,
   onEditTask,
   onDeleteTask,
   onViewTask,
@@ -129,9 +133,12 @@ export function KanbanView({
                 )}
                 {columnTasks.map((task) => {
                   const assignee = members.find((m) => m.id === task.assigneeId);
+                  const avatarInitials =
+                    assignee?.initials ??
+                    initialsFromDisplayName(task.assigneeName);
                   const overdue = isTaskOverdue(task);
-                  const canEdit = isLeader || task.assigneeId === currentUserId;
-                  const canDelete = isLeader || task.assigneeId === currentUserId;
+                  const canEdit = true;
+                  const canDelete = true;
                   const isDragging = draggedTaskId === task.id;
                   const isDone = task.status === "done";
                   return (
@@ -212,7 +219,7 @@ export function KanbanView({
                           <span className="text-muted-foreground mx-0.5">=</span>
                           <Avatar className="h-6 w-6 shrink-0 border">
                             <AvatarFallback className="text-[9px] bg-teal-500/20 text-teal-700 dark:bg-teal-400/20 dark:text-teal-300 font-semibold">
-                              {assignee?.initials ?? "NA"}
+                              {avatarInitials}
                             </AvatarFallback>
                           </Avatar>
                           {task.status === "done" && (

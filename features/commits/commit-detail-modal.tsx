@@ -7,9 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
@@ -130,70 +128,6 @@ export function CommitDetailModal({
                       <span className="text-xs font-semibold text-red-700">-{detail.totalDel}</span>
                     </div>
                   )}
-                </div>
-              </div>
-
-              <Separator className="bg-linear-to-r from-transparent via-border to-transparent" />
-
-              {/* FILES TABLE */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-purple-100 rounded">
-                    <GitCommit className="h-4 w-4 text-purple-600" />
-                  </div>
-                  <h3 className="text-sm font-semibold text-foreground">Files Changed</h3>
-                  {detail && (
-                    <Badge variant="secondary" className="ml-auto bg-purple-100 text-purple-700">
-                      {detail.files.length} files
-                    </Badge>
-                  )}
-                </div>
-                <div className="border-2 border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden bg-white dark:bg-slate-900">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-purple-50/50">
-                        <TableHead className="font-semibold">File Path</TableHead>
-                        <TableHead className="text-right font-semibold">+ Additions</TableHead>
-                        <TableHead className="text-right font-semibold">- Deletions</TableHead>
-                        <TableHead className="text-right font-semibold">Net Change</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {(!detail || detail.files.length === 0) && (
-                        <TableRow>
-                          <TableCell
-                            colSpan={4}
-                            className="text-center py-8 text-sm text-muted-foreground"
-                          >
-                            Không có dữ liệu chi tiết file.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                      {detail?.files.map((f) => (
-                        <TableRow
-                          key={f.path}
-                          className="hover:bg-purple-50/30 dark:hover:bg-slate-800/60"
-                        >
-                          <TableCell>
-                            <code className="text-xs font-mono text-purple-700 dark:text-purple-200 bg-purple-50 dark:bg-purple-950/40 px-2 py-1 rounded">
-                              {f.path}
-                            </code>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <span className="text-emerald-700 font-semibold text-sm">+{f.additions}</span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <span className="text-red-700 font-semibold text-sm">-{f.deletions}</span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <span className={`font-semibold text-sm ${f.additions - f.deletions >= 0 ? "text-emerald-700" : "text-red-700"}`}>
-                              {f.additions - f.deletions >= 0 ? "+" : ""}{f.additions - f.deletions}
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
                 </div>
               </div>
             </div>

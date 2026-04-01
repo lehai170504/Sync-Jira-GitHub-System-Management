@@ -90,3 +90,26 @@ export const deleteSprintApi = async (id: string): Promise<{ message?: string }>
   return data;
 };
 
+/**
+ * Payload khi bắt đầu sprint (theo Swagger)
+ */
+export interface StartSprintPayload {
+  start_date: string;
+  end_date: string;
+}
+
+/**
+ * POST /sprints/:id/start
+ * Bắt đầu sprint — body lấy từ ngày đã lưu của sprint
+ */
+export const startSprintApi = async (
+  sprintId: string,
+  payload: StartSprintPayload,
+): Promise<CreateSprintResponse> => {
+  const { data } = await axiosClient.post<CreateSprintResponse>(
+    `/sprints/${sprintId}/start`,
+    payload,
+  );
+  return data;
+};
+

@@ -12,8 +12,6 @@ type Props = {
   members: Member[];
   tasks: Task[];
   isTaskOverdue: (task: Task) => boolean;
-  isLeader: boolean;
-  currentUserId: string;
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
   onViewTask?: (task: Task) => void;
@@ -27,8 +25,6 @@ export function MemberTableView({
   members,
   tasks,
   isTaskOverdue,
-  isLeader,
-  currentUserId,
   onEditTask,
   onDeleteTask,
   onViewTask,
@@ -181,8 +177,8 @@ export function MemberTableView({
                   )}
                   {visibleTasks.map((task, index) => {
                   const overdue = isTaskOverdue(task);
-                  const canEdit = isLeader || task.assigneeId === currentUserId;
-                  const canDelete = isLeader || task.assigneeId === currentUserId;
+                  const canEdit = true;
+                  const canDelete = true;
                   return (
                     <div
                       key={`${task.id}-${index}`}

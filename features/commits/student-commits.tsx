@@ -234,7 +234,36 @@ export function LeaderCommits({
     });
   }, [fromDate, toDate, allCommits]);
 
-  const groupedMembers = useMemo(() => groupedCommitsData?.members_commits || [], [groupedCommitsData]);
+  const groupedMembersRaw = useMemo(
+    () => groupedCommitsData?.members_commits || [],
+    [groupedCommitsData],
+  );
+
+  /** Chỉ giữ bucket khớp TeamMember trong team — loại commit gán nhầm / author ngoài team (member undefined). */
+  const teamMemberDocIds = useMemo(
+    () => new Set(validMembers.map((m) => String(m._id))),
+    [validMembers],
+  );
+
+  const groupedMembers = useMemo(
+    () =>
+      groupedMembersRaw.filter((mc: any) => {
+        const mid = mc?.member?._id;
+        return !!mid && teamMemberDocIds.has(String(mid));
+      }),
+    [groupedMembersRaw, teamMemberDocIds],
+  );
+
+  const groupedSummaryDisplay = useMemo(() => {
+    const total_commits = groupedMembers.reduce(
+      (acc, mc: any) => acc + (mc?.commits?.length ?? 0),
+      0,
+    );
+    return {
+      total_members: groupedMembers.length,
+      total_commits,
+    };
+  }, [groupedMembers]);
 
   const groupedCommitsFlat: CommitItem[] = useMemo(() => {
     if (!groupedMembers.length) return [];
@@ -487,7 +516,7 @@ export function LeaderCommits({
                             Tổng thành viên
                           </div>
                           <div className="text-2xl font-black">
-                            {groupedCommitsData.summary.total_members}
+                            {groupedSummaryDisplay.total_members}
                           </div>
                         </div>
                         <div className="rounded-xl border border-slate-200/70 dark:border-slate-800 bg-muted/20 px-4 py-3">
@@ -495,7 +524,7 @@ export function LeaderCommits({
                             Tổng commits
                           </div>
                           <div className="text-2xl font-black">
-                            {groupedCommitsData.summary.total_commits}
+                            {groupedSummaryDisplay.total_commits}
                           </div>
                         </div>
                       </div>
@@ -533,10 +562,14 @@ export function LeaderCommits({
                   {groupedMembers.map((mc: any, idx: number) => {
                     const m = mc?.member;
                     const memberId = (m?._id as string) || `mc-${idx}`;
+                    const roster = validMembers.find(
+                      (vm) => String(vm._id) === String(m?._id),
+                    );
                     const displayName =
+                      roster?.student?.full_name ||
                       m?.student?.full_name ||
                       m?.github_username ||
-                      `Member ${m?._id?.slice(-4)}`;
+                      (m?._id ? `Thành viên …${String(m._id).slice(-4)}` : "Thành viên");
                     const initials =
                       displayName
                         .split(/\s+/)
@@ -594,7 +627,9 @@ export function LeaderCommits({
                                 {displayName}
                               </p>
                               <p className="text-xs text-muted-foreground truncate">
-                                {m?.student?.email ||
+                                {roster?.student?.email ||
+                                  m?.student?.email ||
+                                  roster?.student?.student_code ||
                                   m?.student?.student_code ||
                                   m?.github_username ||
                                   "—"}

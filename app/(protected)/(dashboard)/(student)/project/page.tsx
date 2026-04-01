@@ -37,6 +37,9 @@ import { syncProjectApi } from "@/features/integration/api/sync-api";
 import { getProjectGithubBranchesApi } from "@/features/integration/api/github-branches-api";
 import { exportSrsMarkdownApi } from "@/features/ai/api/export-srs-api";
 
+/** Giá trị dropdown: đồng bộ một lần toàn bộ nhánh (POST sync không gửi `branch`). */
+const ALL_BRANCHES_VALUE = "__all_branches__";
+
 export default function ProjectDetailsPage() {
   const classId = Cookies.get("student_class_id");
   const className = Cookies.get("student_class_name");
@@ -48,7 +51,9 @@ export default function ProjectDetailsPage() {
   const queryClient = useQueryClient();
   const [isSyncing, setIsSyncing] = useState(false);
   const [isExportingSrs, setIsExportingSrs] = useState(false);
-  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
+  const [selectedBranch, setSelectedBranch] = useState<
+    string | typeof ALL_BRANCHES_VALUE | null
+  >(null);
 
   // Lấy project phù hợp với lớp đang chọn (project đầu tiên match class_id)
   const project = useMemo(() => {
@@ -84,7 +89,9 @@ export default function ProjectDetailsPage() {
   });
 
   const displayBranch =
-    selectedBranch || branchesData?.branches?.[0] || "Git Branches";
+    selectedBranch === ALL_BRANCHES_VALUE
+      ? "Tất cả nhánh"
+      : selectedBranch || branchesData?.branches?.[0] || "Git Branches";
 
   useEffect(() => {
     setSelectedBranch(null);
@@ -98,8 +105,14 @@ export default function ProjectDetailsPage() {
 
     try {
       setIsSyncing(true);
-      const branch = displayBranch && displayBranch !== "Git Branches" ? displayBranch : undefined;
-      const res = await syncProjectApi(project._id, branch ? { branch } : undefined);
+      const syncAllBranches = selectedBranch === ALL_BRANCHES_VALUE;
+      const singleBranch =
+        !syncAllBranches &&
+        (selectedBranch ?? branchesData?.branches?.[0] ?? undefined);
+      const res = await syncProjectApi(
+        project._id,
+        syncAllBranches || !singleBranch ? {} : { branch: singleBranch },
+      );
 
       const { github, jira, errors = [] } = res.stats || {};
       const description =
@@ -289,28 +302,49 @@ export default function ProjectDetailsPage() {
                     Đang tải...
                   </DropdownMenuItem>
                 )}
-                {!isBranchesLoading &&
-                  (branchesData?.branches?.length ? (
-                    branchesData.branches.map((branch) => (
-                      <DropdownMenuItem
-                        key={branch}
-                        className="text-xs cursor-pointer"
-                        onSelect={() => setSelectedBranch(branch)}
-                      >
-                        {branch}
-                        {displayBranch === branch && (
-                          <Check className="ml-auto h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                        )}
-                      </DropdownMenuItem>
-                    ))
-                  ) : (
+                {!isBranchesLoading && (
+                  <>
                     <DropdownMenuItem
-                      disabled
-                      className="text-xs text-slate-400 dark:text-slate-500"
+                      className="text-xs cursor-pointer font-medium"
+                      onSelect={() => setSelectedBranch(ALL_BRANCHES_VALUE)}
                     >
-                      Không có branch nào
+                      Tất cả nhánh
+                      {selectedBranch === ALL_BRANCHES_VALUE && (
+                        <Check className="ml-auto h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      )}
                     </DropdownMenuItem>
-                  ))}
+                    {branchesData?.branches?.length ? (
+                      <>
+                        <DropdownMenuSeparator />
+                        {branchesData.branches.map((branch) => {
+                          const activeSingle =
+                            selectedBranch === ALL_BRANCHES_VALUE
+                              ? null
+                              : selectedBranch ?? branchesData.branches[0];
+                          return (
+                            <DropdownMenuItem
+                              key={branch}
+                              className="text-xs cursor-pointer"
+                              onSelect={() => setSelectedBranch(branch)}
+                            >
+                              {branch}
+                              {activeSingle === branch && (
+                                <Check className="ml-auto h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                              )}
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <DropdownMenuItem
+                        disabled
+                        className="text-xs text-slate-400 dark:text-slate-500"
+                      >
+                        Không có branch nào (vẫn có thể đồng bộ tất cả nhánh)
+                      </DropdownMenuItem>
+                    )}
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}

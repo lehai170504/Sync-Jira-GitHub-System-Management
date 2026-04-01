@@ -257,6 +257,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         "my-commits",
         "integration-team-commits-grouped",
         "jira-issue-commits",
+        // Leader overview: useTeamDashboard — overview.commits / thống kê
+        "team-dashboard",
+        // Trang tiến độ / ranking (mobile cũng invalidate team-ranking)
+        "team-ranking",
       ]);
 
       if (typeof window !== "undefined") {
@@ -318,6 +322,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
           "team-all-tasks",
           "member-tasks",
           "my-tasks",
+          // LeaderOverviewTab — danh sách task từ API tổng hợp
+          "my-tasks-response",
         ]);
       }
 

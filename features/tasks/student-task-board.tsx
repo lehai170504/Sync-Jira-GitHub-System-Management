@@ -49,6 +49,7 @@ import { useMyTasks } from "@/features/integration/hooks/use-my-tasks";
 import { useTeamDetail } from "@/features/student/hooks/use-team-detail";
 import { TaskDetailSheet } from "./task-detail-sheet";
 import { useSocket } from "@/components/providers/socket-provider";
+import { getTeamAllTasksApi } from "@/features/integration/api/team-all-tasks-api";
 
 export function TaskBoard() {
   const { isConnected, socket } = useSocket();
@@ -64,6 +65,36 @@ export function TaskBoard() {
   const [selectedAssigneeFilter, setSelectedAssigneeFilter] = useState<string>("all");
   const lastJiraRefetchAtRef = useRef<number | null>(null);
   const [rtJiraUpdateSeq, setRtJiraUpdateSeq] = useState(0);
+  const selectedPrintRef = useRef(selectedPrint);
+  const isAllSprintsRef = useRef(isAllSprints);
+  const isLeaderRef = useRef(isLeaderState);
+  const selectedAssigneeFilterRef = useRef(selectedAssigneeFilter);
+  const lastAutoSwitchAllSprintsAtRef = useRef<number>(0);
+
+  // Resolve teamId giống trang /commits và /config (đưa lên trước để dùng trong effects realtime)
+  const classId = Cookies.get("student_class_id") || "";
+  const myTeamName = Cookies.get("student_team_name");
+  // Ưu tiên teamId đã được lưu ở cookie (tránh join nhầm room do student_team_name chưa kịp sync)
+  const cookieTeamId =
+    Cookies.get("student_team_id") || Cookies.get("lecturer_team_id") || "";
+  const { data: teamsData } = useClassTeams(classId);
+  const myTeamInfo = teamsData?.teams?.find((t: any) => t.project_name === myTeamName);
+  const isCookieTeamIdValidInThisClass = useMemo(() => {
+    if (!cookieTeamId) return false;
+    const teams = teamsData?.teams || [];
+    return teams.some((t: any) => t?._id === cookieTeamId);
+  }, [cookieTeamId, teamsData]);
+  const resolvedTeamId =
+    (isCookieTeamIdValidInThisClass ? cookieTeamId : "") ||
+    myTeamInfo?._id ||
+    teamsData?.teams?.[0]?._id;
+
+  useEffect(() => {
+    selectedPrintRef.current = selectedPrint;
+    isAllSprintsRef.current = isAllSprints;
+    isLeaderRef.current = isLeaderState;
+    selectedAssigneeFilterRef.current = selectedAssigneeFilter;
+  }, [selectedPrint, isAllSprints, isLeaderState, selectedAssigneeFilter]);
 
   // Fallback/refetch chắc ăn cho Kanban:
   // SocketProvider luôn dispatch `rt:jira-issue-updated` khi nhận `JIRA_ISSUE_UPDATED`,
@@ -100,6 +131,36 @@ export function TaskBoard() {
       const last = lastJiraRefetchAtRef.current;
       if (last != null && now - last < 1200) return;
       lastJiraRefetchAtRef.current = now;
+
+      // Nếu đang filter theo sprint, việc refetch theo sprint có thể làm "mất" task
+      // khi task bị update sang trạng thái "không thuộc sprint" / sprint khác.
+      // UX: auto chuyển sang "All Sprints" để user không tưởng là task bị xóa.
+      if (
+        !isAllSprintsRef.current &&
+        isLeaderRef.current &&
+        selectedAssigneeFilterRef.current === "all"
+      ) {
+        const lastSwitch = lastAutoSwitchAllSprintsAtRef.current;
+        if (now - lastSwitch > 4000) {
+          lastAutoSwitchAllSprintsAtRef.current = now;
+          setSelectedPrint(ALL_SPRINTS_ID);
+          // Prefetch ngay data "All Sprints" để tránh trạng thái rỗng/ẩn task sau khi switch filter.
+          // (Hook `useTeamAllTasks` sẽ reuse cache key này.)
+          if (resolvedTeamId) {
+            queryClient
+              .fetchQuery({
+                queryKey: ["team-all-tasks", resolvedTeamId],
+                queryFn: () => getTeamAllTasksApi(resolvedTeamId),
+              })
+              .catch(() => {
+                // ignore (toast sẽ được handle ở UI error state nếu cần)
+              });
+          }
+          toast.message("Kanban vừa có cập nhật từ Jira", {
+            description: "Đã tự chuyển filter sang 'All Sprints' để tránh task bị ẩn theo sprint.",
+          });
+        }
+      }
 
       // Optimistic update ngay lập tức để Kanban "nhảy liền"
       // dù API có thể trễ vài giây sau khi webhook emit.
@@ -143,7 +204,7 @@ export function TaskBoard() {
       if (t1) window.clearTimeout(t1);
       if (t2) window.clearTimeout(t2);
     };
-  }, [queryClient]);
+  }, [queryClient, resolvedTeamId]);
 
   // Bắt trực tiếp socket event tại /tasks để tránh phụ thuộc bridge window event.
   useEffect(() => {
@@ -205,15 +266,7 @@ export function TaskBoard() {
     name: string;
     subtitle?: string; // task key (e.g. PROJ-123) cho task
   } | null>(null);
-  // Resolve teamId giống trang /commits và /config
-  const classId = Cookies.get("student_class_id") || "";
-  const myTeamName = Cookies.get("student_team_name");
-  // Ưu tiên teamId đã được lưu ở cookie (tránh join nhầm room do student_team_name chưa kịp sync)
-  const cookieTeamId =
-    Cookies.get("student_team_id") || Cookies.get("lecturer_team_id") || "";
-  const { data: teamsData } = useClassTeams(classId);
-  const myTeamInfo = teamsData?.teams?.find((t: any) => t.project_name === myTeamName);
-  const resolvedTeamId = cookieTeamId || myTeamInfo?._id || teamsData?.teams?.[0]?._id;
+  // (moved above)
 
   // Đảm bảo room team luôn được join tại chính trang /tasks
   // để nhận event realtime emit theo team room.
@@ -226,6 +279,15 @@ export function TaskBoard() {
 
   const { data: teamDetailData } = useTeamDetail(resolvedTeamId);
   const projectId = teamDetailData?.project?._id;
+
+  // BE contract mới: task realtime phát theo room project:<projectId>
+  useEffect(() => {
+    if (!isConnected || !projectId) return;
+    const normalizedProjectId = String(projectId).replace(/^project:/, "");
+    socket.emit("join_project", normalizedProjectId);
+    socket.emit("joinProject", normalizedProjectId);
+    Cookies.set("student_project_id", normalizedProjectId);
+  }, [isConnected, projectId, socket]);
 
   // Fetch sprints từ Jira
   const { data: teamSprintsData, isLoading: isSprintsLoading } = useTeamSprints(resolvedTeamId);

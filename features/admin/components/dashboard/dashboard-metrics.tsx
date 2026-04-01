@@ -1,43 +1,42 @@
-// src/features/admin/components/dashboard/dashboard-metrics.tsx
 "use client";
 
-import { Activity, FolderGit2, Layers, Users } from "lucide-react";
+import { Activity, BookOpen, Presentation, Users } from "lucide-react";
 import { MetricCard } from "./metric-card";
 
-export function DashboardMetrics() {
+export function DashboardMetrics({ metrics }: { metrics?: any }) {
   return (
     <div id="metrics-grid" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <MetricCard
-        title="Tổng người dùng"
-        value="2,543"
-        change="+12.5%"
-        trend="up"
-        icon={Users}
-        desc="So với tháng trước"
+        title="Tổng Môn học"
+        value={metrics?.total_subjects || 0}
+        change="Đang Active"
+        trend="neutral"
+        icon={BookOpen}
+        desc="Sẵn sàng giảng dạy"
       />
       <MetricCard
-        title="Lớp học Active"
-        value="128"
-        change="+4"
+        title="Tổng Lớp học"
+        value={metrics?.total_classes || 0}
+        change="Đang Active"
         trend="up"
-        icon={Layers} // Changed from School to Layers based on availability
+        icon={Presentation}
         desc="Đang diễn ra học kỳ này"
       />
       <MetricCard
-        title="Dự án Capstone"
-        value="45"
-        change="-2"
-        trend="down"
-        icon={FolderGit2}
-        desc="Dự án đang chạy"
+        title="Người dùng Hệ thống"
+        value={metrics?.total_users || 0}
+        change="Verified"
+        trend="up"
+        icon={Users}
+        desc="Đã liên kết FPT Email"
       />
       <MetricCard
-        title="Tải hệ thống"
-        value="34%"
-        change="Ổn định"
+        title="Tình trạng Server"
+        value="Ổn định"
+        change="Tải 23%"
         trend="neutral"
         icon={Activity}
-        desc="CPU Usage trung bình"
+        desc="Mức CPU trung bình"
       />
     </div>
   );

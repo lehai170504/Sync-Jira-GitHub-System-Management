@@ -134,7 +134,7 @@ export function TaskDetailSheet({
                   </div>
                   {(task.sprintName || task.printId) && (
                     <div className="flex items-center gap-3 flex-wrap py-1">
-                      <span className="text-sm text-muted-foreground min-w-[100px]">Sprint:</span>
+                      <span className="text-sm text-muted-foreground min-w-[120px]">Tên sprint:</span>
                       <span className="font-medium text-foreground">{task.sprintName || task.printId}</span>
                       {task.sprintState && (
                         <Badge

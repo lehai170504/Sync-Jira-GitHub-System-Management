@@ -1,4 +1,5 @@
-"use client";
+export const dynamic = "force-dynamic";
+("use client");
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -58,8 +59,6 @@ import { TeamMemberBreakdown } from "@/features/lecturer/types/dashboard-types";
 import { TeamReviewsTab } from "@/features/management/classes/components/lecturer/team-reviews-tab";
 import { TeamGithubTab } from "@/features/lecturer/components/team/team-github-tab";
 import { TeamJiraTab } from "@/features/lecturer/components/team/team-jira-tab";
-
-export const dynamic = "force-dynamic";
 
 const clampScore0To10 = (value: unknown) => {
   const n = Number(value);

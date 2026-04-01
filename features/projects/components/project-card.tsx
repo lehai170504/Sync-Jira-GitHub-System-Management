@@ -21,7 +21,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
   // Ép kiểu an toàn để lấy team_id
   const rawTeamId = (project as any).team_id;
-  const actualTeamId =
+  const teamId =
     typeof rawTeamId === "object" && rawTeamId !== null
       ? rawTeamId._id
       : rawTeamId;
@@ -33,10 +33,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
       : "Nhóm dự án";
 
   const handleOpenDetail = () => {
-    if (actualTeamId) {
-      // 👇 CHỈ CẦN SỬA Ở ĐÂY: Push thẳng sang route trang chi tiết đồ án
-      // Chú ý sửa lại đường dẫn này nếu cấu trúc thư mục của bạn khác
-      router.push(`/lecturer/projects/${actualTeamId}`);
+    if (teamId) {
+      router.push(`/lecturer/projects/${teamId}`);
     }
   };
 

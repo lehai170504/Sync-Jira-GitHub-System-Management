@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FolderPlus,
   Users,
@@ -8,6 +8,7 @@ import {
   Trello,
   Loader2,
   CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import {
   Dialog,
@@ -31,6 +32,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 
 // --- FORM IMPORTS ---
@@ -82,6 +84,10 @@ export function AddProjectDialog({
   const projects = Array.isArray(jiraData)
     ? jiraData
     : (jiraData as any)?.projects || [];
+  const unenrolledMembers = useMemo(
+    () => members.filter((m) => m.status !== "Enrolled"),
+    [members],
+  );
 
   // 1. Setup Form
   const form = useForm<AddProjectFormValues>({
@@ -98,6 +104,7 @@ export function AddProjectDialog({
   useEffect(() => {
     if (open && members) {
       const validIds = members
+        .filter((m) => m.status === "Enrolled")
         .map((m) => m._id)
         .filter((id): id is string => !!id);
 
@@ -112,6 +119,16 @@ export function AddProjectDialog({
 
   // 3. Handle Submit
   const onSubmit = (data: AddProjectFormValues) => {
+    if (unenrolledMembers.length > 0) {
+      const names = unenrolledMembers
+        .map((m) => m.full_name || m.student_code)
+        .slice(0, 3)
+        .join(", ");
+      toast.error("Không thể tạo project", {
+        description: `Nhóm còn thành viên chưa tạo tài khoản: ${names}${unenrolledMembers.length > 3 ? "..." : ""}`,
+      });
+      return;
+    }
     createProject(
       {
         name: data.name,
@@ -161,6 +178,14 @@ export function AddProjectDialog({
           >
             <ScrollArea className="flex-1 px-8 py-2 custom-scrollbar">
               <div className="grid gap-6 py-4">
+                {unenrolledMembers.length > 0 && (
+                  <Alert className="border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40">
+                    <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-300" />
+                    <AlertDescription className="text-amber-800 dark:text-amber-200">
+                      Không thể tạo project khi nhóm còn thành viên chưa đăng ký tài khoản.
+                    </AlertDescription>
+                  </Alert>
+                )}
                 {/* FIELD: Tên dự án */}
                 <FormField
                   control={form.control}
@@ -357,7 +382,7 @@ export function AddProjectDialog({
               </Button>
               <Button
                 type="submit"
-                disabled={isPending}
+                disabled={isPending || unenrolledMembers.length > 0}
                 className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-xl font-bold text-sm h-11 transition-all active:scale-[0.98]"
               >
                 {isPending ? (

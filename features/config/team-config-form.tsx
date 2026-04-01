@@ -19,6 +19,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useUpdateTeamConfig } from "@/features/management/teams/hooks/use-update-team-config";
 import { UpdateTeamConfigPayload } from "@/features/management/teams/types";
 import { useTeamDetail } from "@/features/student/hooks/use-team-detail";
+import { teamConfigSchema } from "@/features/management/teams/schemas/team-config-schema";
 import {
   syncTeamApi,
   getSyncHistoryApi,
@@ -141,7 +142,12 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
     if (!teamId) {
       return;
     }
-    updateConfig(formData, {
+    const parsed = teamConfigSchema.safeParse(formData);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || "Cấu hình chưa hợp lệ");
+      return;
+    }
+    updateConfig(parsed.data, {
       onSuccess: () => {
         if (isEditMode) setIsEditMode(false);
       },
@@ -471,7 +477,10 @@ export function TeamConfigForm({ teamId }: TeamConfigFormProps) {
               type="number"
               placeholder="1"
               value={formData.jira_board_id}
-              onChange={(e) => handleChange("jira_board_id", parseInt(e.target.value) || 1)}
+              onChange={(e) => {
+                const n = Number(e.target.value);
+                handleChange("jira_board_id", Number.isFinite(n) ? Math.trunc(n) : 0);
+              }}
               required
               min="1"
             />

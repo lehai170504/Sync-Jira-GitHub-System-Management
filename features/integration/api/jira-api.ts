@@ -30,7 +30,7 @@ export const getJiraProjectsApi = async (): Promise<JiraProject[]> => {
   const { data } = await axiosClient.get<JiraProjectsResponse>(
     "/integrations/jira/projects",
   );
-  return data.projects;
+  return Array.isArray(data?.projects) ? data.projects : [];
 };
 
 export const disconnectJiraApi = async () => {

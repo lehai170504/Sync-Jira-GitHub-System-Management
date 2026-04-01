@@ -29,6 +29,7 @@ import {
   Layers,
   Crown,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,11 +50,13 @@ import {
 
 interface AddStudentDialogProps {
   classId: string;
+  students: Array<{ student_code: string; email: string }>;
   onSuccess?: () => void;
 }
 
 export function AddStudentDialog({
   classId,
+  students,
   onSuccess,
 }: AddStudentDialogProps) {
   const [open, setOpen] = useState(false);
@@ -71,6 +74,20 @@ export function AddStudentDialog({
   });
 
   const onSubmit = (data: AddStudentFormValues) => {
+    const normalizedCode = data.code.trim().toLowerCase();
+    const normalizedEmail = data.email.trim().toLowerCase();
+    const duplicated = students.find(
+      (s) =>
+        (s.student_code || "").trim().toLowerCase() === normalizedCode ||
+        (s.email || "").trim().toLowerCase() === normalizedEmail,
+    );
+    if (duplicated) {
+      toast.warning("Sinh viên đã tồn tại trong lớp", {
+        description: "MSSV hoặc email này đã có trong danh sách lớp.",
+      });
+      return;
+    }
+
     const groupValue = parseInt(data.group, 10);
 
     addStudent(

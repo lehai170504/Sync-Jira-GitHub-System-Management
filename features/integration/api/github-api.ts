@@ -31,7 +31,7 @@ export const getGithubReposApi = async (): Promise<GithubRepo[]> => {
     "/integrations/github/repos",
   );
 
-  return data.repos;
+  return Array.isArray(data?.repos) ? data.repos : [];
 };
 
 export const disconnectGithubApi = async () => {

@@ -7,6 +7,7 @@ import { SocketProvider } from "@/components/providers/socket-provider";
 import { FCMTokenProvider } from "@/components/providers/fcm-token-provider";
 import { RoleGuard } from "@/components/providers/role-guard";
 import { WebhookOAuthRelinkAlert } from "@/features/auth/components/webhook-oauth-relink-alert";
+import { MissingIntegrationsAlert } from "@/features/auth/components/missing-integrations-alert";
 import { AiChatWidget } from "@/features/ai/components/ai-chat-widget";
 
 // 1. Import ThemeProvider (đã tạo ở bước trước)
@@ -28,6 +29,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           disableTransitionOnChange
         >
           <WebhookOAuthRelinkAlert />
+          <MissingIntegrationsAlert />
           <AiChatWidget />
           <SocketProvider>
             <FCMTokenProvider>{children}</FCMTokenProvider>

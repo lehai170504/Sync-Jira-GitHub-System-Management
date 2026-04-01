@@ -6,6 +6,10 @@ import { RegisterFormData } from "@/features/auth/types";
 import { useRequestOtp, useRegister } from "@/features/auth/hooks/use-register";
 import { RegisterStep1 } from "./register-step1";
 import { RegisterStep2 } from "./register-step2";
+import {
+  registerStep1Schema,
+  registerStep2Schema,
+} from "@/features/auth/schemas/auth-form-schemas";
 
 interface Props {
   onSwitchToLogin: () => void;
@@ -27,7 +31,10 @@ export function RegisterFormContainer({ onSwitchToLogin }: Props) {
   const { mutate: requestOtp, isPending: isOtpLoading } = useRequestOtp(() =>
     setStep(2),
   );
-  const { mutate: register, isPending: isRegisterLoading } = useRegister();
+  const { mutate: register, isPending: isRegisterLoading } = useRegister(() => {
+    setStep(1);
+    onSwitchToLogin();
+  });
 
   const updateFormData = (field: keyof RegisterFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -35,30 +42,33 @@ export function RegisterFormContainer({ onSwitchToLogin }: Props) {
 
   const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.email) {
-      toast.warning("Vui lòng nhập email");
+    const parsed = registerStep1Schema.safeParse({ email: formData.email });
+    if (!parsed.success) {
+      toast.warning(parsed.error.issues[0]?.message || "Email không hợp lệ");
       return;
     }
-    requestOtp({ email: formData.email });
+    requestOtp({ email: parsed.data.email });
   };
 
   const handleStep2Submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Mật khẩu xác nhận không khớp!");
+    const parsed = registerStep2Schema.safeParse(formData);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || "Dữ liệu đăng ký không hợp lệ");
       return;
     }
-    const finalAvatar = formData.avatarUrl.trim()
-      ? formData.avatarUrl.trim()
-      : `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.fullName}`;
+    const payload = parsed.data;
+    const finalAvatar = payload.avatarUrl
+      ? payload.avatarUrl
+      : `https://api.dicebear.com/7.x/avataaars/svg?seed=${payload.fullName}`;
 
     register({
       email: formData.email,
-      otp_code: formData.otp,
-      full_name: formData.fullName,
-      student_code: formData.studentCode.toUpperCase(),
-      password: formData.password,
-      role: formData.role,
+      otp_code: payload.otp,
+      full_name: payload.fullName,
+      student_code: payload.studentCode.toUpperCase(),
+      password: payload.password,
+      role: payload.role,
       avatar_url: finalAvatar,
     });
   };

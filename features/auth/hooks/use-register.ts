@@ -27,7 +27,7 @@ export const useRequestOtp = (onSuccessCallback: () => void) => {
 };
 
 // Hook cho Bước 2: Đăng ký
-export const useRegister = () => {
+export const useRegister = (onSuccessCallback?: () => void) => {
   const router = useRouter();
 
   return useMutation({
@@ -36,7 +36,8 @@ export const useRegister = () => {
       toast.success("Đăng ký tài khoản thành công!", {
         description: "Bạn có thể đăng nhập ngay bây giờ.",
       });
-      router.push("/login"); // Chuyển về trang login
+      onSuccessCallback?.();
+      router.replace("/login"); // Chuyển về trang login
     },
     onError: (error: any) => {
       const msg =

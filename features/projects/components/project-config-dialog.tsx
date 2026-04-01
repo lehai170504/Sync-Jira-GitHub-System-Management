@@ -31,6 +31,8 @@ import {
 } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUpdateTeamConfig } from "../hooks/use-update-config";
+import { toast } from "sonner";
+import { teamConfigSchema } from "@/features/management/teams/schemas/team-config-schema";
 
 interface ProjectConfigDialogProps {
   teamId: string;
@@ -59,11 +61,17 @@ export function ProjectConfigDialog({
   const { mutate: updateConfig, isPending } = useUpdateTeamConfig(teamId);
 
   const handleSubmit = () => {
+    const parsed = teamConfigSchema.safeParse({
+      ...formData,
+      jira_project_key: formData.jira_project_key.toUpperCase().trim(),
+      jira_board_id: Number(formData.jira_board_id),
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || "Cấu hình chưa hợp lệ");
+      return;
+    }
     updateConfig(
-      {
-        ...formData,
-        jira_board_id: Number(formData.jira_board_id),
-      },
+      parsed.data,
       {
         onSuccess: () => setOpen(false),
       },

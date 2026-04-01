@@ -3,6 +3,7 @@
 import { GraduationCap } from "lucide-react";
 import { StudentImport } from "./lecturer/student-import";
 import { AddStudentDialog } from "./lecturer/add-student-dialog";
+import { ClassStudent } from "@/features/management/classes/types/class-types";
 
 interface ClassHeaderProps {
   className: string;
@@ -10,6 +11,7 @@ interface ClassHeaderProps {
   subjectCode: string;
   semesterName: string;
   classId: string;
+  students: ClassStudent[];
   isConnected: boolean;
   onRefresh: () => void;
 }
@@ -20,6 +22,7 @@ export function ClassHeader({
   subjectCode,
   semesterName,
   classId,
+  students,
   isConnected,
   onRefresh,
 }: ClassHeaderProps) {
@@ -47,8 +50,8 @@ export function ClassHeader({
       </div>
 
       <div className="flex items-center gap-3 shrink-0">
-        <StudentImport classId={classId} onSuccess={onRefresh} />
-        <AddStudentDialog classId={classId} onSuccess={onRefresh} />
+        <StudentImport classId={classId} students={students} onSuccess={onRefresh} />
+        <AddStudentDialog classId={classId} students={students} onSuccess={onRefresh} />
       </div>
     </div>
   );

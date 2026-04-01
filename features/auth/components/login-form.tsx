@@ -11,6 +11,7 @@ import { useRive, useStateMachineInput } from "@rive-app/react-canvas";
 
 import { useLogin } from "@/features/auth/hooks/use-login";
 import { useGoogleLogin } from "@/features/auth/hooks/use-auth";
+import { loginSchema } from "@/features/auth/schemas/auth-form-schemas";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -59,13 +60,14 @@ export function LoginForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.warning("Vui lòng nhập đầy đủ thông tin.");
+    const parsed = loginSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      toast.warning(parsed.error.issues[0]?.message || "Thông tin đăng nhập không hợp lệ.");
       trigFail && trigFail.fire();
       return;
     }
     login(
-      { email, password },
+      parsed.data,
       {
         onSuccess: () => trigSuccess && trigSuccess.fire(),
         onError: () => trigFail && trigFail.fire(),
@@ -74,14 +76,14 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-[400px] mx-auto font-mono flex flex-col items-center">
+    <div className="w-full max-w-[400px] mx-auto font-mono flex flex-col items-center overflow-visible">
       {/* 1. LINH VẬT TEDDY */}
-      <div className="h-[180px] w-[180px] relative mb-4 drop-shadow-xl flex-shrink-0">
+      <div className="h-[230px] w-[230px] relative z-20 mb-2 drop-shadow-xl shrink-0 overflow-visible">
         <RiveComponent className="w-full h-full object-contain" />
       </div>
 
       {/* 2. TIÊU ĐỀ */}
-      <div className="text-center mb-8 space-y-1 w-full relative z-10">
+      <div className="text-center mb-8 space-y-1 w-full relative z-0">
         <h1 className="text-xl font-black tracking-tighter text-slate-900 dark:text-slate-100 uppercase italic transition-colors">
           Đăng nhập hệ thống
         </h1>

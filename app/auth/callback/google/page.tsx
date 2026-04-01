@@ -7,6 +7,12 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
+const isValidOAuthToken = (value: string | null): value is string => {
+  if (!value) return false;
+  const token = value.trim();
+  return token.length >= 20 && token.length <= 4096 && !/\s/.test(token);
+};
+
 // 1. Component con chứa toàn bộ logic xử lý params
 function GoogleCallbackContent() {
   const searchParams = useSearchParams();
@@ -20,7 +26,7 @@ function GoogleCallbackContent() {
 
     const token = searchParams.get("token");
     const refreshToken = searchParams.get("refreshToken");
-    const error = searchParams.get("error");
+    const error = searchParams.get("error")?.trim();
 
     if (error) {
       toast.error("Đăng nhập thất bại hoặc bị từ chối.");
@@ -28,9 +34,9 @@ function GoogleCallbackContent() {
       return;
     }
 
-    if (token) {
+    if (isValidOAuthToken(token)) {
       Cookies.set("token", token, { path: "/", expires: 1 });
-      if (refreshToken) {
+      if (isValidOAuthToken(refreshToken)) {
         Cookies.set("refreshToken", refreshToken, { path: "/", expires: 7 });
       }
 
@@ -40,6 +46,7 @@ function GoogleCallbackContent() {
       // console.log(token)
       window.location.href = "/courses";
     } else {
+      toast.error("Token đăng nhập không hợp lệ. Vui lòng thử lại.");
       router.push("/login");
     }
   }, [searchParams, router, queryClient]);

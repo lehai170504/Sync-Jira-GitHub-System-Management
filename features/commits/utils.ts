@@ -8,15 +8,15 @@ export function getValidation(commit: {
   if (commit.rejection_reason) {
     return {
       status: "rejected",
-      label: "Bị loại",
+      label: "Penalty",
       reason: commit.rejection_reason,
     };
   }
   if (commit.is_counted === false) {
     return {
       status: "rejected",
-      label: "Bị loại",
-      reason: "Commit không được tính điểm.",
+      label: "Penalty",
+      reason: "Commit bị trừ điểm theo chính sách chất lượng.",
     };
   }
   if (commit.is_counted === true) {

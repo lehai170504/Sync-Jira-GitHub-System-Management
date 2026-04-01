@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-// Bỏ import Cookies vì không cần thiết ở file này nữa
 import { Loader2, Save, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -17,11 +16,9 @@ interface GradingConfigProps {
 }
 
 export function GradingConfig({ classId }: GradingConfigProps) {
-  // ĐÃ XÓA DÒNG CONST CLASSID Ở ĐÂY VÌ ĐÃ CÓ TỪ PROPS
   const { mutate: updateConfig, isPending } = useUpdateGradingConfig(classId);
 
   // State
-  // TODO: Bạn nên thêm hook useGetGradingConfig(classId) để lấy dữ liệu ban đầu từ API
   const [gradeStructure, setGradeStructure] = useState<GradeColumn[]>([
     { name: "Assignment 1", weight: 0.2, isGroupGrade: false },
     { name: "Assignment 2", weight: 0.3, isGroupGrade: false },
@@ -56,7 +53,13 @@ export function GradingConfig({ classId }: GradingConfigProps) {
         `Tổng trọng số đánh giá nhóm phải bằng 100%. Hiện tại: ${totalContrib}%`
       );
 
-    updateConfig({ gradeStructure, contributionConfig: contribution });
+    // FIX: Truyền trực tiếp state contribution (chứa 4 trường) vào payload
+    updateConfig({
+      jiraWeight: contribution.jiraWeight,
+      gitWeight: contribution.gitWeight,
+      reviewWeight: contribution.reviewWeight,
+      allowOverCeiling: contribution.allowOverCeiling,
+    });
   };
 
   return (

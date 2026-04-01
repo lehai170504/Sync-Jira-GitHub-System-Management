@@ -9,8 +9,9 @@ export const updateGradingConfigApi = async (
   classId: string,
   payload: GradingConfigPayload
 ): Promise<GradingConfigResponse> => {
+  // Sửa lại endpoint cho chuẩn với tài liệu Backend
   const { data } = await axiosClient.put(
-    `/management/classes/${classId}/grading-config`,
+    `/academic/classes/${classId}/contribution-config`,
     payload
   );
   return data;

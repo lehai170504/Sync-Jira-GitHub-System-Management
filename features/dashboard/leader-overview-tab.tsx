@@ -191,7 +191,7 @@ export function LeaderOverviewTab() {
   ];
 
   const commitData = [
-    { name: "Counted", value: commits.counted },
+    { name: "Tính", value: commits.counted },
     {
       name: "Chưa tính",
       value: Math.max(0, commits.total - commits.counted),

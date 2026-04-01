@@ -152,7 +152,7 @@ export default function DashboardLayout({
 
       {/* --- OMNI AGENT CHAT BOT --- */}
       {/* Chỉ render nếu đang có classId (tức là giảng viên đang ở trong ngữ cảnh 1 lớp cụ thể) */}
-      {activeClassId && <OmniAgentChat classId={activeClassId} />}
+      {/* {activeClassId && <OmniAgentChat classId={activeClassId} />} */}
     </div>
   );
 }

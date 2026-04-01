@@ -248,7 +248,7 @@ export default function LeaderProgressPage() {
         <Card className="md:col-span-3 shadow-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <CardHeader>
             <CardTitle className="text-base">
-              Tiến độ theo thành viên (% hoàn thành) & % đóng góp (AI)
+              Tiến độ theo thành viên (% hoàn thành) & % đóng góp
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -292,7 +292,7 @@ export default function LeaderProgressPage() {
                   />
                   <Bar
                     dataKey="contribution"
-                    name="Đóng góp (AI) (%)"
+                    name="Đóng góp (%)"
                     radius={[4, 4, 0, 0]}
                     fill="#10B981"
                     barSize={32}
@@ -351,7 +351,7 @@ export default function LeaderProgressPage() {
                           </span>
                         </span>
                         <span>
-                          Đóng góp (AI):{" "}
+                          Đóng góp:{" "}
                           <span className="font-medium text-foreground">
                             {typeof m.contributionPercent === "number"
                               ? `${m.contributionPercent.toFixed(0)}%`

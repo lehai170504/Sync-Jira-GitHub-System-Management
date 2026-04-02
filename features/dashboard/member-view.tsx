@@ -28,7 +28,7 @@ export function MemberDashboard({ classId }: MemberDashboardProps) {
             value="statistics"
             className="rounded-xl px-6 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-[#F27124] data-[state=active]:shadow-sm transition-all"
           >
-            Thống kê cá nhân
+            Thống kê
           </TabsTrigger>
         </TabsList>
 

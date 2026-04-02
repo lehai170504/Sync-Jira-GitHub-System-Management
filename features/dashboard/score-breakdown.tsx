@@ -191,7 +191,7 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
       <Card className="border-dashed border-2 shadow-none bg-slate-50 dark:bg-slate-900/60 dark:border-slate-700">
         <CardContent className="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-500">
           <AlertCircle className="h-10 w-10 mb-2 opacity-50" />
-          <p>Không tìm thấy thống kê cá nhân trong bảng xếp hạng nhóm.</p>
+          <p>Không tìm thấy thống kê trong bảng xếp hạng nhóm.</p>
         </CardContent>
       </Card>
     );

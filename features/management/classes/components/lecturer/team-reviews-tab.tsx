@@ -31,16 +31,15 @@ export function TeamReviewsTab({ teamId }: TeamReviewsTabProps) {
     );
   }
 
-  // 👇 LẤY CHUẨN XÁC DATA THEO API MỚI CỦA BACKEND
-  const reviews = data?.evaluation_summary || [];
+  // Khớp với Key mới của Backend: evaluation_summary
+  const summaries = data?.evaluation_summary || [];
 
-  // Mảng rỗng
-  if (reviews.length === 0) {
+  if (summaries.length === 0) {
     return (
       <div className="py-16 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-900/50">
         <Star className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-2" />
         <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">
-          {data.message || "Nhóm chưa có dữ liệu đánh giá chéo."}
+          Nhóm chưa có dữ liệu đánh giá chéo.
         </p>
       </div>
     );
@@ -48,12 +47,12 @@ export function TeamReviewsTab({ teamId }: TeamReviewsTabProps) {
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      {reviews.map((summary: any, idx: number) => (
+      {summaries.map((summary: any, idx: number) => (
         <div
           key={idx}
           className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm"
         >
-          {/* Header: Thông tin sinh viên & Điểm trung bình */}
+          {/* Header: Thông tin sinh viên nhận đánh giá */}
           <div className="p-4 bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 border border-white dark:border-slate-700 shadow-sm">
@@ -66,7 +65,7 @@ export function TeamReviewsTab({ teamId }: TeamReviewsTabProps) {
                 <p className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-none">
                   {summary.student?.full_name || "Unknown Student"}
                 </p>
-                <p className="text-[10px] text-slate-500 mt-1 font-mono uppercase">
+                <p className="text-[10px] text-slate-500 mt-1 font-mono uppercase tracking-tighter">
                   {summary.student?.student_code || "N/A"}
                 </p>
               </div>
@@ -76,36 +75,39 @@ export function TeamReviewsTab({ teamId }: TeamReviewsTabProps) {
               <div className="flex items-center gap-1 justify-end text-amber-500 mb-0.5">
                 <Star className="w-4 h-4 fill-amber-400" />
                 <span className="font-black text-lg leading-none">
-                  {summary.averageRating
-                    ? summary.averageRating.toFixed(1)
-                    : "0.0"}
+                  {/* FIX: summary.average_rating */}
+                  {Number(summary.average_rating || 0).toFixed(1)}
                 </span>
               </div>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                {summary.totalReviews || 0} Lượt đánh giá
+                {/* FIX: summary.review_count */}
+                {summary.review_count || 0} Lượt đánh giá
               </p>
             </div>
           </div>
 
-          {/* Body: Danh sách nhận xét */}
+          {/* Body: Danh sách nhận xét từ đồng đội */}
           <div className="p-4 space-y-3 bg-white dark:bg-slate-900">
-            {!summary.reviews || summary.reviews.length === 0 ? (
+            {/* FIX: summary.feedbacks_received */}
+            {!summary.feedbacks_received ||
+            summary.feedbacks_received.length === 0 ? (
               <p className="text-xs text-slate-400 italic text-center py-2">
                 Chưa có lời nhận xét nào.
               </p>
             ) : (
-              summary.reviews.map((rev: any, i: number) => (
+              summary.feedbacks_received.map((rev: any, i: number) => (
                 <div
                   key={i}
-                  className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-3 border border-slate-100 dark:border-slate-800"
+                  className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-3 border border-slate-100 dark:border-slate-800 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                        {rev.reviewer?.full_name || "Anonymous"}
+                        {/* FIX: rev.evaluator */}
+                        {rev.evaluator?.full_name || "Anonymous"}
                       </span>
-                      <span className="text-[9px] text-slate-400 bg-white dark:bg-slate-800 px-1.5 rounded font-mono">
-                        {rev.reviewer?.student_code || ""}
+                      <span className="text-[9px] text-slate-400 bg-white dark:bg-slate-900 px-1.5 rounded font-mono">
+                        {rev.evaluator?.student_code || ""}
                       </span>
                     </div>
                     <div className="flex gap-0.5">

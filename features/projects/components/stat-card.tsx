@@ -1,10 +1,10 @@
-import { ReactNode } from "react";
+import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface StatCardProps {
   label: string;
-  value: number | string;
-  icon: ReactNode;
+  value: number | string | undefined;
+  icon: LucideIcon;
   color: "orange" | "blue" | "red" | "emerald" | "purple";
   subText?: string;
 }
@@ -12,7 +12,7 @@ interface StatCardProps {
 export function StatCard({
   label,
   value,
-  icon,
+  icon: Icon,
   color,
   subText,
 }: StatCardProps) {
@@ -29,18 +29,22 @@ export function StatCard({
 
   return (
     <div className="bg-white dark:bg-slate-900 p-5 rounded-[24px] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-colors">
+      {/* Container của Icon */}
       <div className={cn("p-3 rounded-2xl shrink-0", colors[color])}>
-        {icon}
+        <Icon size={24} strokeWidth={2.5} />
       </div>
-      <div>
-        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-0.5">
+
+      {/* Nội dung text */}
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-0.5 truncate">
           {label}
         </p>
         <p className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none">
-          {value}
+          {value ?? 0}
         </p>
+
         {subText && (
-          <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-1">
+          <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-1 truncate">
             {subText}
           </p>
         )}

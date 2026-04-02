@@ -25,7 +25,7 @@ export default function LecturerProjectManagementPage() {
   const urlClassId = searchParams.get("classId") ?? undefined;
 
   const [classId, setClassId] = useState<string | undefined>(
-    urlClassId ?? undefined
+    urlClassId ?? undefined,
   );
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -51,7 +51,7 @@ export default function LecturerProjectManagementPage() {
       p.leader_id?.student_code
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      p.jiraProjectKey?.toLowerCase().includes(searchTerm.toLowerCase())
+      p.jiraProjectKey?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const isLoading = isProjectsLoading || isClassDetailLoading;
@@ -97,7 +97,9 @@ export default function LecturerProjectManagementPage() {
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium text-base">
             Quản lý tập trung tiến độ, mã nguồn và nhân sự của{" "}
-            <span className="font-bold text-slate-700 dark:text-slate-200">{projects.length}</span>{" "}
+            <span className="font-bold text-slate-700 dark:text-slate-200">
+              {projects.length}
+            </span>{" "}
             nhóm dự án.
           </p>
         </div>
@@ -108,14 +110,14 @@ export default function LecturerProjectManagementPage() {
         <StatCard
           label="Tổng số Đồ án"
           value={projects.length}
-          icon={<FolderGit2 className="w-6 h-6" />}
+          icon={FolderGit2}
           color="blue"
           subText="Nhóm đang vận hành"
         />
         <StatCard
           label="Github Link"
           value={projects.filter((p) => p.githubRepoUrl).length}
-          icon={<GitBranch className="w-6 h-6" />}
+          icon={GitBranch}
           color="emerald"
           subText="Đã liên kết mã nguồn"
         />
@@ -124,7 +126,7 @@ export default function LecturerProjectManagementPage() {
           value={
             projects.filter((p) => !p.githubRepoUrl || !p.jiraProjectKey).length
           }
-          icon={<ShieldAlert className="w-6 h-6" />}
+          icon={ShieldAlert}
           color="red"
           subText="Thiếu thông tin quản lý"
         />

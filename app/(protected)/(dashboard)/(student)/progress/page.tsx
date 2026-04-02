@@ -277,7 +277,7 @@ export default function LeaderProgressPage() {
         <Alert className="bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-200">
           <AlertTitle>Lỗi tải dữ liệu</AlertTitle>
           <AlertDescription>
-            Không thể tải GET /api/teams/…/ranking. Vui lòng thử lại sau.
+            Không thể tải GET /teams/…/ranking. Vui lòng thử lại sau.
           </AlertDescription>
         </Alert>
       </div>

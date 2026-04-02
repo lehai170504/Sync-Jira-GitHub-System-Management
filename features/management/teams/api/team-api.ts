@@ -139,7 +139,9 @@ export const getTeamRankingApi = async (
   teamId: string,
 ): Promise<TeamRankingResponse> => {
   const { data } = await axiosClient.get<TeamRankingResponse>(
-    `/api/teams/${teamId}/ranking`,
+    // NOTE: axiosClient.baseURL thường đã chứa `/api` (tùy env NEXT_PUBLIC_API_URL),
+    // nên không hardcode thêm `/api` ở path để tránh thành `/api/api/...`.
+    `/teams/${teamId}/ranking`,
   );
   return data;
 };

@@ -8,6 +8,7 @@ import {
   UpdateProfilePayload,
   UserProfile,
 } from "../api/profile-api";
+import axios from "axios";
 
 // --- GET PROFILE ---
 export const useProfile = () => {
@@ -18,7 +19,15 @@ export const useProfile = () => {
     queryFn: getUserProfileApi,
     enabled: hasToken,
     staleTime: 5 * 60 * 1000, // 5 phút (Cache)
-    retry: 1,
+    retry: (failureCount, err) => {
+      if (axios.isAxiosError(err)) {
+        const s = err.response?.status;
+        if (s === 502 || s === 503 || s === 504) return failureCount < 5;
+        if (!err.response) return failureCount < 3;
+      }
+      return failureCount < 1;
+    },
+    retryDelay: (attempt) => Math.min(5000 * (attempt + 1), 25000),
     // Khi user focus lại vào tab, fetch lại để cập nhật trạng thái kết nối mới nhất
     refetchOnWindowFocus: true,
   });

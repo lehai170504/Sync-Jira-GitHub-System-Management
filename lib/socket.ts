@@ -11,7 +11,10 @@ export const socket: Socket = io(SOCKET_URL, {
   autoConnect: false,
   reconnection: true,
   reconnectionAttempts: 10,
-  reconnectionDelay: 1000,
+  /** BE Render cold start / 502: thử lại mỗi 5s, không crash app */
+  reconnectionDelay: 5000,
+  reconnectionDelayMax: 30000,
+  timeout: 20000,
   // Khớp BE + Capacitor/WebView (polling → upgrade websocket). Nếu môi trường chặt chỉ WS, có thể đổi thành ["websocket"].
   transports: ["polling", "websocket"],
   withCredentials: true,

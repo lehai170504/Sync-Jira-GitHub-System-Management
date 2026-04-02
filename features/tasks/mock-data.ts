@@ -14,12 +14,6 @@ export const statusColumns: StatusColumn[] = [
     color: "border-blue-300",
   },
   {
-    id: "review",
-    title: "In Review",
-    description: "Chờ review / kiểm thử",
-    color: "border-amber-300",
-  },
-  {
     id: "done",
     title: "Done",
     description: "Đã hoàn thành & merged",

@@ -912,6 +912,18 @@ export function TaskBoard() {
     [tasks, selectedPrint, selectedAssigneeFilter, isAllSprints],
   );
 
+  // Board: bỏ cột "In Review" thì vẫn cần hiển thị các task đang ở trạng thái review
+  // bằng cách đẩy sang "in-progress" trước khi render Kanban.
+  const visibleTasksForBoard = useMemo(
+    () =>
+      visibleTasks.map((t) =>
+        t.status === "review"
+          ? { ...t, status: "in-progress" as Task["status"] }
+          : t,
+      ),
+    [visibleTasks],
+  );
+
   const currentSprint = useMemo(
     () => (isAllSprints ? undefined : sprints.find((p) => p.id === selectedPrint)),
     [sprints, selectedPrint, isAllSprints],
@@ -1055,7 +1067,7 @@ export function TaskBoard() {
           ) : (
             <KanbanView
               statusColumns={statusColumns}
-              tasks={visibleTasks}
+              tasks={visibleTasksForBoard}
               members={members}
               isTaskOverdue={isTaskOverdue}
               onEditTask={(task) => {

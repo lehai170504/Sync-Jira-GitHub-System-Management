@@ -3,7 +3,7 @@ import { getTeamRankingApi } from "../api/team-api";
 
 /**
  * Hook để lấy bảng xếp hạng đóng góp của các thành viên trong team
- * GET /teams/:teamId/ranking
+ * GET /api/teams/:teamId/ranking
  */
 export const useTeamRanking = (teamId: string | undefined) => {
   return useQuery({

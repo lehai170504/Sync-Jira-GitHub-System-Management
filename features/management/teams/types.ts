@@ -1,11 +1,23 @@
 // Types for Teams API
 
+/**
+ * GET /teams/:teamId/dashboard
+ * Contract (Tổng quan member & leader dùng chung):
+ * @example
+ * {
+ *   "team": { "_id", "project_name", "last_sync_at": string | null },
+ *   "overview": {
+ *     "tasks": { total, done, todo, done_percent, story_point_total, story_point_done },
+ *     "commits": { total, counted, last_commit_date: string | null },
+ *     "sprints": { total, active }
+ *   }
+ * }
+ */
 export interface TeamDashboardResponse {
   team: {
     _id: string;
     project_name: string;
     last_sync_at: string | null;
-    // Optional config fields (có thể được BE trả về)
     jira_url?: string;
     jira_project_key?: string;
     jira_board_id?: number;
@@ -120,34 +132,53 @@ export interface TeamCommitsResponse {
 }
 
 /** GET /api/teams/:teamId/ranking */
+export interface TeamRankingSummary {
+  total_team_valid_commits: number;
+  total_team_done_story_points: number;
+}
+
+/** Sinh viên trong một dòng ranking (integrations có thể chứa token — không hiển thị ra UI) */
+export interface TeamRankingStudent {
+  _id: string;
+  student_code: string;
+  email: string;
+  full_name: string;
+  avatar_url?: string;
+  integrations?: Record<string, unknown>;
+  git_emails?: string[];
+}
+
+export interface TeamRankingMemberRow {
+  member_id: string;
+  student: TeamRankingStudent | null;
+  role_in_team: string;
+  mapping: {
+    jira_account_id: string | null;
+    github_username: string | null;
+  };
+  /** Legacy BE: điểm 0..1 ở root */
+  git_score?: number;
+  jira_score?: number;
+  jira: {
+    done_tasks: number;
+    done_story_points: number;
+    total_tasks: number;
+    total_story_points: number;
+    /** 0..1 — ưu tiên so với jira_score root */
+    jira_score?: number;
+  };
+  github: {
+    counted_commits: number;
+    personal_valid_commits?: number;
+    total_team_valid_commits?: number;
+    /** 0..1 — ưu tiên so với git_score root */
+    git_score?: number;
+  };
+}
+
 export interface TeamRankingResponse {
   total: number;
-  ranking: Array<{
-    member_id: string;
-    student: {
-      _id: string;
-      student_code: string;
-      email: string;
-      full_name: string;
-    } | null;
-    role_in_team: string;
-    mapping: {
-      jira_account_id: string | null;
-      github_username: string | null;
-    };
-    /** 0..1 — hiển thị ×10 */
-    git_score?: number;
-    /** 0..1 — root field, không dùng member.scores.jira_score */
-    jira_score?: number;
-    jira: {
-      done_tasks: number;
-      done_story_points: number;
-      total_tasks: number;
-      total_story_points: number;
-    };
-    github: {
-      counted_commits: number;
-    };
-  }>;
+  summary?: TeamRankingSummary;
+  ranking: TeamRankingMemberRow[];
 }
 

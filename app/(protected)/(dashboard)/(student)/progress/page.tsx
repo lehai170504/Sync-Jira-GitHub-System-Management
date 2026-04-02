@@ -6,7 +6,7 @@ import { UserRole } from "@/components/layouts/sidebar-config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Activity, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -45,7 +45,11 @@ export default function LeaderProgressPage() {
   // Resolve teamId giống trang /tasks và /config
   const classId = Cookies.get("student_class_id") || "";
   const myTeamName = Cookies.get("student_team_name");
-  const { data: teamsData } = useClassTeams(classId);
+  const {
+    data: teamsData,
+    isPending: isTeamsPending,
+    isFetched: isTeamsFetched,
+  } = useClassTeams(classId || undefined);
   const myTeamInfo = teamsData?.teams?.find((t: any) => t.project_name === myTeamName);
   const resolvedTeamId = myTeamInfo?._id || teamsData?.teams?.[0]?._id;
 
@@ -58,8 +62,12 @@ export default function LeaderProgressPage() {
     Cookies.set("student_team_id", resolvedTeamId);
   }, [isConnected, resolvedTeamId, socket]);
 
-  // Fetch ranking data từ API
-  const { data: rankingData, isLoading, error } = useTeamRanking(resolvedTeamId);
+  // GET /api/teams/:teamId/ranking — tiến độ & điểm thành viên
+  const {
+    data: rankingData,
+    isPending: isRankingPending,
+    error: rankingError,
+  } = useTeamRanking(resolvedTeamId);
   const { data: leaderboardRt } = useTeamLeaderboardRealtime(resolvedTeamId);
 
   useEffect(() => {
@@ -117,44 +125,68 @@ export default function LeaderProgressPage() {
     });
   }, [contributionPercentByMemberId]);
 
-  // Map API data sang format cho UI
+  const teamSummary = rankingData?.summary;
+
+  // Map GET /api/teams/:teamId/ranking → UI
   const memberProgress = useMemo(() => {
     if (!rankingData?.ranking) return [];
-    
+
     return rankingData.ranking.map((member) => {
-      const studentName = member.student?.full_name || `Member ${member.member_id.slice(-4)}`;
+      const jira = member.jira ?? {
+        done_tasks: 0,
+        done_story_points: 0,
+        total_tasks: 0,
+        total_story_points: 0,
+      };
+      const github = member.github ?? { counted_commits: 0 };
+
+      const studentName =
+        member.student?.full_name || `Member ${member.member_id.slice(-4)}`;
       const initials = getInitials(studentName);
-      // Tính progress: done_tasks / total_tasks * 100 (nếu total_tasks > 0)
-      const progress = member.jira.total_tasks > 0
-        ? Math.round((member.jira.done_tasks / member.jira.total_tasks) * 100)
-        : 0;
+      const totalTasks = jira.total_tasks;
+      const progress =
+        totalTasks > 0
+          ? Math.round((jira.done_tasks / totalTasks) * 100)
+          : 0;
 
       const contributionPercent =
         contributionPercentByMemberId && contributionPercentByMemberId.ok
           ? contributionPercentByMemberId.map.get(member.member_id)
           : undefined;
-      
+
+      const personalValid =
+        github.personal_valid_commits ?? github.counted_commits;
+      const teamValidCommits =
+        github.total_team_valid_commits ?? teamSummary?.total_team_valid_commits;
+
       return {
         id: member.member_id,
         name: studentName,
         initials,
+        avatarUrl: member.student?.avatar_url,
         email: member.student?.email || "",
         studentCode: member.student?.student_code || "",
         jiraAccountId: member.mapping?.jira_account_id || "",
         githubUsername: member.mapping?.github_username || "",
         progress,
-        tasksDone: member.jira.done_tasks,
-        totalTasks: member.jira.total_tasks,
-        storyPointsDone: member.jira.done_story_points,
-        storyPointsTotal: member.jira.total_story_points,
-        commits: member.github.counted_commits,
+        tasksDone: jira.done_tasks,
+        totalTasks,
+        storyPointsDone: jira.done_story_points,
+        storyPointsTotal: jira.total_story_points,
+        commits: github.counted_commits,
+        personalValidCommits: personalValid,
+        teamValidCommits,
         role: member.role_in_team,
         contributionPercent,
-        gitScore10: scoreRatioToDisplay10(member.git_score),
-        jiraScore10: scoreRatioToDisplay10(member.jira_score),
+        gitScore10: scoreRatioToDisplay10(
+          github.git_score ?? member.git_score,
+        ),
+        jiraScore10: scoreRatioToDisplay10(
+          jira.jira_score ?? member.jira_score,
+        ),
       };
     });
-  }, [rankingData, contributionPercentByMemberId]);
+  }, [rankingData, contributionPercentByMemberId, teamSummary]);
 
   const chartData = useMemo(() => {
     return memberProgress.map((m) => ({
@@ -191,8 +223,7 @@ export default function LeaderProgressPage() {
     );
   }
 
-  // Loading state
-  if (isLoading || !resolvedTeamId) {
+  if (classId && isTeamsPending) {
     return (
       <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
         <div className="flex items-center justify-center h-64">
@@ -202,14 +233,51 @@ export default function LeaderProgressPage() {
     );
   }
 
-  // Error state
-  if (error) {
+  if (!classId) {
+    return (
+      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
+        <Alert className="bg-amber-50 border-amber-200 text-amber-950 dark:bg-amber-950/30 dark:border-amber-900/50 dark:text-amber-100">
+          <AlertTitle>Chưa xác định lớp</AlertTitle>
+          <AlertDescription>
+            Không tìm thấy lớp trong phiên đăng nhập. Vào lại Dashboard hoặc chọn
+            lớp để tải nhóm và bảng xếp hạng.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  if (isTeamsFetched && !resolvedTeamId) {
+    return (
+      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
+        <Alert className="bg-gray-50 border-gray-200 text-gray-900 dark:bg-slate-900/60 dark:border-slate-800 dark:text-slate-100">
+          <AlertTitle>Chưa có nhóm</AlertTitle>
+          <AlertDescription>
+            Không tìm thấy nhóm trong lớp này. Kiểm tra cookie nhóm hoặc liên hệ
+            giảng viên.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  if (resolvedTeamId && isRankingPending) {
+    return (
+      <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
+
+  if (rankingError) {
     return (
       <div className="space-y-6 max-w-6xl mx-auto py-8 px-4 md:px-0 text-slate-900 dark:text-slate-100">
         <Alert className="bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-200">
           <AlertTitle>Lỗi tải dữ liệu</AlertTitle>
           <AlertDescription>
-            Không thể tải bảng xếp hạng từ server. Vui lòng thử lại sau.
+            Không thể tải GET /api/teams/…/ranking. Vui lòng thử lại sau.
           </AlertDescription>
         </Alert>
       </div>
@@ -231,7 +299,13 @@ export default function LeaderProgressPage() {
             Team Progress
           </h2>
           <p className="text-muted-foreground">
-            Biểu đồ tiến độ tổng quan của từng thành viên trong sprint hiện tại.
+            Dữ liệu từ{" "}
+            <span className="font-medium text-foreground">
+              GET /api/teams/…/ranking
+            </span>
+            . % đóng góp realtime (nếu có) từ socket{" "}
+            <code className="text-xs bg-muted px-1 rounded">LEADERBOARD_UPDATED</code>
+            .
           </p>
         </div>
         <div className="text-right">
@@ -244,6 +318,41 @@ export default function LeaderProgressPage() {
         </div>
       </div>
 
+      {teamSummary ? (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+            <CardContent className="pt-4 pb-3">
+              <p className="text-[11px] text-muted-foreground uppercase">
+                Thành viên (API)
+              </p>
+              <p className="text-xl font-bold text-slate-900 dark:text-slate-50">
+                {rankingData?.total ?? memberProgress.length}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+            <CardContent className="pt-4 pb-3">
+              <p className="text-[11px] text-muted-foreground uppercase">
+                Commit hợp lệ (nhóm)
+              </p>
+              <p className="text-xl font-bold text-slate-900 dark:text-slate-50">
+                {teamSummary.total_team_valid_commits}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm sm:col-span-2">
+            <CardContent className="pt-4 pb-3">
+              <p className="text-[11px] text-muted-foreground uppercase">
+                Story points hoàn thành (nhóm)
+              </p>
+              <p className="text-xl font-bold text-slate-900 dark:text-slate-50">
+                {teamSummary.total_team_done_story_points}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      ) : null}
+
       <Separator />
 
       <div className="grid gap-6 md:grid-cols-5">
@@ -251,7 +360,7 @@ export default function LeaderProgressPage() {
         <Card className="md:col-span-3 shadow-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <CardHeader>
             <CardTitle className="text-base">
-              Tiến độ theo thành viên (% hoàn thành) & % đóng góp
+              Tiến độ Jira (% task done) & % đóng góp
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -314,6 +423,11 @@ export default function LeaderProgressPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            {memberProgress.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-6 text-center">
+                Ranking trống — chưa có thành viên hoặc chưa đồng bộ dữ liệu.
+              </p>
+            ) : null}
             {memberProgress.map((m) => (
               <div
                 key={m.id}
@@ -328,6 +442,9 @@ export default function LeaderProgressPage() {
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <Avatar className="h-9 w-9 border bg-background shrink-0">
+                      {m.avatarUrl ? (
+                        <AvatarImage src={m.avatarUrl} alt="" />
+                      ) : null}
                       <AvatarFallback className="text-[11px] bg-primary/10 text-primary font-semibold">
                         {m.initials}
                       </AvatarFallback>
@@ -348,7 +465,7 @@ export default function LeaderProgressPage() {
                           </span>
                         </span>
                         <span>
-                          Commits:{" "}
+                          Commits (đếm):{" "}
                           <span className="font-medium text-foreground">
                             {m.commits}
                           </span>
@@ -424,6 +541,24 @@ export default function LeaderProgressPage() {
                         </span>
                         <span className="font-medium text-foreground">
                           {m.jiraScore10.toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">
+                          Commit hợp lệ (cá nhân):
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {m.personalValidCommits}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 sm:col-span-2">
+                        <span className="text-muted-foreground">
+                          Commit hợp lệ (cả nhóm):
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {typeof m.teamValidCommits === "number"
+                            ? m.teamValidCommits
+                            : "—"}
                         </span>
                       </div>
                     </div>

@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-// Bỏ import Cookies
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Code2, TrendingUp, Loader2 } from "lucide-react";
@@ -14,44 +13,42 @@ interface MemberOverviewTabProps {
 }
 
 export function MemberOverviewTab({ classId }: MemberOverviewTabProps) {
-  const [teamId, setTeamId] = useState<string | undefined>(undefined);
-  const { data: myClasses } = useMyClasses();
+  const { data: myClasses, isPending: isClassesPending } = useMyClasses();
 
-  // Hook này sẽ tự động chạy lại khi teamId thay đổi
-  const { data: dashboardData, isLoading, error } = useTeamDashboard(teamId);
-
-  // 2. Logic lấy Team ID dựa trên classId được truyền vào
-  useEffect(() => {
-    if (!myClasses?.classes) return;
-
+  const teamId = useMemo(() => {
+    const classes = myClasses?.classes;
+    if (!classes?.length) return undefined;
     if (classId) {
-      // Tìm team ID tương ứng với classId hiện tại
-      const currentClass = myClasses.classes.find(
-        (cls) => cls.class._id === classId,
-      );
-      if (currentClass?.team_id) {
-        setTeamId(currentClass.team_id);
-      } else {
-        setTeamId(undefined); // Reset nếu không tìm thấy team trong class này
-      }
-    } else if (myClasses.classes.length > 0) {
-      // Fallback: Lấy team đầu tiên nếu không có classId
-      setTeamId(myClasses.classes[0].team_id);
+      return classes.find((cls) => cls.class._id === classId)?.team_id;
     }
+    return classes[0].team_id;
   }, [myClasses, classId]);
 
-  // Loading state
-  if (isLoading || !teamId) {
+  // GET /teams/:teamId/dashboard — dữ liệu Tổng quan (member, không phải leader)
+  const { data: dashboardData, isLoading, error } = useTeamDashboard(teamId);
+
+  if (isClassesPending) {
     return (
       <div className="flex items-center justify-center h-64">
-        {/* Chỉ hiện loading nếu đã có teamId mà đang fetch data */}
-        {teamId ? (
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        ) : (
-          <p className="text-slate-400 text-sm">
-            Chưa tham gia nhóm nào trong lớp này.
-          </p>
-        )}
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!teamId) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-slate-400 text-sm">
+          Chưa tham gia nhóm nào trong lớp này.
+        </p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -71,25 +68,18 @@ export function MemberOverviewTab({ classId }: MemberOverviewTabProps) {
     );
   }
 
-  const tasks = dashboardData?.overview.tasks || {
-    total: 0,
-    done: 0,
-    todo: 0,
-    done_percent: 0,
-    story_point_total: 0,
-    story_point_done: 0,
-  };
+  if (!dashboardData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-slate-400 text-sm">Không có dữ liệu dashboard.</p>
+      </div>
+    );
+  }
 
-  const commits = dashboardData?.overview.commits || {
-    total: 0,
-    counted: 0,
-    last_commit_date: null,
-  };
-
-  const sprints = dashboardData?.overview.sprints || {
-    total: 0,
-    active: 0,
-  };
+  const { overview, team } = dashboardData;
+  const tasks = overview.tasks;
+  const commits = overview.commits;
+  const sprints = overview.sprints;
 
   return (
     <div className="space-y-6">
@@ -103,15 +93,12 @@ export function MemberOverviewTab({ classId }: MemberOverviewTabProps) {
                   Điểm dự kiến (Contribution)
                 </p>
                 <h2 className="text-4xl font-bold mt-2">
-                  {tasks.done_percent > 0
-                    ? (tasks.done_percent / 10).toFixed(1)
-                    : "0.0"}
-                  /10
+                  {(tasks.done_percent / 10).toFixed(1)}/10
                 </h2>
                 <p className="text-sm text-white/70 mt-1">
-                  {tasks.done_percent > 0
-                    ? `${tasks.done_percent}% hoàn thành`
-                    : "Chưa có dữ liệu"}
+                  {tasks.total === 0
+                    ? "Chưa có task"
+                    : `${tasks.done_percent}% hoàn thành`}
                 </p>
               </div>
               <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -263,7 +250,7 @@ export function MemberOverviewTab({ classId }: MemberOverviewTabProps) {
           <Card className="bg-blue-50/50 border-blue-100">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-bold text-blue-800">
-                {dashboardData?.team.project_name || "Nhóm"}
+                {team.project_name || "Nhóm"}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -280,12 +267,10 @@ export function MemberOverviewTab({ classId }: MemberOverviewTabProps) {
                   )}
                 </p>
               )}
-              {dashboardData?.team.last_sync_at && (
+              {team.last_sync_at && (
                 <p className="text-xs text-blue-600 mt-1">
                   Đồng bộ lần cuối:{" "}
-                  {new Date(dashboardData.team.last_sync_at).toLocaleString(
-                    "vi-VN",
-                  )}
+                  {new Date(team.last_sync_at).toLocaleString("vi-VN")}
                 </p>
               )}
             </CardContent>

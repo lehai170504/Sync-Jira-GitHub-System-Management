@@ -23,7 +23,6 @@ import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useTeamRanking } from "@/features/management/teams/hooks/use-team-ranking";
 import { useTeamLeaderboardRealtime } from "@/features/management/teams/hooks/use-team-leaderboard-rt";
 import { useSocket } from "@/components/providers/socket-provider";
-import { scoreRatioToDisplay10 } from "@/lib/score-display";
 
 // Helper function để lấy initials từ tên
 const getInitials = (name?: string) => {
@@ -31,6 +30,15 @@ const getInitials = (name?: string) => {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+// Backend trả về git_score / jira_score theo tỷ lệ 0..1.
+// UI cần hiển thị % (nhân 100).
+const ratioToPercent = (value: unknown): number => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  if (n >= 0 && n <= 1) return n * 100;
+  return Math.min(100, Math.max(0, n));
 };
 
 export default function LeaderProgressPage() {
@@ -178,12 +186,8 @@ export default function LeaderProgressPage() {
         teamValidCommits,
         role: member.role_in_team,
         contributionPercent,
-        gitScore10: scoreRatioToDisplay10(
-          github.git_score ?? member.git_score,
-        ),
-        jiraScore10: scoreRatioToDisplay10(
-          jira.jira_score ?? member.jira_score,
-        ),
+        gitScorePercent: ratioToPercent(github.git_score ?? member.git_score),
+        jiraScorePercent: ratioToPercent(jira.jira_score ?? member.jira_score),
       };
     });
   }, [rankingData, contributionPercentByMemberId, teamSummary]);
@@ -529,18 +533,18 @@ export default function LeaderProgressPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">
-                          Điểm Git (/10):
+                          Git score (%):
                         </span>
                         <span className="font-medium text-foreground">
-                          {m.gitScore10.toFixed(1)}
+                          {m.gitScorePercent.toFixed(1)}%
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">
-                          Điểm Jira (/10):
+                          Jira score (%):
                         </span>
                         <span className="font-medium text-foreground">
-                          {m.jiraScore10.toFixed(1)}
+                          {m.jiraScorePercent.toFixed(1)}%
                         </span>
                       </div>
                       <div className="flex items-center gap-2">

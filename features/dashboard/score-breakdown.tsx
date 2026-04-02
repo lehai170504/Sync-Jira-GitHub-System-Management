@@ -19,11 +19,19 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { scoreRatioToDisplay10 } from "@/lib/score-display";
 import { useTeamRanking } from "@/features/management/teams/hooks/use-team-ranking";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import type { TeamRankingMemberRow } from "@/features/management/teams/types";
+
+// Backend trả về jira_score / git_score theo tỷ lệ 0..1.
+// UI cần hiển thị 0..100% (nhân 100).
+const ratioToPercent = (value: unknown): number => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  if (n >= 0 && n <= 1) return n * 100;
+  return Math.min(100, Math.max(0, n));
+};
 
 interface ScoreBreakdownProps {
   classId?: string;
@@ -106,21 +114,21 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
   const gitRatio =
     myRow?.github?.git_score ?? myRow?.git_score ?? 0;
 
-  const jira10 = scoreRatioToDisplay10(jiraRatio);
-  const git10 = scoreRatioToDisplay10(gitRatio);
-  const peer10 = 0;
+  const jiraPercent = ratioToPercent(jiraRatio);
+  const gitPercent = ratioToPercent(gitRatio);
+  const peerPercent = 0;
 
   // UI đang hiển thị mỗi nguồn theo thang /10 (Jira/Git).
   // Nếu cộng trực tiếp Jira + Git sẽ vượt /10, nên "Tổng" hiển thị theo trung bình (Jira + Git)/2.
-  const overallScore = (jira10 + git10) / 2;
+  const overallScore = (jiraPercent + gitPercent) / 2;
 
   const realScoreData = useMemo(
     () => [
-      { ...DEFAULT_SCORE_DATA[0], value: jira10 },
-      { ...DEFAULT_SCORE_DATA[1], value: git10 },
-      { ...DEFAULT_SCORE_DATA[2], value: peer10 },
+      { ...DEFAULT_SCORE_DATA[0], value: jiraPercent },
+      { ...DEFAULT_SCORE_DATA[1], value: gitPercent },
+      { ...DEFAULT_SCORE_DATA[2], value: peerPercent },
     ],
-    [jira10, git10],
+    [jiraPercent, gitPercent],
   );
 
   const totalScore = realScoreData.reduce((sum, item) => sum + item.value, 0);
@@ -212,7 +220,7 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
               <div className="text-2xl font-bold text-white">
                 {overallScore.toFixed(1)}
               </div>
-              <div className="text-xs text-white/90">Tổng (thang /10)</div>
+              <div className="text-xs text-white/90">Tổng (%)</div>
             </div>
           </div>
         </CardHeader>
@@ -243,7 +251,7 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
                 <Tooltip
                   formatter={(value: number, name: string) => {
                     const item = realScoreData.find((d) => d.name === name);
-                    return [`${value.toFixed(1)} /10 (${item?.description})`, name];
+                    return [`${value.toFixed(1)}% (${item?.description})`, name];
                   }}
                   contentStyle={{
                     borderRadius: "12px",
@@ -334,7 +342,7 @@ export function ScoreBreakdown({ classId }: ScoreBreakdownProps) {
                     {item.value.toFixed(1)}
                   </div>
                   <div className="text-sm font-semibold text-foreground">
-                    điểm {item.name}
+                    tỷ lệ {item.name}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {item.description}

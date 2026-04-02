@@ -16,8 +16,6 @@ import {
 import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import { AppearanceSettings } from "./appearance-card";
-import { NotificationSettings } from "./notification-card";
-// Lưu ý: Đảm bảo đường dẫn import của GradingConfig là chính xác
 import { GradingConfig } from "@/features/lecturer/components/settings/grading-config";
 
 interface SettingsDialogProps {
@@ -39,7 +37,7 @@ export function SettingsDialog({
     "hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50/80 dark:hover:bg-slate-800/50",
     "data-[state=active]:text-[#F27124] dark:data-[state=active]:text-orange-400",
     "data-[state=active]:bg-orange-50 dark:data-[state=active]:bg-orange-900/10",
-    "data-[state=active]:border-orange-100 dark:data-[state=active]:border-orange-900/30"
+    "data-[state=active]:border-orange-100 dark:data-[state=active]:border-orange-900/30",
   );
 
   return (
@@ -86,11 +84,7 @@ export function SettingsDialog({
               </div>
               <TabsTrigger value="appearance" className={tabTriggerStyle}>
                 <ToyBrick className="w-4 h-4 shrink-0" />
-                Giao diện & Ngôn ngữ
-              </TabsTrigger>
-              <TabsTrigger value="notifications" className={tabTriggerStyle}>
-                <BellDot className="w-4 h-4 shrink-0" />
-                Thông báo
+                Giao diện
               </TabsTrigger>
 
               {userRole === "LECTURER" && (
@@ -120,19 +114,6 @@ export function SettingsDialog({
                 </h3>
               </div>
               <AppearanceSettings />
-            </TabsContent>
-
-            <TabsContent
-              value="notifications"
-              className="m-0 border-none outline-none"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <BellDot className="w-5 h-5 text-blue-500 dark:text-blue-400" />
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-200">
-                  Thông báo thời gian thực
-                </h3>
-              </div>
-              <NotificationSettings />
             </TabsContent>
 
             {userRole === "LECTURER" && (

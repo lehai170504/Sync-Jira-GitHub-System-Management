@@ -25,9 +25,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { cn } from "@/lib/utils";
 import { SendClassNotification } from "@/features/notifications/components/SendClassNotification";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface LecturerDashboardProps {
   classId?: string;
@@ -327,71 +325,7 @@ export function LecturerDashboard({ classId }: LecturerDashboardProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800">
-                  {/* Top Nhóm Code */}
-                  <div className="p-6 space-y-4">
-                    <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-4">
-                      <Code2 className="w-4 h-4 text-blue-500" /> Top Nhóm Code
-                      (AI)
-                    </h3>
-                    {leaderboards?.top_teams_code?.length > 0 ? (
-                      leaderboards.top_teams_code.map(
-                        (team: any, i: number) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50"
-                          >
-                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200 line-clamp-1">
-                              {team.team_name}
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className="bg-blue-50 text-blue-700 border-blue-200 shrink-0"
-                            >
-                              {team.score} đ
-                            </Badge>
-                          </div>
-                        )
-                      )
-                    ) : (
-                      <p className="text-xs text-slate-400 italic">
-                        Chưa có dữ liệu
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Top Nhóm Task */}
-                  <div className="p-6 space-y-4">
-                    <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-4">
-                      <ListTodo className="w-4 h-4 text-emerald-500" /> Nhóm
-                      Agile Mượt Nhất
-                    </h3>
-                    {leaderboards?.top_teams_task?.length > 0 ? (
-                      leaderboards.top_teams_task.map(
-                        (team: any, i: number) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50"
-                          >
-                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200 line-clamp-1">
-                              {team.team_name}
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className="bg-emerald-50 text-emerald-700 border-emerald-200 shrink-0"
-                            >
-                              {team.points} SP
-                            </Badge>
-                          </div>
-                        )
-                      )
-                    ) : (
-                      <p className="text-xs text-slate-400 italic">
-                        Chưa có dữ liệu
-                      </p>
-                    )}
-                  </div>
-
+                <div className="grid grid-cols-1 md:grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800">
                   {/* Top Cá Nhân */}
                   <div className="p-6 space-y-4">
                     <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-4">
@@ -420,7 +354,7 @@ export function LecturerDashboard({ classId }: LecturerDashboardProps) {
                               {Number(user.factor).toFixed(2)}x
                             </span>
                           </div>
-                        )
+                        ),
                       )
                     ) : (
                       <p className="text-xs text-slate-400 italic">
@@ -476,7 +410,7 @@ export function LecturerDashboard({ classId }: LecturerDashboardProps) {
                               </p>
                             </div>
                           </div>
-                        )
+                        ),
                       )
                     ) : (
                       <p className="text-xs text-emerald-600 font-bold flex items-center gap-1">
@@ -506,7 +440,7 @@ export function LecturerDashboard({ classId }: LecturerDashboardProps) {
                           >
                             {teamName}
                           </Badge>
-                        )
+                        ),
                       )
                     ) : (
                       <p className="text-xs text-emerald-600 font-bold flex items-center gap-1">

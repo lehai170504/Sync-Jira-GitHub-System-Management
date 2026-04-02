@@ -72,12 +72,6 @@ export const routeGroups: RouteGroup[] = [
         href: "/admin/users",
         color: "text-gray-400",
       },
-      {
-        label: "Nhật ký hệ thống",
-        icon: GitCommit,
-        href: "/admin/logs",
-        color: "text-red-700",
-      },
     ],
   },
   {

@@ -11,7 +11,6 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 // Components
-import { ClassStats } from "@/features/management/classes/components/class-stats";
 import { ClassToolbar } from "@/features/management/classes/components/class-toolbar";
 import { ClassList } from "@/features/management/classes/components/class-list";
 import { ClassDetailDrawer } from "@/features/management/classes/components/class-detail-drawer";
@@ -105,22 +104,6 @@ export default function ClassManagementPage() {
             </p>
           </div>
         </div>
-
-        {/* --- 2. STATS DASHBOARD --- */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="relative group"
-        >
-          <div className="absolute -inset-1 bg-linear-to-r from-blue-100 to-purple-100 dark:from-slate-800 dark:to-slate-900 rounded-[32px] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-          <div className="relative">
-            <ClassStats
-              totalStudents={statsSummary.totalStudents}
-              totalTeams={statsSummary.totalTeams}
-              jiraWeight={statsSummary.avgJiraWeight}
-            />
-          </div>
-        </motion.div>
 
         {/* --- 3. FILTER & TOOLBAR (Sticky) --- */}
         <div className="sticky top-6 z-40">

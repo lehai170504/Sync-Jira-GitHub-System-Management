@@ -26,7 +26,7 @@ export default function SettingsPage() {
   const searchParams = useSearchParams();
   const urlClassId = searchParams.get("classId") ?? undefined;
   const [classId, setClassId] = useState<string | undefined>(
-    urlClassId ?? undefined
+    urlClassId ?? undefined,
   );
 
   useEffect(() => {
@@ -141,9 +141,8 @@ export default function SettingsPage() {
               Tùy chỉnh trải nghiệm cá nhân
             </h3>
           </div>
-          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-1">
             <AppearanceSettings />
-            <NotificationSettings />
           </div>
         </TabsContent>
       </Tabs>

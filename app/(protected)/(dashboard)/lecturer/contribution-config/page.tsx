@@ -29,7 +29,8 @@ export default function LecturerContributionConfigPage() {
   }, [urlClassId]);
 
   const { data: classDetails, isLoading, isError } = useClassDetails(classId);
-  const { mutate: saveConfig, isPending } = useUpdateContributionConfig(classId);
+  const { mutate: saveConfig, isPending } =
+    useUpdateContributionConfig(classId);
 
   const initialConfig = useMemo(() => {
     return (
@@ -122,4 +123,3 @@ export default function LecturerContributionConfigPage() {
     </div>
   );
 }
-

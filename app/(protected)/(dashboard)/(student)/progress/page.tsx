@@ -8,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Activity, Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import {
   BarChart,
   Bar,
@@ -46,7 +45,6 @@ export default function LeaderProgressPage() {
   const [isLeader, setIsLeader] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [openMembers, setOpenMembers] = useState<Record<string, boolean>>({});
-  const warnedMissingLeaderboardFieldsRef = useRef(false);
 
   const { isConnected, socket } = useSocket();
 
@@ -121,17 +119,6 @@ export default function LeaderProgressPage() {
     if (map.size === 0) return { map, ok: false as const };
     return { map, ok: true as const };
   }, [leaderboardRt]);
-
-  useEffect(() => {
-    if (!contributionPercentByMemberId) return;
-    if (contributionPercentByMemberId.ok) return;
-    if (warnedMissingLeaderboardFieldsRef.current) return;
-    warnedMissingLeaderboardFieldsRef.current = true;
-    toast.warning("Payload LEADERBOARD_UPDATED thiếu field để map % đóng góp", {
-      description:
-        "Cần `member_id` (hoặc tương đương) và `contribution_percent` (hoặc tương đương) cho từng entry.",
-    });
-  }, [contributionPercentByMemberId]);
 
   const teamSummary = rankingData?.summary;
 
@@ -302,15 +289,6 @@ export default function LeaderProgressPage() {
             <Activity className="h-7 w-7 text-[#F27124]" />
             Team Progress
           </h2>
-          <p className="text-muted-foreground">
-            Dữ liệu từ{" "}
-            <span className="font-medium text-foreground">
-              GET /api/teams/…/ranking
-            </span>
-            . % đóng góp realtime (nếu có) từ socket{" "}
-            <code className="text-xs bg-muted px-1 rounded">LEADERBOARD_UPDATED</code>
-            .
-          </p>
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground uppercase">
@@ -404,13 +382,6 @@ export default function LeaderProgressPage() {
                     name="Hoàn thành (%)"
                     radius={[4, 4, 0, 0]}
                     fill="#F27124"
-                    barSize={32}
-                  />
-                  <Bar
-                    dataKey="contribution"
-                    name="Đóng góp (%)"
-                    radius={[4, 4, 0, 0]}
-                    fill="#10B981"
                     barSize={32}
                   />
                 </BarChart>

@@ -44,15 +44,26 @@ export default function ClassManagementPage() {
 
   // --- TÍNH TOÁN DỮ LIỆU CHO STATS ---
   const statsSummary = useMemo(() => {
-    // Lưu ý: student_count và team_count cần được định nghĩa trong Interface Class
-    const totalStudents = classes.reduce(
-      (sum: number, cls: any) => sum + (cls.student_count || 0),
-      0,
-    );
-    const totalTeams = classes.reduce(
-      (sum: number, cls: any) => sum + (cls.team_count || 0),
-      0,
-    );
+    // API list và API detail có thể khác naming key cho count.
+    // Ví dụ: lecturer dùng `stats.total_students` / `stats.total_teams`.
+    // nên ở đây fallback để không bị 0 khi server không trả `student_count`/`team_count`.
+    const totalStudents = classes.reduce((sum: number, cls: any) => {
+      const v =
+        cls.student_count ??
+        cls.total_students ??
+        cls.stats?.total_students ??
+        0;
+      return sum + (Number(v) || 0);
+    }, 0);
+
+    const totalTeams = classes.reduce((sum: number, cls: any) => {
+      const v =
+        cls.team_count ??
+        cls.total_teams ??
+        cls.stats?.total_teams ??
+        0;
+      return sum + (Number(v) || 0);
+    }, 0);
     const avgJiraWeight =
       classes.length > 0 ? classes[0].contributionConfig?.jiraWeight || 0 : 0;
 

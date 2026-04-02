@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { exportProjectSrsApi } from "@/features/lecturer/api/ai-api";
+import { exportTeamSrsApi } from "@/features/lecturer/api/ai-api";
 import { cn } from "@/lib/utils";
 import {
   ratioToPercentDisplay,
@@ -36,17 +36,16 @@ export function ProjectHeader({ team, dashboardData }: ProjectHeaderProps) {
   const router = useRouter();
   const [isExporting, setIsExporting] = useState(false);
 
-  const project = team?.project || team; // Bọc lót cấu trúc data
-//   const githubUrl = project?.githubRepoUrl || team?.github_repo_url;
-//   const jiraKey = project?.jiraProjectKey || team?.jira_project_key;
+  /** Cùng ID với route /lecturer/projects/[teamId] & GET /dashboard/teams/:teamId — không dùng project._id lẻ */
+  const teamId = team?._id;
 
   const handleExportSRS = async () => {
-    if (!project?._id) return;
+    if (!teamId) return;
     setIsExporting(true);
     toast.info("AI đang tổng hợp báo cáo SRS, vui lòng đợi...");
 
     try {
-      const blob = await exportProjectSrsApi(project._id);
+      const blob = await exportTeamSrsApi(teamId);
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement("a");
       link.href = url;
@@ -127,7 +126,7 @@ export function ProjectHeader({ team, dashboardData }: ProjectHeaderProps) {
             </div> */}
             <Button
               onClick={handleExportSRS}
-              disabled={isExporting || !project?._id}
+              disabled={isExporting || !teamId}
               className="h-12 px-6 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-2xl shadow-sm w-full sm:w-auto"
             >
               {isExporting ? (

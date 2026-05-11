@@ -1,77 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, Sparkles } from "lucide-react";
 import { useProfile } from "@/features/auth/hooks/use-profile";
+import { useActiveClassId } from "@/hooks/use-active-class-id";
+import Cookies from "js-cookie";
 
-// Import các Dashboard Component
 import { AdminDashboard } from "@/features/admin/components/dashboard/admin-dashboard";
 import { LecturerDashboard } from "@/features/dashboard/components/lecturer-view";
 import { LeaderDashboard } from "@/features/dashboard/components/student-view";
 import { MemberDashboard } from "@/features/dashboard/components/member-view";
 import { MyGradesDialog } from "@/features/dashboard/components/my-grades-dialog";
 
-type UserRole = "ADMIN" | "LECTURER" | "STUDENT";
-
-interface UserInfo {
-  name: string;
-  role: UserRole;
-  email: string;
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Chào buổi sáng";
+  if (h < 18) return "Chào buổi chiều";
+  return "Chào buổi tối";
 }
 
 export default function DashboardPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const { data: profileData, isLoading } = useProfile();
+  const activeClassId = useActiveClassId();
 
-  const urlClassId = searchParams.get("classId") ?? undefined;
+  const user = profileData?.user;
+  const role = user?.role as "ADMIN" | "LECTURER" | "STUDENT" | undefined;
+  const displayName = user?.full_name || user?.email || "—";
+  const isLeader = Cookies.get("student_is_leader") === "true";
 
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLeader, setIsLeader] = useState(false);
-  const [activeClassId, setActiveClassId] = useState<string | undefined>(
-    urlClassId,
-  );
-
-  const { data: profileData } = useProfile();
-
-  useEffect(() => {
-    const token = Cookies.get("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    const savedRole = Cookies.get("user_role") as UserRole;
-    const savedName = Cookies.get("user_name");
-    const savedEmail = Cookies.get("user_email");
-    const studentIsLeader = Cookies.get("student_is_leader") === "true";
-    let cookieClassId: string | undefined;
-
-    if (savedRole === "LECTURER") {
-      cookieClassId = Cookies.get("lecturer_class_id") ?? undefined;
-    } else if (savedRole === "STUDENT") {
-      cookieClassId = Cookies.get("student_class_id") ?? undefined;
-    }
-
-    if (savedRole) {
-      setUser({
-        role: savedRole,
-        name: savedName || "",
-        email: savedEmail || "",
-      });
-    } else {
-      setUser({
-        role: "STUDENT",
-        name: "",
-        email: "",
-      });
-    }
-    setIsLeader(studentIsLeader);
-    setActiveClassId((prev) => prev ?? cookieClassId);
-    setIsLoading(false);
-  }, [router, urlClassId]);
+  const greeting = useMemo(() => getGreeting(), []);
 
   if (isLoading) {
     return (
@@ -81,43 +40,59 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+    router.push("/login");
+    return null;
+  }
 
-  const displayName =
-    profileData?.user?.full_name ||
-    user.name ||
-    profileData?.user?.email ||
-    user.email ||
-    "—";
+  const roleMeta = {
+    ADMIN: { label: "Quản trị viên", color: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" },
+    LECTURER: { label: "Giảng viên", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
+    STUDENT: { label: "Sinh viên", color: "bg-orange-100 text-[#F27124] dark:bg-orange-900/30 dark:text-orange-300" },
+  };
+  const currentRoleMeta = roleMeta[role ?? "STUDENT"];
 
   return (
-    // FIX: bg-white -> bg-white dark:bg-slate-950
-    <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
-      <div className="max-w-[1600px] mx-auto py-6 px-4 md:px-8">
-        {/* 1. ADMIN VIEW */}
-        {user.role === "ADMIN" && <AdminDashboard />}
+    <div className="min-h-screen bg-transparent transition-colors duration-300">
+      <div className="max-w-[1600px] mx-auto space-y-8">
 
-        {/* 2. LECTURER VIEW */}
-        {user.role === "LECTURER" && (
+        {/* ===== HEADER: Greeting ===== */}
+        {role !== "ADMIN" && (
+          <div className="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[28px] border border-slate-100 dark:border-slate-800 shadow-sm px-8 py-7 flex flex-wrap items-center justify-between gap-4 transition-colors">
+            <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
+              <Sparkles className="w-36 h-36 text-[#F27124]" />
+            </div>
+            <div className="space-y-1.5 relative z-10">
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                {greeting} 👋
+              </p>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+                {displayName}
+              </h1>
+              <span className={`inline-block text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full ${currentRoleMeta.color}`}>
+                {currentRoleMeta.label}
+              </span>
+            </div>
+
+            {role === "STUDENT" && (
+              <div className="relative z-10">
+                <MyGradesDialog classId={activeClassId} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ===== 1. ADMIN VIEW ===== */}
+        {role === "ADMIN" && <AdminDashboard />}
+
+        {/* ===== 2. LECTURER VIEW ===== */}
+        {role === "LECTURER" && (
           <LecturerDashboard classId={activeClassId} />
         )}
 
-        {/* 3. STUDENT VIEW */}
-        {user.role === "STUDENT" && (
+        {/* ===== 3. STUDENT VIEW ===== */}
+        {role === "STUDENT" && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="mb-6">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
-                    {displayName}
-                  </h2>
-                  <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
-                    Chúc bạn một ngày học tập hiệu quả.
-                  </p>
-                </div>
-                <MyGradesDialog classId={activeClassId} />
-              </div>
-            </div>
             {isLeader ? (
               <LeaderDashboard />
             ) : (
@@ -125,6 +100,7 @@ export default function DashboardPage() {
             )}
           </div>
         )}
+
       </div>
     </div>
   );

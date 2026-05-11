@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import Cookies from "js-cookie";
 import { Sidebar } from "@/components/layouts/sidebar";
 import { UserNav } from "@/components/layouts/user-nav";
 import { NotificationsNav } from "@/components/layouts/notifications-nav";
@@ -24,8 +23,6 @@ function DashboardLayoutContent({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  // Dùng useSearchParams để bắt sự thay đổi URL
-  const searchParams = useSearchParams();
 
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -34,10 +31,6 @@ function DashboardLayoutContent({
 
   const { data, isLoading } = useProfile();
   const user = data?.user;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -85,7 +78,7 @@ function DashboardLayoutContent({
             <div className="h-8 w-1 bg-[#F27124] rounded-full opacity-40 hidden md:block" />
             <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400 hidden lg:block">
               Hệ thống đồng bộ FPT //{" "}
-              {pathname.split("/").pop()?.replace("-", "_").toUpperCase()}
+              {pathname.split("/").pop()?.replace(/-/g, "_").toUpperCase()}
             </span>
           </div>
 

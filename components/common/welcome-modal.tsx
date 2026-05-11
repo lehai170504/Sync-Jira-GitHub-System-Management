@@ -16,11 +16,11 @@ import {
   LayoutDashboard,
   Users,
   BookOpen,
-  Settings,
   ShieldCheck,
-  Briefcase
+  Briefcase,
+  Settings,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { UserRole } from "@/components/layouts/sidebar-config";
 
 interface WelcomeModalProps {

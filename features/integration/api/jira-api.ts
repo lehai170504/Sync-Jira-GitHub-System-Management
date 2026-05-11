@@ -1,5 +1,5 @@
 import { axiosClient } from "@/lib/axios-client";
-import { JiraProject, JiraProjectsResponse } from "../types";
+import { JiraProject, JiraProjectsResponse } from "../types/integration-types";
 
 // --- JIRA INTEGRATION ---
 

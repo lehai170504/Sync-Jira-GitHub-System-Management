@@ -31,11 +31,11 @@ function StatCard({
         {icon}
       </div>
       <div>
-        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-[0.2em] mb-1">
+        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-[0.2em] mb-1">
           {label}
         </p>
         <p
-          className={`font-black text-slate-900 dark:text-slate-100 ${
+          className={`font-semibold text-slate-900 dark:text-slate-100 ${
             isUpper
               ? "text-xl uppercase tracking-tighter"
               : "text-3xl tracking-tight"

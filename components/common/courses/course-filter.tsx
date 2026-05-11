@@ -44,7 +44,7 @@ export function CourseFilter({
           {icon}
         </div>
         <div className="space-y-1">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight transition-colors">
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight transition-colors">
             {title}
           </h2>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors">

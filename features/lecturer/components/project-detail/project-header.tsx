@@ -82,7 +82,7 @@ export function ProjectHeader({ team, dashboardData }: ProjectHeaderProps) {
             <div className="flex items-center gap-3">
               <Badge
                 variant="outline"
-                className="bg-orange-50 text-[#F27124] border-orange-200 font-black uppercase text-[10px] tracking-widest"
+                className="bg-orange-50 text-[#F27124] border-orange-200 font-semibold uppercase text-[10px] tracking-widest"
               >
                 Team Profile
               </Badge>
@@ -93,7 +93,7 @@ export function ProjectHeader({ team, dashboardData }: ProjectHeaderProps) {
                 </span>
               )}
             </div>
-            <h1 className="text-4xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">
+            <h1 className="text-4xl font-semibold text-slate-900 dark:text-slate-50 tracking-tighter">
               {dashboardData?.team_info?.project_name || team.project_name}
             </h1>
             {team.class_id && (
@@ -127,7 +127,7 @@ export function ProjectHeader({ team, dashboardData }: ProjectHeaderProps) {
             <Button
               onClick={handleExportSRS}
               disabled={isExporting || !teamId}
-              className="h-12 px-6 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-2xl shadow-sm w-full sm:w-auto"
+              className="h-12 px-6 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-2xl shadow-sm w-full sm:w-auto"
             >
               {isExporting ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -161,11 +161,11 @@ export function ProjectHeader({ team, dashboardData }: ProjectHeaderProps) {
                 <Star className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5">
                   Peer Review
                 </p>
                 <div className="flex items-end gap-2">
-                  <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tighter leading-none">
+                  <p className="text-3xl font-semibold text-slate-900 dark:text-slate-100 tracking-tighter leading-none">
                     {scoreRatioToDisplay10(
                       dashboardData.project_health?.average_peer_review,
                     ).toFixed(1)}
@@ -222,7 +222,7 @@ function ConnectionBadge({ type, isConnected, value }: any) {
         <Icon className="w-4 h-4" />
       </div>
       <div className="flex flex-col min-w-0">
-        <span className="text-[9px] uppercase font-black text-slate-400">
+        <span className="text-[9px] uppercase font-semibold text-slate-400">
           {type}
         </span>
         <span className="text-xs font-bold truncate max-w-[120px]">

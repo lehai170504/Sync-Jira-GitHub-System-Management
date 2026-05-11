@@ -129,8 +129,8 @@ function ProjectDetailContent({ teamId }: { teamId: string }) {
               <div className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
                 <Tabs defaultValue="members" className="w-full">
                   <TabsList className="bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl mb-6">
-                    <TabsTrigger value="members" className="rounded-xl text-[11px] font-black uppercase px-6">Thành viên & AI</TabsTrigger>
-                    <TabsTrigger value="reviews" className="rounded-xl text-[11px] font-black uppercase px-6">Kết quả đánh giá</TabsTrigger>
+                    <TabsTrigger value="members" className="rounded-xl text-[11px] font-semibold uppercase px-6">Thành viên & AI</TabsTrigger>
+                    <TabsTrigger value="reviews" className="rounded-xl text-[11px] font-semibold uppercase px-6">Kết quả đánh giá</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="members" className="space-y-6">
@@ -190,7 +190,7 @@ function LoadingSpinner() {
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-4">
       <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
-      <p className="text-sm font-black text-slate-400 uppercase tracking-widest animate-pulse">
+      <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest animate-pulse">
         Đang đồng bộ dữ liệu đồ án...
       </p>
     </div>

@@ -1,4 +1,4 @@
-import { LeaderContribution } from "@/features/contribution/student-contribution";
+import { LeaderContribution } from "@/features/contribution/components/student-contribution";
 
 export default function LeaderContributionPage() {
   return <LeaderContribution />;

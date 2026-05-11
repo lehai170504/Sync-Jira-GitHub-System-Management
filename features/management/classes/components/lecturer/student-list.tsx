@@ -103,7 +103,7 @@ export function StudentList({
     return (
       <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-[32px] border-2 border-dashed border-slate-100 dark:border-slate-800 transition-colors">
         <Users className="mx-auto h-12 w-12 text-slate-200 dark:text-slate-600 mb-4" />
-        <p className="text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest text-xs">
+        <p className="text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-widest text-xs">
           Lớp chưa có sinh viên nào
         </p>
       </div>
@@ -139,16 +139,16 @@ export function StudentList({
                     </div>
                     <div className="text-left space-y-1">
                       <div className="flex flex-wrap items-center gap-3">
-                        <p className="font-black text-slate-900 dark:text-slate-100 text-xl tracking-tighter transition-colors">
+                        <p className="font-semibold text-slate-900 dark:text-slate-100 text-xl tracking-tighter transition-colors">
                           {group}
                         </p>
                         {group !== "Chưa có nhóm" && leaders.length > 0 && (
-                          <Badge className="rounded-full px-3 py-1 font-black text-[9px] uppercase tracking-wider bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-500 border-yellow-100 dark:border-yellow-900/50 border shadow-none transition-colors">
+                          <Badge className="rounded-full px-3 py-1 font-semibold text-[9px] uppercase tracking-wider bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-500 border-yellow-100 dark:border-yellow-900/50 border shadow-none transition-colors">
                             Leader: {leaders.map((l) => l.full_name).join(", ")}
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-[0.2em] transition-colors">
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-[0.2em] transition-colors">
                         {members.length} Thành viên
                       </p>
                     </div>
@@ -180,22 +180,22 @@ export function StudentList({
                 <Table>
                   <TableHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-y border-slate-100 dark:border-slate-800 transition-colors">
                     <TableRow className="hover:bg-transparent dark:hover:bg-transparent border-none">
-                      <TableHead className="pl-10 font-black text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
+                      <TableHead className="pl-10 font-semibold text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
                         MSSV
                       </TableHead>
-                      <TableHead className="font-black text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
+                      <TableHead className="font-semibold text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
                         Họ và tên
                       </TableHead>
-                      <TableHead className="font-black text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
+                      <TableHead className="font-semibold text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
                         Email
                       </TableHead>
-                      <TableHead className="text-center font-black text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
+                      <TableHead className="text-center font-semibold text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
                         Trạng thái
                       </TableHead>
-                      <TableHead className="text-center font-black text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
+                      <TableHead className="text-center font-semibold text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
                         Vai trò
                       </TableHead>
-                      <TableHead className="text-right pr-10 font-black text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
+                      <TableHead className="text-right pr-10 font-semibold text-[10px] uppercase text-slate-400 dark:text-slate-500 tracking-widest">
                         Thao tác
                       </TableHead>
                     </TableRow>

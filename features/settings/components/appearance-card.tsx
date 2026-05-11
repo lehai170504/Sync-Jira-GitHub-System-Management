@@ -1,0 +1,95 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Monitor, Moon, Sun, Languages } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+
+export function AppearanceSettings() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <div className="space-y-8 font-mono bg-white dark:bg-slate-900 rounded-[24px] border border-slate-100 dark:border-slate-800 p-6 shadow-sm">
+      {/* 1. THEME SELECTION */}
+      <div className="space-y-4">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <Monitor className="h-4 w-4 text-[#F27124] dark:text-orange-400" />
+            <Label className="text-[12px] font-semibold uppercase tracking-widest text-slate-900 dark:text-slate-100">
+              Chế độ hiển thị
+            </Label>
+          </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium uppercase opacity-70">
+            Tùy chỉnh giao diện Sáng, Tối hoặc đồng bộ hệ thống.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 p-1.5 bg-slate-100/50 dark:bg-slate-950/50 rounded-2xl border border-slate-200/40 dark:border-slate-800/50">
+          <ThemeButton
+            icon={Sun}
+            label="Sáng" // Đã dịch
+            isActive={theme === "light"}
+            onClick={() => setTheme("light")}
+          />
+          <ThemeButton
+            icon={Moon}
+            label="Tối" // Đã dịch
+            isActive={theme === "dark"}
+            onClick={() => setTheme("dark")}
+          />
+          <ThemeButton
+            icon={Monitor}
+            label="Hệ Thống" // Đã dịch
+            isActive={theme === "system"}
+            onClick={() => setTheme("system")}
+          />
+        </div>
+      </div>
+
+      <div className="h-px bg-slate-100 dark:bg-slate-800" />
+    </div>
+  );
+}
+
+function ThemeButton({
+  icon: Icon,
+  label,
+  isActive,
+  onClick,
+}: {
+  icon: any;
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      variant="ghost"
+      onClick={onClick}
+      className={cn(
+        "flex flex-col gap-2 h-20 rounded-xl transition-all duration-300",
+        isActive
+          ? "bg-white dark:bg-slate-800 text-[#F27124] dark:text-orange-400 shadow-md border border-slate-200/60 dark:border-slate-700 scale-[1.02]"
+          : "text-slate-400 dark:text-slate-500 hover:bg-white/50 dark:hover:bg-slate-800/50 hover:text-slate-600 dark:hover:text-slate-300",
+      )}
+    >
+      <Icon
+        className={cn(
+          "h-5 w-5",
+          isActive ? "animate-in zoom-in-75 duration-300" : "",
+        )}
+      />
+      <span className="text-[9px] font-semibold uppercase tracking-widest">
+        {label}
+      </span>
+    </Button>
+  );
+}

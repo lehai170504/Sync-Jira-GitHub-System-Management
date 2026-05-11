@@ -1,6 +1,6 @@
 import { axiosClient } from "@/lib/axios-client";
 import { sortTasksByStatus } from "@/features/management/teams/api/task-api";
-import type { IntegrationProjectRef } from "../types";
+import type { IntegrationProjectRef } from "../types/integration-types";
 
 /**
  * Response từ API GET /integrations/my-tasks

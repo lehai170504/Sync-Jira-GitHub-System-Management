@@ -123,11 +123,11 @@ export default function SchedulePage() {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-[#F27124] dark:text-orange-400 mb-2 bg-orange-50 dark:bg-orange-900/20 w-fit px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-900/30 transition-colors">
             <LayoutDashboard className="h-4 w-4" />
-            <span className="text-[10px] font-black uppercase tracking-widest">
+            <span className="text-[10px] font-semibold uppercase tracking-widest">
               Dashboard
             </span>
           </div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight transition-colors">
+          <h1 className="text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 leading-tight transition-colors">
             Lịch trình & Công việc
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium text-base transition-colors">

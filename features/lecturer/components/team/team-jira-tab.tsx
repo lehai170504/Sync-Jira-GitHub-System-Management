@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/common/status-badge";
 "use client";
 
 import { useTeamTasks } from "@/features/lecturer/hooks/use-integration";
@@ -51,7 +52,7 @@ export function TeamJiraTab({
         <div className="p-5 bg-white dark:bg-slate-800 rounded-full shadow-sm mb-4">
           <SiJira className="w-10 h-10 text-blue-300 dark:text-blue-900/50" />
         </div>
-        <h3 className="text-lg font-black text-slate-700 dark:text-slate-300 mb-2">
+        <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
           Bảng công việc trống
         </h3>
         <p className="text-sm text-slate-500 max-w-sm">
@@ -120,7 +121,7 @@ export function TeamJiraTab({
             <SiJira className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white tracking-tight">
               Bảng công việc (Jira)
             </h2>
             <div className="flex items-center gap-2 mt-1">
@@ -160,7 +161,7 @@ export function TeamJiraTab({
                 >
                   <div className="flex items-center gap-2">
                     <Icon className={cn("w-4 h-4", config.color)} />
-                    <span className="text-sm font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
                       {colName}
                     </span>
                   </div>
@@ -207,12 +208,7 @@ export function TeamJiraTab({
                           >
                             {task.issue_key}
                           </Badge>
-                          <Badge
-                            variant="secondary"
-                            className="text-[10px] text-blue-600 bg-blue-50 hover:bg-blue-50 border-none px-1.5 py-0"
-                          >
-                            {task.status_name}
-                          </Badge>
+                          <StatusBadge status={task.status_name} />
                           {task.story_point > 0 && (
                             <Badge className="bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-50 border-none text-[10px] px-1.5 py-0">
                               {task.story_point} SP

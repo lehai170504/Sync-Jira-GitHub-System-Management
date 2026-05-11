@@ -45,7 +45,7 @@ export function ProfileSidebar() {
     return (
       <Card className="h-[400px] flex flex-col items-center justify-center border-slate-200/60 dark:border-slate-800 rounded-[32px] bg-white dark:bg-slate-900 shadow-sm transition-colors font-mono">
         <Loader2 className="h-10 w-10 animate-spin text-orange-500 opacity-80" />
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 mt-4">
           Đang tải hồ sơ...
         </p>
       </Card>
@@ -74,7 +74,7 @@ export function ProfileSidebar() {
           <div className="relative group cursor-pointer">
             <Avatar className="h-28 w-28 border-[6px] border-white dark:border-slate-900 shadow-md bg-white dark:bg-slate-800 rounded-[32px] transition-transform duration-300 group-hover:scale-105">
               <AvatarImage src={user.avatar_url} className="object-cover" />
-              <AvatarFallback className="text-3xl font-black bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400">
+              <AvatarFallback className="text-3xl font-semibold bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400">
                 {getInitials(user.full_name)}
               </AvatarFallback>
             </Avatar>
@@ -88,19 +88,19 @@ export function ProfileSidebar() {
         </div>
 
         <CardContent className="pt-6 pb-8 text-center">
-          <h2 className="text-xl font-black text-slate-900 dark:text-slate-100 uppercase tracking-tighter line-clamp-1">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-tighter line-clamp-1">
             {user.full_name}
           </h2>
 
           <div className="mt-5 flex flex-col gap-2.5 items-center">
-            <Badge className="px-4 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-none rounded-xl text-[10px] font-black uppercase tracking-[0.1em] transition-colors hover:bg-slate-200 dark:hover:bg-slate-700">
+            <Badge className="px-4 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-none rounded-xl text-[10px] font-semibold uppercase tracking-[0.1em] transition-colors hover:bg-slate-200 dark:hover:bg-slate-700">
               {getRoleDisplayName(user.role)}
             </Badge>
 
             {user.is_verified && (
               <div className="flex items-center justify-center gap-1.5 py-1 text-emerald-600 dark:text-emerald-400">
                 <ShieldCheck className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">
+                <span className="text-[10px] font-semibold uppercase tracking-widest">
                   Đã xác thực
                 </span>
               </div>
@@ -112,7 +112,7 @@ export function ProfileSidebar() {
       {/* CARD 2: CONTACT & METADATA */}
       <Card className="border-slate-200/60 dark:border-slate-800 rounded-[32px] bg-white dark:bg-slate-900 shadow-sm overflow-hidden transition-colors">
         <CardHeader className="pb-4 bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
-          <CardTitle className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+          <CardTitle className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
             <Fingerprint className="w-4 h-4 text-orange-500 dark:text-orange-400" />
             Thông tin hệ thống
           </CardTitle>

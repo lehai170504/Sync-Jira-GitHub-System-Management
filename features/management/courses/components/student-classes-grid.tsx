@@ -79,7 +79,7 @@ export function StudentClassesGrid({
               <CardHeader className="pt-6 pb-4">
                 <div className="flex justify-between items-start gap-4 mb-3">
                   <div>
-                    <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors leading-none">
+                    <h3 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors leading-none">
                       {cls.className}
                     </h3>
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-wide">

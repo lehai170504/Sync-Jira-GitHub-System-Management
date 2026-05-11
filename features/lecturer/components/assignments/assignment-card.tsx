@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/common/status-badge";
 "use client";
 
 import {
@@ -43,17 +44,7 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
             </Badge>
 
             {/* Trạng thái */}
-            <Badge
-              variant="outline"
-              className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md border
-                ${
-                  status === "Open"
-                    ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
-                    : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700"
-                }`}
-            >
-              {status === "Open" ? "Đang mở" : "Đã đóng"}
-            </Badge>
+            <StatusBadge status={status === "Open" ? "Đang mở" : "Đã đóng"} />
           </div>
 
           <Button

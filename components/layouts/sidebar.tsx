@@ -203,7 +203,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                 </div>
               ) : (
                 <>
-                  <h1 className="text-sm font-black tracking-tight leading-none text-slate-900 dark:text-slate-100 truncate uppercase">
+                  <h1 className="text-sm font-semibold tracking-tight leading-none text-slate-900 dark:text-slate-100 truncate uppercase">
                     {classDisplayInfo ? classDisplayInfo.main : "SyncSystem"}
                   </h1>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold tracking-widest mt-1.5 truncate uppercase">

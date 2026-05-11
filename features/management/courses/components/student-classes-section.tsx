@@ -94,7 +94,7 @@ export function StudentClassesSection({
           {/* Tinh chỉnh ánh sáng lan tỏa phía sau mượt hơn trong chế độ tối */}
           <div className="absolute inset-0 h-12 w-12 bg-orange-400 dark:bg-orange-600 blur-2xl opacity-20 animate-pulse" />
         </div>
-        <p className="mt-6 text-slate-500 dark:text-slate-400 font-black text-[10px] uppercase tracking-widest animate-pulse transition-colors">
+        <p className="mt-6 text-slate-500 dark:text-slate-400 font-semibold text-[10px] uppercase tracking-widest animate-pulse transition-colors">
           Đang chuẩn bị không gian học tập...
         </p>
       </div>

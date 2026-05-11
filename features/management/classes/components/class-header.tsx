@@ -35,13 +35,13 @@ export function ClassHeader({
             {semesterName}
           </div>
           {isConnected && (
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse border border-emerald-100 dark:border-emerald-800/50">
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-semibold uppercase tracking-widest animate-pulse border border-emerald-100 dark:border-emerald-800/50">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
               Live Sync
             </div>
           )}
         </div>
-        <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-50">
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
           Lớp {className}
         </h1>
         <p className="text-base text-slate-500 dark:text-slate-400 font-medium">

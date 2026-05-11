@@ -109,7 +109,7 @@ export function ClassDetailDrawer({
             </div>
 
             <div className="space-y-1.5">
-              <SheetTitle className="text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tight transition-colors">
+              <SheetTitle className="text-3xl font-semibold text-slate-900 dark:text-slate-50 tracking-tight transition-colors">
                 Lớp {classInfo.name}
               </SheetTitle>
               <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 transition-colors">
@@ -160,7 +160,7 @@ export function ClassDetailDrawer({
               <div className="grid grid-cols-3 gap-4">
                 <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center text-center transition-colors">
                   <Users className="h-6 w-6 text-blue-500 dark:text-blue-400 mb-2" />
-                  <span className="text-2xl font-black text-slate-900 dark:text-slate-100 transition-colors">
+                  <span className="text-2xl font-semibold text-slate-900 dark:text-slate-100 transition-colors">
                     {stats.total_students}
                   </span>
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1 transition-colors">
@@ -169,7 +169,7 @@ export function ClassDetailDrawer({
                 </div>
                 <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center text-center transition-colors">
                   <Layers className="h-6 w-6 text-purple-500 dark:text-purple-400 mb-2" />
-                  <span className="text-2xl font-black text-slate-900 dark:text-slate-100 transition-colors">
+                  <span className="text-2xl font-semibold text-slate-900 dark:text-slate-100 transition-colors">
                     {stats.total_teams}
                   </span>
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1 transition-colors">
@@ -178,7 +178,7 @@ export function ClassDetailDrawer({
                 </div>
                 <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center text-center transition-colors">
                   <Briefcase className="h-6 w-6 text-orange-500 dark:text-orange-400 mb-2" />
-                  <span className="text-2xl font-black text-slate-900 dark:text-slate-100 transition-colors">
+                  <span className="text-2xl font-semibold text-slate-900 dark:text-slate-100 transition-colors">
                     {stats.total_projects}
                   </span>
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1 transition-colors">
@@ -274,7 +274,7 @@ export function ClassDetailDrawer({
                       className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-blue-300 dark:hover:border-blue-900/50 hover:shadow-md transition-all duration-300"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center font-black text-slate-600 dark:text-slate-300 text-lg group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors border border-slate-100 dark:border-slate-700/50">
+                        <div className="h-12 w-12 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center font-semibold text-slate-600 dark:text-slate-300 text-lg group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors border border-slate-100 dark:border-slate-700/50">
                           {team.project_name.substring(0, 1).toUpperCase()}
                         </div>
 
@@ -358,7 +358,7 @@ function WeightCard({ icon: Icon, label, value, color }: any) {
       <span className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-1 transition-colors">
         {label}
       </span>
-      <span className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tighter transition-colors">
+      <span className="text-2xl font-semibold text-slate-900 dark:text-slate-100 tracking-tighter transition-colors">
         {Math.round((value || 0) * 100)}
         <span className="text-sm text-slate-400 dark:text-slate-500 font-medium ml-0.5">
           %

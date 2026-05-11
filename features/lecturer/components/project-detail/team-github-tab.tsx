@@ -52,7 +52,7 @@ export function TeamGithubTab({ teamId }: TeamGithubTabProps) {
     return (
       <div className="flex flex-col items-center justify-center h-[600px] border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl p-6 text-center">
         <Github className="w-12 h-12 text-slate-300 mb-4" />
-        <h3 className="text-lg font-black text-slate-700 dark:text-slate-300">
+        <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">
           Chưa có dữ liệu Commit
         </h3>
         <p className="text-sm text-slate-500 max-w-xs mt-2">
@@ -82,7 +82,7 @@ export function TeamGithubTab({ teamId }: TeamGithubTabProps) {
             <Github className="w-6 h-6 text-white dark:text-slate-900" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white tracking-tight">
               Lịch sử Commits
             </h2>
             <div className="flex items-center gap-2 mt-1">
@@ -157,7 +157,7 @@ export function TeamGithubTab({ teamId }: TeamGithubTabProps) {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-xs font-black text-slate-700 dark:text-slate-300">
+                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       {
                         memberData.commits?.filter((c: any) => c.is_counted)
                           .length

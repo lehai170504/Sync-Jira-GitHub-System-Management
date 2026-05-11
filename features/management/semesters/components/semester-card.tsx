@@ -47,7 +47,7 @@ export function SemesterCard({ semester, onClick }: SemesterCardProps) {
       </div>
 
       <div className="mb-6 flex-1">
-        <h3 className="text-2xl font-black text-slate-900 dark:text-slate-50 tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
+        <h3 className="text-2xl font-semibold text-slate-900 dark:text-slate-50 tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
           {semester.name}
         </h3>
       </div>

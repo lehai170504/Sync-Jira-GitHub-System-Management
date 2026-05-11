@@ -30,7 +30,7 @@ export function MetricCard({
   return (
     <Card className="rounded-[24px] border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-lg hover:shadow-orange-500/5 hover:border-orange-200 dark:hover:border-orange-900/50 transition-all duration-300 group">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+        <CardTitle className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
           {title}
         </CardTitle>
         <div className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl group-hover:bg-[#F27124]/10 dark:group-hover:bg-[#F27124]/20 transition-colors duration-300">
@@ -38,7 +38,7 @@ export function MetricCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tighter mt-1">
+        <div className="text-3xl font-semibold text-slate-900 dark:text-slate-50 tracking-tighter mt-1">
           {value}
         </div>
         <div className="flex items-center mt-2 gap-2">

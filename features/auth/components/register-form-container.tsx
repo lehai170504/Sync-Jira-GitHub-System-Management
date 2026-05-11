@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { RegisterFormData } from "@/features/auth/types";
+import { RegisterFormData } from "@/features/auth/types/auth-types";
 import { useRequestOtp, useRegister } from "@/features/auth/hooks/use-register";
 import { RegisterStep1 } from "./register-step1";
 import { RegisterStep2 } from "./register-step2";
@@ -76,7 +76,7 @@ export function RegisterFormContainer({ onSwitchToLogin }: Props) {
   return (
     <div className="w-full space-y-6">
       <div className="space-y-2">
-        <h1 className="text-3xl font-black text-slate-900 dark:text-slate-50 transition-colors">
+        <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-50 transition-colors">
           {step === 1 ? "Tạo tài khoản" : "Xác thực"}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-sm transition-colors">

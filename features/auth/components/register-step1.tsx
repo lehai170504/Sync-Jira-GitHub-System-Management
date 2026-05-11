@@ -33,7 +33,7 @@ export function RegisterStep1({
         />
         <Label
           htmlFor="email"
-          className="absolute left-11 top-4 text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest pointer-events-none transition-all duration-300
+          className="absolute left-11 top-4 text-slate-400 dark:text-slate-500 text-[10px] font-semibold uppercase tracking-widest pointer-events-none transition-all duration-300
                      peer-focus:-translate-y-3 peer-focus:text-[9px] peer-focus:text-[#F27124] dark:peer-focus:text-orange-400
                      peer-[:not(:placeholder-shown)]:-translate-y-3 peer-[:not(:placeholder-shown)]:text-[9px]"
         >
@@ -45,7 +45,7 @@ export function RegisterStep1({
       <Button
         type="submit"
         disabled={isLoading}
-        className="w-full h-12 text-[10px] font-black uppercase tracking-widest bg-slate-900 dark:bg-[#F27124] hover:bg-[#F27124] dark:hover:bg-[#d65d1b] text-white rounded-2xl shadow-lg dark:shadow-none active:scale-95 transition-all"
+        className="w-full h-12 text-[10px] font-semibold uppercase tracking-widest bg-slate-900 dark:bg-[#F27124] hover:bg-[#F27124] dark:hover:bg-[#d65d1b] text-white rounded-2xl shadow-lg dark:shadow-none active:scale-95 transition-all"
       >
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />

@@ -60,7 +60,7 @@ export function CalendarView({
             <CalendarDays className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 capitalize leading-none tracking-tight">
+            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100 capitalize leading-none tracking-tight">
               Tháng {format(currentMonth, "M, yyyy")}
             </h2>
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-widest">
@@ -106,7 +106,7 @@ export function CalendarView({
           {["CN", "Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy"].map((d) => (
             <div
               key={d}
-              className="py-3 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400"
+              className="py-3 text-[11px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400"
             >
               {d}
             </div>

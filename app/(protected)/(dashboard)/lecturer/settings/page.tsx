@@ -15,8 +15,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Import components
-import { AppearanceSettings } from "@/features/settings/appearance-card";
-import { NotificationSettings } from "@/features/settings/notification-card";
+import { AppearanceSettings } from "@/features/settings/components/appearance-card";
+import { NotificationSettings } from "@/features/settings/components/notification-card";
 import { GradingConfig } from "@/features/lecturer/components/settings/grading-config";
 
 // Import hook để lấy thông tin lớp
@@ -84,11 +84,11 @@ export default function SettingsPage() {
         <div>
           <div className="flex items-center gap-2 text-[#F27124] dark:text-orange-400 mb-2">
             <Settings className="h-5 w-5" />
-            <span className="text-xs font-black uppercase tracking-widest">
+            <span className="text-xs font-semibold uppercase tracking-widest">
               Settings & Configurations
             </span>
           </div>
-          <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-slate-50">
+          <h1 className="text-4xl font-semibold tracking-tighter text-slate-900 dark:text-slate-50">
             Cài đặt & Cấu hình
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg font-medium flex items-center flex-wrap gap-2">

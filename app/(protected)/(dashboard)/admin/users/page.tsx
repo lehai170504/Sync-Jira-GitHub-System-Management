@@ -86,11 +86,11 @@ export default function UserManagementPage() {
         {/* --- 1. HEADER SECTION --- */}
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between border-b border-slate-200/60 dark:border-slate-800 pb-8 transition-colors">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-black uppercase tracking-[0.2em] text-[10px] bg-blue-50 dark:bg-blue-900/20 w-fit px-3 py-1 rounded-full border border-blue-100 dark:border-blue-800">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold uppercase tracking-[0.2em] text-[10px] bg-blue-50 dark:bg-blue-900/20 w-fit px-3 py-1 rounded-full border border-blue-100 dark:border-blue-800">
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>Identity Management</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-slate-900 dark:text-slate-50">
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tighter text-slate-900 dark:text-slate-50">
               Quản lý Người dùng
             </h1>
             <p className="text-slate-500 dark:text-slate-400 font-medium text-sm md:text-base max-w-2xl leading-relaxed">
@@ -159,7 +159,7 @@ export default function UserManagementPage() {
           <div className="flex items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-2">
               <LayoutGrid className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-              <h3 className="font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-[10px]">
+              <h3 className="font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-[10px]">
                 Kết quả hiển thị ({totalFiltered})
               </h3>
             </div>
@@ -169,7 +169,7 @@ export default function UserManagementPage() {
                 variant="ghost"
                 size="sm"
                 onClick={handleResetFilters}
-                className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 gap-1.5 transition-colors h-8"
+                className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 gap-1.5 transition-colors h-8"
               >
                 <FilterX className="w-3.5 h-3.5" /> Xóa bộ lọc
               </Button>

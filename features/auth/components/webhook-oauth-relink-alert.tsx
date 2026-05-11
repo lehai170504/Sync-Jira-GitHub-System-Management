@@ -388,7 +388,7 @@ export function WebhookOAuthRelinkAlert() {
       >
         <div className="p-6 sm:p-8">
           <DialogHeader className="space-y-2">
-            <DialogTitle className="text-xl font-black text-slate-900 dark:text-slate-100">
+            <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-slate-100">
               Cần đăng nhập lại để kích hoạt Webhook Real-time
             </DialogTitle>
           </DialogHeader>

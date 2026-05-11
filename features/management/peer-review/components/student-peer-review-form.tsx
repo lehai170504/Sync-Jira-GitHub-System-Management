@@ -395,7 +395,7 @@ export function PeerReviewForm() {
                   </h3>
                   <span
                     className={cn(
-                      "text-[9px] font-black uppercase px-2 py-0.5 rounded-full mt-1 inline-block tracking-widest",
+                      "text-[9px] font-semibold uppercase px-2 py-0.5 rounded-full mt-1 inline-block tracking-widest",
                       member.role === "LEADER"
                         ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300"
                         : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
@@ -428,13 +428,13 @@ export function PeerReviewForm() {
                       </button>
                     ))}
                   </div>
-                  <span className="text-[10px] mt-2 font-black uppercase tracking-widest text-amber-600">
+                  <span className="text-[10px] mt-2 font-semibold uppercase tracking-widest text-amber-600">
                     {rating === 0 ? "Chạm để đánh giá" : `${rating}/5 SAO`}
                   </span>
                 </div>
 
                 <div className="space-y-2 flex-1">
-                  <Label className="text-[10px] uppercase text-slate-400 font-black tracking-widest ml-1">
+                  <Label className="text-[10px] uppercase text-slate-400 font-semibold tracking-widest ml-1">
                     Nhận xét{" "}
                     {rating > 0 && rating <= 2 && (
                       <span className="text-red-500">*</span>
@@ -474,7 +474,7 @@ export function PeerReviewForm() {
           <Button
             onClick={handleSubmitAll}
             disabled={!canSubmitAll || isSubmittingAll}
-            className="h-12 px-10 rounded-xl font-black uppercase tracking-widest text-sm text-white bg-slate-900 hover:bg-slate-800 dark:bg-[#F27124] dark:hover:bg-[#d651d1b] shadow-lg dark:shadow-orange-500/25"
+            className="h-12 px-10 rounded-xl font-semibold uppercase tracking-widest text-sm text-white bg-slate-900 hover:bg-slate-800 dark:bg-[#F27124] dark:hover:bg-[#d651d1b] shadow-lg dark:shadow-orange-500/25"
           >
             {isSubmittingAll ? (
               <Loader2 className="w-5 h-5 animate-spin mr-2" />

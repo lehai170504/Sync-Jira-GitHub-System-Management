@@ -1,5 +1,5 @@
 import { axiosClient } from "@/lib/axios-client";
-import { SyncResponse } from "../types";
+import { SyncResponse } from "../types/integration-types";
 
 export interface SyncProjectPayload {
   branch?: string;

@@ -1,5 +1,5 @@
 "use client";
-
+import { StatusBadge } from "@/components/common/status-badge";
 import { useSemesterDetails } from "@/features/management/semesters/hooks/use-semester-details";
 import {
   Sheet,
@@ -103,20 +103,12 @@ export function SemesterDetailSheet({
             </div>
 
             {semester && (
-              <Badge
-                variant="outline"
-                className={cn(
-                  "text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border shadow-sm rounded-md",
-                  statusInfo.className,
-                )}
-              >
-                {statusInfo.label}
-              </Badge>
+              <StatusBadge status={statusInfo.label} />
             )}
           </div>
 
           <div className="space-y-1.5">
-            <SheetTitle className="text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tight transition-colors">
+            <SheetTitle className="text-3xl font-semibold text-slate-900 dark:text-slate-50 tracking-tight transition-colors">
               {isLoading ? (
                 <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md" />
               ) : (
@@ -262,7 +254,7 @@ function StatCard({ icon: Icon, label, value, subText, color }: any) {
         {label}
       </p>
       <div className="flex flex-col gap-0.5 mt-1">
-        <span className="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none transition-colors">
+        <span className="text-3xl font-semibold text-slate-900 dark:text-slate-100 leading-none transition-colors">
           {value || 0}
         </span>
         <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium transition-colors">
@@ -281,7 +273,7 @@ function ClassItemAccordion({ cls }: { cls: ClassInSemester }) {
     >
       <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
         <div className="flex items-center gap-4 text-left">
-          <div className="h-10 w-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center font-black text-slate-600 dark:text-slate-300 text-xs shrink-0 transition-colors">
+          <div className="h-10 w-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center font-semibold text-slate-600 dark:text-slate-300 text-xs shrink-0 transition-colors">
             {cls.name.substring(0, 2)}
           </div>
           <div>
@@ -409,7 +401,7 @@ function WeightBox({ icon: Icon, label, value, color }: any) {
       <span className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest transition-colors">
         {label}
       </span>
-      <span className="text-xs font-black text-slate-900 dark:text-slate-100 mt-0.5 transition-colors">
+      <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 mt-0.5 transition-colors">
         {value}%
       </span>
     </div>

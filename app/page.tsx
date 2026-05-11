@@ -1,18 +1,22 @@
 "use client";
 
 // Import các Component con
-import { Navbar } from "@/features/home/navbar";
-import { HeroSection } from "@/features/home/hero-section";
-import { MetricsSection } from "@/features/home/metrics-section";
-import { FeaturesSection } from "@/features/home/features-section";
-import { Footer } from "@/features/home/footer";
-import { ScrollCore3D } from "@/features/home/scroll-core-3d";
+import { Navbar } from "@/features/home/components/navbar";
+import { HeroSection } from "@/features/home/components/hero-section";
+import { MetricsSection } from "@/features/home/components/metrics-section";
+import { FeaturesSection } from "@/features/home/components/features-section";
+import { WorkflowSection } from "@/features/home/components/workflow-section";
+import { TestimonialsSection } from "@/features/home/components/testimonials-section";
+import { FAQSection } from "@/features/home/components/faq-section";
+import { CTASection } from "@/features/home/components/cta-section";
+import { Footer } from "@/features/home/components/footer";
+import { BackgroundBeams } from "@/features/home/components/background-beams";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen bg-[#FDFDFD] font-mono selection:bg-orange-100 overflow-x-hidden relative">
-      {/* 1. HIỆU ỨNG 3D SCROLL (Luôn chạy đè lên trên nền, dưới nội dung) */}
-      <ScrollCore3D />
+    <div className="flex flex-col min-h-screen bg-white font-sans selection:bg-orange-500/10 overflow-x-hidden relative">
+      {/* 1. HIỆU ỨNG NỀN PREMIUM */}
+      <BackgroundBeams />
 
       {/* 2. NAVBAR */}
       <Navbar />
@@ -24,11 +28,23 @@ export default function HomePage() {
         {/* 4. METRICS */}
         <MetricsSection />
 
-        {/* 5. FEATURES */}
+        {/* 5. WORKFLOW */}
+        <WorkflowSection />
+
+        {/* 6. FEATURES */}
         <FeaturesSection />
+
+        {/* 7. TESTIMONIALS*/}
+        <TestimonialsSection />
+
+        {/* 8. FAQ */}
+        <FAQSection />
+
+        {/* 9. CTA */}
+        <CTASection />
       </main>
 
-      {/* 6. FOOTER */}
+      {/* 10. FOOTER */}
       <Footer />
     </div>
   );

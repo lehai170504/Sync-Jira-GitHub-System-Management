@@ -29,11 +29,11 @@ export function StatCard({ icon: Icon, label, value, color }: StatCardProps) {
         <div className={cn("inline-flex p-2 rounded-xl mb-2", colors[color])}>
           <Icon className="w-4 h-4" />
         </div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">
+        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none mb-1.5">
           {label}
         </p>
       </div>
-      <p className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tighter leading-none">
+      <p className="text-3xl font-semibold text-slate-900 dark:text-slate-100 tracking-tighter leading-none">
         {value || 0}
       </p>
     </div>

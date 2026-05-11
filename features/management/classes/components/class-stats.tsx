@@ -23,7 +23,7 @@ export function ClassStats({
               <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
                 Tổng sinh viên
               </p>
-              <h3 className="text-3xl font-black text-slate-900 dark:text-slate-100">
+              <h3 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {totalStudents}
               </h3>
             </div>
@@ -41,7 +41,7 @@ export function ClassStats({
               <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
                 Số lượng nhóm
               </p>
-              <h3 className="text-3xl font-black text-slate-900 dark:text-slate-100">
+              <h3 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {totalTeams}
               </h3>
             </div>
@@ -59,7 +59,7 @@ export function ClassStats({
               <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
                 Trọng số Jira
               </p>
-              <h3 className="text-3xl font-black text-slate-900 dark:text-slate-100">
+              <h3 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {Math.round(jiraWeight * 100)}%
               </h3>
             </div>

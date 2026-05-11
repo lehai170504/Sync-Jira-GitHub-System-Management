@@ -29,7 +29,7 @@ export function DashboardHeader({
       className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6 transition-colors"
     >
       <div className="space-y-2">
-        <h2 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-slate-50 uppercase flex items-center gap-3">
+        <h2 className="text-3xl font-semibold tracking-tighter text-slate-900 dark:text-slate-50 uppercase flex items-center gap-3">
           Thống kê hệ thống
           {hasSemester && (
             <span className="text-sm font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full border-none">

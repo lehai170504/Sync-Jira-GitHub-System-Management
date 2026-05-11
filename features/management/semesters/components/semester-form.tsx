@@ -196,7 +196,7 @@ export function SemesterForm({
                 </span>
               </div>
               <div className="text-right flex flex-col items-end">
-                <span className="text-emerald-600 dark:text-emerald-400 font-black text-2xl leading-none">
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-2xl leading-none">
                   {progress}%
                 </span>
               </div>

@@ -1,5 +1,5 @@
 import { axiosClient } from "@/lib/axios-client";
-import { GithubRepo, GithubReposResponse } from "../types";
+import { GithubRepo, GithubReposResponse } from "../types/integration-types";
 
 // --- GITHUB INTEGRATION ---
 

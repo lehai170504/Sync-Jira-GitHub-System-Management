@@ -80,7 +80,7 @@ export function SecurityTab() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
       <Card className="border-slate-200/60 dark:border-slate-800 rounded-[32px] bg-white dark:bg-slate-900 shadow-sm transition-colors overflow-hidden">
         <CardHeader className="p-8 border-b border-slate-100 dark:border-slate-800">
-          <CardTitle className="text-2xl font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight flex items-center gap-3">
+          <CardTitle className="text-2xl font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-tight flex items-center gap-3">
             <Shield className="w-6 h-6 text-orange-500" />
             Đổi mật khẩu bảo mật
           </CardTitle>
@@ -96,7 +96,7 @@ export function SecurityTab() {
                 <Lock className="h-8 w-8 text-orange-500 dark:text-orange-400" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-black uppercase tracking-tight text-slate-900 dark:text-slate-100">
+                <h3 className="text-lg font-semibold uppercase tracking-tight text-slate-900 dark:text-slate-100">
                   Xác thực danh tính
                 </h3>
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -141,7 +141,7 @@ export function SecurityTab() {
                     placeholder="123456"
                     maxLength={6}
                     // Bỏ text-center để thẳng hàng với input mật khẩu
-                    className="pl-12 h-14 rounded-2xl tracking-[0.5em] font-black text-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 transition-all hover:border-orange-300 dark:hover:border-orange-700 focus-visible:border-orange-500 focus-visible:ring-4 focus-visible:ring-orange-500/10 peer"
+                    className="pl-12 h-14 rounded-2xl tracking-[0.5em] font-semibold text-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 transition-all hover:border-orange-300 dark:hover:border-orange-700 focus-visible:border-orange-500 focus-visible:ring-4 focus-visible:ring-orange-500/10 peer"
                   />
                   {/* Sử dụng top-1/2 -translate-y-1/2 để căn giữa icon */}
                   <KeyRound className="h-5 w-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors peer-focus:text-orange-500" />

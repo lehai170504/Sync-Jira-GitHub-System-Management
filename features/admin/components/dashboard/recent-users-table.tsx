@@ -50,7 +50,7 @@ export function RecentUsersTable() {
     >
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div className="space-y-1">
-          <CardTitle className="text-xl font-black text-slate-900 dark:text-slate-50">
+          <CardTitle className="text-xl font-semibold text-slate-900 dark:text-slate-50">
             Người dùng mới
           </CardTitle>
           <CardDescription className="text-slate-500 dark:text-slate-400">
@@ -91,7 +91,7 @@ export function RecentUsersTable() {
                     <AvatarImage src={user.avatar_url} />
                     <AvatarFallback
                       // Avatar Fallback: Dùng opacity cho nền tối để không bị chói
-                      className={`font-black text-xs ${
+                      className={`font-semibold text-xs ${
                         user.role === "LECTURER"
                           ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
                           : "bg-orange-50 dark:bg-orange-900/30 text-[#F27124] dark:text-orange-400"

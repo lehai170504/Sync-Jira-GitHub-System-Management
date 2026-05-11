@@ -106,7 +106,7 @@ export default function ClassManagementPage() {
               <GraduationCap className="h-3.5 w-3.5" />
               <span>Hệ thống quản lý đào tạo</span>
             </div>
-            <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-slate-50 md:text-5xl">
+            <h1 className="text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-5xl">
               Danh sách Lớp học
             </h1>
             <p className="text-slate-500 dark:text-slate-400 font-medium text-sm md:text-base max-w-2xl leading-relaxed">

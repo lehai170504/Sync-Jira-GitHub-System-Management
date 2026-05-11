@@ -80,7 +80,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
         {isLoading ? (
           <div className="h-[400px] flex flex-col items-center justify-center">
             <Loader2 className="h-10 w-10 animate-spin text-[#F27124] opacity-50" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 mt-4">
               Đang tải hồ sơ...
             </p>
           </div>
@@ -106,7 +106,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
                       src={user.avatar_url}
                       className="object-cover"
                     />
-                    <AvatarFallback className="text-2xl font-black bg-orange-50 dark:bg-orange-900/30 text-[#F27124] dark:text-orange-400">
+                    <AvatarFallback className="text-2xl font-semibold bg-orange-50 dark:bg-orange-900/30 text-[#F27124] dark:text-orange-400">
                       {getInitials(user.full_name)}
                     </AvatarFallback>
                   </Avatar>
@@ -120,7 +120,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
 
                 <div className="flex-1 pb-1">
                   <div className="flex items-center gap-3 mb-1.5">
-                    <DialogTitle className="text-2xl font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">
+                    <DialogTitle className="text-2xl font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-tight">
                       {user.full_name}
                     </DialogTitle>
                     {user.is_verified && (
@@ -128,7 +128,7 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-none px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                    <Badge className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-none px-2.5 py-0.5 rounded-lg text-[9px] font-semibold uppercase tracking-wider">
                       {getRoleDisplayName(userRole)}
                     </Badge>
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400">

@@ -283,7 +283,7 @@ export default function LecturerReviewCalculatePage() {
                       <TableHead className="text-right">
                         Hệ số (Factor)
                       </TableHead>
-                      <TableHead className="text-right font-black text-[#F27124]">
+                      <TableHead className="text-right font-semibold text-[#F27124]">
                         Điểm Nhận Được
                       </TableHead>
                     </TableRow>
@@ -363,7 +363,7 @@ export default function LecturerReviewCalculatePage() {
                           </TableCell>
 
                           {/* Cột 5: Điểm cuối cùng */}
-                          <TableCell className="text-right font-black text-xl text-slate-900 dark:text-white">
+                          <TableCell className="text-right font-semibold text-xl text-slate-900 dark:text-white">
                             {Number(gradesInfo.final_score ?? 0).toFixed(2)}
                           </TableCell>
                         </TableRow>

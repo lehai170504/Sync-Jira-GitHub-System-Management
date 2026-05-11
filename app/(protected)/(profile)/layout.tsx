@@ -40,12 +40,12 @@ export default function SettingsLayout({
             onClick={() => router.push("/dashboard")}
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] ml-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] ml-2">
               QUAY LẠI
             </span>
           </Button>
           <div className="h-6 w-[1.5px] bg-slate-200 dark:bg-slate-800" />
-          <span className="text-[11px] font-black uppercase tracking-[0.15em] text-[#F27124] dark:text-orange-400">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#F27124] dark:text-orange-400">
             CÀI ĐẶT NGƯỜI DÙNG // {vietnamesePath}
           </span>
         </div>

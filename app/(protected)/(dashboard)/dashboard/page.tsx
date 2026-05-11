@@ -8,10 +8,10 @@ import { useProfile } from "@/features/auth/hooks/use-profile";
 
 // Import các Dashboard Component
 import { AdminDashboard } from "@/features/admin/components/dashboard/admin-dashboard";
-import { LecturerDashboard } from "@/features/dashboard/lecturer-view";
-import { LeaderDashboard } from "@/features/dashboard/student-view";
-import { MemberDashboard } from "@/features/dashboard/member-view";
-import { MyGradesDialog } from "@/features/dashboard/my-grades-dialog";
+import { LecturerDashboard } from "@/features/dashboard/components/lecturer-view";
+import { LeaderDashboard } from "@/features/dashboard/components/student-view";
+import { MemberDashboard } from "@/features/dashboard/components/member-view";
+import { MyGradesDialog } from "@/features/dashboard/components/my-grades-dialog";
 
 type UserRole = "ADMIN" | "LECTURER" | "STUDENT";
 
@@ -108,7 +108,7 @@ export default function DashboardPage() {
             <div className="mb-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-50">
+                  <h2 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
                     {displayName}
                   </h2>
                   <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">

@@ -39,7 +39,7 @@ export function StudentActionDropdown({
         align="end"
         className="w-64 rounded-[24px] p-3 shadow-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 font-sans"
       >
-        <DropdownMenuLabel className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3 py-2">
+        <DropdownMenuLabel className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3 py-2">
           Quản trị sinh viên
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-slate-50 dark:bg-slate-800 mx-2" />

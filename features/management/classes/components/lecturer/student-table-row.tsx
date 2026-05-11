@@ -31,21 +31,21 @@ export function StudentTableRow({
           : "hover:bg-slate-50/50 dark:hover:bg-slate-800/50",
       )}
     >
-      <TableCell className="font-black pl-10 text-slate-900 dark:text-slate-100 text-sm tracking-tight">
+      <TableCell className="font-semibold pl-10 text-slate-900 dark:text-slate-100 text-sm tracking-tight">
         {s.student_code}
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-4">
           <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-800 shadow-sm transition-transform group-hover:scale-110">
             <AvatarImage src={s.avatar_url} />
-            <AvatarFallback className="bg-orange-100 dark:bg-orange-900/30 text-[#F27124] dark:text-orange-400 text-xs font-black">
+            <AvatarFallback className="bg-orange-100 dark:bg-orange-900/30 text-[#F27124] dark:text-orange-400 text-xs font-semibold">
               {s.full_name?.charAt(0) || "U"}
             </AvatarFallback>
           </Avatar>
           <span
             className={
               s.role === "Leader"
-                ? "font-black text-slate-900 dark:text-slate-100"
+                ? "font-semibold text-slate-900 dark:text-slate-100"
                 : "font-bold text-slate-600 dark:text-slate-300"
             }
           >
@@ -58,23 +58,23 @@ export function StudentTableRow({
       </TableCell>
       <TableCell className="text-center">
         {s.status === "Enrolled" ? (
-          <Badge className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800 font-black text-[9px] px-3 py-1 rounded-full uppercase shadow-none">
+          <Badge className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800 font-semibold text-[9px] px-3 py-1 rounded-full uppercase shadow-none">
             <CheckCircle2 className="w-3 h-3 mr-1.5" /> Đã tham gia
           </Badge>
         ) : (
-          <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700 font-black text-[9px] px-3 py-1 rounded-full uppercase shadow-none">
+          <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700 font-semibold text-[9px] px-3 py-1 rounded-full uppercase shadow-none">
             <Clock className="w-3 h-3 mr-1.5" /> Chờ đăng ký
           </Badge>
         )}
       </TableCell>
       <TableCell className="text-center">
         {s.role === "Leader" ? (
-          <Badge className="bg-yellow-400 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-500 font-black text-[9px] px-3 py-1 rounded-full uppercase shadow-none border-none">
+          <Badge className="bg-yellow-400 dark:bg-yellow-900/30 text-yellow-900 dark:text-yellow-500 font-semibold text-[9px] px-3 py-1 rounded-full uppercase shadow-none border-none">
             <Crown className="w-3 h-3 mr-1.5 fill-yellow-900 dark:fill-yellow-500" />{" "}
             Leader
           </Badge>
         ) : (
-          <span className="text-[9px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-[0.2em]">
+          <span className="text-[9px] font-semibold text-slate-300 dark:text-slate-600 uppercase tracking-[0.2em]">
             Member
           </span>
         )}

@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RegisterFormData } from "../types";
+import { RegisterFormData } from "../types/auth-types";
 
 interface RegisterStep2Props {
   formData: RegisterFormData;
@@ -61,7 +61,7 @@ export function RegisterStep2({
             <SelectTrigger className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 font-bold text-[10px] uppercase tracking-wider focus:ring-[#F27124]/20">
               <SelectValue placeholder="Vai trò" />
             </SelectTrigger>
-            <SelectContent className="font-mono uppercase text-[10px] font-black dark:bg-slate-900 dark:border-slate-800">
+            <SelectContent className="font-mono uppercase text-[10px] font-semibold dark:bg-slate-900 dark:border-slate-800">
               <SelectItem value="STUDENT" className="dark:text-slate-200">
                 Sinh viên
               </SelectItem>
@@ -81,7 +81,7 @@ export function RegisterStep2({
               className="peer pl-9 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-all font-bold text-xs pt-4 uppercase text-slate-900 dark:text-slate-100"
               required
             />
-            <Label className="absolute left-9 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
+            <Label className="absolute left-9 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-semibold uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
               MSSV
             </Label>
             <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300 dark:text-slate-500 group-focus-within:text-[#F27124] dark:group-focus-within:text-orange-400 transition-colors" />
@@ -98,7 +98,7 @@ export function RegisterStep2({
           className="peer pl-9 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-all font-bold text-xs pt-4 text-slate-900 dark:text-slate-100"
           required
         />
-        <Label className="absolute left-9 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
+        <Label className="absolute left-9 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-semibold uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
           Họ và tên
         </Label>
         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300 dark:text-slate-500 group-focus-within:text-[#F27124] dark:group-focus-within:text-orange-400 transition-colors" />
@@ -115,7 +115,7 @@ export function RegisterStep2({
             className="peer pl-9 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-all font-bold text-xs pt-4 text-slate-900 dark:text-slate-100"
             required
           />
-          <Label className="absolute left-9 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
+          <Label className="absolute left-9 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-semibold uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
             Mật khẩu
           </Label>
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300 dark:text-slate-500 group-focus-within:text-[#F27124] dark:group-focus-within:text-orange-400 transition-colors" />
@@ -129,7 +129,7 @@ export function RegisterStep2({
             className="peer pl-3 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-all font-bold text-xs pt-4 text-slate-900 dark:text-slate-100"
             required
           />
-          <Label className="absolute left-3 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-black uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
+          <Label className="absolute left-3 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-semibold uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
             Nhập lại
           </Label>
         </div>
@@ -150,7 +150,7 @@ export function RegisterStep2({
               value={formData.otp[index] || ""}
               onChange={(e) => handleOtpChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="w-9 h-11 text-center text-lg font-black border border-slate-100 dark:border-slate-800 rounded-xl focus:border-[#F27124] dark:focus:border-orange-500 focus:ring-4 focus:ring-orange-100 dark:focus:ring-orange-900/30 outline-none transition-all bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm dark:shadow-none"
+              className="w-9 h-11 text-center text-lg font-semibold border border-slate-100 dark:border-slate-800 rounded-xl focus:border-[#F27124] dark:focus:border-orange-500 focus:ring-4 focus:ring-orange-100 dark:focus:ring-orange-900/30 outline-none transition-all bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm dark:shadow-none"
             />
           ))}
         </div>
@@ -168,7 +168,7 @@ export function RegisterStep2({
         <Button
           type="submit"
           disabled={isLoading}
-          className="flex-1 h-12 text-[10px] font-black uppercase tracking-widest bg-slate-900 dark:bg-[#F27124] hover:bg-[#F27124] dark:hover:bg-[#d65d1b] text-white rounded-2xl shadow-lg dark:shadow-none active:scale-95 transition-all"
+          className="flex-1 h-12 text-[10px] font-semibold uppercase tracking-widest bg-slate-900 dark:bg-[#F27124] hover:bg-[#F27124] dark:hover:bg-[#d65d1b] text-white rounded-2xl shadow-lg dark:shadow-none active:scale-95 transition-all"
         >
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />

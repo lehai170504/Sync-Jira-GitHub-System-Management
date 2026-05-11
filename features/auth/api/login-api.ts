@@ -1,6 +1,6 @@
 // src/features/auth/api/login-api.ts
 import { axiosClient } from "@/lib/axios-client"; // File bạn đã tạo trước đó
-import { LoginResponse } from "../types";
+import { LoginResponse } from "../types/auth-types";
 
 export interface LoginCredentials {
   email: string;

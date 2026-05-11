@@ -6,8 +6,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-mono: var(--font-geist-mono);
-  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-mono);
+  --font-sans: var(--font-sans);
 }
 
 /* --- 1. THEME VARIABLES --- */
@@ -59,11 +59,14 @@
 
 /* --- 2. ROOT VALUES (COLOR PALETTE) --- */
 :root {
-  --radius: 0.75rem; /* Bo góc tròn trịa hơn (12px) */
+  --radius: 0.75rem;
+  /* Bo góc tròn trịa hơn (12px) */
 
   /* --- LIGHT MODE (FPT Clean White) --- */
-  --background: oklch(1 0 0); /* Trắng tinh */
-  --foreground: oklch(0.13 0.02 260); /* Đen xanh nhẹ (Slate 900) */
+  --background: oklch(1 0 0);
+  /* Trắng tinh */
+  --foreground: oklch(0.13 0.02 260);
+  /* Đen xanh nhẹ (Slate 900) */
 
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.13 0.02 260);
@@ -75,7 +78,8 @@
   --primary: oklch(0.66 0.19 46);
   --primary-foreground: oklch(0.985 0 0);
 
-  --secondary: oklch(0.96 0.01 260); /* Slate 100 */
+  --secondary: oklch(0.96 0.01 260);
+  /* Slate 100 */
   --secondary-foreground: oklch(0.21 0.03 260);
 
   --muted: oklch(0.96 0.01 260);
@@ -86,9 +90,11 @@
 
   --destructive: oklch(0.577 0.245 27.325);
 
-  --border: oklch(0.92 0.01 260); /* Slate 200 */
+  --border: oklch(0.92 0.01 260);
+  /* Slate 200 */
   --input: oklch(0.92 0.01 260);
-  --ring: oklch(0.66 0.19 46); /* Ring màu cam */
+  --ring: oklch(0.66 0.19 46);
+  /* Ring màu cam */
 
   /* Charts */
   --chart-1: oklch(0.66 0.19 46);
@@ -112,19 +118,25 @@
   /* --- DARK MODE (Deep Slate/Cosmic) --- 
      Thay vì đen tuyền (0 0 0), ta dùng Slate đậm để tạo chiều sâu
   */
-  --background: oklch(0.1 0.01 260); /* Slate 950 */
-  --foreground: oklch(0.98 0.01 260); /* Slate 50 */
+  --background: oklch(0.1 0.01 260);
+  /* Slate 950 */
+  --foreground: oklch(0.98 0.01 260);
+  /* Slate 50 */
 
-  --card: oklch(0.13 0.02 260); /* Slate 900 - Sáng hơn nền một chút */
+  --card: oklch(0.13 0.02 260);
+  /* Slate 900 - Sáng hơn nền một chút */
   --card-foreground: oklch(0.98 0.01 260);
 
-  --popover: oklch(0.13 0.02 260); /* Slate 900 */
+  --popover: oklch(0.13 0.02 260);
+  /* Slate 900 */
   --popover-foreground: oklch(0.98 0.01 260);
 
-  --primary: oklch(0.66 0.19 46); /* Cam FPT giữ nguyên */
+  --primary: oklch(0.66 0.19 46);
+  /* Cam FPT giữ nguyên */
   --primary-foreground: oklch(0.985 0 0);
 
-  --secondary: oklch(0.2 0.02 260); /* Slate 800 */
+  --secondary: oklch(0.2 0.02 260);
+  /* Slate 800 */
   --secondary-foreground: oklch(0.98 0.01 260);
 
   --muted: oklch(0.2 0.02 260);
@@ -133,9 +145,11 @@
   --accent: oklch(0.2 0.02 260);
   --accent-foreground: oklch(0.98 0.01 260);
 
-  --destructive: oklch(0.4 0.15 25); /* Đỏ sẫm hơn cho dark mode */
+  --destructive: oklch(0.4 0.15 25);
+  /* Đỏ sẫm hơn cho dark mode */
 
-  --border: oklch(0.2 0.02 260); /* Slate 800 */
+  --border: oklch(0.2 0.02 260);
+  /* Slate 800 */
   --input: oklch(0.2 0.02 260);
   --ring: oklch(0.66 0.19 46);
 
@@ -169,11 +183,9 @@
     /* Dùng currentColor hoặc var(--border) để dot tự sáng lên trong dark mode */
     background-image: radial-gradient(var(--border) 1px, transparent 1px);
     background-size: 32px 32px;
-    mask-image: radial-gradient(
-      circle at center top,
-      black 50%,
-      transparent 100%
-    );
+    mask-image: radial-gradient(circle at center top,
+        black 50%,
+        transparent 100%);
     opacity: 0.5;
     pointer-events: none;
   }
@@ -188,11 +200,9 @@
     width: 1000px;
     height: 500px;
     /* Gradient cam FPT */
-    background: radial-gradient(
-      50% 50% at 50% 50%,
-      oklch(0.66 0.19 46 / 0.15) 0%,
-      transparent 100%
-    );
+    background: radial-gradient(50% 50% at 50% 50%,
+        oklch(0.66 0.19 46 / 0.15) 0%,
+        transparent 100%);
     filter: blur(100px);
     z-index: -2;
     pointer-events: none;
@@ -203,15 +213,18 @@
     width: 8px;
     height: 8px;
   }
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }
+
   ::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 99px;
     border: 2px solid transparent;
     background-clip: content-box;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background-color: var(--primary);
   }
@@ -222,6 +235,7 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -235,42 +249,52 @@
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
+
   @keyframes reveal {
     from {
       opacity: 0;
       clip-path: inset(0 50% 0 50%);
     }
+
     to {
       opacity: 1;
       clip-path: inset(0 0 0 0);
     }
   }
+
   @keyframes tilt {
+
     0%,
     100% {
       transform: rotate3d(1, 1, 0, 0deg);
     }
+
     50% {
       transform: rotate3d(1, 1, 0, 5deg);
     }
   }
+
   @keyframes spin-slow {
     from {
       transform: rotate(0deg);
     }
+
     to {
       transform: rotate(360deg);
     }
   }
+
   @keyframes shimmer {
     from {
       background-position: 0 0;
     }
+
     to {
       background-position: -200% 0;
     }
@@ -287,7 +311,8 @@
    Thay vì mã hex cứng (#fff), ta dùng var(--popover)
 */
 .driver-popover {
-  background-color: var(--popover) !important; /* Tự động đổi màu */
+  background-color: var(--popover) !important;
+  /* Tự động đổi màu */
   color: var(--popover-foreground) !important;
   border-radius: 20px;
   border: 1px solid var(--border) !important;
@@ -304,13 +329,15 @@
   font-weight: 800;
   margin-bottom: 8px;
   text-transform: uppercase;
-  color: var(--foreground) !important; /* Tự đổi màu chữ */
+  color: var(--foreground) !important;
+  /* Tự đổi màu chữ */
 }
 
 .driver-popover-description {
   font-size: 14px;
   line-height: 1.6;
-  color: var(--muted-foreground) !important; /* Màu xám nhẹ */
+  color: var(--muted-foreground) !important;
+  /* Màu xám nhẹ */
   font-weight: 500;
 }
 
@@ -322,7 +349,8 @@
 }
 
 .driver-popover-next-btn {
-  background-color: var(--primary) !important; /* Cam FPT */
+  background-color: var(--primary) !important;
+  /* Cam FPT */
   color: var(--primary-foreground) !important;
   border: none !important;
   border-radius: 12px !important;
@@ -360,6 +388,7 @@
   top: 16px !important;
   right: 16px !important;
 }
+
 .driver-popover-close-btn:hover {
   color: var(--primary) !important;
 }
@@ -373,4 +402,88 @@
 .driver-stage-no-animation {
   outline: 2px solid var(--primary) !important;
   outline-offset: 4px;
+}
+
+/* --- 7. DRIVER.JS CUSTOM STYLES (PREMIUM DARK MODE) --- */
+.driver-popover.sync-driver-popover {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-radius: 16px;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  font-family: var(--font-sans);
+}
+
+.dark .driver-popover.sync-driver-popover {
+  background-color: #0f172a !important;
+  /* slate-950 */
+  border-color: #1e293b !important;
+  /* slate-800 */
+}
+
+.driver-popover.sync-driver-popover .driver-popover-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #0f172a !important;
+}
+
+.dark .driver-popover.sync-driver-popover .driver-popover-title {
+  color: #f8fafc !important;
+}
+
+.driver-popover.sync-driver-popover .driver-popover-description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #64748b !important;
+}
+
+.dark .driver-popover.sync-driver-popover .driver-popover-description {
+  color: #94a3b8 !important;
+}
+
+.driver-popover.sync-driver-popover .driver-popover-footer button {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  text-shadow: none !important;
+  border: none !important;
+  transition: all 0.2s;
+}
+
+.dark .driver-popover.sync-driver-popover .driver-popover-footer button {
+  background-color: #1e293b !important;
+  color: #f8fafa !important;
+}
+
+.driver-popover.sync-driver-popover .driver-popover-footer button:hover {
+  background-color: #e2e8f0 !important;
+}
+
+.dark .driver-popover.sync-driver-popover .driver-popover-footer button:hover {
+  background-color: #334155 !important;
+}
+
+.driver-popover.sync-driver-popover .driver-popover-footer .driver-popover-next-btn {
+  background-color: #F27124 !important;
+  color: white !important;
+}
+
+.dark .driver-popover.sync-driver-popover .driver-popover-footer .driver-popover-next-btn {
+  background-color: #F27124 !important;
+  color: white !important;
+}
+
+.driver-popover.sync-driver-popover .driver-popover-footer .driver-popover-next-btn:hover {
+  background-color: #d65d1b !important;
+}
+
+.driver-popover.sync-driver-popover .driver-popover-progress-text {
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
 }

@@ -88,7 +88,7 @@ export default function LoginPage() {
                       Chưa có tài khoản?{" "}
                       <button
                         onClick={toggleMode}
-                        className="text-[#F27124] dark:text-orange-400 font-black uppercase tracking-wider ml-1 hover:underline"
+                        className="text-[#F27124] dark:text-orange-400 font-semibold uppercase tracking-wider ml-1 hover:underline"
                       >
                         Đăng ký ngay
                       </button>
@@ -109,7 +109,7 @@ export default function LoginPage() {
                       Đã có tài khoản?{" "}
                       <button
                         onClick={toggleMode}
-                        className="text-[#F27124] dark:text-orange-400 font-black uppercase tracking-wider ml-1 hover:underline"
+                        className="text-[#F27124] dark:text-orange-400 font-semibold uppercase tracking-wider ml-1 hover:underline"
                       >
                         Đăng nhập
                       </button>

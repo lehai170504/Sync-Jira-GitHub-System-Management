@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { StatusBadge } from "@/components/common/status-badge";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -18,16 +18,6 @@ interface ClassCardProps {
 }
 
 export function ClassCard({ cls, onViewDetails }: ClassCardProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800";
-      case "Finished":
-        return "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700";
-      default:
-        return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800";
-    }
-  };
 
   return (
     <Card
@@ -42,14 +32,7 @@ export function ClassCard({ cls, onViewDetails }: ClassCardProps) {
           >
             {cls.semester_id?.code || "N/A"}
           </Badge>
-          <Badge
-            variant="outline"
-            className={`text-[10px] px-2 py-0.5 border font-semibold tracking-wider uppercase ${getStatusColor(
-              cls.status || "Active",
-            )}`}
-          >
-            {cls.status === "Active" ? "Đang dạy" : cls.status}
-          </Badge>
+          <StatusBadge status={cls.status === "Active" ? "Đang dạy" : cls.status} />
         </div>
 
         <div>

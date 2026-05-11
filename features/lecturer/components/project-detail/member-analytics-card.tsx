@@ -47,7 +47,7 @@ export function MemberAnalyticsCard({
     <div className="flex flex-col xl:flex-row bg-slate-50/50 dark:bg-slate-900/30 rounded-3xl border border-slate-200 shadow-sm overflow-hidden group hover:border-blue-300 transition-colors">
       <div className="xl:w-2/5 p-5 border-b xl:border-b-0 xl:border-r border-slate-200 bg-white dark:bg-slate-900 flex flex-col justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-xs shadow-md">
+          <div className="w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center font-semibold text-xs shadow-md">
             #{rank}
           </div>
           <Avatar className="h-10 w-10 border-2 border-white">
@@ -65,7 +65,7 @@ export function MemberAnalyticsCard({
         </div>
         <div className="mt-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase mb-1">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase mb-1">
               Hệ số (Factor)
             </p>
             <Badge variant="outline" className="text-sm">
@@ -73,10 +73,10 @@ export function MemberAnalyticsCard({
             </Badge>
           </div>
           <div className="text-right">
-            <p className="text-[10px] font-black text-slate-400 uppercase mb-1">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase mb-1">
               Điểm Chốt
             </p>
-            <p className="text-xl font-black text-[#F27124]">
+            <p className="text-xl font-semibold text-[#F27124]">
               {Number(data.grading?.final_score || 0).toFixed(2)}
             </p>
           </div>
@@ -126,7 +126,7 @@ function StatsMini({ label, value, total }: any) {
       <p className="text-[9px] font-bold text-slate-400 uppercase mb-0.5">
         {label}
       </p>
-      <p className="text-lg font-black text-slate-700 dark:text-slate-200">
+      <p className="text-lg font-semibold text-slate-700 dark:text-slate-200">
         <span className="text-blue-600">{value || 0}</span>
         <span className="text-xs text-slate-400">/{total}</span>
       </p>

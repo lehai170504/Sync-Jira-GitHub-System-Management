@@ -92,7 +92,7 @@ export default function LecturerProjectManagementPage() {
             <LayoutGrid className="h-4 w-4" />
             Project Hub
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 leading-tight">
             Đồ án Lớp {className}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium text-base">

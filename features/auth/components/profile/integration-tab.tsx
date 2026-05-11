@@ -60,7 +60,7 @@ export function IntegrationTab() {
           <div className="p-8">
             <div className="flex items-center gap-3 mb-8 opacity-70">
               <Zap className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-              <span className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
                 Dữ liệu cấu hình {activeSubTab}
               </span>
             </div>

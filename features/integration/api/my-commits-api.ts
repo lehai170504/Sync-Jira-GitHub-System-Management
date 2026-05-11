@@ -1,5 +1,5 @@
 import { axiosClient } from "@/lib/axios-client";
-import { MyCommitsResponse } from "../types";
+import { MyCommitsResponse } from "../types/integration-types";
 
 /**
  * GET /api/integrations/my-commits

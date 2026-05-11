@@ -27,7 +27,7 @@ export default function AcademicPage() {
             </div>
 
             {/* Main Title */}
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-50 transition-colors">
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 transition-colors">
               Quản lý Học vụ
             </h1>
 

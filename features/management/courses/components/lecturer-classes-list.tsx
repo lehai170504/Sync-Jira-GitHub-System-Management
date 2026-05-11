@@ -44,7 +44,7 @@ export function LecturerClassesList({
   return (
     <div className="flex flex-col gap-3 pb-20 font-sans">
       {/* List Header */}
-      <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 border-b border-slate-200 dark:border-slate-800">
+      <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 border-b border-slate-200 dark:border-slate-800">
         <div className="col-span-4">Lớp Học / Môn Học</div>
         <div className="col-span-2 text-center">Học Kỳ</div>
         <div className="col-span-3 text-center">Trọng số Đánh giá</div>
@@ -74,7 +74,7 @@ export function LecturerClassesList({
               {/* Tên Lớp & Môn Học */}
               <div className="col-span-4 flex flex-col w-full pl-2">
                 <div className="flex items-center gap-3 mb-1">
-                  <h3 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <h3 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {cls.name}
                   </h3>
                   <Badge

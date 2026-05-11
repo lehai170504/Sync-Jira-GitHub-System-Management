@@ -56,7 +56,7 @@ export function SendClassNotification({
 
       <DialogContent className="sm:max-w-[500px] rounded-[24px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">
+          <DialogTitle className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
             Gửi thông báo cho {className}
           </DialogTitle>
           <DialogDescription className="text-slate-500 dark:text-slate-400">

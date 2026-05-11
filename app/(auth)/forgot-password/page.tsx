@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
           <Link href="/" className="flex items-center gap-4 group">
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#F27124] to-[#d65d1b] shadow-md">
-                <span className="text-white font-black text-lg">S</span>
+                <span className="text-white font-semibold text-lg">S</span>
               </div>
               <span className="font-bold text-lg text-slate-900 dark:text-slate-100 hidden sm:block transition-colors">
                 SyncSystem

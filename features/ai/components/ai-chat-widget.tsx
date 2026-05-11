@@ -233,7 +233,7 @@ export function AiChatWidget() {
                     <Bot className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="font-black text-sm text-slate-900 dark:text-slate-100 truncate">
+                    <div className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">
                       AI Omni-Agent
                     </div>
                     <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">

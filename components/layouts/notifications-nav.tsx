@@ -300,7 +300,7 @@ export function NotificationsNav() {
                     <div>
                       <Badge
                         variant="outline"
-                        className="uppercase text-[9px] font-black tracking-widest border-slate-200 dark:border-slate-700 text-slate-500"
+                        className="uppercase text-[9px] font-semibold tracking-widest border-slate-200 dark:border-slate-700 text-slate-500"
                       >
                         {selectedNotif.type}
                       </Badge>

@@ -17,10 +17,10 @@ export default function ProfilePage() {
 
           <div className="space-y-3">
             <div className="flex items-center gap-4">
-              <h3 className="text-4xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-50 transition-colors">
+              <h3 className="text-4xl font-semibold uppercase tracking-tighter text-slate-900 dark:text-slate-50 transition-colors">
                 Hồ sơ cá nhân
               </h3>
-              <div className="px-3 py-1 rounded-md bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-[10px] font-black tracking-[0.2em] uppercase transition-colors">
+              <div className="px-3 py-1 rounded-md bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-[10px] font-semibold tracking-[0.2em] uppercase transition-colors">
                 Verified Account
               </div>
             </div>

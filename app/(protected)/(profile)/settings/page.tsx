@@ -1,7 +1,7 @@
 "use client";
 
-import { AppearanceSettings } from "@/features/settings/appearance-card";
-import { NotificationSettings } from "@/features/settings/notification-card";
+import { AppearanceSettings } from "@/features/settings/components/appearance-card";
+import { NotificationSettings } from "@/features/settings/components/notification-card";
 import { Settings, ToyBrick, BellDot, Cpu } from "lucide-react";
 
 export default function SettingsPage() {
@@ -16,10 +16,10 @@ export default function SettingsPage() {
 
           <div className="space-y-3">
             <div className="flex items-center gap-4">
-              <h1 className="text-4xl font-black uppercase tracking-tighter text-slate-900 dark:text-slate-50 transition-colors">
+              <h1 className="text-4xl font-semibold uppercase tracking-tighter text-slate-900 dark:text-slate-50 transition-colors">
                 Cài đặt hệ thống
               </h1>
-              <div className="px-3 py-1 rounded-md bg-[#F27124] text-white text-[10px] font-black tracking-[0.2em] uppercase">
+              <div className="px-3 py-1 rounded-md bg-[#F27124] text-white text-[10px] font-semibold tracking-[0.2em] uppercase">
                 SYSTEM CONFIG V1.2
               </div>
             </div>
@@ -40,7 +40,7 @@ export default function SettingsPage() {
         <div className="space-y-4 animate-in fade-in slide-in-from-left-8 duration-700">
           <div className="flex items-center gap-3 ml-4 mb-2">
             <ToyBrick className="w-4 h-4 text-[#F27124] dark:text-orange-400" />
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
+            <h4 className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
               Cài đặt giao diện
             </h4>
           </div>
@@ -53,7 +53,7 @@ export default function SettingsPage() {
         <div className="space-y-4 animate-in fade-in slide-in-from-right-8 duration-700">
           <div className="flex items-center gap-3 ml-4 mb-2">
             <BellDot className="w-4 h-4 text-blue-500 dark:text-blue-400" />
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
+            <h4 className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
               Thông báo thời gian thực
             </h4>
           </div>

@@ -53,7 +53,7 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
         <div className="p-5 bg-white dark:bg-slate-800 rounded-full shadow-sm mb-4">
           <Github className="w-10 h-10 text-slate-300 dark:text-slate-600" />
         </div>
-        <h3 className="text-lg font-black text-slate-700 dark:text-slate-300 mb-2">
+        <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
           Chưa có dữ liệu Commit
         </h3>
         <p className="text-sm text-slate-500 max-w-sm">
@@ -83,7 +83,7 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
             <Github className="w-6 h-6 text-white dark:text-slate-900" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white tracking-tight">
               Lịch sử Commits
             </h2>
             <div className="flex items-center gap-2 mt-1">
@@ -204,7 +204,7 @@ export function TeamGithubTab({ teamId }: { teamId: string }) {
                   <div className="flex flex-col items-end shrink-0 pl-2">
                     <span
                       className={cn(
-                        "text-xs font-black",
+                        "text-xs font-semibold",
                         isSelected
                           ? "text-blue-700 dark:text-blue-400"
                           : "text-slate-700 dark:text-slate-300",

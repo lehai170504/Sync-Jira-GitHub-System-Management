@@ -30,7 +30,7 @@ export function Footer() {
             />
           </div>
           <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 rounded-full"></div>
-          <span className="text-xs font-black tracking-tight text-slate-700 dark:text-slate-300 uppercase">
+          <span className="text-xs font-semibold tracking-tight text-slate-700 dark:text-slate-300 uppercase">
             SyncSystem
           </span>
         </div>

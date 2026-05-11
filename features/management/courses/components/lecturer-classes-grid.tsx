@@ -83,7 +83,7 @@ export function LecturerClassesGrid({
               <CardHeader className="pt-6 pb-4">
                 <div className="flex justify-between items-start gap-4 mb-3">
                   <div>
-                    <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-none">
+                    <h3 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-none">
                       {cls.name}
                     </h3>
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-wide transition-colors">
@@ -113,7 +113,7 @@ export function LecturerClassesGrid({
                         <Target className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
                         <span>Jira Task</span>
                       </div>
-                      <p className="text-lg font-black text-slate-800 dark:text-slate-200 leading-none transition-colors">
+                      <p className="text-lg font-semibold text-slate-800 dark:text-slate-200 leading-none transition-colors">
                         {Math.round(
                           (cls.contributionConfig?.jiraWeight ?? 0) * 100,
                         )}
@@ -125,7 +125,7 @@ export function LecturerClassesGrid({
                         <GitCommit className="w-3.5 h-3.5 text-orange-500 dark:text-orange-400" />
                         <span>Git Code</span>
                       </div>
-                      <p className="text-lg font-black text-slate-800 dark:text-slate-200 leading-none transition-colors">
+                      <p className="text-lg font-semibold text-slate-800 dark:text-slate-200 leading-none transition-colors">
                         {Math.round(
                           (cls.contributionConfig?.gitWeight ?? 0) * 100,
                         )}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import {
@@ -10,10 +10,8 @@ import {
   BookOpen,
   LayoutDashboard,
   Zap,
-  PanelLeftOpen,
-  PanelLeftClose,
+  ChevronLeft,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   TooltipProvider,
   Tooltip,
@@ -37,21 +35,16 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
 
-  // --- DATA FETCHING ---
   const { data: profile } = useProfile();
   const currentRole = (profile?.user?.role as UserRole) || "STUDENT";
   const activeClassId = useActiveClassId();
 
-  const { data: classDetailData, isLoading: isClassLoading } =
-    useClassDetails(activeClassId);
+  const { data: classDetailData, isLoading: isClassLoading } = useClassDetails(activeClassId);
 
   const shouldFetchTeams = currentRole === "STUDENT" && !!activeClassId;
-  const { data: teamsData } = useClassTeams(
-    shouldFetchTeams ? activeClassId : undefined,
-  );
+  const { data: teamsData } = useClassTeams(shouldFetchTeams ? activeClassId : undefined);
 
   const myTeamId = useMemo(() => {
     if (!teamsData?.teams || !profile?.user?._id) return undefined;
@@ -66,23 +59,20 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   }, []);
 
   const classDisplayInfo = useMemo(() => {
-    if (!mounted) return null;
-    if (!classDetailData?.class) return null;
+    if (!mounted || !classDetailData?.class) return null;
 
     const classInfo = classDetailData.class;
 
     if (currentRole === "LECTURER") {
       return {
         main: classInfo.name,
-        sub:
-          classInfo.subjectName || classInfo.subject_id?.name || "Giảng viên",
-        type: "LECTURER",
+        sub: classInfo.subjectName || classInfo.subject_id?.name || "Giảng viên",
+        type: "LECTURER" as const,
       };
     }
 
     if (currentRole === "STUDENT") {
       let teamName = "Chưa có nhóm";
-
       if (teamsData?.teams && myTeamId) {
         const team = teamsData.teams.find((t: any) => t._id === myTeamId);
         if (team) teamName = team.project_name;
@@ -90,12 +80,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         const cookieTeam = Cookies.get("student_team_name");
         if (cookieTeam) teamName = cookieTeam;
       }
-
-      return {
-        main: classInfo.name,
-        sub: teamName,
-        type: "STUDENT",
-      };
+      return { main: classInfo.name, sub: teamName, type: "STUDENT" as const };
     }
 
     return null;
@@ -108,101 +93,100 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.1 },
-    },
+    visible: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
   };
   const itemVariants = {
-    hidden: { x: -20, opacity: 0 },
-    visible: { x: 0, opacity: 1, transition: { duration: 0.3 } },
+    hidden: { x: -16, opacity: 0 },
+    visible: { x: 0, opacity: 1, transition: { duration: 0.25 } },
   };
 
-  if (!mounted)
-    return (
-      <div className="w-full h-full bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800" />
-    );
+  if (!mounted) return <div className="w-full h-full bg-white dark:bg-slate-950" />;
+
+  const logoHref =
+    currentRole === "LECTURER"
+      ? activeClassId ? `/dashboard?classId=${activeClassId}` : "/dashboard"
+      : activeClassId ? `/student/dashboard?classId=${activeClassId}` : "/student/dashboard";
+
+  const logoBg = classDisplayInfo
+    ? classDisplayInfo.type === "STUDENT"
+      ? "bg-blue-600 shadow-blue-500/30"
+      : "bg-emerald-600 shadow-emerald-500/30"
+    : "bg-slate-700";
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 border-r border-slate-200/80 dark:border-slate-800/80 relative overflow-hidden transition-all duration-300 font-sans"
+      transition={{ duration: 0.3 }}
+      className="flex flex-col h-full bg-white dark:bg-slate-950 border-r border-slate-200/80 dark:border-slate-800/80 relative overflow-hidden font-sans"
     >
-      {/* 1. TOGGLE BUTTON */}
-      <Button
+      {/* ── COLLAPSE HANDLE (tab cạnh phải) ── */}
+      <div
         onClick={toggleSidebar}
-        variant="outline"
-        size="icon"
+        title={isCollapsed ? "Mở rộng menu" : "Thu gọn menu"}
         className={cn(
-          "absolute -right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full",
-          "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 shadow-md z-100",
-          "hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-800 hover:scale-110 active:scale-95 transition-all duration-300",
-          "hidden md:flex items-center justify-center",
+          "absolute right-0 top-1/2 -translate-y-1/2 z-50 hidden md:flex",
+          "flex-col items-center justify-center gap-1",
+          "h-16 w-[18px] cursor-pointer select-none",
+          "border-l border-slate-200 dark:border-slate-800",
+          "bg-white dark:bg-slate-950",
+          "hover:bg-slate-50 dark:hover:bg-slate-900",
+          "transition-all duration-200 group/handle",
+          "rounded-r-xl",
         )}
       >
-        {isCollapsed ? (
-          <PanelLeftOpen className="h-4 w-4" />
-        ) : (
-          <PanelLeftClose className="h-4 w-4" />
-        )}
-      </Button>
+        {/* 3 dots */}
+        <div className="flex flex-col items-center gap-[3px]">
+          <span className="w-[3px] h-[3px] rounded-full bg-slate-300 dark:bg-slate-600 group-hover/handle:bg-slate-500 dark:group-hover/handle:bg-slate-400 transition-colors" />
+          <span className="w-[3px] h-[3px] rounded-full bg-slate-300 dark:bg-slate-600 group-hover/handle:bg-slate-500 dark:group-hover/handle:bg-slate-400 transition-colors" />
+          <span className="w-[3px] h-[3px] rounded-full bg-slate-300 dark:bg-slate-600 group-hover/handle:bg-slate-500 dark:group-hover/handle:bg-slate-400 transition-colors" />
+        </div>
+        {/* Arrow hint on hover */}
+        <ChevronLeft
+          className={cn(
+            "absolute w-2.5 h-2.5 text-slate-400 dark:text-slate-500",
+            "opacity-0 group-hover/handle:opacity-100 transition-all duration-200",
+            "group-hover/handle:text-slate-600 dark:group-hover/handle:text-slate-300",
+            isCollapsed ? "rotate-180" : "rotate-0",
+          )}
+        />
+      </div>
 
-      {/* 2. HEADER: LOGO & BRANDING */}
+      {/* ── LOGO / BRANDING ── */}
       <div
         className={cn(
-          "flex items-center h-20 shrink-0 transition-all duration-300 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/50 dark:bg-slate-950/50 backdrop-blur-md px-6",
-          isCollapsed && "px-2 justify-center",
+          "flex items-center h-16 shrink-0 border-b border-slate-200/80 dark:border-slate-800/80 px-4 transition-all duration-300",
+          isCollapsed && "justify-center px-2",
         )}
       >
-        <Link
-          href={
-            currentRole === "LECTURER"
-              ? activeClassId
-                ? `/dashboard?classId=${activeClassId}`
-                : "/dashboard"
-              : activeClassId
-                ? `/student/dashboard?classId=${activeClassId}`
-                : "/student/dashboard"
-          }
-          className="flex items-center gap-3.5 group relative w-full"
-        >
-          {/* Logo Container */}
+        <Link href={logoHref} className="flex items-center gap-3 group relative w-full min-w-0">
           <div className="relative shrink-0">
-            {!isCollapsed && (
-              <div className="absolute -inset-3 border border-dashed border-slate-300 dark:border-slate-700/50 rounded-full animate-orbit-slow opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-            )}
-            <div
-              className={cn(
-                "relative w-10 h-10 flex items-center justify-center rounded-2xl transition-all duration-500 group-hover:rotate-6 group-active:scale-90 shadow-sm",
-                classDisplayInfo?.type === "STUDENT"
-                  ? "bg-blue-600 dark:bg-blue-600 shadow-blue-500/20"
-                  : "bg-emerald-600 dark:bg-emerald-600 shadow-emerald-500/20",
-                !classDisplayInfo && "bg-slate-800 dark:bg-slate-700",
-              )}
-            >
+            <div className={cn(
+              "w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 shadow-lg",
+              "group-hover:scale-105 group-active:scale-95",
+              logoBg,
+            )}>
               {classDisplayInfo ? (
-                <BookOpen className="w-5 h-5 text-white" />
+                <BookOpen className="w-4 h-4 text-white" />
               ) : (
-                <LayoutDashboard className="w-5 h-5 text-white" />
+                <LayoutDashboard className="w-4 h-4 text-white" />
               )}
             </div>
           </div>
 
-          {/* Text Container */}
           {!isCollapsed && (
-            <div className="flex flex-col overflow-hidden animate-in fade-in slide-in-from-left-2 w-full">
+            <div className="flex flex-col min-w-0 animate-in fade-in slide-in-from-left-2 duration-200">
               {isClassLoading && !classDisplayInfo ? (
-                <div className="space-y-2">
-                  <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
-                  <div className="h-2 w-16 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                <div className="space-y-1.5">
+                  <div className="h-2.5 w-20 bg-slate-800 rounded animate-pulse" />
+                  <div className="h-2 w-14 bg-slate-800 rounded animate-pulse" />
                 </div>
               ) : (
                 <>
-                  <h1 className="text-sm font-semibold tracking-tight leading-none text-slate-900 dark:text-slate-100 truncate uppercase">
+                  <span className="text-[12px] font-bold tracking-tight leading-none text-slate-900 dark:text-slate-100 truncate">
                     {classDisplayInfo ? classDisplayInfo.main : "SyncSystem"}
-                  </h1>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold tracking-widest mt-1.5 truncate uppercase">
+                  </span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium tracking-widest mt-1 truncate uppercase">
                     {classDisplayInfo ? classDisplayInfo.sub : "FPT Academic"}
                   </span>
                 </>
@@ -212,27 +196,25 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         </Link>
       </div>
 
-      {/* 3. NAVIGATION LIST */}
-      <motion.div
-        className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar py-6 px-3 space-y-8"
+      {/* ── NAVIGATION ── */}
+      <motion.nav
+        className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2.5 space-y-6 scrollbar-hide"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         <TooltipProvider delayDuration={0}>
           {filteredRoutes.map((group, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              className="space-y-3"
-            >
+            <motion.div key={index} variants={itemVariants} className="space-y-1">
               {!isCollapsed && (
-                <h3 className="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-3">
-                  {group.label}
+                <div className="px-3 mb-2 flex items-center gap-2">
+                  <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-600">
+                    {group.label}
+                  </span>
                   <div className="h-px bg-slate-200 dark:bg-slate-800 flex-1" />
-                </h3>
+                </div>
               )}
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {group.items.map((item) => (
                   <NavItem
                     key={item.href}
@@ -246,34 +228,33 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
             </motion.div>
           ))}
         </TooltipProvider>
-      </motion.div>
+      </motion.nav>
 
-      {/* 4. FOOTER: CLASS SWITCHER */}
-      <div className="shrink-0 p-4 mt-auto border-t border-slate-200/80 dark:border-slate-800/80 bg-white/50 dark:bg-slate-950/50 z-20 space-y-4">
+      {/* ── FOOTER ── */}
+      <div className="shrink-0 p-3 border-t border-slate-200/80 dark:border-slate-800/80 space-y-2">
+        {/* Class switcher */}
         {classDisplayInfo && (
           <TooltipProvider delayDuration={0}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href={
-                    classDisplayInfo.type === "STUDENT"
-                      ? "/courses"
-                      : "/lecturer/courses"
-                  }
+                  href={classDisplayInfo.type === "STUDENT" ? "/courses" : "/lecturer/courses"}
                   className={cn(
-                    "flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-blue-300 dark:hover:border-blue-900/50 hover:bg-blue-50 dark:hover:bg-slate-800 transition-all group overflow-hidden relative active:scale-95 duration-300",
-                    isCollapsed
-                      ? "justify-center h-12 w-full"
-                      : "px-4 py-3 shadow-sm",
+                    "flex items-center gap-2.5 rounded-xl border",
+                    "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800",
+                    "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200",
+                    "hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700",
+                    "transition-all duration-200 group active:scale-95",
+                    isCollapsed ? "justify-center h-10 w-full" : "px-3 py-2.5",
                   )}
                 >
-                  <ArrowLeft className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:-translate-x-1 transition-transform relative z-10 shrink-0" />
+                  <ArrowLeft className="w-3.5 h-3.5 shrink-0 group-hover:-translate-x-0.5 transition-transform" />
                   {!isCollapsed && (
-                    <div className="flex flex-col text-left relative z-10 w-full overflow-hidden">
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-200 leading-none group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors truncate">
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 leading-none truncate">
                         Đổi lớp học
                       </span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-medium tracking-wide truncate">
+                      <span className="text-[9px] text-slate-400 dark:text-slate-600 mt-0.5 truncate">
                         Chọn học phần khác
                       </span>
                     </div>
@@ -281,10 +262,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                 </Link>
               </TooltipTrigger>
               {isCollapsed && (
-                <TooltipContent
-                  side="right"
-                  className="font-bold bg-slate-900 dark:bg-slate-800 border-none text-white shadow-xl"
-                >
+                <TooltipContent side="right" className="bg-slate-900 border-slate-700 text-white text-xs font-bold">
                   Đổi lớp học
                 </TooltipContent>
               )}
@@ -292,29 +270,27 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
           </TooltipProvider>
         )}
 
-        {/* System Status Block */}
+        {/* System status */}
         {!isCollapsed && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 cursor-default transition-colors flex items-center justify-between"
+            transition={{ delay: 0.4 }}
+            className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/30"
           >
-            <div className="flex items-center gap-3">
-              <div className="relative h-2 w-2 shrink-0">
-                <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75"></span>
-                <span className="relative block h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+            <div className="flex items-center gap-2">
+              <div className="relative h-1.5 w-1.5 shrink-0">
+                <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-60" />
+                <span className="relative block h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]" />
               </div>
-              <div className="flex flex-col overflow-hidden">
-                <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-tighter truncate">
-                  Trạng thái hệ thống
-                </p>
-                <p className="text-[9px] text-emerald-600/70 dark:text-emerald-500/70 font-semibold tracking-widest mt-0.5 truncate">
-                  FPT Node v1.2.0
-                </p>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+                  Hệ thống
+                </span>
+                <span className="text-[8px] text-emerald-500/70 dark:text-emerald-600 font-medium mt-0.5">FPT Node v1.2.0</span>
               </div>
             </div>
-            <Zap className="w-3 h-3 text-emerald-500 opacity-60 shrink-0" />
+            <Zap className="w-3 h-3 text-emerald-500/50 shrink-0" />
           </motion.div>
         )}
       </div>

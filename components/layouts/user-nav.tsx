@@ -3,147 +3,146 @@
 import { useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
- DropdownMenu,
- DropdownMenuContent,
- DropdownMenuLabel,
- DropdownMenuSeparator,
- DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { BadgeCheck, Sparkles } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useLogout } from "@/features/auth/hooks/use-logout";
-
-// Import Menu Items chung (Chứa Modal Profile)
 import { UserMenuItems } from "../common/user-menu-items";
+import { cn } from "@/lib/utils";
 
 export function UserNav() {
- const queryClient = useQueryClient();
- const { data: profileData, isLoading: isProfileLoading } = useProfile();
- const { mutate: logout, isPending: isLogoutPending } = useLogout();
- const user = profileData?.user;
+  const queryClient = useQueryClient();
+  const { data: profileData, isLoading: isProfileLoading } = useProfile();
+  const { mutate: logout, isPending: isLogoutPending } = useLogout();
+  const user = profileData?.user;
 
- const handleLogout = () => {
- if (isLogoutPending) return;
- queryClient.clear();
- logout();
- };
+  const handleLogout = () => {
+    if (isLogoutPending) return;
+    queryClient.clear();
+    logout();
+  };
 
- const getRoleStyle = (role?: string) => {
- switch (role) {
- case "ADMIN":
- return "bg-purple-50 text-purple-600 border-purple-100 shadow-purple-500/20 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800";
- case "LECTURER":
- return "bg-blue-50 text-blue-600 border-blue-100 shadow-blue-500/20 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800";
- default:
- return "bg-emerald-50 text-emerald-600 border-emerald-100 shadow-emerald-500/20 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800";
- }
- };
+  const displayName = useMemo(() => user?.full_name || "Unknown User", [user]);
+  const displayEmail = useMemo(() => user?.email || "—", [user]);
+  const userInitial = useMemo(() => displayName.charAt(0).toUpperCase(), [displayName]);
 
- // Safe Name Handling
- const displayName = useMemo(() => user?.full_name || "Unknown User", [user]);
- const displayEmail = useMemo(() => user?.email || "No Email", [user]);
- const userInitial = useMemo(
- () => displayName.charAt(0).toUpperCase(),
- [displayName],
- );
+  const roleMeta = useMemo(() => {
+    switch (user?.role) {
+      case "ADMIN":
+        return {
+          label: "ADMIN",
+          badgeCls: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800",
+          dotCls: "bg-violet-500 dark:bg-violet-400",
+        };
+      case "LECTURER":
+        return {
+          label: "LECTURER",
+          badgeCls: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
+          dotCls: "bg-blue-500 dark:bg-blue-400",
+        };
+      default:
+        return {
+          label: "STUDENT",
+          badgeCls: "bg-orange-50 text-[#F27124] border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800",
+          dotCls: "bg-[#F27124] dark:bg-orange-400",
+        };
+    }
+  }, [user?.role]);
 
- // --- 1. LOADING STATE: SKELETON
- if (isProfileLoading) {
- return (
- <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse border-2 border-white dark:border-slate-700 shadow-sm transition-colors" />
- );
- }
+  if (isProfileLoading) {
+    return (
+      <div className="h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse shadow-sm" />
+    );
+  }
 
- if (!user) return null;
+  if (!user) return null;
 
- return (
- <DropdownMenu>
- <DropdownMenuTrigger asChild>
- <button className="group relative focus:outline-none perspective-[1000px]">
- <div className="relative rounded-full p-0.5 transition-all duration-500 group-hover:bg-linear-to-tr group-hover:from-[#F27124] group-hover:to-orange-300 group-hover:shadow-lg group-hover:shadow-orange-500/20 group-hover:scale-105 active:scale-95">
- <div className="absolute -inset-3 border border-orange-500/0 rounded-full group-hover:border-orange-500/20 group-hover:animate-orbit-slow transition-all pointer-events-none">
- <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-[#F27124] dark:bg-orange-400 rounded-full opacity-0 group-hover:opacity-100 shadow-[0_0_10px_#F27124] dark:shadow-[0_0_10px_#f6ad55]"></div>
- </div>
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="group relative focus:outline-none">
+          <div className="relative rounded-full p-0.5 transition-all duration-300 group-hover:ring-2 group-hover:ring-[#F27124]/40 group-hover:ring-offset-1 group-hover:ring-offset-white dark:group-hover:ring-offset-slate-950">
+            <Avatar className="h-9 w-9 border-2 border-white dark:border-slate-800 shadow-sm transition-all duration-300 group-hover:scale-105 group-active:scale-95">
+              <AvatarImage src={user.avatar_url} alt={displayName} className="object-cover" />
+              <AvatarFallback className="text-[11px] font-bold bg-slate-800 dark:bg-slate-700 text-white">
+                {userInitial}
+              </AvatarFallback>
+            </Avatar>
+            {/* Status dot */}
+            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-slate-950 shadow-sm" />
+          </div>
+        </button>
+      </DropdownMenuTrigger>
 
- <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-800 shadow-sm transition-all duration-500 font-mono">
- <AvatarImage
- src={user.avatar_url}
- alt={displayName}
- className="object-cover"
- />
- <AvatarFallback className="text-[10px] font-semibold bg-slate-900 dark:bg-slate-800 text-white ">
- {userInitial}
- </AvatarFallback>
- </Avatar>
+      <DropdownMenuContent
+        className="w-64 mt-2 p-1.5 rounded-2xl shadow-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200 font-sans"
+        align="end"
+        forceMount
+      >
+        {/* User info card */}
+        <DropdownMenuLabel className="font-normal p-1 mb-1">
+          <div className="flex flex-col gap-3 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+            {/* Decorative */}
+            <div className="absolute top-2 right-2 opacity-[0.06] dark:opacity-[0.04] pointer-events-none">
+              <Sparkles className="w-10 h-10 text-slate-900 dark:text-white" />
+            </div>
 
- {/* Status Dot */}
- <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 dark:bg-emerald-400 border-2 border-white dark:border-slate-900 shadow-sm group-hover:animate-pulse transition-colors"></span>
- </div>
- </button>
- </DropdownMenuTrigger>
+            {/* Avatar + Name */}
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="relative shrink-0">
+                <Avatar className="h-10 w-10 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <AvatarImage src={user.avatar_url} className="object-cover" />
+                  <AvatarFallback className="bg-[#F27124]/10 text-[#F27124] font-bold text-sm rounded-xl">
+                    {userInitial}
+                  </AvatarFallback>
+                </Avatar>
+                {user.is_verified && (
+                  <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white p-0.5 rounded-full border-2 border-white dark:border-slate-900">
+                    <BadgeCheck className="w-2.5 h-2.5" />
+                  </div>
+                )}
+              </div>
 
- <DropdownMenuContent
- className="w-72 mt-3 p-2 rounded-[32px] shadow-2xl border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300 font-sans transition-colors"
- align="end"
- forceMount
- >
- {/* --- USER INFO BENTO CARD --- */}
- <DropdownMenuLabel className="font-normal p-2 mb-2">
- <div className="flex flex-col space-y-3 bg-white/50 dark:bg-slate-800/50 p-4 rounded-[24px] border border-slate-100 dark:border-slate-700/50 shadow-sm relative overflow-hidden group transition-colors">
- {/* Decorative BG */}
- <div className="absolute top-0 right-0 p-4 opacity-10 dark:opacity-20 -rotate-12 transition-transform duration-500 group-hover:rotate-0">
- <Sparkles className="w-12 h-12 text-slate-900 dark:text-slate-100" />
- </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate capitalize leading-tight">
+                  {displayName.toLowerCase()}
+                </span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                  {displayEmail}
+                </span>
+              </div>
+            </div>
 
- <div className="flex items-center gap-3 relative z-10">
- <div className="relative">
- <Avatar className="h-10 w-10 rounded-xl border border-slate-100 dark:border-slate-700 transition-colors">
- <AvatarImage src={user.avatar_url} className="object-cover" />
- <AvatarFallback className="bg-orange-100 dark:bg-orange-900/20 text-[#F27124] dark:text-orange-400 font-semibold">
- {userInitial}
- </AvatarFallback>
- </Avatar>
- {user.is_verified && (
- <div className="absolute -bottom-1 -right-1 bg-blue-500 dark:bg-blue-400 text-white dark:text-slate-900 p-0.5 rounded-full border-2 border-white dark:border-slate-800 transition-colors">
- <BadgeCheck className="w-2.5 h-2.5" />
- </div>
- )}
- </div>
+            {/* Role badge */}
+            <div className="flex items-center gap-2">
+              <span className={cn(
+                "inline-flex items-center gap-1.5 text-[9px] font-bold px-2.5 py-1 rounded-lg border uppercase tracking-widest",
+                roleMeta.badgeCls,
+              )}>
+                <span className={cn("w-1.5 h-1.5 rounded-full", roleMeta.dotCls)} />
+                {roleMeta.label} ACCOUNT
+              </span>
+            </div>
+          </div>
+        </DropdownMenuLabel>
 
- <div className="flex flex-col">
- <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate max-w-35 leading-tight capitalize transition-colors">
- {displayName.toLowerCase()}
- </p>
- <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate font-medium tracking-tight transition-colors">
- {displayEmail.toLowerCase()}
- </p>
- </div>
- </div>
+        <DropdownMenuSeparator className="mx-1 bg-slate-100 dark:bg-slate-800" />
 
- <div className="pt-1 relative z-10">
- <span
- className={`inline-flex items-center text-[9px] font-bold px-3 py-1 rounded-lg border shadow-sm uppercase tracking-widest transition-colors ${getRoleStyle(
- user.role,
- )}`}
- >
- {user.role} ACCOUNT
- </span>
- </div>
- </div>
- </DropdownMenuLabel>
-
- <DropdownMenuSeparator className="mx-2 bg-slate-100 dark:bg-slate-800 transition-colors" />
-
- {/* --- MENU ITEMS --- */}
- <div className="text-[12px] font-medium px-1 pb-1 dark:text-slate-300">
- <UserMenuItems
- role={user.role}
- isLogoutPending={isLogoutPending}
- onLogout={handleLogout}
- />
- </div>
- </DropdownMenuContent>
- </DropdownMenu>
- );
+        {/* Menu items */}
+        <div className="px-0.5 pb-0.5">
+          <UserMenuItems
+            role={user.role}
+            isLogoutPending={isLogoutPending}
+            onLogout={handleLogout}
+          />
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }

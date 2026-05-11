@@ -73,9 +73,9 @@ export function WorkflowSection() {
   }, [isAutoPlaying, nextStep]);
 
   return (
-    <section className="py-40 bg-white relative z-10 overflow-hidden">
+    <section className="py-40 bg-white dark:bg-zinc-950 transition-colors duration-500 relative z-10 overflow-hidden">
       {/* Background Decorative Text */}
-      <div className="absolute top-0 right-0 text-[20vw] font-bold text-slate-50 select-none pointer-events-none -z-10 leading-none translate-x-1/4 -translate-y-1/4 opacity-50">
+      <div className="absolute top-0 right-0 text-[20vw] font-bold text-slate-50 dark:text-white/5 select-none pointer-events-none -z-10 leading-none translate-x-1/4 -translate-y-1/4 opacity-50">
         FLOW
       </div>
 
@@ -86,9 +86,9 @@ export function WorkflowSection() {
               <Sparkles className="h-3 w-3" />
               Hệ thống vận hành thông minh
             </h4>
-            <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 leading-[0.9] uppercase">
+            <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 dark:text-white leading-[0.9] uppercase">
               Trải nghiệm <br />
-              <span className="text-slate-400">quy trình chuẩn.</span>
+              <span className="text-slate-400 dark:text-slate-500">quy trình chuẩn.</span>
             </h2>
           </div>
 
@@ -97,7 +97,7 @@ export function WorkflowSection() {
               variant="outline"
               size="icon"
               onClick={() => { prevStep(); setIsAutoPlaying(false); }}
-              className="h-14 w-14 rounded-2xl border-slate-200 hover:bg-orange-500 hover:text-white transition-all shadow-lg"
+              className="h-14 w-14 rounded-2xl border-slate-200 dark:border-white/10 dark:text-white hover:bg-orange-500 hover:text-white transition-all shadow-lg"
             >
               <ArrowLeft className="h-6 w-6" />
             </Button>
@@ -105,7 +105,7 @@ export function WorkflowSection() {
               variant="outline"
               size="icon"
               onClick={() => { nextStep(); setIsAutoPlaying(false); }}
-              className="h-14 w-14 rounded-2xl border-slate-200 hover:bg-orange-500 hover:text-white transition-all shadow-lg"
+              className="h-14 w-14 rounded-2xl border-slate-200 dark:border-white/10 dark:text-white hover:bg-orange-500 hover:text-white transition-all shadow-lg"
             >
               <ArrowRight className="h-6 w-6" />
             </Button>
@@ -126,7 +126,7 @@ export function WorkflowSection() {
                 {/* Visual Side */}
                 <div className="hidden lg:flex justify-center">
                   <div className="relative w-80 h-80">
-                    <div className={`absolute inset-0 ${steps[activeIndex].color} opacity-10 blur-[80px] rounded-full animate-pulse`} />
+                    <div className={`absolute inset-0 ${steps[activeIndex].color} opacity-10 dark:opacity-20 blur-[80px] rounded-full animate-pulse`} />
                     <div className={`relative h-full w-full ${steps[activeIndex].color} text-white rounded-[60px] flex items-center justify-center shadow-3xl`}>
                       {React.createElement(steps[activeIndex].icon, { className: "h-32 w-32 animate-bounce-slow" })}
                       <div className="absolute top-8 right-8 text-6xl font-bold opacity-20">
@@ -139,10 +139,10 @@ export function WorkflowSection() {
                 {/* Content Side */}
                 <div className="space-y-8">
                   <div className="space-y-4">
-                    <h3 className="text-4xl md:text-5xl font-bold text-slate-900 uppercase tracking-tighter">
+                    <h3 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white uppercase tracking-tighter">
                       {steps[activeIndex].title}
                     </h3>
-                    <p className="text-xl text-slate-500 leading-relaxed font-medium max-w-xl">
+                    <p className="text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-medium max-w-xl">
                       {steps[activeIndex].desc}
                     </p>
                   </div>
@@ -161,7 +161,7 @@ export function WorkflowSection() {
                         <div
                           key={i}
                           onClick={() => { setActiveIndex(i); setIsAutoPlaying(false); }}
-                          className={`h-2 transition-all duration-500 rounded-full cursor-pointer ${i === activeIndex ? "w-12 bg-orange-500" : "w-2 bg-slate-200 hover:bg-slate-300"}`}
+                          className={`h-2 transition-all duration-500 rounded-full cursor-pointer ${i === activeIndex ? "w-12 bg-orange-500" : "w-2 bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20"}`}
                         />
                       ))}
                     </div>

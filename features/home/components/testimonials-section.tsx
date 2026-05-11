@@ -45,16 +45,16 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-40 bg-slate-50/50 relative z-10 overflow-hidden">
+    <section className="py-40 bg-slate-50/50 dark:bg-zinc-900/30 relative z-10 overflow-hidden transition-colors duration-500">
       <div className="container mx-auto px-6 mb-24">
         <div className="flex flex-col md:flex-row items-end justify-between gap-10">
           <div className="max-w-2xl">
             <h4 className="text-[11px] font-bold uppercase tracking-[0.4em] text-orange-500 mb-6">
               Hệ sinh thái tin cậy
             </h4>
-            <h2 className="text-4xl md:text-7xl font-bold tracking-tight text-slate-900 leading-[0.9] uppercase">
+            <h2 className="text-4xl md:text-7xl font-bold tracking-tight text-slate-900 dark:text-white leading-[0.9] uppercase">
               Cộng đồng <br />
-              <span className="text-slate-400 font-medium">đánh giá thực tế.</span>
+              <span className="text-slate-400 dark:text-slate-500 font-medium">đánh giá thực tế.</span>
             </h2>
           </div>
           <div className="flex flex-col items-end gap-3">
@@ -63,7 +63,7 @@ export function TestimonialsSection() {
                 <Star key={s} className="h-5 w-5 fill-orange-400 text-orange-400" />
               ))}
             </div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">
+            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
               4.9/5 Rating based on 500+ users
             </p>
           </div>
@@ -72,8 +72,8 @@ export function TestimonialsSection() {
 
       {/* Masking Gradients for seamless effect */}
       <div className="relative">
-        <div className="absolute left-0 top-0 w-40 h-full bg-gradient-to-r from-slate-50 to-transparent z-20 pointer-events-none" />
-        <div className="absolute right-0 top-0 w-40 h-full bg-gradient-to-l from-slate-50 to-transparent z-20 pointer-events-none" />
+        <div className="absolute left-0 top-0 w-40 h-full bg-gradient-to-r from-slate-50 dark:from-[#09090b] to-transparent z-20 pointer-events-none" />
+        <div className="absolute right-0 top-0 w-40 h-full bg-gradient-to-l from-slate-50 dark:from-[#09090b] to-transparent z-20 pointer-events-none" />
 
         {/* First Row: Forward */}
         <div className="flex overflow-hidden mb-10">
@@ -123,7 +123,7 @@ export function TestimonialsSection() {
 
 function TestimonialCard({ item }: { item: any }) {
   return (
-    <div className="w-[480px] p-12 rounded-[48px] bg-white border border-slate-200/60 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.03)] hover:shadow-orange-500/10 hover:border-orange-500/20 hover:scale-[1.02] transition-all duration-500 relative flex flex-col shrink-0 group">
+    <div className="w-[480px] p-12 rounded-[48px] bg-white dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.03)] hover:shadow-orange-500/10 hover:border-orange-500/20 hover:scale-[1.02] transition-all duration-500 relative flex flex-col shrink-0 group">
       <div className="absolute top-10 right-12 opacity-[0.03] group-hover:opacity-10 transition-opacity duration-500">
         <Quote className="h-20 w-20" />
       </div>
@@ -134,22 +134,22 @@ function TestimonialCard({ item }: { item: any }) {
         ))}
       </div>
 
-      <p className="text-slate-600 text-xl font-medium leading-relaxed mb-12 whitespace-normal line-clamp-3">
+      <p className="text-slate-600 dark:text-slate-400 text-xl font-medium leading-relaxed mb-12 whitespace-normal line-clamp-3">
         "{item.content}"
       </p>
 
-      <div className="flex items-center gap-5 mt-auto border-t border-slate-50 pt-8">
+      <div className="flex items-center gap-5 mt-auto border-t border-slate-50 dark:border-white/5 pt-8">
         <div className="relative">
-          <Avatar className="h-14 w-14 border-2 border-white shadow-xl ring-2 ring-orange-500/10">
+          <Avatar className="h-14 w-14 border-2 border-white dark:border-slate-800 shadow-xl ring-2 ring-orange-500/10">
             <AvatarImage src={item.avatar} className="object-cover" />
-            <AvatarFallback className="bg-slate-100 text-slate-600 font-bold">
+            <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">
               {item.initials}
             </AvatarFallback>
           </Avatar>
-          <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-emerald-500 border-2 border-white rounded-full" />
+          <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
         </div>
         <div className="text-left">
-          <h4 className="font-bold text-slate-900 text-lg leading-none mb-1.5">
+          <h4 className="font-bold text-slate-900 dark:text-white text-lg leading-none mb-1.5">
             {item.name}
           </h4>
           <p className="text-[11px] text-orange-500/70 font-bold uppercase tracking-[0.1em]">

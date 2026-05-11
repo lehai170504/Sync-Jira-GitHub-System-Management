@@ -8,8 +8,8 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-white border-t border-slate-100 pt-24 pb-12 relative z-10 overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+    <footer className="bg-white dark:bg-zinc-950 border-t border-slate-100 dark:border-white/5 pt-24 pb-12 relative z-10 overflow-hidden transition-colors duration-500">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-white/10 to-transparent" />
 
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
@@ -21,10 +21,10 @@ export function Footer() {
                 alt="SyncSystem Logo"
                 width={140}
                 height={35}
-                className="h-9 w-auto grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                className="h-9 w-auto grayscale opacity-80 dark:invert dark:opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
               />
             </Link>
-            <p className="text-slate-500 text-sm leading-relaxed max-w-xs font-medium">
+            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-xs font-medium">
               Hệ thống đồng bộ hóa dữ liệu thông minh giữa Jira và GitHub,
               tối ưu hóa quy trình quản lý dự án cho sinh viên FPT.
             </p>
@@ -37,7 +37,7 @@ export function Footer() {
 
           {/* Links Columns */}
           <div className="space-y-8">
-            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900 dark:text-white">
               Sản phẩm
             </h4>
             <ul className="space-y-4">
@@ -48,7 +48,7 @@ export function Footer() {
           </div>
 
           <div className="space-y-8">
-            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900 dark:text-white">
               Hỗ trợ
             </h4>
             <ul className="space-y-4">
@@ -59,7 +59,7 @@ export function Footer() {
           </div>
 
           <div className="space-y-8">
-            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900 dark:text-white">
               Pháp lý
             </h4>
             <ul className="space-y-4">
@@ -70,7 +70,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="pt-12 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 text-slate-400">
+        <div className="pt-12 border-t border-slate-100 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-slate-400 dark:text-slate-500">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-widest">
@@ -91,7 +91,7 @@ function FooterItem({ label, href }: { label: string; href: string }) {
     <li>
       <Link
         href={href}
-        className="text-sm font-medium text-slate-500 hover:text-orange-500 transition-colors"
+        className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-500 transition-colors"
       >
         {label}
       </Link>
@@ -103,7 +103,7 @@ function SocialIcon({ icon: Icon, href }: { icon: any; href: string }) {
   return (
     <Link
       href={href}
-      className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-orange-500 hover:text-white transition-all duration-300 border border-slate-100"
+      className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 hover:bg-orange-500 hover:text-white transition-all duration-300 border border-slate-100 dark:border-white/5"
     >
       <Icon className="h-5 w-5" />
     </Link>

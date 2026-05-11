@@ -17,13 +17,13 @@ export function FeaturesSection() {
               Mô hình đào tạo chuẩn quốc tế
             </span>
           </div>
-          <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 leading-[0.9] uppercase">
+          <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 dark:text-white leading-[0.9] uppercase">
             Tự động hóa<br />
-            <span className="text-slate-400">quy trình học tập.</span>
+            <span className="text-slate-400 dark:text-slate-500">quy trình học tập.</span>
           </h2>
         </div>
-        <p className="max-w-md text-slate-500 text-lg font-medium animate-fade-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
-          Chúng tôi mang đến giải pháp kết nối thực tiễn doanh nghiệp vào giảng đường, 
+        <p className="max-w-md text-slate-500 dark:text-slate-400 text-lg font-medium animate-fade-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
+          Chúng tôi mang đến giải pháp kết nối thực tiễn doanh nghiệp vào giảng đường,
           giúp sinh viên làm quen với các công cụ hàng đầu thế giới ngay từ khi còn đi học.
         </p>
       </div>
@@ -58,30 +58,30 @@ export function FeaturesSection() {
 function FeatureCard({ icon, iconBg, title, desc, index }: any) {
   return (
     <div
-      className="group relative p-12 rounded-[48px] bg-white border border-slate-200/60 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(242,113,36,0.15)] hover:border-orange-500/30 transition-all duration-700 hover:-translate-y-4 opacity-0 animate-fade-up [animation-fill-mode:forwards]"
+      className="group relative p-12 rounded-[48px] bg-white dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(242,113,36,0.15)] hover:border-orange-500/30 dark:hover:border-orange-500/30 transition-all duration-700 hover:-translate-y-4 opacity-0 animate-fade-up [animation-fill-mode:forwards]"
       style={{ animationDelay: `${index * 150}ms` }}
     >
       <div className="absolute top-0 right-0 p-10 opacity-0 group-hover:opacity-10 transition-opacity duration-700">
-          <div className="scale-[4] rotate-12">{icon}</div>
+        <div className="scale-[4] rotate-12">{icon}</div>
       </div>
-      
+
       <div
         className={`h-16 w-16 rounded-[22px] ${iconBg} text-white flex items-center justify-center mb-10 shadow-2xl group-hover:rotate-[15deg] group-hover:scale-110 transition-all duration-500 relative z-10`}
       >
         {icon}
       </div>
-      
-      <h3 className="font-bold text-2xl text-slate-900 mb-5 uppercase tracking-tight group-hover:text-[#F27124] transition-colors relative z-10">
+
+      <h3 className="font-bold text-2xl text-slate-900 dark:text-white mb-5 uppercase tracking-tight group-hover:text-[#F27124] transition-colors relative z-10">
         {title}
       </h3>
-      
-      <p className="text-slate-500 text-base font-medium leading-relaxed relative z-10">
+
+      <p className="text-slate-500 dark:text-slate-400 text-base font-medium leading-relaxed relative z-10">
         {desc}
       </p>
-      
-      <div className="mt-10 pt-8 border-t border-slate-100 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-orange-500 transition-colors">
-          <span>Khám phá ngay</span>
-          <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+
+      <div className="mt-10 pt-8 border-t border-slate-100 dark:border-white/5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-orange-500 transition-colors">
+        <span>Khám phá ngay</span>
+        <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
       </div>
     </div>
   );

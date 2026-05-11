@@ -14,7 +14,7 @@ import { BackgroundBeams } from "@/features/home/components/background-beams";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen bg-white font-sans selection:bg-orange-500/10 overflow-x-hidden relative">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-zinc-950 font-sans selection:bg-orange-500/10 overflow-x-hidden relative">
       {/* 1. HIỆU ỨNG NỀN PREMIUM */}
       <BackgroundBeams />
 

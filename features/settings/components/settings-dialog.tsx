@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import { AppearanceSettings } from "@/features/settings/components/appearance-card";
 import { GradingConfig } from "@/features/lecturer/components/settings/grading-config";
+import { useActiveClassId } from "@/hooks/use-active-class-id";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -30,6 +31,7 @@ export function SettingsDialog({
   userRole,
 }: SettingsDialogProps) {
   const [activeTab, setActiveTab] = useState("appearance");
+  const activeClassId = useActiveClassId();
 
   const tabTriggerStyle = cn(
     "relative flex justify-start items-center gap-3 px-4 py-3 font-bold text-[11px] uppercase tracking-wider transition-all rounded-xl",
@@ -129,7 +131,7 @@ export function SettingsDialog({
                 </div>
 
                 <GradingConfig
-                  classId={Cookies.get("lecturer_class_id") || ""}
+                  classId={activeClassId || ""}
                 />
               </TabsContent>
             )}

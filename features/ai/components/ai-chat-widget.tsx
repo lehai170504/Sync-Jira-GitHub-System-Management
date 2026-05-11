@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useClassDetails } from "@/features/management/classes/hooks/use-class-details";
 import { useProjectChat } from "../hooks/use-project-chat";
+import { useActiveClassId } from "@/hooks/use-active-class-id";
 
 type ChatMsg = {
   id: string;
@@ -50,15 +51,10 @@ function TypingDots() {
 
 export function AiChatWidget() {
   const token = Cookies.get("token");
-  const searchParams = useSearchParams();
-
   const { data: profile } = useProfile();
   const role = profile?.user?.role;
 
-  const classIdFromUrl = searchParams.get("classId") ?? "";
-  const classIdFromCookie =
-    Cookies.get("lecturer_class_id") || Cookies.get("student_class_id") || "";
-  const classId = classIdFromUrl || classIdFromCookie;
+  const classId = useActiveClassId();
   const classNameFromCookie = Cookies.get("student_class_name") || "";
 
   const { data: classDetails } = useClassDetails(classId || undefined);
@@ -158,7 +154,7 @@ export function AiChatWidget() {
           ? `AI đang quá tải quota. Vui lòng thử lại sau ${retrySeconds ?? 60} giây.`
           : !status && /network error/i.test(String(e?.message ?? ""))
             ? "Không kết nối được AI server (Network Error). Kiểm tra backend đang chạy/không sleep và CORS."
-          : (typeof data?.message === "string" && data.message) ||
+            : (typeof data?.message === "string" && data.message) ||
             (typeof data?.error === "string" && data.error) ||
             e?.message ||
             "Không thể gửi tin nhắn. Vui lòng thử lại.";
@@ -167,27 +163,26 @@ export function AiChatWidget() {
           ? typeof data === "string"
             ? data
             : (() => {
-                try {
-                  return JSON.stringify(data);
-                } catch {
-                  return String(data);
-                }
-              })()
+              try {
+                return JSON.stringify(data);
+              } catch {
+                return String(data);
+              }
+            })()
           : null;
       setMessages((prev) => [
         ...prev,
         { id: uid(), role: "assistant", content: `**Lỗi:** ${msg}`, createdAt: Date.now() },
         ...(status || details
           ? ([
-              {
-                id: uid(),
-                role: "assistant",
-                content: `**Debug:** status=${status ?? "?"}${
-                  details ? `, body=${details}` : ""
+            {
+              id: uid(),
+              role: "assistant",
+              content: `**Debug:** status=${status ?? "?"}${details ? `, body=${details}` : ""
                 }`,
-                createdAt: Date.now(),
-              },
-            ] as ChatMsg[])
+              createdAt: Date.now(),
+            },
+          ] as ChatMsg[])
           : []),
       ]);
 

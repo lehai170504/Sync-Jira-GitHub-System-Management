@@ -28,6 +28,7 @@ import { NavItem } from "./nav-item";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useClassTeams } from "@/features/student/hooks/use-class-teams";
 import { useClassDetails } from "@/features/management/classes/hooks/use-class-details";
+import { useActiveClassId } from "@/hooks/use-active-class-id";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -42,12 +43,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   // --- DATA FETCHING ---
   const { data: profile } = useProfile();
   const currentRole = (profile?.user?.role as UserRole) || "STUDENT";
-  const urlClassId = searchParams.get("classId");
-  const studentCookieId = Cookies.get("student_class_id");
-  const lecturerCookieId = Cookies.get("lecturer_class_id");
-  const fallbackCookieId =
-    currentRole === "LECTURER" ? lecturerCookieId : studentCookieId;
-  const activeClassId = urlClassId || fallbackCookieId;
+  const activeClassId = useActiveClassId();
 
   const { data: classDetailData, isLoading: isClassLoading } =
     useClassDetails(activeClassId);

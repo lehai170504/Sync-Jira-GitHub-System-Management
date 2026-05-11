@@ -14,6 +14,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 // IMPORT BONG BÓNG CHAT AI
 import { OmniAgentChat } from "@/features/lecturer/components/omni-agent-chat";
+import { WelcomeModal } from "@/components/common/welcome-modal";
+import { useActiveClassId } from "@/hooks/use-active-class-id";
+import { UserRole } from "@/components/layouts/sidebar-config";
 
 function DashboardLayoutContent({
   children,
@@ -26,7 +29,8 @@ function DashboardLayoutContent({
 
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const [activeClassId, setActiveClassId] = useState<string | null>(null);
+
+  const activeClassId = useActiveClassId();
 
   const { data, isLoading } = useProfile();
   const user = data?.user;
@@ -36,19 +40,8 @@ function DashboardLayoutContent({
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
-
-    const urlClassId = searchParams.get("classId");
-
-    const cookieClassId = Cookies.get("lecturer_class_id");
-
-    if (urlClassId) {
-      setActiveClassId(urlClassId);
-      Cookies.set("lecturer_class_id", urlClassId); // Lưu ngược lại cookie cho chắc
-    } else if (cookieClassId) {
-      setActiveClassId(cookieClassId);
-    }
-  }, [pathname, searchParams, mounted]);
+    setMounted(true);
+  }, []);
 
   const isFullScreenPage = ["/lecturer/courses", "/courses"].includes(pathname);
 
@@ -119,8 +112,8 @@ function DashboardLayoutContent({
                         user?.role === "ADMIN"
                           ? "text-violet-600 border-violet-200 bg-violet-50 dark:bg-violet-900/30 dark:border-violet-800 dark:text-violet-300"
                           : user?.role === "LECTURER"
-                          ? "text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300"
-                          : "text-[#F27124] border-orange-200 bg-orange-50 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-300"
+                            ? "text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300"
+                            : "text-[#F27124] border-orange-200 bg-orange-50 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-300"
                       )}
                     >
                       {user?.role || "STUDENT"}
@@ -151,8 +144,17 @@ function DashboardLayoutContent({
       </div>
 
       {/* --- OMNI AGENT CHAT BOT --- */}
-      {/* Chỉ render nếu đang có classId (tức là giảng viên đang ở trong ngữ cảnh 1 lớp cụ thể) */}
-      {/* {activeClassId && <OmniAgentChat classId={activeClassId} />} */}
+      {activeClassId && user?.role === "LECTURER" && (
+        <OmniAgentChat classId={activeClassId} />
+      )}
+
+      {/* --- WELCOME MODAL --- */}
+      {user && (
+        <WelcomeModal
+          role={user.role as UserRole}
+          userName={user.full_name || "User"}
+        />
+      )}
     </div>
   );
 }

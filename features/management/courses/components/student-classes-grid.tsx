@@ -75,16 +75,17 @@ export function StudentClassesGrid({
                 )}
               />
 
-              {/* HEADER: Tên lớp & Môn học */}
               <CardHeader className="pt-6 pb-4">
                 <div className="flex justify-between items-start gap-4 mb-3">
                   <div>
                     <h3 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors leading-none">
                       {cls.className}
                     </h3>
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-wide">
-                      {cls.subjectCode}
-                    </p>
+                    {cls.subjectCode && cls.subjectCode !== cls.className && (
+                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-wide">
+                        {cls.subjectCode}
+                      </p>
+                    )}
                   </div>
                   <Badge
                     variant="secondary"
@@ -94,9 +95,13 @@ export function StudentClassesGrid({
                   </Badge>
                 </div>
 
-                <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm line-clamp-2 leading-snug transition-colors">
-                  {cls.subjectName}
-                </p>
+                {cls.subjectName &&
+                  cls.subjectName !== cls.className &&
+                  cls.subjectName !== cls.subjectCode && (
+                    <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm line-clamp-2 leading-snug transition-colors">
+                      {cls.subjectName}
+                    </p>
+                  )}
               </CardHeader>
 
               {/* BODY: Thông tin Nhóm học */}

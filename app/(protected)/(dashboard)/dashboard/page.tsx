@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Sparkles } from "lucide-react";
 import { useProfile } from "@/features/auth/hooks/use-profile";
+import { BackgroundBeams } from "@/features/home/components/background-beams";
 import { useActiveClassId } from "@/hooks/use-active-class-id";
 import Cookies from "js-cookie";
 
@@ -53,8 +54,20 @@ export default function DashboardPage() {
   const currentRoleMeta = roleMeta[role ?? "STUDENT"];
 
   return (
-    <div className="min-h-screen bg-transparent transition-colors duration-300">
-      <div className="max-w-[1600px] mx-auto space-y-8">
+    <div className="min-h-screen bg-transparent transition-colors duration-300 relative overflow-hidden">
+      {/* 1. NỀN ĐỘNG PREMIUM */}
+      <BackgroundBeams />
+
+      {/* Tech Grid Overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        }}
+      />
+
+      <div className="max-w-[1600px] mx-auto space-y-8 relative z-10">
 
         {/* ===== HEADER: Greeting ===== */}
         {role !== "ADMIN" && (

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import type { LecturerClassDisplayItem } from "./lecturer-classes-grid";
+import { cn } from "@/lib/utils";
 
 interface LecturerClassesListProps {
   classes: LecturerClassDisplayItem[];
@@ -27,8 +28,7 @@ export function LecturerClassesList({
           Không tìm thấy lớp học nào
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-sm">
-          Thử thay đổi từ khóa tìm kiếm hoặc chọn một học kỳ khác để xem kết
-          quả.
+          Thử thay đổi từ khóa tìm kiếm hoặc chọn một học kỳ khác để xem kết quả.
         </p>
         <Button
           variant="outline"
@@ -42,14 +42,14 @@ export function LecturerClassesList({
   }
 
   return (
-    <div className="flex flex-col gap-3 pb-20 font-sans">
+    <div className="flex flex-col gap-4 pb-20 font-sans relative z-10">
       {/* List Header */}
-      <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500 border-b border-slate-200 dark:border-slate-800">
-        <div className="col-span-4">Lớp Học / Môn Học</div>
+      <div className="hidden lg:grid grid-cols-12 gap-4 px-8 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-zinc-500 border-b border-slate-200 dark:border-white/5">
+        <div className="col-span-4 pl-4">Lớp Học / Môn Học</div>
         <div className="col-span-2 text-center">Học Kỳ</div>
         <div className="col-span-3 text-center">Trọng số Đánh giá</div>
         <div className="col-span-2 text-center">Trạng Thái</div>
-        <div className="col-span-1 text-right">Thao Tác</div>
+        <div className="col-span-1 text-right pr-4">Thao Tác</div>
       </div>
 
       <AnimatePresence mode="popLayout">
@@ -60,80 +60,83 @@ export function LecturerClassesList({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.2, delay: index * 0.02 }}
+            transition={{ duration: 0.3, delay: index * 0.03 }}
           >
             <div
               onClick={() => onSelectClass(cls)}
-              className="group relative flex flex-col lg:grid lg:grid-cols-12 gap-4 items-center bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 p-4 lg:p-6 rounded-[24px] shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-900/50 cursor-pointer transition-all duration-300 overflow-hidden"
+              className="group relative flex flex-col lg:grid lg:grid-cols-12 gap-4 items-center bg-white/70 dark:bg-zinc-900/40 backdrop-blur-md border border-white/50 dark:border-white/5 p-4 lg:p-6 rounded-[28px] shadow-sm hover:shadow-xl hover:shadow-orange-500/5 hover:border-orange-500/20 cursor-pointer transition-all duration-500 overflow-hidden"
             >
               {/* Vạch màu bên trái */}
               <div
-                className={`absolute left-0 top-0 bottom-0 w-1.5 opacity-80 ${cls.color}`}
+                className={cn(
+                  "absolute left-0 top-0 bottom-0 w-1.5 opacity-80 group-hover:w-2 transition-all duration-500",
+                  cls.color,
+                )}
               />
 
-              <div className="col-span-4 flex flex-col w-full pl-2">
+              {/* Tên Lớp & Môn Học */}
+              <div className="col-span-4 flex flex-col w-full pl-4">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors">
                     {cls.name}
                   </h3>
-                  {cls.subject_id?.code && (
+                  {cls.subject_id?.code && cls.subject_id.code !== cls.name && (
                     <Badge
                       variant="outline"
-                      className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 uppercase tracking-widest text-[9px] font-bold"
+                      className="bg-slate-50 dark:bg-black/20 border-slate-200 dark:border-white/5 text-slate-500 dark:text-zinc-500 uppercase tracking-widest text-[9px] font-bold px-2"
                     >
                       {cls.subject_id.code}
                     </Badge>
                   )}
-                  {cls.class_code && cls.class_code !== cls.subject_id?.code && (
-                    <Badge
-                      variant="outline"
-                      className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 uppercase tracking-widest text-[9px] font-bold"
-                    >
-                      {cls.class_code}
-                    </Badge>
-                  )}
+                  {cls.class_code &&
+                    cls.class_code !== cls.subject_id?.code &&
+                    cls.class_code !== cls.name && (
+                      <Badge
+                        variant="outline"
+                        className="bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-900/30 text-blue-600 dark:text-blue-400 uppercase tracking-widest text-[9px] font-bold px-2"
+                      >
+                        {cls.class_code}
+                      </Badge>
+                    )}
                 </div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
-                  {cls.subjectName ?? cls.subject_id?.name}
-                </p>
+                {(() => {
+                  const subName = cls.subjectName ?? cls.subject_id?.name;
+                  if (!subName || subName === cls.name || subName === cls.subject_id?.code || subName === cls.class_code) return null;
+                  return (
+                    <p className="text-sm font-semibold text-slate-500 dark:text-zinc-500 line-clamp-1 italic">
+                      {subName}
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* Học Kỳ */}
               <div className="col-span-2 w-full flex justify-between lg:justify-center items-center">
-                <span className="lg:hidden text-xs font-bold text-slate-400 uppercase">
+                <span className="lg:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Học kỳ:
                 </span>
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 px-3 py-1 rounded-lg">
+                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800/80 px-3 py-1.5 rounded-full transition-colors">
                   {cls.semester_id?.name ?? "N/A"}
                 </span>
               </div>
 
               {/* Trọng số đánh giá */}
               <div className="col-span-3 w-full flex justify-between lg:justify-center items-center gap-4">
-                <span className="lg:hidden text-xs font-bold text-slate-400 uppercase">
+                <span className="lg:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Trọng số:
                 </span>
-                <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-950/50 p-2 rounded-xl border border-slate-100 dark:border-slate-800/60">
-                  <div
-                    className="flex items-center gap-1.5"
-                    title="Jira Weight"
-                  >
+                <div className="flex items-center gap-4 bg-slate-50 dark:bg-black/20 px-4 py-2 rounded-2xl border border-slate-100 dark:border-white/5">
+                  <div className="flex items-center gap-2" title="Jira Weight">
                     <Target className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                      {Math.round(
-                        (cls.contributionConfig?.jiraWeight ?? 0) * 100,
-                      )}
-                      %
+                    <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+                      {Math.round((cls.contributionConfig?.jiraWeight ?? 0) * 100)}%
                     </span>
                   </div>
-                  <div className="w-px h-4 bg-slate-300 dark:bg-slate-700" />
-                  <div className="flex items-center gap-1.5" title="Git Weight">
+                  <div className="w-px h-4 bg-slate-200 dark:bg-zinc-800" />
+                  <div className="flex items-center gap-2" title="Git Weight">
                     <GitCommit className="w-4 h-4 text-orange-500" />
-                    <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                      {Math.round(
-                        (cls.contributionConfig?.gitWeight ?? 0) * 100,
-                      )}
-                      %
+                    <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+                      {Math.round((cls.contributionConfig?.gitWeight ?? 0) * 100)}%
                     </span>
                   </div>
                 </div>
@@ -141,36 +144,32 @@ export function LecturerClassesList({
 
               {/* Trạng Thái */}
               <div className="col-span-2 w-full flex justify-between lg:justify-center items-center">
-                <span className="lg:hidden text-xs font-bold text-slate-400 uppercase">
+                <span className="lg:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Trạng thái:
                 </span>
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-2.5 w-2.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="relative flex h-2 w-2">
                     {cls.status === "Active" && (
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     )}
                     <span
-                      className={`relative inline-flex rounded-full h-2.5 w-2.5 ${cls.status === "Active"
-                        ? "bg-emerald-500"
-                        : "bg-slate-300 dark:bg-slate-600"
-                        }`}
+                      className={cn(
+                        "relative inline-flex rounded-full h-2 w-2 transition-colors",
+                        cls.status === "Active" ? "bg-emerald-500" : "bg-slate-300 dark:bg-zinc-700"
+                      )}
                     ></span>
                   </span>
-                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">
-                    {cls.status === "Active" ? "Đang giảng dạy" : cls.status}
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-[0.15em] transition-colors">
+                    {cls.status === "Active" ? "Active" : cls.status}
                   </span>
                 </div>
               </div>
 
               {/* Hành Động */}
-              <div className="col-span-1 w-full flex justify-end items-center mt-2 lg:mt-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 rounded-xl group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-                >
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
+              <div className="col-span-1 w-full flex justify-end items-center mt-2 lg:mt-0 pr-4">
+                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 group-hover:bg-orange-500 group-hover:text-white transition-all duration-500 shadow-sm">
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                </div>
               </div>
             </div>
           </motion.div>

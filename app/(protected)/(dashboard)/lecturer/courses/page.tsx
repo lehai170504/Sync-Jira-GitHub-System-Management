@@ -9,6 +9,7 @@ import { LecturerClassesSection } from "@/features/management/courses/components
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { useLecturerClasses } from "@/features/management/lecturers/hooks/use-lecturer-classes";
 import { useSemesters } from "@/features/management/semesters/hooks/use-semesters";
+import { BackgroundBeams } from "@/features/home/components/background-beams";
 
 export default function LecturerCoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,8 +61,20 @@ export default function LecturerCoursesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent flex flex-col font-sans relative overflow-x-hidden">
-      {/* Background glow */}
+    <div className="min-h-screen bg-white dark:bg-zinc-950 flex flex-col font-sans relative overflow-x-hidden transition-colors duration-500">
+      {/* 1. NỀN ĐỘNG PREMIUM */}
+      <BackgroundBeams />
+
+      {/* Tech Grid Overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        }}
+      />
+
+      {/* Background Decoration Glow */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-orange-100/20 dark:bg-orange-900/10 blur-[120px]" />
         <div className="absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] rounded-full bg-blue-50/20 dark:bg-blue-900/5 blur-[120px]" />
@@ -74,7 +87,12 @@ export default function LecturerCoursesPage() {
           <CourseFilter
             title="Các lớp giảng dạy"
             description={`Hệ thống ghi nhận ${lecturerData?.stats?.active_classes ?? 0} lớp học đang đồng bộ dữ liệu.`}
-            icon={<BookOpen className="h-8 w-8 text-[#F27124] dark:text-orange-400" />}
+            icon={
+              <div className="p-3.5 bg-white dark:bg-zinc-900 shadow-xl border border-orange-100 dark:border-white/5 rounded-2xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-orange-500/10 dark:bg-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <BookOpen className="h-8 w-8 text-[#F27124] relative z-10" />
+              </div>
+            }
             semesters={semesterOptions}
             selectedSemester={selectedSemester}
             onSemesterChange={setSelectedSemester}

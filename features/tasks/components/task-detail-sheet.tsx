@@ -1,6 +1,6 @@
-import { StatusBadge } from "@/components/common/status-badge";
 "use client";
 
+import { StatusBadge } from "@/components/common/status-badge";
 import React from "react";
 import {
   Sheet,

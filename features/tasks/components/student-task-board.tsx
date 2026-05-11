@@ -1,6 +1,6 @@
-import { useStudentTour } from "@/features/tasks/hooks/use-student-tour";
-import { StatusBadge } from "@/components/common/status-badge";
 "use client";
+
+import { useStudentTour } from "@/features/tasks/hooks/use-student-tour";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -11,16 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { KanbanSquare, LayoutDashboard, Loader2, RefreshCw, Plus, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 

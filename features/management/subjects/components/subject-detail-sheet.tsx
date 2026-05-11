@@ -1,4 +1,3 @@
-// src/components/features/management/subjects/components/subject-detail-sheet.tsx
 "use client";
 import { StatusBadge } from "@/components/common/status-badge";
 import { useSubjectDetail } from "../hooks/use-subject-detail";

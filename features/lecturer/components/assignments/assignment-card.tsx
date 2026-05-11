@@ -1,6 +1,5 @@
-import { StatusBadge } from "@/components/common/status-badge";
 "use client";
-
+import { StatusBadge } from "@/components/common/status-badge";
 import {
   CalendarClock,
   CalendarPlus,
@@ -87,11 +86,10 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
             {/* Deadline */}
             <div
               className={`flex flex-col gap-1 p-3 rounded-xl border transition-colors
-              ${
-                status === "Open"
+              ${status === "Open"
                   ? "bg-orange-50/50 border-orange-100 dark:bg-orange-900/10 dark:border-orange-500/30"
                   : "bg-slate-50 border-slate-100 dark:bg-slate-800/50 dark:border-slate-700/50"
-              }`}
+                }`}
             >
               <span
                 className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider
@@ -100,11 +98,10 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
                 <CalendarClock className="h-3.5 w-3.5" /> Deadline
               </span>
               <span
-                className={`text-xs font-semibold ${
-                  status === "Open"
+                className={`text-xs font-semibold ${status === "Open"
                     ? "text-orange-700 dark:text-orange-300"
                     : "text-slate-700 dark:text-slate-300"
-                }`}
+                  }`}
               >
                 {format(new Date(assignment.deadline), "HH:mm dd/MM", {
                   locale: vi,
@@ -123,11 +120,10 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
             <span>Tiến độ nộp bài</span>
           </div>
           <span
-            className={`font-bold ${
-              progress === 100
+            className={`font-bold ${progress === 100
                 ? "text-emerald-600 dark:text-emerald-400"
                 : "text-slate-700 dark:text-slate-200"
-            }`}
+              }`}
           >
             {submitted}/{total}
           </span>

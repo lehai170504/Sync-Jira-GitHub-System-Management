@@ -86,9 +86,21 @@ export function LecturerClassesGrid({
                     <h3 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-none">
                       {cls.name}
                     </h3>
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1.5 uppercase tracking-wide transition-colors">
-                      {cls.subject_id?.code ?? cls.class_code ?? "N/A"}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      {cls.subject_id?.code && (
+                        <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                          {cls.subject_id.code}
+                        </span>
+                      )}
+                      {cls.class_code && cls.class_code !== cls.subject_id?.code && (
+                        <>
+                          <span className="text-slate-200 dark:text-slate-700">•</span>
+                          <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                            {cls.class_code}
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                   <Badge
                     variant="secondary"

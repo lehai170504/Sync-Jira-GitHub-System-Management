@@ -48,9 +48,9 @@ export default function LecturerCoursesPage() {
 
   if (isProfileLoading || (!lecturerData && isClassesLoading)) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#FDFDFD] dark:bg-slate-950 font-sans transition-colors duration-300">
-        <div className="flex flex-col items-center gap-4 animate-fade-up">
-          <Loader2 className="h-12 w-12 animate-spin text-[#F27124]" />
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
           <p className="text-slate-400 dark:text-slate-500 text-[10px] font-bold tracking-widest uppercase">
             Đang tải dữ liệu...
           </p>
@@ -60,11 +60,11 @@ export default function LecturerCoursesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] dark:bg-slate-950 flex flex-col font-sans selection:bg-orange-100 dark:selection:bg-orange-900/30 relative overflow-x-hidden transition-colors duration-300">
-      {/* Background Decoration */}
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-orange-100/30 dark:bg-orange-900/10 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-blue-50/20 dark:bg-blue-900/10 blur-[120px]" />
+    <div className="min-h-screen bg-transparent flex flex-col font-sans relative overflow-x-hidden">
+      {/* Background glow */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-orange-100/20 dark:bg-orange-900/10 blur-[120px]" />
+        <div className="absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] rounded-full bg-blue-50/20 dark:bg-blue-900/5 blur-[120px]" />
       </div>
 
       <CourseHeader />
@@ -74,15 +74,12 @@ export default function LecturerCoursesPage() {
           <CourseFilter
             title="Các lớp giảng dạy"
             description={`Hệ thống ghi nhận ${lecturerData?.stats?.active_classes ?? 0} lớp học đang đồng bộ dữ liệu.`}
-            icon={
-              <BookOpen className="h-8 w-8 text-[#F27124] dark:text-orange-400" />
-            }
+            icon={<BookOpen className="h-8 w-8 text-[#F27124] dark:text-orange-400" />}
             semesters={semesterOptions}
             selectedSemester={selectedSemester}
             onSemesterChange={setSelectedSemester}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            // Truyền props viewMode
             viewMode={viewMode}
             onViewModeChange={handleViewModeChange}
           />
@@ -96,15 +93,6 @@ export default function LecturerCoursesPage() {
           viewMode={viewMode}
         />
       </main>
-
-      <footer className="px-12 py-8 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center opacity-40">
-        <p className="text-[10px] font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">
-          Hệ thống quản lý Sync v4.0
-        </p>
-        <p className="text-[10px] font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">
-          Tích hợp DevOps
-        </p>
-      </footer>
     </div>
   );
 }

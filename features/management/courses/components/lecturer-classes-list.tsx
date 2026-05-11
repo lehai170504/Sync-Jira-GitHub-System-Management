@@ -71,18 +71,27 @@ export function LecturerClassesList({
                 className={`absolute left-0 top-0 bottom-0 w-1.5 opacity-80 ${cls.color}`}
               />
 
-              {/* Tên Lớp & Môn Học */}
               <div className="col-span-4 flex flex-col w-full pl-2">
-                <div className="flex items-center gap-3 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h3 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {cls.name}
                   </h3>
-                  <Badge
-                    variant="outline"
-                    className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 uppercase tracking-widest text-[9px] font-bold"
-                  >
-                    {cls.subject_id?.code ?? cls.class_code}
-                  </Badge>
+                  {cls.subject_id?.code && (
+                    <Badge
+                      variant="outline"
+                      className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 uppercase tracking-widest text-[9px] font-bold"
+                    >
+                      {cls.subject_id.code}
+                    </Badge>
+                  )}
+                  {cls.class_code && cls.class_code !== cls.subject_id?.code && (
+                    <Badge
+                      variant="outline"
+                      className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 uppercase tracking-widest text-[9px] font-bold"
+                    >
+                      {cls.class_code}
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
                   {cls.subjectName ?? cls.subject_id?.name}
@@ -141,11 +150,10 @@ export function LecturerClassesList({
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     )}
                     <span
-                      className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                        cls.status === "Active"
-                          ? "bg-emerald-500"
-                          : "bg-slate-300 dark:bg-slate-600"
-                      }`}
+                      className={`relative inline-flex rounded-full h-2.5 w-2.5 ${cls.status === "Active"
+                        ? "bg-emerald-500"
+                        : "bg-slate-300 dark:bg-slate-600"
+                        }`}
                     ></span>
                   </span>
                   <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">

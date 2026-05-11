@@ -7,6 +7,7 @@ import { CourseHeader } from "@/components/common/courses/course-header";
 import { CourseFilter } from "@/components/common/courses/course-filter";
 import { StudentClassesSection } from "@/features/management/courses/components/student-classes-section";
 import { useSemesters } from "@/features/management/semesters/hooks/use-semesters";
+import { BackgroundBeams } from "@/features/home/components/background-beams";
 
 export default function StudentCoursesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,9 +25,18 @@ export default function StudentCoursesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 flex flex-col relative overflow-hidden transition-colors duration-300">
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-100/50 dark:bg-orange-900/30 rounded-full blur-3xl -z-10 animate-pulse" />
-      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-blue-100/50 dark:bg-blue-900/30 rounded-full blur-3xl -z-10" />
+    <div className="min-h-screen bg-white dark:bg-zinc-950 flex flex-col relative overflow-hidden transition-colors duration-500">
+      {/* 1. NỀN ĐỘNG PREMIUM */}
+      <BackgroundBeams />
+
+      {/* Tech Grid Overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        }}
+      />
 
       <CourseHeader />
 
@@ -36,8 +46,9 @@ export default function StudentCoursesPage() {
             title="Lớp học của tôi"
             description="Theo dõi tiến độ và quản lý các nhóm học tập hiệu quả."
             icon={
-              <div className="p-3 bg-white dark:bg-slate-900 shadow-sm border border-orange-100 dark:border-orange-900/40 rounded-2xl">
-                <GraduationCap className="h-8 w-8 text-[#F27124]" />
+              <div className="p-3.5 bg-white dark:bg-zinc-900 shadow-xl border border-orange-100 dark:border-white/5 rounded-2xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-orange-500/10 dark:bg-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <GraduationCap className="h-8 w-8 text-[#F27124] relative z-10" />
               </div>
             }
             semesters={semesterOptions}

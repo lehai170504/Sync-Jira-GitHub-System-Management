@@ -88,15 +88,23 @@ export function StudentClassesSection({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-80 items-center justify-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[40px] border border-white/20 dark:border-slate-800/50 shadow-2xl transition-colors duration-500">
-        <div className="relative">
-          <Loader2 className="h-12 w-12 animate-spin text-[#F27124] relative z-10" />
-          {/* Tinh chỉnh ánh sáng lan tỏa phía sau mượt hơn trong chế độ tối */}
-          <div className="absolute inset-0 h-12 w-12 bg-orange-400 dark:bg-orange-600 blur-2xl opacity-20 animate-pulse" />
+      <div className="flex flex-col h-[400px] items-center justify-center bg-white/70 dark:bg-zinc-900/40 backdrop-blur-3xl rounded-[48px] border border-white/40 dark:border-white/10 shadow-2xl transition-all duration-500">
+        <div className="relative mb-8">
+          <div className="absolute inset-0 bg-orange-500 blur-3xl opacity-20 animate-pulse" />
+          <div className="relative h-20 w-20 flex items-center justify-center">
+            <Loader2 className="h-10 w-10 animate-spin text-[#F27124] relative z-10" />
+            <div className="absolute inset-0 border-4 border-orange-500/10 rounded-full" />
+            <div className="absolute inset-0 border-t-4 border-orange-500 rounded-full animate-spin [animation-duration:1.5s]" />
+          </div>
         </div>
-        <p className="mt-6 text-slate-500 dark:text-slate-400 font-semibold text-[10px] uppercase tracking-widest animate-pulse transition-colors">
-          Đang chuẩn bị không gian học tập...
-        </p>
+        <div className="text-center space-y-2">
+          <p className="text-zinc-900 dark:text-zinc-100 font-bold text-xs uppercase tracking-[0.3em] animate-pulse">
+            Đang khởi tạo
+          </p>
+          <p className="text-zinc-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
+            Không gian học tập của bạn
+          </p>
+        </div>
       </div>
     );
   }

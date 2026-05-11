@@ -19,35 +19,35 @@ export const useAuthTour = (isRegisterMode: boolean) => {
 
       steps: [
         {
-          element: "#auth-logo-area",
+          element: "#auth-info-panel",
           popover: {
-            title: "Chào mừng đến với SyncSystem",
+            title: "🚀 Trung tâm thông tin",
             description:
-              "Nền tảng quản lý dự án & học tập tích hợp GitHub và Jira dành riêng cho bạn.",
-            side: "bottom",
+              "Nơi hiển thị trạng thái hệ thống và các thông tin quan trọng về hành trình của bạn.",
+            side: "right",
             align: "start",
           },
         },
         {
-          element: "#auth-form-area",
+          element: "#auth-form-container",
           popover: {
             title: isRegisterMode
-              ? "📝 Đăng ký tài khoản"
-              : "🔐 Đăng nhập hệ thống",
+              ? "📝 Đăng ký thành viên"
+              : "🔐 Xác thực danh tính",
             description: isRegisterMode
-              ? "Điền thông tin cá nhân để tạo tài khoản mới và bắt đầu hành trình."
-              : "Nhập Email và Mật khẩu đã đăng ký để truy cập vào không gian làm việc của bạn.",
-            side: "right",
+              ? "Điền thông tin để khởi tạo hồ sơ sinh viên chuyên nghiệp trên hệ thống."
+              : "Sử dụng tài khoản đã được cấp để truy cập vào không gian làm việc đồng bộ.",
+            side: "left",
             align: "center",
           },
         },
         {
-          element: "#auth-banner-section",
+          element: "#auth-help-button",
           popover: {
-            title: "🔄 Chuyển đổi chế độ",
+            title: "💡 Hỗ trợ 24/7",
             description:
-              "Bạn có thể dễ dàng chuyển đổi giữa Đăng nhập và Đăng ký tại khu vực này.",
-            side: "left",
+              "Bất cứ khi nào bạn gặp khó khăn, hãy nhấn vào đây để được hướng dẫn chi tiết.",
+            side: "bottom",
             align: "center",
           },
         },

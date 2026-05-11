@@ -27,6 +27,9 @@ import {
   useResetPassword,
 } from "@/features/auth/hooks/use-forgot-password";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { BackgroundBeams } from "@/features/home/components/background-beams";
+import { AuthHeader } from "@/features/auth/components/auth-header";
 
 export default function ForgotPasswordPage() {
   // --- STATE ---
@@ -81,292 +84,264 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="w-full h-screen lg:grid lg:grid-cols-2 overflow-hidden bg-white dark:bg-slate-950 transition-colors duration-300">
-      {/* --- CỘT TRÁI: FORM --- */}
-      <div className="flex flex-col h-full relative overflow-y-auto">
-        {/* Header */}
-        <div className="px-8 py-6 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#F27124] to-[#d65d1b] shadow-md">
-                <span className="text-white font-semibold text-lg">S</span>
-              </div>
-              <span className="font-bold text-lg text-slate-900 dark:text-slate-100 hidden sm:block transition-colors">
-                SyncSystem
-              </span>
-            </div>
-            <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 transition-colors"></div>
-            <div className="opacity-90 grayscale group-hover:grayscale-0 transition-all duration-300">
-              <Image
-                src="/images/Logo_Trường_Đại_học_FPT.svg.png"
-                alt="FPT University"
-                width={100}
-                height={32}
-                className="h-7 w-auto object-contain dark:brightness-0 dark:invert transition-all"
-              />
-            </div>
-          </Link>
-        </div>
+    <div className="min-h-[100dvh] w-full bg-white dark:bg-zinc-950 overflow-hidden flex items-center justify-center p-4 md:p-6 lg:p-8 relative transition-colors duration-500">
+      {/* 1. NỀN ĐỘNG PREMIUM */}
+      <BackgroundBeams />
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col justify-center px-8 sm:px-12 md:px-20 lg:px-16 xl:px-24">
-          <div className="max-w-[480px] w-full mx-auto space-y-8">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 transition-colors">
-                {step === 1 ? "Quên mật khẩu?" : "Đặt lại mật khẩu"}
-              </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-base transition-colors">
-                {step === 1
-                  ? "Đừng lo, chúng tôi sẽ gửi mã xác thực đến email của bạn."
-                  : `Nhập mã OTP đã được gửi đến ${email} để tạo mật khẩu mới.`}
+      {/* Tech Grid Overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
+          backgroundSize: '30px 30px'
+        }}
+      />
+
+      {/* 2. TRUNG TÂM ĐIỀU KHIỂN (MAIN CARD) */}
+      <motion.div
+        initial={{ opacity: 0, y: 40, scale: 0.9, rotateX: -10 }}
+        animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+        transition={{
+          duration: 1,
+          ease: [0.16, 1, 0.3, 1],
+          delay: 0.2
+        }}
+        className="relative z-10 w-full max-w-[1100px] min-h-[700px] bg-white/70 dark:bg-zinc-900/40 backdrop-blur-3xl rounded-[48px] border border-white/40 dark:border-white/10 shadow-[0_32px_120px_-20px_rgba(0,0,0,0.2)] dark:shadow-[0_32px_120px_-20px_rgba(242,113,36,0.1)] flex flex-col lg:flex-row overflow-hidden [perspective:1000px]"
+      >
+        {/* --- PHẦN TRÁI: SECURITY INFO --- */}
+        <div className="lg:w-[42%] bg-zinc-950 relative overflow-hidden flex flex-col p-12 text-white">
+          {/* Decorative Glows */}
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,0.15),transparent_70%)]" />
+
+          <div className="relative z-20 flex flex-col h-full">
+            <div className="shrink-0 mb-16">
+              <AuthHeader />
+            </div>
+
+            <div className="flex-1 flex flex-col justify-center space-y-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key="security-info"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="space-y-6"
+                >
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+                    <ShieldCheck className="h-3 w-3 text-blue-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">
+                      Security Protocol
+                    </span>
+                  </div>
+
+                  <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tighter uppercase">
+                    Khôi phục <br /><span className="text-blue-500">Truy cập.</span>
+                  </h2>
+
+                  <p className="text-zinc-400 text-sm font-medium leading-relaxed max-w-xs">
+                    Hệ thống bảo mật đa lớp giúp bảo vệ tài khoản của bạn. Vui lòng xác thực danh tính để tiếp tục.
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Security Status */}
+              <div className="space-y-3 pt-8">
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/5">
+                  <div className="h-8 w-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <Lock className="h-4 w-4 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-500 uppercase">Encryption</p>
+                    <p className="text-[11px] font-bold text-white">AES-256 ACTIVE</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="shrink-0 pt-12 border-t border-white/5 opacity-40">
+              <p className="text-[9px] font-bold uppercase tracking-[0.3em]">
+                &copy; 2026 Security Core Sync
               </p>
             </div>
+          </div>
+        </div>
 
-            {/* --- STEP 1: NHẬP EMAIL & ROLE --- */}
-            {step === 1 && (
-              <form
-                onSubmit={handleStep1Submit}
-                className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300"
+        {/* --- PHẦN PHẢI: FORM CÔNG TÁC --- */}
+        <div className="flex-1 bg-white dark:bg-transparent relative flex flex-col overflow-y-auto">
+          <div className="flex-1 flex flex-col p-8 md:p-16 lg:p-20 justify-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, scale: 0.99, filter: "blur(4px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 1.01, filter: "blur(4px)" }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="w-full"
               >
-                {/* Role Selection */}
-                <div className="space-y-2">
-                  <Label className="text-slate-700 dark:text-slate-300">
-                    Bạn là?
-                  </Label>
-                  <Select
-                    value={role}
-                    onValueChange={(val: "STUDENT" | "LECTURER") =>
-                      setRole(val)
-                    }
-                  >
-                    <SelectTrigger className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:ring-[#F27124]/20 transition-colors">
-                      <SelectValue placeholder="Chọn vai trò" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-                      <SelectItem
-                        value="STUDENT"
-                        className="dark:text-slate-200"
-                      >
-                        Sinh viên (Student)
-                      </SelectItem>
-                      <SelectItem
-                        value="LECTURER"
-                        className="dark:text-slate-200"
-                      >
-                        Giảng viên (Lecturer)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    *Tính năng này không hỗ trợ tài khoản Admin.
-                  </p>
-                </div>
-
-                {/* Email Input */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="email"
-                    className="text-slate-700 dark:text-slate-300"
-                  >
-                    Email tài khoản
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="name@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      disabled={isOtpLoading}
-                      className="pl-10 h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
-                      required
-                    />
-                    <div className="absolute left-3 top-3 text-slate-400 dark:text-slate-500">
-                      <Mail className="h-5 w-5" />
+                {/* --- STEP 1: NHẬP EMAIL & ROLE --- */}
+                {step === 1 && (
+                  <div className="space-y-8">
+                    <div className="space-y-1 mb-8 text-center sm:text-left">
+                      <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50 uppercase tracking-tighter">
+                        Quên mật khẩu?
+                      </h1>
+                      <div className="h-0.5 w-10 bg-blue-500 mx-auto sm:mx-0 rounded-full mb-4" />
+                      <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-widest opacity-70">
+                        Nhập email để nhận mã xác thực danh tính
+                      </p>
                     </div>
-                  </div>
-                </div>
 
-                <div className="flex gap-3 pt-2">
-                  <Link href="/login" className="flex-none">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-12 w-12 p-0 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                    >
-                      <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                    </Button>
-                  </Link>
-                  <Button
-                    type="submit"
-                    disabled={isOtpLoading}
-                    className="flex-1 h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] text-white transition-colors"
-                  >
-                    {isOtpLoading ? (
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    ) : (
-                      "Gửi mã xác thực"
-                    )}
-                    {!isOtpLoading && <ArrowRight className="ml-2 h-5 w-5" />}
-                  </Button>
-                </div>
-              </form>
-            )}
+                    <form onSubmit={handleStep1Submit} className="space-y-5">
+                      <div className="space-y-4">
+                        {/* Role Selection */}
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Bạn là?</Label>
+                          <Select value={role} onValueChange={(val: "STUDENT" | "LECTURER") => setRole(val)}>
+                            <SelectTrigger className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-white/5 focus:ring-blue-500/20 font-bold text-xs uppercase transition-all">
+                              <SelectValue placeholder="Chọn vai trò" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white dark:bg-zinc-950 border-white/10">
+                              <SelectItem value="STUDENT">Sinh viên (Student)</SelectItem>
+                              <SelectItem value="LECTURER">Giảng viên (Lecturer)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-            {/* --- STEP 2: NHẬP OTP & NEW PASSWORD --- */}
-            {step === 2 && (
-              <form
-                onSubmit={handleStep2Submit}
-                className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300"
-              >
-                {/* OTP Input */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="otp"
-                    className="text-slate-700 dark:text-slate-300"
-                  >
-                    Mã OTP (6 số)
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="otp"
-                      placeholder="123456"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      className="pl-10 h-11 tracking-widest font-bold text-center text-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
-                      maxLength={6}
-                      required
-                    />
-                    <div className="absolute left-3 top-3 text-slate-400 dark:text-slate-500">
-                      <KeyRound className="h-5 w-5" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* New Password Fields */}
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="new-password"
-                      className="text-slate-700 dark:text-slate-300"
-                    >
-                      Mật khẩu mới
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="new-password"
-                        type="password"
-                        placeholder="••••••"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="pl-10 h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
-                        required
-                      />
-                      <div className="absolute left-3 top-3 text-slate-400 dark:text-slate-500">
-                        <Lock className="h-5 w-5" />
+                        {/* Email Input */}
+                        <div className="space-y-2">
+                          <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Email tài khoản</Label>
+                          <div className="relative group">
+                            <Input
+                              id="email"
+                              type="email"
+                              placeholder="name@example.com"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              disabled={isOtpLoading}
+                              className="pl-11 h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-white/5 focus:ring-blue-500/20 font-bold text-xs transition-all"
+                              required
+                            />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 dark:text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+                          </div>
+                        </div>
                       </div>
+
+                      <div className="flex gap-3 pt-4">
+                        <Link href="/login" className="flex-none">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="h-12 w-12 rounded-xl border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
+                          >
+                            <ArrowLeft className="h-5 w-5 text-slate-400" />
+                          </Button>
+                        </Link>
+                        <Button
+                          type="submit"
+                          disabled={isOtpLoading}
+                          className="flex-1 h-12 rounded-xl bg-zinc-950 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold uppercase tracking-widest text-[10px] shadow-lg active:scale-95 transition-all"
+                        >
+                          {isOtpLoading ? <Loader2 className="animate-spin h-4 w-4" /> : "Tiếp tục xác thực"}
+                        </Button>
+                      </div>
+                    </form>
+
+                    <div className="text-center pt-4">
+                      <Link href="/login" className="text-[10px] font-bold text-slate-400 hover:text-blue-500 uppercase tracking-widest transition-colors">
+                        Quay lại Đăng nhập
+                      </Link>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="confirm"
-                      className="text-slate-700 dark:text-slate-300"
-                    >
-                      Nhập lại mật khẩu mới
-                    </Label>
-                    <Input
-                      id="confirm"
-                      type="password"
-                      placeholder="••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus-visible:ring-[#F27124]/20 transition-colors"
-                      required
-                    />
+                )}
+
+                {/* --- STEP 2: NHẬP OTP & NEW PASSWORD --- */}
+                {step === 2 && (
+                  <div className="space-y-8">
+                    <div className="space-y-1 mb-8 text-center sm:text-left">
+                      <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50 uppercase tracking-tighter">
+                        Đặt lại mật khẩu
+                      </h1>
+                      <div className="h-0.5 w-10 bg-blue-500 mx-auto sm:mx-0 rounded-full mb-4" />
+                      <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-widest opacity-70">
+                        Nhập mã OTP và mật khẩu mới cho tài khoản
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleStep2Submit} className="space-y-5">
+                      {/* OTP Input */}
+                      <div className="space-y-2">
+                        <Label htmlFor="otp" className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Mã OTP (6 số)</Label>
+                        <div className="relative group">
+                          <Input
+                            id="otp"
+                            placeholder="000000"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            className="pl-11 h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-white/5 focus:ring-blue-500/20 font-bold text-center tracking-[0.5em] text-lg transition-all"
+                            maxLength={6}
+                            required
+                          />
+                          <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 dark:text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+                        </div>
+                      </div>
+
+                      {/* Password Fields */}
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="new-password" className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Mật khẩu mới</Label>
+                          <div className="relative group">
+                            <Input
+                              id="new-password"
+                              type="password"
+                              placeholder="••••••••"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              className="pl-11 h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-white/5 focus:ring-blue-500/20 font-bold text-xs transition-all"
+                              required
+                            />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 dark:text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="confirm" className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Xác nhận mật khẩu</Label>
+                          <Input
+                            id="confirm"
+                            type="password"
+                            placeholder="••••••••"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="h-12 rounded-xl bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-white/5 focus:ring-blue-500/20 font-bold text-xs transition-all"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3 pt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setStep(1)}
+                          className="h-12 w-12 rounded-xl border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
+                        >
+                          <ArrowLeft className="h-5 w-5 text-slate-400" />
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={isResetLoading}
+                          className="flex-1 h-12 rounded-xl bg-zinc-950 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold uppercase tracking-widest text-[10px] shadow-lg active:scale-95 transition-all"
+                        >
+                          {isResetLoading ? <Loader2 className="animate-spin h-4 w-4" /> : "Xác nhận đổi mật khẩu"}
+                        </Button>
+                      </div>
+                    </form>
                   </div>
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setStep(1)}
-                    className="flex-none h-12 w-12 p-0 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={isResetLoading}
-                    className="flex-1 h-12 text-base font-bold bg-[#F27124] hover:bg-[#d65d1b] text-white transition-colors"
-                  >
-                    {isResetLoading ? (
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    ) : (
-                      "Đặt lại mật khẩu"
-                    )}
-                  </Button>
-                </div>
-              </form>
-            )}
-
-            {/* Back to Login Link */}
-            {step === 1 && (
-              <div className="text-center text-sm text-slate-500 dark:text-slate-400 transition-colors">
-                Nhớ mật khẩu rồi?{" "}
-                <Link
-                  href="/login"
-                  className="font-bold text-[#F27124] hover:text-[#d65d1b] dark:text-orange-400 dark:hover:text-orange-300 hover:underline transition-colors"
-                >
-                  Đăng nhập ngay
-                </Link>
-              </div>
-            )}
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="px-8 py-6 text-center sm:text-left transition-colors">
-          <p className="text-xs text-slate-400 dark:text-slate-500">
-            &copy; 2026 SyncSystem. Subject Management Module.
-          </p>
-        </div>
-      </div>
-
-      {/* --- CỘT PHẢI: BANNER --- */}
-      <div className="hidden lg:block relative bg-[#0F172A]">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?q=80&w=2070&auto=format&fit=crop"
-            alt="Security background"
-            fill
-            className="object-cover opacity-30 mix-blend-overlay"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/80 to-transparent"></div>
-        </div>
-
-        <div className="relative h-full flex flex-col justify-end p-16 text-white z-10">
-          <div className="max-w-xl mb-10 animate-fade-in-up">
-            <div className="h-16 w-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-8 shadow-xl shadow-blue-600/20">
-              <ShieldCheck className="h-8 w-8 text-white" />
-            </div>
-
-            <h2 className="text-5xl font-bold mb-6 leading-[1.15]">
-              Khôi phục quyền <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
-                truy cập tài khoản.
-              </span>
-            </h2>
-
-            <p className="text-lg text-slate-300 mb-8 leading-relaxed">
-              "Bảo mật tài khoản là ưu tiên hàng đầu. Chúng tôi hỗ trợ bạn lấy
-              lại mật khẩu nhanh chóng để không gián đoạn việc học tập và giảng
-              dạy."
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+      </motion.div>
+    </div >
   );
 }

@@ -38,7 +38,7 @@ export function CourseFilter({
   onViewModeChange,
 }: CourseFilterProps) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-200/60 dark:border-slate-800 p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 shadow-sm transition-colors">
+    <div className="bg-white/70 dark:bg-zinc-900/40 backdrop-blur-3xl rounded-[40px] border border-white/40 dark:border-white/10 p-8 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-500">
       <div className="flex items-center gap-4">
         <div className="p-3.5 bg-orange-50 dark:bg-orange-900/20 rounded-2xl border border-orange-100 dark:border-orange-900/30 transition-colors">
           {icon}

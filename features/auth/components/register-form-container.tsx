@@ -75,14 +75,15 @@ export function RegisterFormContainer({ onSwitchToLogin }: Props) {
 
   return (
     <div className="w-full space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-50 transition-colors">
-          {step === 1 ? "Tạo tài khoản" : "Xác thực"}
+      <div className="space-y-1 mb-8">
+        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50 uppercase tracking-tighter">
+          {step === 1 ? "Đăng ký thành viên" : "Xác thực mã OTP"}
         </h1>
-        <p className="text-slate-500 dark:text-slate-400 text-sm transition-colors">
+        <div className="h-0.5 w-10 bg-[#F27124] rounded-full mb-4" />
+        <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-widest opacity-70">
           {step === 1
-            ? "Bắt đầu hành trình học tập cùng SyncSystem."
-            : "Nhập mã OTP đã được gửi đến email."}
+            ? "Bắt đầu hành trình học tập cùng SyncSystem"
+            : "Nhập mã bảo mật đã được gửi đến email"}
         </p>
       </div>
 

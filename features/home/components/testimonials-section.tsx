@@ -9,35 +9,35 @@ const testimonials = [
   {
     name: "Lê Văn An",
     role: "Sinh viên K16 - FPT University",
-    content: "Nhờ hệ thống này mà nhóm mình quản lý task chuyên nghiệp hơn hẳn. Việc điểm số được tính tự động dựa trên đóng góp thực tế giúp mọi người đều nỗ lực hết mình.",
+    content: "Nhờ hệ thống SAG-CA mà mình biết chính xác điểm số được tính từ những hoạt động nào. Đồ thị hoạt động giúp mình thấy được mình đã làm gì, còn thiếu gì để cải thiện.",
     avatar: "/avatars/avatar-1.png",
     initials: "AN",
   },
   {
     name: "TS. Nguyễn Trần Bình",
     role: "Giảng viên bộ môn Kỹ thuật phần mềm",
-    content: "Công cụ tuyệt vời giúp tôi theo dõi sát sao tiến độ của hàng chục nhóm cùng lúc mà không cần phải kiểm tra thủ công từng commit hay card Jira. Rất khách quan!",
+    content: "SAG-CA giúp tôi tiết kiệm rất nhiều thời gian chấm điểm. Đồ thị hoạt động cho thấy rõ ai làm nhiều, ai làm ít, ai tương tác tốt với nhóm. Rất khách quan và minh bạch!",
     avatar: "/avatars/avatar-2.png",
     initials: "TB",
   },
   {
     name: "Trần Thị Chi",
-    role: "Team Leader - Dự án tốt nghiệp",
-    content: "Giao diện Dashboard cực kỳ trực quan. Biểu đồ Burndown giúp nhóm mình biết chính xác khi nào cần tăng tốc để kịp deadline. Điểm 10 cho trải nghiệm người dùng!",
+    role: "Team Leader - Dự án PBL",
+    content: "Dashboard trực quan giúp nhóm mình theo dõi tiến độ từng sprint. Hệ thống cảnh báo sớm khi có thành viên ít hoạt động, giúp nhóm điều chỉnh kịp thời.",
     avatar: "/avatars/avatar-3.png",
     initials: "TC",
   },
   {
     name: "Nguyễn Minh Đức",
     role: "Software Engineering Student",
-    content: "Khả năng đồng bộ hóa giữa Jira và GitHub thực sự ấn tượng. Nó giúp mình tiết kiệm rất nhiều thời gian báo cáo và tập trung hoàn toàn vào việc phát triển sản phẩm.",
+    content: "Việc đánh giá liên tục dựa trên đồ thị hoạt động thực sự công bằng. Mình không còn lo bị đánh giá thấp chỉ vì bài thi cuối kỳ, mà điểm số phản ánh đúng nỗ lực cả học kỳ.",
     avatar: "/avatars/avatar-4.png",
     initials: "MD",
   },
   {
     name: "Lê Thị Hồng",
-    role: "Project Manager Mentor",
-    content: "Một giải pháp đột phá cho việc quản lý đào tạo theo hướng dự án. Hệ thống giúp thu hẹp khoảng cách giữa lý thuyết và thực tiễn doanh nghiệp.",
+    role: "Giảng viên hướng dẫn PBL",
+    content: "Một giải pháp đột phá cho đánh giá liên tục trong PBL. Hệ thống giúp thu hẹp khoảng cách giữa đánh giá chủ quan của giảng viên và dữ liệu thực tế từ hoạt động sinh viên.",
     avatar: "/avatars/avatar-5.png",
     initials: "LH",
   }
@@ -50,11 +50,11 @@ export function TestimonialsSection() {
         <div className="flex flex-col md:flex-row items-end justify-between gap-10">
           <div className="max-w-2xl">
             <h4 className="text-[11px] font-bold uppercase tracking-[0.4em] text-orange-500 mb-6">
-              Hệ sinh thái tin cậy
+              Phản hồi từ người dùng
             </h4>
             <h2 className="text-4xl md:text-7xl font-bold tracking-tight text-slate-900 dark:text-white leading-[0.9] uppercase">
-              Cộng đồng <br />
-              <span className="text-slate-400 dark:text-slate-500 font-medium">đánh giá thực tế.</span>
+              Trải nghiệm <br />
+              <span className="text-slate-400 dark:text-slate-500 font-medium">thực tế từ SAG-CA.</span>
             </h2>
           </div>
           <div className="flex flex-col items-end gap-3">

@@ -1,7 +1,6 @@
 "use client";
 
-import { Activity, Shield, Zap, Code2, Globe, Sparkles } from "lucide-react";
-import { SiGithub, SiJira } from "react-icons/si";
+import { GitGraph, Activity, LineChart, BellRing, ShieldCheck, FileCheck, Sparkles, ArrowRight } from "lucide-react";
 
 export function FeaturesSection() {
   return (
@@ -14,40 +13,40 @@ export function FeaturesSection() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 mb-6">
             <Sparkles className="h-3 w-3 text-orange-500" />
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F27124]">
-              Mô hình đào tạo chuẩn quốc tế
+              Hệ thống đánh giá liên tục PBL
             </span>
           </div>
           <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 dark:text-white leading-[0.9] uppercase">
-            Tự động hóa<br />
-            <span className="text-slate-400 dark:text-slate-500">quy trình học tập.</span>
+            Đánh giá <br />
+            <span className="text-slate-400 dark:text-slate-500">dựa trên dữ liệu thật.</span>
           </h2>
         </div>
         <p className="max-w-md text-slate-500 dark:text-slate-400 text-lg font-medium animate-fade-up opacity-0 [animation-delay:200ms] [animation-fill-mode:forwards]">
-          Chúng tôi mang đến giải pháp kết nối thực tiễn doanh nghiệp vào giảng đường,
-          giúp sinh viên làm quen với các công cụ hàng đầu thế giới ngay từ khi còn đi học.
+          SAG-CA mang đến giải pháp đánh giá liên tục công bằng, minh bạch dựa trên đồ thị hoạt động,
+          giúp giảng viên theo dõi sát sao từng sinh viên trong suốt học kỳ.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
         <FeatureCard
-          icon={<SiJira className="h-7 w-7" />}
-          iconBg="bg-[#0052CC]"
-          title="Jira Management"
-          desc="Quản lý backlog, sprint và task chuyên nghiệp. Đồng bộ thời gian thực từ hệ thống Jira Enterprise."
+          icon={<GitGraph className="h-7 w-7" />}
+          iconBg="bg-emerald-600"
+          title="Activity Graph"
+          desc="Mô hình hóa toàn bộ hoạt động sinh viên thành đồ thị trực quan. Theo dõi mối quan hệ Student-Task-Sprint-Project dễ dàng."
           index={1}
         />
         <FeatureCard
-          icon={<SiGithub className="h-7 w-7" />}
+          icon={<Activity className="h-7 w-7" />}
           iconBg="bg-slate-950"
-          title="GitHub DevOps"
-          desc="Tự động phân tích commit, pull request để đánh giá kỹ năng code và mức độ đóng góp thực tế."
+          title="Continuous Assessment"
+          desc="Tính điểm liên tục dựa trên Activity Score, Task Completion, Collaboration và Consistency. Công bằng và minh bạch."
           index={2}
         />
         <FeatureCard
-          icon={<Activity className="h-7 w-7" />}
+          icon={<LineChart className="h-7 w-7" />}
           iconBg="bg-orange-500"
-          title="Analytics 4.0"
-          desc="Hệ thống báo cáo thông minh, biểu đồ Burndown và phân tích hiệu suất dựa trên dữ liệu thật."
+          title="Smart Dashboard"
+          desc="Dashboard trực quan cho giảng viên & sinh viên. Biểu đồ hoạt động, cảnh báo sớm sinh viên ít tương tác, báo cáo chi tiết."
           index={3}
         />
       </div>
@@ -86,5 +85,3 @@ function FeatureCard({ icon, iconBg, title, desc, index }: any) {
     </div>
   );
 }
-
-import { ArrowRight } from "lucide-react";

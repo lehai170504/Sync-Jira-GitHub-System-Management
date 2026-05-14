@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, Activity, Zap, ShieldCheck, Globe2 } from "lucide-react";
+import { Users, Activity, GitGraph, GraduationCap, BookOpenCheck } from "lucide-react";
 
 export function MetricsSection() {
   return (
@@ -9,25 +9,25 @@ export function MetricsSection() {
       <div className="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 relative z-10">
         <MetricBox
           icon={Users}
-          label="Sinh viên năng động"
+          label="Sinh viên được theo dõi"
           value="1,200+"
           delay="100ms"
         />
         <MetricBox
-          icon={Globe2}
-          label="Lớp học trực tuyến"
-          value="45"
+          icon={GitGraph}
+          label="Đồ thị hoạt động"
+          value="45K+"
           delay="200ms"
         />
         <MetricBox
-          icon={Zap}
-          label="Dữ liệu đồng bộ"
+          icon={Activity}
+          label="Hoạt động ghi nhận"
           value="250k+"
           delay="300ms"
         />
         <MetricBox
-          icon={ShieldCheck}
-          label="Dự án hoàn thành"
+          icon={GraduationCap}
+          label="Đánh giá liên tục"
           value="180+"
           delay="400ms"
         />

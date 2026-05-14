@@ -5,51 +5,51 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
   ArrowLeft,
-  GitPullRequest,
-  LayoutPanelLeft,
+  Users,
+  ListTodo,
+  GitGraph,
   LineChart,
   ShieldCheck,
-  Key,
-  MessageSquareQuote,
+  FileText,
   Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const steps = [
   {
-    title: "Khởi tạo & Kết nối",
-    desc: "Đăng nhập và cấu hình API Token để kết nối an toàn với hệ thống Jira của doanh nghiệp hoặc trường học.",
-    icon: Key,
+    title: "Quản lý lớp & nhóm",
+    desc: "Giảng viên tạo lớp học phần, thêm sinh viên, chia nhóm project và phân công vai trò thành viên.",
+    icon: Users,
     color: "bg-slate-900",
   },
   {
-    title: "Đồng bộ Backlog",
-    desc: "Lấy toàn bộ User Stories, Tasks và Sprints từ Jira về hệ thống quản lý tập trung của chúng tôi.",
-    icon: LayoutPanelLeft,
+    title: "Ghi nhận hoạt động",
+    desc: "Hệ thống ghi nhận mọi hoạt động: tạo task, cập nhật tiến độ, commit code, review, nộp báo cáo sprint.",
+    icon: ListTodo,
     color: "bg-blue-600",
   },
   {
-    title: "Thực thi Code",
-    desc: "Sinh viên làm việc trên GitHub. Hệ thống tự động bắt các sự kiện Commit, PR và liên kết với Task.",
-    icon: GitPullRequest,
+    title: "Xây dựng đồ thị",
+    desc: "Mô hình hóa hoạt động sinh viên thành Activity Graph với các node (Student, Task, Sprint, Project) và edge quan hệ.",
+    icon: GitGraph,
     color: "bg-orange-500",
   },
   {
-    title: "AI Analytics",
-    desc: "Thuật toán thông minh phân tích chất lượng đóng góp, độ phức tạp của code và tiến độ hoàn thành.",
+    title: "Phân tích & tính điểm",
+    desc: "Tính toán điểm đánh giá liên tục dựa trên Activity Score, Task Completion, Collaboration và Consistency.",
     icon: LineChart,
     color: "bg-purple-600",
   },
   {
-    title: "Feedback & Review",
-    desc: "Giảng viên đưa ra nhận xét trực tiếp trên từng đầu việc, giúp sinh viên cải thiện kỹ năng kịp thời.",
-    icon: MessageSquareQuote,
+    title: "Giảng viên đánh giá",
+    desc: "Giảng viên xem dashboard phân tích, đồ thị hoạt động, điều chỉnh điểm và đưa feedback cho sinh viên.",
+    icon: ShieldCheck,
     color: "bg-pink-500",
   },
   {
-    title: "Chốt điểm & Báo cáo",
-    desc: "Xuất báo cáo cuối kỳ và tính điểm tự động dựa trên toàn bộ quá trình làm việc thực tế.",
-    icon: ShieldCheck,
+    title: "Báo cáo & xuất điểm",
+    desc: "Xuất báo cáo đánh giá theo sprint, cá nhân, nhóm dưới dạng PDF/Excel, hỗ trợ giảng viên chốt điểm.",
+    icon: FileText,
     color: "bg-emerald-500",
   },
 ];
@@ -84,11 +84,11 @@ export function WorkflowSection() {
           <div className="max-w-2xl">
             <h4 className="text-[11px] font-bold uppercase tracking-[0.3em] text-orange-500 mb-6 flex items-center gap-2">
               <Sparkles className="h-3 w-3" />
-              Hệ thống vận hành thông minh
+              Quy trình đánh giá liên tục
             </h4>
             <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 dark:text-white leading-[0.9] uppercase">
-              Trải nghiệm <br />
-              <span className="text-slate-400 dark:text-slate-500">quy trình chuẩn.</span>
+              Vận hành <br />
+              <span className="text-slate-400 dark:text-slate-500">thông minh & minh bạch.</span>
             </h2>
           </div>
 

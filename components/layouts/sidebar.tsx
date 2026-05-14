@@ -2,13 +2,12 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Cookies from "js-cookie";
 import {
   ArrowLeft,
-  BookOpen,
-  LayoutDashboard,
   Zap,
   ChevronLeft,
 } from "lucide-react";
@@ -107,12 +106,6 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
       ? activeClassId ? `/dashboard?classId=${activeClassId}` : "/dashboard"
       : activeClassId ? `/student/dashboard?classId=${activeClassId}` : "/student/dashboard";
 
-  const logoBg = classDisplayInfo
-    ? classDisplayInfo.type === "STUDENT"
-      ? "bg-blue-600 shadow-blue-500/30"
-      : "bg-emerald-600 shadow-emerald-500/30"
-    : "bg-slate-700";
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -162,15 +155,16 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         <Link href={logoHref} className="flex items-center gap-3 group relative w-full min-w-0">
           <div className="relative shrink-0">
             <div className={cn(
-              "w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 shadow-lg",
+              "w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300",
               "group-hover:scale-105 group-active:scale-95",
-              logoBg,
             )}>
-              {classDisplayInfo ? (
-                <BookOpen className="w-4 h-4 text-white" />
-              ) : (
-                <LayoutDashboard className="w-4 h-4 text-white" />
-              )}
+              <Image
+                src="/images/logo-icon.png"
+                alt="SyncSystem"
+                width={36}
+                height={36}
+                className="w-9 h-9 object-contain"
+              />
             </div>
           </div>
 

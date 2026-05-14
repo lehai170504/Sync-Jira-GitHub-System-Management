@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { ReactNode } from "react";
-import { FileText, ShieldCheck, LifeBuoy, Zap, Github, ExternalLink } from "lucide-react";
+import { FileText, ShieldCheck, LifeBuoy} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -99,12 +99,13 @@ export function Footer() {
             className="h-[18px] w-auto object-contain opacity-50 dark:opacity-40 dark:brightness-0 dark:invert group-hover:opacity-80 transition-opacity"
           />
           <div className="h-3.5 w-px bg-slate-300 dark:bg-slate-700" />
-          <div className="flex items-center gap-1.5">
-            <Zap className="w-3 h-3 text-[#F27124] opacity-70" />
-            <span className="text-[11px] font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase">
-              SyncSystem
-            </span>
-          </div>
+          <Image
+            src="/images/logo-icon.png"
+            alt="SyncSystem"
+            width={20}
+            height={20}
+            className="w-5 h-5 object-contain opacity-70"
+          />
         </div>
 
         <div className="hidden sm:flex items-center gap-1.5 ml-1">

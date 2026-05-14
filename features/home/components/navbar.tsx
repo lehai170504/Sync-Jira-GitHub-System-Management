@@ -29,12 +29,12 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative h-11 w-auto transition-all duration-500 group-hover:scale-105 active:scale-95">
             <Image
-              src="/images/logo-sync.png"
+              src="/images/logo-header.png"
               alt="SyncSystem Logo"
               width={180}
               height={44}
               priority
-              className="h-11 w-auto object-contain"
+              className="h-11 w-auto object-contain dark:brightness-0 dark:invert"
             />
           </div>
         </Link>
@@ -60,10 +60,10 @@ export function Navbar() {
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F27124] transition-all group-hover:w-full" />
           </Link>
           <Link
-            href="/subjects"
+            href="/workflow"
             className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-[#F27124] transition-all relative group"
           >
-            Môn học
+            Quy trình
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F27124] transition-all group-hover:w-full" />
           </Link>
         </nav>

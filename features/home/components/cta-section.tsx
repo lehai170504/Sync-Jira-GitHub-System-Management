@@ -22,7 +22,7 @@ export function CTASection() {
           >
             <Sparkles className="h-4 w-4 text-orange-400" />
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/80">
-              Sẵn sàng nâng tầm dự án của bạn?
+              Sẵn sàng trải nghiệm đánh giá liên tục?
             </span>
           </motion.div>
 
@@ -32,7 +32,7 @@ export function CTASection() {
           </h2>
 
           <p className="text-slate-400 text-lg md:text-xl font-medium max-w-xl mx-auto">
-            Hỗ trợ đầy đủ cho các đồ án tốt nghiệp, đồ án môn học và các dự án nghiên cứu tại FPT University.
+            Hỗ trợ đánh giá liên tục cho học phần Kỹ thuật Phần mềm theo PBL tại FPT University.
           </p>
 
           <div className="flex flex-wrap justify-center gap-6 pt-6">
@@ -41,7 +41,7 @@ export function CTASection() {
                 size="lg"
                 className="h-20 px-12 bg-white hover:bg-orange-500 text-slate-950 hover:text-white rounded-[28px] font-bold uppercase tracking-[0.2em] text-[12px] transition-all shadow-2xl hover:shadow-orange-500/40 active:scale-95 group"
               >
-                Vào Dashboard lớp học
+                Vào Dashboard
                 <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-2 transition-transform" />
               </Button>
             </Link>
@@ -50,7 +50,7 @@ export function CTASection() {
           <div className="pt-10 flex items-center justify-center gap-8 opacity-40 grayscale">
             <img src="/images/Logo_Trường_Đại_học_FPT.svg.png" alt="FPT" className="h-8 w-auto invert" />
             <div className="h-6 w-px bg-white/20" />
-            <span className="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Official Sync System</span>
+            <span className="text-white text-[10px] font-bold uppercase tracking-[0.3em]">SAG-CA System</span>
           </div>
         </div>
       </div>

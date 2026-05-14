@@ -9,20 +9,20 @@ import {
 
 const faqs = [
   {
-    question: "Làm thế nào để bắt đầu đồng bộ hóa?",
-    answer: "Rất đơn giản! Bạn chỉ cần vào mục 'Thông tin dự án', nhập ID dự án Jira và cung cấp quyền truy cập. Hệ thống sẽ tự động quét và lấy toàn bộ dữ liệu về Dashboard của nhóm.",
+    question: "SAG-CA hoạt động như thế nào?",
+    answer: "SAG-CA ghi nhận hoạt động của sinh viên trong suốt quá trình học PBL (tạo task, cập nhật tiến độ, commit code, review, nộp báo cáo...), sau đó mô hình hóa thành đồ thị hoạt động và tính điểm đánh giá liên tục dựa trên các chỉ số như Activity Score, Task Completion, Collaboration và Consistency.",
   },
   {
-    question: "Điểm số được tính toán dựa trên những yếu tố nào?",
-    answer: "Thuật toán của chúng tôi kết hợp 3 yếu tố: Trạng thái hoàn thành task trên Jira (Story Points), số lượng Commit/PR trên GitHub, và mức độ đóng góp tương quan so với các thành viên khác trong nhóm.",
+    question: "Điểm đánh giá liên tục được tính ra sao?",
+    answer: "Hệ thống sử dụng công thức: CA Score = Activity Score × 20% + Task Completion × 25% + Collaboration × 20% + Contribution Quality × 20% + Consistency × 15%. Đây là điểm đề xuất, giảng viên có quyền điều chỉnh và thêm nhận xét.",
   },
   {
-    question: "Tôi có thể xem lịch sử commit từ GitHub không?",
-    answer: "Có, hệ thống cung cấp một view chi tiết về hoạt động GitHub, cho phép bạn xem dòng thời gian các commit và pull request của từng thành viên gắn liền với task tương ứng trên Jira.",
+    question: "Đồ thị hoạt động sinh viên là gì?",
+    answer: "Là mô hình trực quan hóa mối quan hệ giữa sinh viên, task, sprint, project và các hoạt động. Các node (đỉnh) đại diện cho Student, Task, Sprint, Commit, Issue... Các edge (cạnh) thể hiện mối quan hệ như 'sinh viên hoàn thành task', 'task thuộc sprint', 'sinh viên tạo commit'...",
   },
   {
-    question: "Dữ liệu có được bảo mật không?",
-    answer: "Chúng tôi cam kết bảo mật tuyệt đối. Hệ thống chỉ đọc các thông tin cần thiết từ Jira và GitHub API để phục vụ mục đích đánh giá học tập, không can thiệp hay lưu trữ mã nguồn của bạn.",
+    question: "Dữ liệu hoạt động được thu thập từ đâu?",
+    answer: "Dữ liệu có thể đến từ nhiều nguồn: nhập thủ công trên hệ thống, tích hợp GitHub (commits, PRs, issues), tích hợp Jira (tasks, sprints), báo cáo sprint của sinh viên, peer assessment và feedback từ giảng viên.",
   },
 ];
 
@@ -35,11 +35,11 @@ export function FAQSection() {
             Hỏi đáp nhanh
           </h4>
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-[0.9] uppercase mb-8">
-            Những thắc mắc <br />
-            <span className="text-slate-400 dark:text-slate-500">thường gặp.</span>
+            Giải đáp <br />
+            <span className="text-slate-400 dark:text-slate-500">về SAG-CA.</span>
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-lg font-medium max-w-md">
-            Tìm câu trả lời cho các câu hỏi phổ biến nhất về cách hệ thống hoạt động và cách tối ưu hóa điểm số của bạn.
+            Tìm câu trả lời về cách hệ thống đánh giá liên tục hoạt động, đồ thị hoạt động sinh viên và cách tính điểm.
           </p>
         </div>
 

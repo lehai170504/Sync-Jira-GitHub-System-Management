@@ -51,7 +51,7 @@ export function CourseHeader({ title, description, icon }: CourseHeaderProps) {
                         <div className="h-8 w-px bg-slate-200 dark:bg-zinc-800 hidden sm:block transition-colors" />
                         <div className="relative w-40 h-12 hidden md:block group">
                             <Image
-                                src="/images/logo-sync.png"
+                                src="/images/logo-header.png"
                                 alt="SyncSystem Logo"
                                 fill
                                 className="object-contain transition-all duration-500 group-hover:brightness-125 group-hover:contrast-125 dark:brightness-0 dark:invert"

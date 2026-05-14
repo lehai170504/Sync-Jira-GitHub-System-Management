@@ -16,17 +16,17 @@ export function Footer() {
           {/* Brand Column */}
           <div className="col-span-1 lg:col-span-1 space-y-8">
             <Link href="/" className="inline-block group">
-              <Image
-                src="/images/logo-sync.png"
-                alt="SyncSystem Logo"
-                width={140}
-                height={35}
-                className="h-9 w-auto grayscale opacity-80 dark:invert dark:opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-              />
+                <Image
+                  src="/images/logo-main.png"
+                  alt="SAG-CA System Logo"
+                  width={400}
+                  height={100}
+                  className="h-14 w-auto grayscale opacity-80 dark:invert dark:opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                />
             </Link>
             <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-xs font-medium">
-              Hệ thống đồng bộ hóa dữ liệu thông minh giữa Jira và GitHub,
-              tối ưu hóa quy trình quản lý dự án cho sinh viên FPT.
+              Hệ thống đánh giá liên tục dựa trên đồ thị hoạt động sinh viên cho
+              học phần Kỹ thuật Phần mềm theo phương pháp PBL.
             </p>
             <div className="flex items-center gap-4">
               <SocialIcon icon={Github} href="#" />
@@ -78,7 +78,7 @@ export function Footer() {
             </p>
           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest">
-            © {currentYear} SYNC SYSTEM. Build for FPT UNIVERSITY with ❤️.
+            © {currentYear} SAG-CA SYSTEM. Build for FPT UNIVERSITY with ❤️.
           </p>
         </div>
       </div>
@@ -107,5 +107,5 @@ function SocialIcon({ icon: Icon, href }: { icon: any; href: string }) {
     >
       <Icon className="h-5 w-5" />
     </Link>
-  )
+  );
 }

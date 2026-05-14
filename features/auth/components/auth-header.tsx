@@ -8,7 +8,7 @@ export function AuthHeader() {
         <div className="flex items-center gap-3">
           <div className="relative h-24 w-24 flex-shrink-0">
             <Image
-              src="/images/logo-sync.png"
+              src="/images/logo-main.png"
               alt="SyncSystem Logo"
               fill
               className="object-contain dark:brightness-0 dark:invert transition-all"

@@ -52,7 +52,7 @@ export function CourseHeader({ title, description, icon }: CourseHeaderProps) {
                         <div className="relative w-40 h-12 hidden md:block group">
                             <Image
                                 src="/images/logo-header.png"
-                                alt="SyncSystem Logo"
+                                alt="SAG-CA Logo"
                                 fill
                                 className="object-contain transition-all duration-500 group-hover:brightness-125 group-hover:contrast-125 dark:brightness-0 dark:invert"
                                 priority

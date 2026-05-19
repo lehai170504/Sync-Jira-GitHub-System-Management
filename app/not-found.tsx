@@ -79,7 +79,7 @@ export default function NotFound() {
  </h2>
  <p className="text-slate-500 font-bold leading-relaxed max-w-md mx-auto lg:mx-0 lowercase">
  Có vẻ như đường dẫn bạn đang truy cập không tồn tại hoặc đã được
- chuyển sang một không gian khác trong syncsystem.
+ chuyển sang một không gian khác trong SAG-CA.
  </p>
  </div>
 

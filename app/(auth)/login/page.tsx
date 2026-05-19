@@ -134,7 +134,7 @@ export default function LoginPage() {
 
             <div className="shrink-0 pt-12 border-t border-white/5 opacity-40">
               <p className="text-[9px] font-bold uppercase tracking-[0.3em]">
-                &copy; 2026 SyncSystem Platform
+                &copy; 2026 SAG-CA Platform
               </p>
             </div>
           </div>

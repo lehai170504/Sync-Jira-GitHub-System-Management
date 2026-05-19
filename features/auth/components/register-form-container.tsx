@@ -82,7 +82,7 @@ export function RegisterFormContainer({ onSwitchToLogin }: Props) {
         <div className="h-0.5 w-10 bg-[#F27124] rounded-full mb-4" />
         <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-widest opacity-70">
           {step === 1
-            ? "Bắt đầu hành trình học tập cùng SyncSystem"
+            ? "Bắt đầu hành trình học tập cùng SAG-CA"
             : "Nhập mã bảo mật đã được gửi đến email"}
         </p>
       </div>

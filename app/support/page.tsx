@@ -38,7 +38,7 @@ import { BackgroundBeams } from "@/features/home/components/background-beams";
 const faqData = [
     {
         id: "item-1",
-        question: "Làm sao để kết nối Jira vào hệ thống SyncSystem?",
+        question: "Làm sao để kết nối GitHub vào hệ thống SAG-CA?",
         answer: (
             <div className="text-slate-500 leading-relaxed text-base font-medium">
                 <p className="mb-4 text-sm font-bold uppercase tracking-widest text-orange-500">Các bước thực hiện:</p>
@@ -118,7 +118,7 @@ export default function SupportPage() {
                             <LifeBuoy className="h-5 w-5 text-orange-500" />
                         </div>
                         <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400 hidden sm:block">
-                            Trung tâm hỗ trợ SyncSystem
+                            Trung tâm hỗ trợ SAG-CA
                         </span>
                     </div>
                 </div>

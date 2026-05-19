@@ -25,7 +25,7 @@ export default function SettingsPage() {
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-base font-medium uppercase tracking-wider opacity-60 dark:opacity-80 max-w-2xl leading-relaxed transition-colors">
               Tùy biến trải nghiệm người dùng, cấu hình thông báo thời gian thực
-              và quản lý các tham số vận hành cốt lõi của SyncSystem.
+              và quản lý các tham số vận hành cốt lõi của SAG-CA.
             </p>
           </div>
         </div>

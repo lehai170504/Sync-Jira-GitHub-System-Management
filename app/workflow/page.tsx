@@ -38,7 +38,7 @@ export default function WorkflowPage() {
             <span className="text-slate-400">Quy trình.</span>
           </h1>
           <p className="text-slate-500 font-medium text-lg max-w-2xl mx-auto">
-            Tìm hiểu sâu hơn về cách dữ liệu được luân chuyển và xử lý trong hệ thống SyncSystem.
+            Tìm hiểu sâu hơn về cách dữ liệu được luân chuyển và xử lý trong hệ thống SAG-CA.
           </p>
         </div>
 
@@ -49,7 +49,7 @@ export default function WorkflowPage() {
           <div className="space-y-4">
             <h2 className="text-3xl font-bold text-slate-900 uppercase tracking-tighter">Cơ chế đồng bộ hóa</h2>
             <p>
-              Hệ thống sử dụng Webhooks và Polling định kỳ để đảm bảo dữ liệu giữa Jira và GitHub luôn ở trạng thái mới nhất. Khi một thành viên cập nhật task trên Jira hoặc thực hiện commit trên GitHub, SyncSystem sẽ ngay lập tức nhận diện và cập nhật vào Dashboard của nhóm.
+              Hệ thống sử dụng Webhooks và API đồng bộ để đảm bảo dữ liệu hoạt động của sinh viên luôn được cập nhật real-time. Khi sinh viên thực hiện commit, tạo pull request hoặc cập nhật task, SAG-CA sẽ ngay lập tức ghi nhận và cập nhật vào Activity Graph.
             </p>
           </div>
 

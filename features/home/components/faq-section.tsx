@@ -24,6 +24,10 @@ const faqs = [
     question: "Dữ liệu hoạt động được thu thập từ đâu?",
     answer: "Dữ liệu có thể đến từ nhiều nguồn: nhập thủ công trên hệ thống, tích hợp GitHub (commits, PRs, issues), tích hợp Jira (tasks, sprints), báo cáo sprint của sinh viên, peer assessment và feedback từ giảng viên.",
   },
+  {
+    question: "Ai có thể sử dụng SAG-CA?",
+    answer: "SAG-CA được thiết kế cho các trường đại học áp dụng PBL, đặc biệt là FPT University. Giảng viên dễ dàng tạo lớp, quản lý nhóm và theo dõi đánh giá liên tục. Sinh viên có thể xem dashboard cá nhân, biết điểm số và hoạt động của mình real-time.",
+  },
 ];
 
 export function FAQSection() {

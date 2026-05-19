@@ -18,12 +18,12 @@ const FOOTER_LINKS = [
     triggerText: "Điều khoản",
     icon: <FileText className="w-4 h-4 text-blue-500" />,
     title: "Điều khoản sử dụng",
-    description: "Các quy định và điều khoản khi sử dụng nền tảng SyncSystem.",
+    description: "Các quy định và điều khoản khi sử dụng nền tảng SAG-CA.",
     content: (
       <div className="space-y-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
         <p>
           <strong className="text-slate-900 dark:text-slate-100">1. Chấp nhận điều khoản:</strong>{" "}
-          Khi truy cập và sử dụng hệ thống SyncSystem, bạn đồng ý tuân thủ các quy định của Đại học FPT về liêm chính học thuật và bảo mật thông tin.
+          Khi truy cập và sử dụng hệ thống SAG-CA, bạn đồng ý tuân thủ các quy định của Đại học FPT về liêm chính học thuật và bảo mật thông tin.
         </p>
         <p>
           <strong className="text-slate-900 dark:text-slate-100">2. Quyền và trách nhiệm:</strong>{" "}
@@ -31,7 +31,7 @@ const FOOTER_LINKS = [
         </p>
         <p>
           <strong className="text-slate-900 dark:text-slate-100">3. Giới hạn hệ thống:</strong>{" "}
-          SyncSystem là công cụ hỗ trợ quản lý đồ án. Hệ thống không chịu trách nhiệm về việc mất mát dữ liệu do lỗi từ các nền tảng bên thứ 3 (GitHub, Jira).
+          SAG-CA là công cụ hỗ trợ đánh giá đồ án. Hệ thống không chịu trách nhiệm về việc mất mát dữ liệu do lỗi từ các nền tảng bên thứ 3 (GitHub, Jira).
         </p>
       </div>
     ),
@@ -69,8 +69,8 @@ const FOOTER_LINKS = [
           <p className="font-bold text-slate-900 dark:text-slate-100 mb-1.5">Hỗ trợ Kỹ thuật</p>
           <p className="text-slate-600 dark:text-slate-400">
             Email:{" "}
-            <a href="mailto:support.syncsystem@fpt.edu.vn" className="text-blue-500 hover:underline">
-              support.syncsystem@fpt.edu.vn
+            <a href="mailto:support.sagca@fpt.edu.vn" className="text-blue-500 hover:underline">
+              support.sagca@fpt.edu.vn
             </a>
           </p>
           <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Thứ 2 – Thứ 6 • 08:00 – 17:00</p>
@@ -101,7 +101,7 @@ export function Footer() {
           <div className="h-3.5 w-px bg-slate-300 dark:bg-slate-700" />
           <Image
             src="/images/logo-icon.png"
-            alt="SyncSystem"
+            alt="SAG-CA"
             width={20}
             height={20}
             className="w-5 h-5 object-contain opacity-70"

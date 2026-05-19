@@ -69,7 +69,7 @@ export default function StudentCoursesPage() {
       </main>
 
       <footer className="py-8 text-center text-slate-400 dark:text-slate-500 text-sm">
-        © 2026 SyncSystem • FPT University
+        © 2026 SAG-CA • FPT University
       </footer>
     </div>
   );

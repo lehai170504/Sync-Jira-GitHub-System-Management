@@ -114,7 +114,7 @@ function DashboardLayoutContent({
           {/* Left: Breadcrumb */}
           <div className="flex items-center gap-3 min-w-0">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 hidden lg:block select-none">
-              FPT SyncSystem
+              FPT SAG-CA
             </span>
             <span className="text-slate-200 dark:text-slate-700 hidden lg:block select-none">/</span>
             <span className="text-[12px] font-bold tracking-wide text-slate-700 dark:text-slate-300 truncate">

@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Xác thực | SyncSystem Platform",
-  description: "Truy cập vào trung tâm điều khiển đồng bộ hóa Jira và GitHub.",
+  title: "Xác thực | SAG-CA Platform",
+  description: "Truy cập vào hệ thống đánh giá liên tục dựa trên đồ thị hoạt động.",
 };
 
 export default function LoginLayout({

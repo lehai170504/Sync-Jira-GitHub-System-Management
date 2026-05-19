@@ -29,8 +29,8 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative h-11 w-auto transition-all duration-500 group-hover:scale-105 active:scale-95">
             <Image
-              src="/images/logo-header.png"
-              alt="SyncSystem Logo"
+              src="/images/logo-main.png"
+              alt="SAG-CA Logo"
               width={180}
               height={44}
               priority
@@ -75,7 +75,7 @@ export function Navbar() {
             </Button>
           </Link>
           <Link href="/login">
-            <Button className="bg-slate-950 dark:bg-white dark:text-slate-950 hover:bg-[#F27124] dark:hover:bg-[#F27124] dark:hover:text-white text-white h-11 px-8 rounded-2xl font-bold uppercase text-[11px] tracking-[0.15em] shadow-xl shadow-slate-950/20 hover:shadow-orange-500/30 transition-all active:scale-95 border-0">
+            <Button className="bg-orange-500 dark:bg-orange-500 text-white h-11 px-8 rounded-2xl font-bold uppercase text-[11px] tracking-[0.15em] shadow-xl shadow-orange-500/30 hover:bg-slate-950 dark:hover:bg-slate-950 transition-all active:scale-95 border-0">
               Bắt đầu ngay
             </Button>
           </Link>

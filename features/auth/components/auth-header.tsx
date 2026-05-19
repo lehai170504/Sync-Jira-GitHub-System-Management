@@ -9,7 +9,7 @@ export function AuthHeader() {
           <div className="relative h-24 w-24 flex-shrink-0">
             <Image
               src="/images/logo-main.png"
-              alt="SyncSystem Logo"
+              alt="SAG-CA Logo"
               fill
               className="object-contain dark:brightness-0 dark:invert transition-all"
               priority

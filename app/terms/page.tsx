@@ -44,7 +44,7 @@ export default function TermsPage() {
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">1. Chấp nhận điều khoản</h2>
               <p>
-                Bằng việc truy cập và sử dụng hệ thống SyncSystem, bạn đồng ý tuân thủ các điều khoản và điều kiện được nêu tại đây. Nếu bạn không đồng ý với bất kỳ phần nào của các điều khoản này, vui lòng không sử dụng dịch vụ của chúng tôi.
+                Bằng việc truy cập và sử dụng hệ thống SAG-CA, bạn đồng ý tuân thủ các điều khoản và điều kiện được nêu tại đây. Nếu bạn không đồng ý với bất kỳ phần nào của các điều khoản này, vui lòng không sử dụng dịch vụ của chúng tôi.
               </p>
             </section>
 

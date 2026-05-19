@@ -160,7 +160,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
             )}>
               <Image
                 src="/images/logo-icon.png"
-                alt="SyncSystem"
+                alt="SAG-CA"
                 width={36}
                 height={36}
                 className="w-9 h-9 object-contain"
@@ -178,7 +178,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
               ) : (
                 <>
                   <span className="text-[12px] font-bold tracking-tight leading-none text-slate-900 dark:text-slate-100 truncate">
-                    {classDisplayInfo ? classDisplayInfo.main : "SyncSystem"}
+                    {classDisplayInfo ? classDisplayInfo.main : "SAG-CA"}
                   </span>
                   <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium tracking-widest mt-1 truncate uppercase">
                     {classDisplayInfo ? classDisplayInfo.sub : "FPT Academic"}

@@ -9,8 +9,8 @@ import {
 
 const faqs = [
   {
-    question: "SAG-CA hoạt động như thế nào?",
-    answer: "SAG-CA ghi nhận hoạt động của sinh viên trong suốt quá trình học PBL (tạo task, cập nhật tiến độ, commit code, review, nộp báo cáo...), sau đó mô hình hóa thành đồ thị hoạt động và tính điểm đánh giá liên tục dựa trên các chỉ số như Activity Score, Task Completion, Collaboration và Consistency.",
+    question: "GraphGrade hoạt động như thế nào?",
+    answer: "GraphGrade ghi nhận hoạt động của sinh viên trong suốt quá trình học PBL (tạo task, cập nhật tiến độ, commit code, review, nộp báo cáo...), sau đó mô hình hóa thành đồ thị hoạt động và tính điểm đánh giá liên tục dựa trên các chỉ số như Activity Score, Task Completion, Collaboration và Consistency.",
   },
   {
     question: "Điểm đánh giá liên tục được tính ra sao?",
@@ -25,8 +25,8 @@ const faqs = [
     answer: "Dữ liệu có thể đến từ nhiều nguồn: nhập thủ công trên hệ thống, tích hợp GitHub (commits, PRs, issues), tích hợp Jira (tasks, sprints), báo cáo sprint của sinh viên, peer assessment và feedback từ giảng viên.",
   },
   {
-    question: "Ai có thể sử dụng SAG-CA?",
-    answer: "SAG-CA được thiết kế cho các trường đại học áp dụng PBL, đặc biệt là FPT University. Giảng viên dễ dàng tạo lớp, quản lý nhóm và theo dõi đánh giá liên tục. Sinh viên có thể xem dashboard cá nhân, biết điểm số và hoạt động của mình real-time.",
+    question: "Ai có thể sử dụng GraphGrade?",
+    answer: "GraphGrade được thiết kế cho các trường đại học áp dụng PBL, đặc biệt là FPT University. Giảng viên dễ dàng tạo lớp, quản lý nhóm và theo dõi đánh giá liên tục. Sinh viên có thể xem dashboard cá nhân, biết điểm số và hoạt động của mình real-time.",
   },
 ];
 
@@ -40,7 +40,7 @@ export function FAQSection() {
           </h4>
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-[0.9] uppercase mb-8">
             Giải đáp <br />
-            <span className="text-slate-400 dark:text-slate-500">về SAG-CA.</span>
+            <span className="text-slate-400 dark:text-slate-500">về GraphGrade.</span>
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-lg font-medium max-w-md">
             Tìm câu trả lời về cách hệ thống đánh giá liên tục hoạt động, đồ thị hoạt động sinh viên và cách tính điểm.

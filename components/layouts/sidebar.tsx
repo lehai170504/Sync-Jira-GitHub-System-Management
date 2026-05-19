@@ -160,9 +160,9 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
             )}>
               <Image
                 src="/images/logo-icon.png"
-                alt="SAG-CA"
-                width={36}
-                height={36}
+                alt="GraphGrade Icon"
+                width={60}
+                height={60}
                 className="w-9 h-9 object-contain"
               />
             </div>

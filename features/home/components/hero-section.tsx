@@ -15,13 +15,15 @@ export function HeroSection() {
         <div className="inline-flex items-center rounded-full bg-slate-950/90 backdrop-blur-xl border border-white/10 px-4 py-1.5 shadow-2xl animate-fade-up [animation-delay:200ms] opacity-0 [animation-fill-mode:forwards]">
           <Sparkles className="h-3.5 w-3.5 mr-2 text-orange-400 animate-pulse" />
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/90">
-            SAG-CA · Continuous Assessment Platform
+            GraphGrade · Continuous Assessment Platform
           </span>
         </div>
 
         <h1 className="text-7xl md:text-9xl font-bold tracking-tight text-slate-900 dark:text-white leading-[0.85] animate-fade-up [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]">
-          ACTIVITY<br />
-          GRAPH.<br />
+          ACTIVITY
+          <br />
+          GRAPH.
+          <br />
           <span className="relative inline-block">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F27124] to-orange-600">
               ASSESSED.
@@ -32,7 +34,8 @@ export function HeroSection() {
 
         <div className="space-y-4 max-w-lg animate-fade-up [animation-delay:600ms] opacity-0 [animation-fill-mode:forwards]">
           <div className="text-xl text-slate-600 dark:text-slate-300 font-medium leading-relaxed border-l-4 border-orange-500 pl-6">
-            Đánh giá liên tục dựa trên đồ thị hoạt động sinh viên cho học phần Kỹ thuật Phần mềm theo PBL.
+            Đánh giá liên tục dựa trên đồ thị hoạt động sinh viên cho học phần
+            Kỹ thuật Phần mềm theo PBL.
             <span className="text-slate-400 dark:text-slate-500 block mt-2 font-normal text-lg">
               Minh bạch · Công bằng · Dựa trên dữ liệu thực tế.
             </span>
@@ -64,16 +67,17 @@ export function HeroSection() {
       <div className="hidden lg:flex justify-center items-center relative h-[600px] [perspective:2000px] animate-reveal opacity-0 [animation-delay:1s] [animation-fill-mode:forwards]">
         <div className="relative w-96 h-96 animate-tilt-3d [transform-style:preserve-3d]">
           {/* CORE BENTO */}
-          <div className="absolute inset-0 bg-white/40 dark:bg-white/5 backdrop-blur-3xl rounded-[60px] border border-white/60 dark:border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] flex items-center justify-center [transform:translateZ(40px)] group/main hover:[transform:translateZ(60px)] transition-transform duration-500">
-            <div className="relative flex h-36 w-36 items-center justify-center rounded-[48px] bg-slate-950 shadow-2xl overflow-hidden p-8">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-white/70 dark:bg-white/10 backdrop-blur-3xl rounded-[72px] border border-white/70 dark:border-white/20 shadow-[0_32px_80px_-16px_rgba(0,0,0,0.18)] flex items-center justify-center [transform:translateZ(40px)] group/main hover:[transform:translateZ(60px)] transition-transform duration-500">
+            <div className="relative flex h-48 w-48 items-center justify-center rounded-[56px] bg-white dark:bg-white shadow-2xl overflow-hidden p-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-60" />
+
               <Image
-                src="/images/logo-main.png"
+                src="/images/logo-icon.png"
                 alt="Core Logo"
-                width={140}
-                height={140}
+                width={220}
+                height={220}
                 priority
-                className="w-full h-full object-contain animate-pulse-slow relative z-10 dark:brightness-0 dark:invert"
+                className="w-full h-full object-contain scale-125 animate-pulse-slow relative z-10"
               />
             </div>
           </div>
@@ -90,10 +94,18 @@ export function HeroSection() {
             </div>
             <div className="space-y-3">
               <div className="flex gap-2">
-                <div className="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-[9px] font-bold text-emerald-600">S1</div>
-                <div className="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center text-[9px] font-bold text-blue-600">T1</div>
-                <div className="h-8 w-8 rounded-full bg-orange-500/20 flex items-center justify-center text-[9px] font-bold text-orange-600">C1</div>
-                <div className="h-8 w-8 rounded-full bg-purple-500/20 flex items-center justify-center text-[9px] font-bold text-purple-600">P1</div>
+                <div className="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-[9px] font-bold text-emerald-600">
+                  S1
+                </div>
+                <div className="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center text-[9px] font-bold text-blue-600">
+                  T1
+                </div>
+                <div className="h-8 w-8 rounded-full bg-orange-500/20 flex items-center justify-center text-[9px] font-bold text-orange-600">
+                  C1
+                </div>
+                <div className="h-8 w-8 rounded-full bg-purple-500/20 flex items-center justify-center text-[9px] font-bold text-purple-600">
+                  P1
+                </div>
                 <div className="h-4 w-4 self-center text-slate-300">···</div>
               </div>
               <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
@@ -122,7 +134,9 @@ export function HeroSection() {
               </div>
               <div className="flex items-center gap-2 mt-4">
                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">Continuous Assessment</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">
+                  Continuous Assessment
+                </span>
               </div>
             </div>
           </div>

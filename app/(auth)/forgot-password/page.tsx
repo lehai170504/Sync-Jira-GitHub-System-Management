@@ -160,7 +160,7 @@ export default function ForgotPasswordPage() {
 
             <div className="shrink-0 pt-12 border-t border-white/5 opacity-40">
               <p className="text-[9px] font-bold uppercase tracking-[0.3em]">
-                &copy; 2026 Security Core Sync
+                &copy; 2026 GraphGrade Platform
               </p>
             </div>
           </div>

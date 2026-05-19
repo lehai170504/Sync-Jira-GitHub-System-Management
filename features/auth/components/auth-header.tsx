@@ -6,26 +6,28 @@ export function AuthHeader() {
     <div className="px-8 py-6 flex items-center justify-between">
       <Link href="/" className="flex items-center gap-4 group">
         <div className="flex items-center gap-3">
-          <div className="relative h-24 w-24 flex-shrink-0">
+          <div className="relative h-28 w-28 flex-shrink-0 rounded-3xl bg-white p-2 shadow-lg ring-1 ring-slate-200/70 dark:ring-white/10 transition-all duration-300 group-hover:scale-105 group-active:scale-95">
             <Image
-              src="/images/logo-main.png"
-              alt="SAG-CA Logo"
+              src="/images/logo-header.png"
+              alt="GraphGrade Logo"
               fill
-              className="object-contain dark:brightness-0 dark:invert transition-all"
+              className="object-contain scale-110 transition-all"
               priority
             />
           </div>
         </div>
+
         {/* Divider */}
-        <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 transition-colors"></div>
+        <div className="h-10 w-px bg-slate-200 dark:bg-white/15 transition-colors"></div>
+
         {/* --- LOGO FPT --- */}
-        <div className="opacity-90 grayscale group-hover:grayscale-0 transition-all duration-300 flex-shrink-0">
+        <div className="flex-shrink-0 transition-all duration-300 group-hover:scale-105">
           <Image
             src="/images/Logo_Trường_Đại_học_FPT.svg.png"
             alt="FPT University"
-            width={110}
-            height={35}
-            className="h-8 w-auto object-contain dark:brightness-0 dark:invert transition-all"
+            width={140}
+            height={45}
+            className="h-10 w-auto object-contain transition-all"
             priority
           />
         </div>

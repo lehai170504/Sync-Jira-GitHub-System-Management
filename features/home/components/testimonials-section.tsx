@@ -9,14 +9,14 @@ const testimonials = [
   {
     name: "Lê Văn An",
     role: "Sinh viên K16 - FPT University",
-    content: "Nhờ hệ thống SAG-CA mà mình biết chính xác điểm số được tính từ những hoạt động nào. Đồ thị hoạt động giúp mình thấy được mình đã làm gì, còn thiếu gì để cải thiện.",
+    content: "Nhờ hệ thống GraphGrade mà mình biết chính xác điểm số được tính từ những hoạt động nào. Đồ thị hoạt động giúp mình thấy được mình đã làm gì, còn thiếu gì để cải thiện.",
     avatar: "/avatars/avatar-1.png",
     initials: "AN",
   },
   {
     name: "TS. Nguyễn Trần Bình",
     role: "Giảng viên bộ môn Kỹ thuật phần mềm",
-    content: "SAG-CA giúp tôi tiết kiệm rất nhiều thời gian chấm điểm. Đồ thị hoạt động cho thấy rõ ai làm nhiều, ai làm ít, ai tương tác tốt với nhóm. Rất khách quan và minh bạch!",
+    content: "GraphGrade giúp tôi tiết kiệm rất nhiều thời gian chấm điểm. Đồ thị hoạt động cho thấy rõ ai làm nhiều, ai làm ít, ai tương tác tốt với nhóm. Rất khách quan và minh bạch!",
     avatar: "/avatars/avatar-2.png",
     initials: "TB",
   },
@@ -54,7 +54,7 @@ export function TestimonialsSection() {
             </h4>
             <h2 className="text-4xl md:text-7xl font-bold tracking-tight text-slate-900 dark:text-white leading-[0.9] uppercase">
               Trải nghiệm <br />
-              <span className="text-slate-400 dark:text-slate-500 font-medium">thực tế từ SAG-CA.</span>
+              <span className="text-slate-400 dark:text-slate-500 font-medium">thực tế từ GraphGrade.</span>
             </h2>
           </div>
           <div className="flex flex-col items-end gap-3">

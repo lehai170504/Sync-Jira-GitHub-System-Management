@@ -17,8 +17,8 @@ export function Footer() {
           <div className="col-span-1 lg:col-span-1 space-y-8">
             <Link href="/" className="inline-block group">
                 <Image
-                  src="/images/logo-main.png"
-                  alt="SAG-CA System Logo"
+                  src="/images/logo-header.png"
+                  alt="GraphGrade System Logo"
                   width={400}
                   height={100}
                   className="h-14 w-auto grayscale opacity-80 dark:invert dark:opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
@@ -78,7 +78,7 @@ export function Footer() {
             </p>
           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest">
-            © {currentYear} SAG-CA SYSTEM. Build for FPT UNIVERSITY with ❤️.
+            © {currentYear} GraphGrade SYSTEM. Build for FPT UNIVERSITY with ❤️.
           </p>
         </div>
       </div>

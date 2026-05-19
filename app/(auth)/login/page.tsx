@@ -113,8 +113,8 @@ export default function LoginPage() {
 
                   <p className="text-zinc-400 text-sm font-medium leading-relaxed max-w-xs">
                     {isRegisterMode
-                      ? "Gia nhập cộng đồng sinh viên công nghệ, tối ưu hóa quy trình làm việc theo chuẩn doanh nghiệp."
-                      : "Kết nối an toàn giữa Jira và GitHub. Theo dõi tiến độ và nhận đánh giá tự động từ AI."}
+                      ? "Tạo tài khoản mới để bắt đầu hành trình của bạn."
+                      : "Đăng nhập để truy cập dashboard cá nhân, theo dõi hoạt động và điểm số real-time dựa trên đồ thị hoạt động sinh viên."}
                   </p>
                 </motion.div>
               </AnimatePresence>
@@ -134,7 +134,7 @@ export default function LoginPage() {
 
             <div className="shrink-0 pt-12 border-t border-white/5 opacity-40">
               <p className="text-[9px] font-bold uppercase tracking-[0.3em]">
-                &copy; 2026 SAG-CA Platform
+                &copy; 2026 GraphGrade Platform
               </p>
             </div>
           </div>

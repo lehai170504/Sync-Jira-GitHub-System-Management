@@ -24,7 +24,7 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: "/images/logo-sync", // Thay bằng link icon web của bạn
+    icon: "/images/logo-main.png", // Thay bằng link icon web của bạn
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);

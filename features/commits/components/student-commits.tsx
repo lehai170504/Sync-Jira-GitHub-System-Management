@@ -13,7 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { GitCommit, Loader2, AlertCircle, ChevronDown } from "lucide-react";
+import { GitCommit, AlertCircle, ChevronDown, Loader2 } from "lucide-react";
+import { TableSkeleton } from "@/components/ui/skeletons";
 import { CommitFilters } from "@/features/commits/components/commit-filters";
 import { CommitListTable } from "@/features/commits/components/commit-list-table";
 import { CommitDetailModal } from "@/features/commits/components/commit-detail-modal";
@@ -343,11 +344,12 @@ export function LeaderCommits({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
-        <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-          Đang đồng bộ dữ liệu Git...
-        </p>
+      <div className="space-y-6 w-full py-8 px-4 md:px-0">
+        <div className="space-y-1">
+          <div className="h-9 w-48 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+          <div className="h-4 w-72 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+        </div>
+        <TableSkeleton rows={8} cols={6} />
       </div>
     );
   }

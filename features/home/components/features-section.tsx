@@ -1,6 +1,6 @@
 "use client";
 
-import { GitGraph, Activity, LineChart, BarChart3, GitPullRequest, GitBranch, Code2, Users, Sparkles, ArrowRight } from "lucide-react";
+import { GitGraph, Activity, LineChart, BarChart3, Users, FileText, Sparkles } from "lucide-react";
 
 export function FeaturesSection() {
   return (
@@ -44,10 +44,10 @@ export function FeaturesSection() {
           desc="Dashboard trực quan cho giảng viên & sinh viên. Biểu đồ hoạt động, cảnh báo sớm, báo cáo chi tiết."
         />
         <FeatureCard
-          icon={<GitBranch className="h-6 w-6" />}
+          icon={<Users className="h-6 w-6" />}
           iconBg="bg-blue-600"
-          title="GitHub Integration"
-          desc="Đồng bộ tự động commits, pull requests, branches từ GitHub vào hệ thống Activity Graph."
+          title="Team Management"
+          desc="Quản lý nhóm, phân chia task, Sprint và milestone, đảm bảo mọi sinh viên đều có đóng góp được ghi nhận."
         />
         <FeatureCard
           icon={<BarChart3 className="h-6 w-6" />}
@@ -56,10 +56,10 @@ export function FeaturesSection() {
           desc="Phân tích real-time về tiến độ, hiệu suất nhóm và cảnh báo sớm sinh viên đang gặp khó khăn."
         />
         <FeatureCard
-          icon={<Users className="h-6 w-6" />}
+          icon={<FileText className="h-6 w-6" />}
           iconBg="bg-rose-600"
-          title="Team Management"
-          desc="Quản lý nhóm, phân chia task, Sprint và milestone, đảm bảo mọi sinh viên đều có đóng góp."
+          title="Auto Reports"
+          desc="Xuất báo cáo đánh giá theo sprint, cá nhân, nhóm dưới dạng PDF/Excel, hỗ trợ giảng viên chốt điểm."
         />
       </div>
     </section>

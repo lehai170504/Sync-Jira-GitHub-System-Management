@@ -7,13 +7,13 @@ import {
   CheckCircle2,
   Code2,
   TrendingUp,
-  Loader2,
   GitCommit,
   Layers,
   RefreshCw,
   AlertCircle,
   Users,
 } from "lucide-react";
+import { KpiCardSkeleton } from "@/components/ui/skeletons";
 import { useTeamDashboard } from "@/features/management/teams/hooks/use-team-dashboard";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
 
@@ -37,9 +37,7 @@ export function MemberOverviewTab({ classId }: MemberOverviewTabProps) {
 
   if (isClassesPending || isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-[#F27124]" />
-      </div>
+      <KpiCardSkeleton count={4} />
     );
   }
 

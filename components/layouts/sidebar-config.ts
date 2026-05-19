@@ -94,24 +94,12 @@ export const routeGroups: RouteGroup[] = [
         href: "/lecturer/projects",
         color: "text-violet-500",
       },
-      // {
-      //   label: "Bài tập & Deadline",
-      //   icon: Layers,
-      //   href: "/lecturer/assignments",
-      //   color: "text-orange-500",
-      // },
       {
         label: "Cấu hình môn học",
         icon: Settings2,
         href: "/lecturer/settings",
         color: "text-slate-500",
       },
-      // {
-      //   label: "Trọng số đóng góp",
-      //   icon: Settings,
-      //   href: "/lecturer/contribution-config",
-      //   color: "text-orange-500",
-      // },
       {
         label: "Tính điểm cá nhân",
         icon: Calculator,

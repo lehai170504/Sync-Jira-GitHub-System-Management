@@ -11,7 +11,7 @@ export const useAdminTour = () => {
       doneBtnText: "Hoàn tất",
       nextBtnText: "Tiếp theo",
       prevBtnText: "Lùi lại",
-      popoverClass: "sync-driver-popover", // Class CSS custom ở globals.css
+      popoverClass: "auth-driver-popover", // Class CSS custom ở globals.css
       steps: [
         {
           element: "#dashboard-header",

@@ -7,36 +7,33 @@ export const useAuthTour = (isRegisterMode: boolean) => {
       showProgress: true,
       animate: true,
       allowClose: true,
-      stagePadding: 8, // Tăng padding highlight
+      stagePadding: 10,
+      stageRadius: 24,
 
-      // Text Tiếng Việt thân thiện
-      doneBtnText: "Bắt đầu ngay 🚀",
-      nextBtnText: "Tiếp theo →",
-      prevBtnText: "← Quay lại",
+      doneBtnText: "Hoàn tất",
+      nextBtnText: "Tiếp theo",
+      prevBtnText: "Quay lại",
 
-      // Class tùy chỉnh (đã style ở globals.css)
-      popoverClass: "sync-driver-popover",
+      popoverClass: "auth-driver-popover",
 
       steps: [
         {
           element: "#auth-info-panel",
           popover: {
-            title: "🚀 Trung tâm thông tin",
+            title: "Khu vực giới thiệu",
             description:
-              "Nơi hiển thị trạng thái hệ thống và các thông tin quan trọng về hành trình của bạn.",
+              "Hiển thị thông tin tổng quan về GraphGrade, lợi ích chính và nhận diện thương hiệu của hệ thống.",
             side: "right",
-            align: "start",
+            align: "center",
           },
         },
         {
           element: "#auth-form-container",
           popover: {
-            title: isRegisterMode
-              ? "📝 Đăng ký thành viên"
-              : "🔐 Xác thực danh tính",
+            title: isRegisterMode ? "Biểu mẫu đăng ký" : "Biểu mẫu đăng nhập",
             description: isRegisterMode
-              ? "Điền thông tin để khởi tạo hồ sơ sinh viên chuyên nghiệp trên hệ thống."
-              : "Sử dụng tài khoản đã được cấp để truy cập vào không gian làm việc đồng bộ.",
+              ? "Nhập email để nhận mã OTP, sau đó hoàn tất thông tin tài khoản để bắt đầu sử dụng hệ thống."
+              : "Nhập email và mật khẩu để truy cập tài khoản. Bạn cũng có thể đăng nhập bằng Google Workspace.",
             side: "left",
             align: "center",
           },
@@ -44,11 +41,11 @@ export const useAuthTour = (isRegisterMode: boolean) => {
         {
           element: "#auth-help-button",
           popover: {
-            title: "💡 Hỗ trợ 24/7",
+            title: "Nút hướng dẫn",
             description:
-              "Bất cứ khi nào bạn gặp khó khăn, hãy nhấn vào đây để được hướng dẫn chi tiết.",
+              "Mở lại phần hướng dẫn sử dụng bất cứ lúc nào khi bạn cần xem nhanh các khu vực chính trên trang.",
             side: "bottom",
-            align: "center",
+            align: "end",
           },
         },
       ],

@@ -6,12 +6,12 @@ import Cookies from "js-cookie";
 import {
   Search,
   Filter,
-  Loader2,
   FileSearch,
   LayoutGrid,
   FilePlus2,
   FilterX,
 } from "lucide-react";
+import { CardSkeleton, PageError } from "@/components/ui/skeletons";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -149,12 +149,7 @@ export default function AssignmentsPage() {
       {/* --- MAIN CONTENT --- */}
       <div className="min-h-100">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center h-60 gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium animate-pulse">
-              Đang tải danh sách bài tập...
-            </p>
-          </div>
+          <CardSkeleton count={6} cols={3} lines={3} />
         ) : filtered.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {filtered.map((item) => (

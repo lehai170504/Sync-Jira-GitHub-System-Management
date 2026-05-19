@@ -6,8 +6,8 @@ import {
   LayoutGrid,
   FilterX,
   Search,
-  Loader2,
 } from "lucide-react";
+import { TableSkeleton } from "@/components/ui/skeletons";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Components
@@ -41,34 +41,6 @@ export default function ClassManagementPage() {
   });
 
   const classes = data?.classes || [];
-
-  // --- TÍNH TOÁN DỮ LIỆU CHO STATS ---
-  const statsSummary = useMemo(() => {
-    // API list và API detail có thể khác naming key cho count.
-    // Ví dụ: lecturer dùng `stats.total_students` / `stats.total_teams`.
-    // nên ở đây fallback để không bị 0 khi server không trả `student_count`/`team_count`.
-    const totalStudents = classes.reduce((sum: number, cls: any) => {
-      const v =
-        cls.student_count ??
-        cls.total_students ??
-        cls.stats?.total_students ??
-        0;
-      return sum + (Number(v) || 0);
-    }, 0);
-
-    const totalTeams = classes.reduce((sum: number, cls: any) => {
-      const v =
-        cls.team_count ??
-        cls.total_teams ??
-        cls.stats?.total_teams ??
-        0;
-      return sum + (Number(v) || 0);
-    }, 0);
-    const avgJiraWeight =
-      classes.length > 0 ? classes[0].contributionConfig?.jiraWeight || 0 : 0;
-
-    return { totalStudents, totalTeams, avgJiraWeight };
-  }, [classes]);
 
   // Filter Logic (Search text)
   const filteredClasses = useMemo(() => {
@@ -167,10 +139,7 @@ export default function ClassManagementPage() {
           <div className="min-h-125">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center h-64 gap-4">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest animate-pulse">
-                  Đang nạp dữ liệu...
-                </p>
+                <TableSkeleton />
               </div>
             ) : (
               <ClassList

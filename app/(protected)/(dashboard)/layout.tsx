@@ -18,24 +18,24 @@ import { UserRole } from "@/components/layouts/sidebar-config";
 const ROUTE_LABELS: Record<string, string> = {
   dashboard: "Tổng quan",
   "class-management": "Quản lý lớp học",
-  "admin": "Quản trị",
-  "academic": "Học kỳ & Môn học",
-  "classes": "Lớp học",
-  "users": "Người dùng",
-  "lecturer": "Giảng viên",
-  "schedule": "Lịch giảng dạy",
-  "projects": "Đồ án",
-  "settings": "Cài đặt",
-  "reviews": "Đánh giá",
-  "calculate": "Tính điểm",
-  "class": "Danh sách lớp",
-  "project": "Dự án",
-  "team": "Nhóm",
-  "mapping": "Liên kết tài khoản",
-  "tasks": "Nhiệm vụ",
-  "timeline": "Timeline Sprint",
-  "progress": "Tiến độ nhóm",
-  "commits": "Commits",
+  admin: "Quản trị",
+  academic: "Học kỳ & Môn học",
+  classes: "Lớp học",
+  users: "Người dùng",
+  lecturer: "Giảng viên",
+  schedule: "Lịch giảng dạy",
+  projects: "Đồ án",
+  settings: "Cài đặt",
+  reviews: "Đánh giá",
+  calculate: "Tính điểm",
+  class: "Danh sách lớp",
+  project: "Dự án",
+  team: "Nhóm",
+  mapping: "Liên kết tài khoản",
+  tasks: "Nhiệm vụ",
+  timeline: "Timeline Sprint",
+  progress: "Tiến độ nhóm",
+  commits: "Commits",
   "peer-review": "Đánh giá chéo",
 };
 
@@ -44,11 +44,7 @@ function getPageLabel(pathname: string): string {
   return ROUTE_LABELS[segment] ?? segment.replace(/-/g, " ").toUpperCase();
 }
 
-function DashboardLayoutContent({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -88,14 +84,13 @@ function DashboardLayoutContent({
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8FAFC] dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
-
       {/* ── SIDEBAR ── */}
       <aside
         className={cn(
           "hidden md:flex md:flex-col fixed inset-y-0 left-0 z-[80]",
           "transition-all duration-500 ease-in-out",
           "bg-slate-950 dark:bg-black border-r border-slate-800 shadow-xl",
-          isCollapsed ? "w-[72px]" : "w-72"
+          isCollapsed ? "w-[72px]" : "w-72",
         )}
       >
         <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
@@ -105,18 +100,19 @@ function DashboardLayoutContent({
       <div
         className={cn(
           "flex flex-col flex-1 min-w-0 transition-all duration-500 ease-in-out",
-          isCollapsed ? "md:ml-[72px]" : "md:ml-72"
+          isCollapsed ? "md:ml-[72px]" : "md:ml-72",
         )}
       >
         {/* ── TOPBAR ── */}
         <header className="sticky top-0 z-40 shrink-0 h-16 flex items-center justify-between px-6 lg:px-8 border-b border-slate-200/70 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl transition-colors duration-300">
-
           {/* Left: Breadcrumb */}
           <div className="flex items-center gap-3 min-w-0">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 hidden lg:block select-none">
-              FPT SAG-CA
+              GraphGrade
             </span>
-            <span className="text-slate-200 dark:text-slate-700 hidden lg:block select-none">/</span>
+            <span className="text-slate-200 dark:text-slate-700 hidden lg:block select-none">
+              /
+            </span>
             <span className="text-[12px] font-bold tracking-wide text-slate-700 dark:text-slate-300 truncate">
               {pageLabel}
             </span>
@@ -144,10 +140,12 @@ function DashboardLayoutContent({
                     <span className="text-[13px] font-bold leading-none text-slate-900 dark:text-slate-100 group-hover:text-[#F27124] transition-colors">
                       {user?.full_name || "Guest"}
                     </span>
-                    <span className={cn(
-                      "text-[9px] font-bold mt-1 px-1.5 py-0.5 leading-none rounded",
-                      roleBadgeClass
-                    )}>
+                    <span
+                      className={cn(
+                        "text-[9px] font-bold mt-1 px-1.5 py-0.5 leading-none rounded",
+                        roleBadgeClass,
+                      )}
+                    >
                       {user?.role ?? "STUDENT"}
                     </span>
                   </>

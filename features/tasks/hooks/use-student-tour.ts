@@ -11,7 +11,7 @@ export const useStudentTour = () => {
       doneBtnText: "Đã hiểu",
       nextBtnText: "Tiếp theo",
       prevBtnText: "Lùi lại",
-      popoverClass: "sync-driver-popover",
+      popoverClass: "auth-driver-popover",
       steps: [
         {
           element: "#student-board-header",

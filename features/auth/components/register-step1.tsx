@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Loader2, Mail } from "lucide-react";
 
 interface RegisterStep1Props {
   email: string;
@@ -19,39 +19,40 @@ export function RegisterStep1({
   onSubmit,
 }: RegisterStep1Props) {
   return (
-    <form onSubmit={onSubmit} className="space-y-6 animate-fade-up font-mono">
+    <form onSubmit={onSubmit} className="space-y-5 animate-fade-up">
       <div className="relative group">
         <Input
-          id="email"
+          id="register-email"
           type="email"
           placeholder=" "
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           disabled={isLoading}
-          className="peer pl-11 h-14 rounded-2xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-[#F27124]/20 transition-all font-bold text-xs pt-4 text-slate-900 dark:text-slate-100"
+          className="peer h-13 rounded-2xl border-slate-100 bg-slate-50 pl-11 pt-4 text-sm font-semibold text-zinc-950 transition-all focus:bg-white focus:ring-4 focus:ring-orange-500/10 dark:border-white/10 dark:bg-white/[0.04] dark:text-white dark:focus:bg-white/[0.06]"
           required
         />
+
         <Label
-          htmlFor="email"
-          className="absolute left-11 top-4 text-slate-400 dark:text-slate-500 text-[10px] font-semibold uppercase tracking-widest pointer-events-none transition-all duration-300
-                     peer-focus:-translate-y-3 peer-focus:text-[9px] peer-focus:text-[#F27124] dark:peer-focus:text-orange-400
-                     peer-[:not(:placeholder-shown)]:-translate-y-3 peer-[:not(:placeholder-shown)]:text-[9px]"
+          htmlFor="register-email"
+          className="pointer-events-none absolute left-11 top-4 text-[11px] font-bold uppercase tracking-widest text-zinc-400 transition-all duration-300 peer-focus:-translate-y-3 peer-focus:text-[9px] peer-focus:text-orange-500 peer-[:not(:placeholder-shown)]:-translate-y-3 peer-[:not(:placeholder-shown)]:text-[9px] dark:text-zinc-500 dark:peer-focus:text-orange-400"
         >
           Email đăng ký
         </Label>
-        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 dark:text-slate-500 group-focus-within:text-[#F27124] dark:group-focus-within:text-orange-400 transition-colors" />
+
+        <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-300 transition-colors group-focus-within:text-orange-500 dark:text-zinc-500 dark:group-focus-within:text-orange-400" />
       </div>
 
       <Button
         type="submit"
         disabled={isLoading}
-        className="w-full h-12 text-[10px] font-semibold uppercase tracking-widest bg-slate-900 dark:bg-[#F27124] hover:bg-[#F27124] dark:hover:bg-[#d65d1b] text-white rounded-2xl shadow-lg dark:shadow-none active:scale-95 transition-all"
+        className="h-12 w-full rounded-2xl bg-zinc-950 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-lg transition-all hover:bg-orange-500 active:scale-95 disabled:opacity-70 dark:bg-orange-500 dark:hover:bg-orange-600 dark:shadow-none"
       >
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
           <span className="flex items-center gap-2">
-            Gửi mã xác thực <ArrowRight className="h-4 w-4" />
+            Gửi mã xác thực
+            <ArrowRight className="h-4 w-4" />
           </span>
         )}
       </Button>

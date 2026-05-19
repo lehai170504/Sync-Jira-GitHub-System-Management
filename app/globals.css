@@ -310,180 +310,171 @@
 /* --- 6. DRIVER.JS STYLES (Đã fix Dark Mode) --- 
    Thay vì mã hex cứng (#fff), ta dùng var(--popover)
 */
-.driver-popover {
-  background-color: var(--popover) !important;
-  /* Tự động đổi màu */
-  color: var(--popover-foreground) !important;
-  border-radius: 20px;
-  border: 1px solid var(--border) !important;
-  box-shadow:
-    0 20px 25px -5px rgb(0 0 0 / 0.1),
-    0 8px 10px -6px rgb(0 0 0 / 0.1);
-  padding: 24px;
-  font-family: var(--font-sans), system-ui, sans-serif;
-  max-width: 380px;
-}
+/* --- 6. DRIVER.JS AUTH TOUR STYLES --- */
 
-.driver-popover-title {
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 8px;
-  text-transform: uppercase;
+.driver-popover.auth-driver-popover {
+  max-width: 360px !important;
+  padding: 18px !important;
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, 0.96) !important;
   color: var(--foreground) !important;
-  /* Tự đổi màu chữ */
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 24px 80px -24px rgba(15, 23, 42, 0.35) !important;
+  backdrop-filter: blur(18px) !important;
+  font-family: var(--font-sans), system-ui, sans-serif !important;
 }
 
-.driver-popover-description {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--muted-foreground) !important;
-  /* Màu xám nhẹ */
-  font-weight: 500;
+.dark .driver-popover.auth-driver-popover {
+  background: rgba(24, 24, 27, 0.96) !important;
+  color: var(--foreground) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 24px 80px -24px rgba(242, 113, 36, 0.28) !important;
 }
 
-.driver-popover-footer {
-  margin-top: 24px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+/* Title */
+.driver-popover.auth-driver-popover .driver-popover-title {
+  margin: 0 28px 8px 0 !important;
+  color: #18181b !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
 }
 
-.driver-popover-next-btn {
-  background-color: var(--primary) !important;
-  /* Cam FPT */
-  color: var(--primary-foreground) !important;
-  border: none !important;
-  border-radius: 12px !important;
-  padding: 8px 20px !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  text-shadow: none !important;
-  transition: all 0.2s;
+.dark .driver-popover.auth-driver-popover .driver-popover-title {
+  color: #ffffff !important;
 }
 
-.driver-popover-next-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.driver-popover-prev-btn {
-  background-color: transparent !important;
-  color: var(--muted-foreground) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 12px !important;
-  padding: 8px 16px !important;
-  font-size: 12px !important;
-  font-weight: 600 !important;
-  text-shadow: none !important;
-}
-
-.driver-popover-prev-btn:hover {
-  background-color: var(--accent) !important;
-  color: var(--accent-foreground) !important;
-}
-
-.driver-popover-close-btn {
-  color: var(--muted-foreground) !important;
-  padding: 4px !important;
-  top: 16px !important;
-  right: 16px !important;
-}
-
-.driver-popover-close-btn:hover {
-  color: var(--primary) !important;
-}
-
-/* Lớp phủ (Overlay) */
-.driver-overlay path {
-  fill: var(--background) !important;
-  opacity: 0.8;
-}
-
-.driver-stage-no-animation {
-  outline: 2px solid var(--primary) !important;
-  outline-offset: 4px;
-}
-
-/* --- 7. DRIVER.JS CUSTOM STYLES (PREMIUM DARK MODE) --- */
-.driver-popover.sync-driver-popover {
-  background-color: var(--card) !important;
-  color: var(--card-foreground) !important;
-  border-radius: 16px;
-  border: 1px solid var(--border) !important;
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
-  padding: 20px;
-  font-family: var(--font-sans);
-}
-
-.dark .driver-popover.sync-driver-popover {
-  background-color: #0f172a !important;
-  /* slate-950 */
-  border-color: #1e293b !important;
-  /* slate-800 */
-}
-
-.driver-popover.sync-driver-popover .driver-popover-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: #0f172a !important;
-}
-
-.dark .driver-popover.sync-driver-popover .driver-popover-title {
-  color: #f8fafc !important;
-}
-
-.driver-popover.sync-driver-popover .driver-popover-description {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #64748b !important;
-}
-
-.dark .driver-popover.sync-driver-popover .driver-popover-description {
-  color: #94a3b8 !important;
-}
-
-.driver-popover.sync-driver-popover .driver-popover-footer button {
-  background-color: #f1f5f9 !important;
-  color: #0f172a !important;
-  border-radius: 8px !important;
-  padding: 8px 12px !important;
-  font-weight: 600 !important;
-  font-size: 12px !important;
-  text-shadow: none !important;
-  border: none !important;
-  transition: all 0.2s;
-}
-
-.dark .driver-popover.sync-driver-popover .driver-popover-footer button {
-  background-color: #1e293b !important;
-  color: #f8fafa !important;
-}
-
-.driver-popover.sync-driver-popover .driver-popover-footer button:hover {
-  background-color: #e2e8f0 !important;
-}
-
-.dark .driver-popover.sync-driver-popover .driver-popover-footer button:hover {
-  background-color: #334155 !important;
-}
-
-.driver-popover.sync-driver-popover .driver-popover-footer .driver-popover-next-btn {
-  background-color: #F27124 !important;
-  color: white !important;
-}
-
-.dark .driver-popover.sync-driver-popover .driver-popover-footer .driver-popover-next-btn {
-  background-color: #F27124 !important;
-  color: white !important;
-}
-
-.driver-popover.sync-driver-popover .driver-popover-footer .driver-popover-next-btn:hover {
-  background-color: #d65d1b !important;
-}
-
-.driver-popover.sync-driver-popover .driver-popover-progress-text {
-  color: #94a3b8 !important;
-  font-size: 12px !important;
+/* Description */
+.driver-popover.auth-driver-popover .driver-popover-description {
+  color: #71717a !important;
+  font-size: 13px !important;
   font-weight: 500 !important;
+  line-height: 1.6 !important;
+}
+
+.dark .driver-popover.auth-driver-popover .driver-popover-description {
+  color: #a1a1aa !important;
+}
+
+/* Footer */
+.driver-popover.auth-driver-popover .driver-popover-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-top: 18px !important;
+}
+
+/* Progress text */
+.driver-popover.auth-driver-popover .driver-popover-progress-text {
+  color: #f27124 !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+}
+
+/* Navigation buttons wrapper */
+.driver-popover.auth-driver-popover .driver-popover-navigation-btns {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* Buttons */
+.driver-popover.auth-driver-popover .driver-popover-prev-btn,
+.driver-popover.auth-driver-popover .driver-popover-next-btn {
+  height: 36px !important;
+  border-radius: 14px !important;
+  padding: 0 14px !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  text-shadow: none !important;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease !important;
+}
+
+.driver-popover.auth-driver-popover .driver-popover-prev-btn {
+  background: transparent !important;
+  color: #71717a !important;
+  border: 1px solid #e4e4e7 !important;
+}
+
+.driver-popover.auth-driver-popover .driver-popover-prev-btn:hover {
+  background: #f4f4f5 !important;
+  color: #18181b !important;
+  transform: translateY(-1px) !important;
+}
+
+.dark .driver-popover.auth-driver-popover .driver-popover-prev-btn {
+  color: #d4d4d8 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .driver-popover.auth-driver-popover .driver-popover-prev-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+/* Next / Done button */
+.driver-popover.auth-driver-popover .driver-popover-next-btn {
+  background: #f27124 !important;
+  color: white !important;
+  border: 1px solid #f27124 !important;
+}
+
+.driver-popover.auth-driver-popover .driver-popover-next-btn:hover {
+  background: #dc5f17 !important;
+  border-color: #dc5f17 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Close button */
+.driver-popover.auth-driver-popover .driver-popover-close-btn {
+  top: 12px !important;
+  right: 14px !important;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  color: #a1a1aa !important;
+  font-size: 22px !important;
+  line-height: 28px !important;
+  border-radius: 999px !important;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease !important;
+}
+
+.driver-popover.auth-driver-popover .driver-popover-close-btn:hover {
+  background: #f4f4f5 !important;
+  color: #f27124 !important;
+}
+
+.dark .driver-popover.auth-driver-popover .driver-popover-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #f27124 !important;
+}
+
+/* Arrow */
+.driver-popover.auth-driver-popover .driver-popover-arrow {
+  border-color: transparent !important;
+}
+
+/* Overlay */
+.driver-overlay path {
+  fill: rgba(15, 23, 42, 0.72) !important;
+}
+
+/* Highlighted stage */
+.driver-stage {
+  border-radius: 24px !important;
+  box-shadow:
+    0 0 0 2px rgba(242, 113, 36, 0.9),
+    0 0 0 8px rgba(242, 113, 36, 0.12),
+    0 24px 80px -24px rgba(242, 113, 36, 0.45) !important;
 }

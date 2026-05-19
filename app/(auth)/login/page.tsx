@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -16,7 +16,6 @@ import { LoginForm } from "@/features/auth/components/login-form";
 import { RegisterFormContainer } from "@/features/auth/components/register-form-container";
 import { BackgroundBeams } from "@/features/home/components/background-beams";
 
-// Import Hook
 import { useAuthTour } from "@/features/auth/hooks/use-auth-tour";
 
 export default function LoginPage() {
@@ -26,21 +25,22 @@ export default function LoginPage() {
   const { startTour } = useAuthTour(isRegisterMode);
 
   return (
-    <div className="min-h-[100dvh] w-full bg-white dark:bg-zinc-950 overflow-hidden flex items-center justify-center p-4 md:p-6 lg:p-8 relative transition-colors duration-500">
-      {/* 1. NỀN ĐỘNG PREMIUM */}
+    <div className="relative flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-slate-50 p-4 transition-colors duration-500 dark:bg-zinc-950 md:p-6 lg:p-8">
+      {/* Background */}
       <BackgroundBeams />
 
-      {/* Tech Grid Overlay */}
+      {/* Grid Overlay */}
       <div
-        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] pointer-events-none"
+        className="pointer-events-none absolute inset-0 opacity-[0.025] dark:opacity-[0.07]"
         style={{
-          backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
-          backgroundSize: '30px 30px'
+          backgroundImage:
+            "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
         }}
       />
 
-      {/* 2. NÚT TRỢ GIÚP (FLOATING) */}
-      <div className="absolute top-6 right-6 z-50">
+      {/* Help Button */}
+      <div className="absolute right-4 top-4 z-50 md:right-6 md:top-6">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -48,139 +48,190 @@ export default function LoginPage() {
                 id="auth-help-button"
                 variant="outline"
                 size="icon"
-                className="h-12 w-12 rounded-2xl bg-white/10 dark:bg-zinc-900/20 backdrop-blur-xl shadow-2xl border border-white/20 dark:border-white/5 text-[#F27124] hover:bg-[#F27124] hover:text-white transition-all duration-500 hover:scale-110 active:scale-95"
+                className="h-10 w-10 rounded-2xl border border-white/40 bg-white/75 text-[#F27124] shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:bg-[#F27124] hover:text-white active:scale-95 dark:border-white/10 dark:bg-zinc-900/70 md:h-12 md:w-12"
                 onClick={startTour}
               >
-                <HelpCircle className="w-6 h-6" />
+                <HelpCircle className="h-5 w-5 md:h-6 md:w-6" />
               </Button>
             </TooltipTrigger>
+
             <TooltipContent
               side="left"
-              className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-none font-bold py-3 px-4 rounded-xl shadow-2xl"
+              className="rounded-xl border-none bg-zinc-900 px-4 py-3 font-bold text-white shadow-2xl dark:bg-white dark:text-zinc-900"
             >
-              <p className="text-xs uppercase tracking-widest">Hướng dẫn hệ thống</p>
+              <p className="text-xs uppercase tracking-widest">
+                Hướng dẫn hệ thống
+              </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
 
-      {/* 3. TRUNG TÂM ĐIỀU KHIỂN (MAIN CARD) */}
+      {/* Main Card */}
       <motion.div
-        initial={{ opacity: 0, y: 40, scale: 0.9, rotateX: -10 }}
-        animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+        initial={{ opacity: 0, y: 28, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{
-          duration: 1,
-          ease: [0.16, 1, 0.3, 1], // Custom cubic-bezier for premium feel
-          delay: 0.2
+          duration: 0.7,
+          ease: [0.16, 1, 0.3, 1],
+          delay: 0.08,
         }}
-        className="relative z-10 w-full max-w-[1100px] min-h-[700px] bg-white/70 dark:bg-zinc-900/40 backdrop-blur-3xl rounded-[48px] border border-white/40 dark:border-white/10 shadow-[0_32px_120px_-20px_rgba(0,0,0,0.2)] dark:shadow-[0_32px_120px_-20px_rgba(242,113,36,0.1)] flex flex-col lg:flex-row overflow-hidden [perspective:1000px]"
+        className="relative z-10 flex h-[min(680px,calc(100dvh-32px))] w-full max-w-[1080px] flex-col overflow-hidden rounded-[32px] border border-white/70 bg-white/85 shadow-[0_32px_100px_-24px_rgba(15,23,42,0.28)] backdrop-blur-3xl dark:border-white/10 dark:bg-zinc-900/65 dark:shadow-[0_32px_100px_-24px_rgba(242,113,36,0.12)] lg:flex-row lg:rounded-[40px]"
       >
-        {/* --- PHẦN TRÁI: DYNAMIX INFO (BANNER TÍCH HỢP) --- */}
-        <div id="auth-info-panel" className="lg:w-[42%] bg-zinc-950 relative overflow-hidden flex flex-col p-12 text-white">
-          {/* Decorative Glows */}
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(242,113,36,0.15),transparent_70%)]" />
-          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_100%_100%,rgba(59,130,246,0.1),transparent_70%)]" />
+        {/* Left Panel */}
+        <div
+          id="auth-info-panel"
+          className="relative hidden flex-col overflow-hidden bg-zinc-950 p-8 text-white md:flex lg:w-[42%] lg:p-10"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(242,113,36,0.2),transparent_62%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_100%_100%,rgba(59,130,246,0.13),transparent_62%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-zinc-950 to-transparent" />
 
-          <div className="relative z-20 flex flex-col h-full">
-            <div className="shrink-0 mb-16">
+          <div className="relative z-20 flex h-full flex-col">
+            <div className="mb-8 shrink-0 lg:mb-10">
               <AuthHeader />
             </div>
 
-            <div className="flex-1 flex flex-col justify-center space-y-8">
+            <div className="flex flex-1 flex-col justify-center space-y-7">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={isRegisterMode ? "reg-info" : "log-info"}
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
+                  exit={{ opacity: 0, x: 12 }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
                   className="space-y-6"
                 >
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1.5">
                     <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
+
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">
-                      {isRegisterMode ? "Registration Phase" : "Authentication Core"}
+                      {isRegisterMode ? "Tạo tài khoản" : "Đăng nhập an toàn"}
                     </span>
                   </div>
 
-                  <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tighter uppercase">
+                  <h2 className="text-4xl font-black leading-[0.95] tracking-tighter lg:text-5xl">
                     {isRegisterMode ? (
-                      <>Khởi tạo <br /><span className="text-orange-500">Danh tính.</span></>
+                      <>
+                        Bắt đầu với <br />
+                        <span className="text-orange-500">GraphGrade.</span>
+                      </>
                     ) : (
-                      <>Tiếp tục <br /><span className="text-orange-500">Hành trình.</span></>
+                      <>
+                        Chào mừng <br />
+                        <span className="text-orange-500">trở lại.</span>
+                      </>
                     )}
                   </h2>
 
-                  <p className="text-zinc-400 text-sm font-medium leading-relaxed max-w-xs">
+                  <p className="max-w-sm text-sm font-medium leading-relaxed text-zinc-400">
                     {isRegisterMode
-                      ? "Tạo tài khoản mới để bắt đầu hành trình của bạn."
-                      : "Đăng nhập để truy cập dashboard cá nhân, theo dõi hoạt động và điểm số real-time dựa trên đồ thị hoạt động sinh viên."}
+                      ? "Tạo tài khoản để theo dõi quá trình học tập, điểm số và hoạt động cá nhân trên hệ thống."
+                      : "Đăng nhập để truy cập dashboard cá nhân, xem tiến độ học tập và các phân tích điểm số của bạn."}
                   </p>
                 </motion.div>
               </AnimatePresence>
 
-              {/* Decorative Tech Stats */}
-              <div className="grid grid-cols-2 gap-4 pt-8">
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Status</p>
-                  <p className="text-xs font-bold text-emerald-400">SYSTEM ONLINE</p>
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                    Insight
+                  </p>
+                  <p className="text-xs font-bold text-orange-400">
+                    Theo dõi điểm số
+                  </p>
                 </div>
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Sync</p>
-                  <p className="text-xs font-bold text-blue-400">ACTIVE 100%</p>
+
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                    Progress
+                  </p>
+                  <p className="text-xs font-bold text-blue-400">
+                    Phân tích hoạt động
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="shrink-0 pt-12 border-t border-white/5 opacity-40">
-              <p className="text-[9px] font-bold uppercase tracking-[0.3em]">
-                &copy; 2026 GraphGrade Platform
+            <div className="shrink-0 border-t border-white/10 pt-6">
+              <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-zinc-500">
+                © 2026 GraphGrade Platform
               </p>
             </div>
           </div>
         </div>
 
-        {/* --- PHẦN PHẢI: FORM CÔNG TÁC --- */}
-        <div id="auth-form-container" className="flex-1 bg-white dark:bg-transparent relative flex flex-col">
-          <div className="flex-1 flex flex-col p-8 md:p-16 lg:p-20 justify-center">
+        {/* Right Panel */}
+        <div
+          id="auth-form-container"
+          className="relative flex flex-1 flex-col bg-white dark:bg-zinc-950/40"
+        >
+          <div className="flex flex-1 flex-col justify-center overflow-y-auto p-5 sm:p-6 md:p-8 lg:p-12">
+            <div className="mb-6 block md:hidden">
+              <AuthHeader />
+            </div>
+
             <AnimatePresence mode="wait">
               <motion.div
                 key={isRegisterMode ? "register" : "login"}
-                initial={{ opacity: 0, scale: 0.99, filter: "blur(4px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, scale: 1.01, filter: "blur(4px)" }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="w-full"
+                initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="mx-auto w-full max-w-md"
               >
+                <div className="mb-7">
+                  <p className="mb-3 text-xs font-black uppercase tracking-[0.24em] text-orange-500">
+                    {isRegisterMode ? "Create account" : "Welcome back"}
+                  </p>
+
+                  <h1 className="text-3xl font-black tracking-tight text-zinc-950 dark:text-white md:text-4xl">
+                    {isRegisterMode ? "Tạo tài khoản" : "Đăng nhập"}
+                  </h1>
+
+                  <p className="mt-3 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+                    {isRegisterMode
+                      ? "Điền thông tin bên dưới để bắt đầu sử dụng GraphGrade."
+                      : "Nhập thông tin tài khoản để tiếp tục vào hệ thống."}
+                  </p>
+                </div>
+
                 {!isRegisterMode ? (
-                  <div className="space-y-8">
+                  <div className="space-y-7">
                     <LoginForm />
-                    <div className="text-center space-y-4 pt-4">
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
-                        Chưa có tài khoản tham gia?
+
+                    <div className="space-y-4 pt-1 text-center">
+                      <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                        Chưa có tài khoản?
                       </p>
+
                       <Button
                         variant="outline"
                         onClick={toggleMode}
-                        className="w-full h-14 rounded-2xl border-orange-100 dark:border-white/5 hover:bg-orange-50 dark:hover:bg-white/5 text-orange-600 dark:text-orange-400 font-bold uppercase tracking-widest text-[11px] transition-all"
+                        className="h-14 w-full rounded-2xl border-orange-100 text-[11px] font-bold uppercase tracking-widest text-orange-600 transition-all hover:bg-orange-50 dark:border-white/10 dark:text-orange-400 dark:hover:bg-white/5"
                       >
-                        Tạo tài khoản mới
+                        <span className="flex items-center justify-center gap-2">
+                          <UserPlus className="h-4 w-4" />
+                          Tạo tài khoản mới
+                        </span>
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-8">
+                  <div className="space-y-7">
                     <RegisterFormContainer onSwitchToLogin={toggleMode} />
-                    <div className="text-center space-y-4 pt-4">
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
-                        Đã có tài khoản hệ thống?
+
+                    <div className="space-y-4 pt-1 text-center">
+                      <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                        Đã có tài khoản?
                       </p>
+
                       <Button
                         variant="outline"
                         onClick={toggleMode}
-                        className="w-full h-14 rounded-2xl border-orange-100 dark:border-white/5 hover:bg-orange-50 dark:hover:bg-white/5 text-orange-600 dark:text-orange-400 font-bold uppercase tracking-widest text-[11px] transition-all"
+                        className="h-14 w-full rounded-2xl border-orange-100 text-[11px] font-bold uppercase tracking-widest text-orange-600 transition-all hover:bg-orange-50 dark:border-white/10 dark:text-orange-400 dark:hover:bg-white/5"
                       >
-                        Quay lại Đăng nhập
+                        Quay lại đăng nhập
                       </Button>
                     </div>
                   </div>

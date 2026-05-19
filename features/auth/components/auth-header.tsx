@@ -3,31 +3,32 @@ import Image from "next/image";
 
 export function AuthHeader() {
   return (
-    <div className="px-8 py-6 flex items-center justify-between">
-      <Link href="/" className="flex items-center gap-4 group">
-        <div className="flex items-center gap-3">
-          <div className="relative h-28 w-28 flex-shrink-0 rounded-3xl bg-white p-2 shadow-lg ring-1 ring-slate-200/70 dark:ring-white/10 transition-all duration-300 group-hover:scale-105 group-active:scale-95">
-            <Image
-              src="/images/logo-header.png"
-              alt="GraphGrade Logo"
-              fill
-              className="object-contain scale-110 transition-all"
-              priority
-            />
-          </div>
+    <div className="flex items-center">
+      <Link
+        href="/"
+        className="group flex items-center gap-4 transition-all duration-300 hover:opacity-95 active:scale-95"
+      >
+        {/* GraphGrade Logo */}
+        <div className="relative h-16 w-16 flex-shrink-0 rounded-2xl bg-white p-1.5 shadow-lg ring-1 ring-white/60 transition-all duration-300 group-hover:scale-105">
+          <Image
+            src="/images/logo-header.png"
+            alt="GraphGrade Logo"
+            fill
+            className="object-contain scale-110 transition-all"
+            priority
+          />
         </div>
 
         {/* Divider */}
-        <div className="h-10 w-px bg-slate-200 dark:bg-white/15 transition-colors"></div>
+        <div className="hidden h-9 w-px bg-white/15 sm:block" />
 
-        {/* --- LOGO FPT --- */}
-        <div className="flex-shrink-0 transition-all duration-300 group-hover:scale-105">
+        {/* FPT Logo */}
+        <div className="relative hidden h-10 w-32 flex-shrink-0 sm:block rounded-xl bg-white px-3 py-2 shadow-md ring-1 ring-white/60 transition-all duration-300 group-hover:scale-105">
           <Image
             src="/images/Logo_Trường_Đại_học_FPT.svg.png"
             alt="FPT University"
-            width={140}
-            height={45}
-            className="h-10 w-auto object-contain transition-all"
+            fill
+            className="object-contain p-1"
             priority
           />
         </div>

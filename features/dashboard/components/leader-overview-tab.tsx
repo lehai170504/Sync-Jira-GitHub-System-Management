@@ -30,6 +30,8 @@ import {
   GitCommit,
   Loader2,
 } from "lucide-react";
+import { KpiCardSkeleton, ChartSkeleton } from "@/components/ui/skeletons";
+import { PageError } from "@/components/ui/skeletons";
 import { StatCard } from "@/features/dashboard/components/stat-card";
 import { useTeamDashboard } from "@/features/management/teams/hooks/use-team-dashboard";
 import { useMyClasses } from "@/features/student/hooks/use-my-classes";
@@ -138,8 +140,12 @@ export function LeaderOverviewTab() {
   // Loading state
   if (isLoading || !teamId) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-400">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-6">
+        <KpiCardSkeleton count={4} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartSkeleton />
+          <ChartSkeleton />
+        </div>
       </div>
     );
   }
@@ -147,15 +153,11 @@ export function LeaderOverviewTab() {
   // Error state
   if (error) {
     return (
-      <div className="space-y-6">
-        <Card className="border-red-200 bg-red-50 text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-100">
-          <CardContent className="pt-6">
-            <p className="text-red-600 dark:text-red-300 text-sm">
-              Không thể tải dữ liệu dashboard. Vui lòng thử lại sau.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <PageError
+        title="Không thể tải dữ liệu Dashboard"
+        message="Không thể tải dữ liệu dashboard. Vui lòng thử lại sau."
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 

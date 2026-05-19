@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useProfile } from "@/features/auth/hooks/use-profile";
 import { BackgroundBeams } from "@/features/home/components/background-beams";
 import { useActiveClassId } from "@/hooks/use-active-class-id";
@@ -13,6 +13,8 @@ import { LecturerDashboard } from "@/features/dashboard/components/lecturer-view
 import { LeaderDashboard } from "@/features/dashboard/components/student-view";
 import { MemberDashboard } from "@/features/dashboard/components/member-view";
 import { MyGradesDialog } from "@/features/dashboard/components/my-grades-dialog";
+import { KpiCardSkeleton, CardSkeleton, ChartSkeleton } from "@/components/ui/skeletons";
+import { PageError } from "@/components/ui/skeletons";
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -35,15 +37,36 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[80vh] w-full items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
+      <div className="min-h-screen bg-transparent transition-colors duration-300 relative overflow-hidden">
+        <BackgroundBeams />
+        <div className="max-w-[1600px] mx-auto space-y-8 relative z-10 px-4 py-8">
+          {/* Greeting skeleton */}
+          <div className="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[28px] border border-slate-100 dark:border-slate-800 shadow-sm px-8 py-7 animate-pulse">
+            <div className="space-y-3">
+              <div className="h-3 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+              <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+              <div className="h-5 w-24 bg-slate-200 dark:bg-slate-800 rounded-full" />
+            </div>
+          </div>
+          {/* KPI cards skeleton */}
+          <KpiCardSkeleton count={4} />
+          {/* Chart skeleton */}
+          <ChartSkeleton />
+          {/* Card list skeleton */}
+          <CardSkeleton count={4} cols={2} />
+        </div>
       </div>
     );
   }
 
   if (!user) {
-    router.push("/login");
-    return null;
+    return (
+      <PageError
+        title="Không tìm thấy người dùng"
+        message="Vui lòng đăng nhập lại để tiếp tục."
+        backHref="/login"
+      />
+    );
   }
 
   const roleMeta = {

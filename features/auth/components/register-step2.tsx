@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { ArrowLeft, Loader2, User, Hash, Lock } from "lucide-react";
+import { ArrowLeft, Hash, Loader2, Lock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,15 +30,22 @@ export function RegisterStep2({
   onBack,
 }: RegisterStep2Props) {
   const otpInputs = useRef<(HTMLInputElement | null)[]>([]);
+  const isStudent = formData.role === "STUDENT";
 
   const handleOtpChange = (index: number, value: string) => {
-    if (isNaN(Number(value))) return;
+    if (Number.isNaN(Number(value))) return;
+
     const currentOtp = formData.otp || "";
     const otpArray = currentOtp.padEnd(6, " ").split("");
+
     otpArray[index] = value.substring(value.length - 1);
+
     const newOtp = otpArray.join("").trim();
     onUpdate("otp", newOtp);
-    if (value && index < 5) otpInputs.current[index + 1]?.focus();
+
+    if (value && index < 5) {
+      otpInputs.current[index + 1]?.focus();
+    }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
@@ -47,96 +54,84 @@ export function RegisterStep2({
     }
   };
 
-  const isStudent = formData.role === "STUDENT";
-
   return (
-    <form onSubmit={onSubmit} className="space-y-4 animate-fade-up font-mono">
-      {/* Role & Student Code Row */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className={!isStudent ? "col-span-2" : ""}>
+    <form onSubmit={onSubmit} className="space-y-4 animate-fade-up">
+      {/* Role + Student Code */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className={!isStudent ? "sm:col-span-2" : ""}>
           <Select
             value={formData.role}
             onValueChange={(val) => onUpdate("role", val)}
+            disabled={isLoading}
           >
-            <SelectTrigger className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 font-bold text-[10px] uppercase tracking-wider focus:ring-[#F27124]/20">
+            <SelectTrigger className="h-12 rounded-2xl border-slate-100 bg-slate-50 text-xs font-bold uppercase tracking-wider text-zinc-900 transition-all focus:ring-4 focus:ring-orange-500/10 dark:border-white/10 dark:bg-white/[0.04] dark:text-white">
               <SelectValue placeholder="Vai trò" />
             </SelectTrigger>
-            <SelectContent className="font-mono uppercase text-[10px] font-semibold dark:bg-slate-900 dark:border-slate-800">
-              <SelectItem value="STUDENT" className="dark:text-slate-200">
-                Sinh viên
-              </SelectItem>
-              <SelectItem value="LECTURER" className="dark:text-slate-200">
-                Giảng viên
-              </SelectItem>
+
+            <SelectContent className="rounded-2xl border-slate-100 bg-white text-xs font-semibold dark:border-white/10 dark:bg-zinc-900">
+              <SelectItem value="STUDENT">Sinh viên</SelectItem>
+              <SelectItem value="LECTURER">Giảng viên</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {isStudent && (
-          <div className="relative group">
-            <Input
-              placeholder=" "
-              value={formData.studentCode}
-              onChange={(e) => onUpdate("studentCode", e.target.value)}
-              className="peer pl-9 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-all font-bold text-xs pt-4 uppercase text-slate-900 dark:text-slate-100"
-              required
-            />
-            <Label className="absolute left-9 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-semibold uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
-              MSSV
-            </Label>
-            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300 dark:text-slate-500 group-focus-within:text-[#F27124] dark:group-focus-within:text-orange-400 transition-colors" />
-          </div>
+          <FloatingInput
+            label="MSSV"
+            icon={<Hash className="h-3.5 w-3.5" />}
+            value={formData.studentCode}
+            onChange={(value) => onUpdate("studentCode", value)}
+            disabled={isLoading}
+            required
+            uppercase
+          />
         )}
       </div>
 
       {/* Full Name */}
-      <div className="relative group">
-        <Input
-          placeholder=" "
-          value={formData.fullName}
-          onChange={(e) => onUpdate("fullName", e.target.value)}
-          className="peer pl-9 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-all font-bold text-xs pt-4 text-slate-900 dark:text-slate-100"
-          required
-        />
-        <Label className="absolute left-9 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-semibold uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
-          Họ và tên
-        </Label>
-        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300 dark:text-slate-500 group-focus-within:text-[#F27124] dark:group-focus-within:text-orange-400 transition-colors" />
-      </div>
+      <FloatingInput
+        label="Họ và tên"
+        icon={<User className="h-3.5 w-3.5" />}
+        value={formData.fullName}
+        onChange={(value) => onUpdate("fullName", value)}
+        disabled={isLoading}
+        required
+      />
 
       {/* Passwords */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="relative group">
-          <Input
-            type="password"
-            placeholder=" "
-            value={formData.password}
-            onChange={(e) => onUpdate("password", e.target.value)}
-            className="peer pl-9 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-all font-bold text-xs pt-4 text-slate-900 dark:text-slate-100"
-            required
-          />
-          <Label className="absolute left-9 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-semibold uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
-            Mật khẩu
-          </Label>
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300 dark:text-slate-500 group-focus-within:text-[#F27124] dark:group-focus-within:text-orange-400 transition-colors" />
-        </div>
-        <div className="relative group">
-          <Input
-            type="password"
-            placeholder=" "
-            value={formData.confirmPassword}
-            onChange={(e) => onUpdate("confirmPassword", e.target.value)}
-            className="peer pl-3 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-all font-bold text-xs pt-4 text-slate-900 dark:text-slate-100"
-            required
-          />
-          <Label className="absolute left-3 top-3.5 text-slate-400 dark:text-slate-500 text-[9px] font-semibold uppercase tracking-widest pointer-events-none transition-all peer-focus:-translate-y-2.5 peer-focus:text-[#F27124] dark:peer-focus:text-orange-400 peer-[:not(:placeholder-shown)]:-translate-y-2.5">
-            Nhập lại
-          </Label>
-        </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <FloatingInput
+          type="password"
+          label="Mật khẩu"
+          icon={<Lock className="h-3.5 w-3.5" />}
+          value={formData.password}
+          onChange={(value) => onUpdate("password", value)}
+          disabled={isLoading}
+          required
+        />
+
+        <FloatingInput
+          type="password"
+          label="Nhập lại"
+          value={formData.confirmPassword}
+          onChange={(value) => onUpdate("confirmPassword", value)}
+          disabled={isLoading}
+          required
+          compact
+        />
       </div>
 
-      {/* OTP Section */}
-      <div className="space-y-3 pt-2">
+      {/* OTP */}
+      <div className="space-y-3 rounded-3xl border border-slate-100 bg-slate-50/70 p-4 dark:border-white/10 dark:bg-white/[0.03]">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+            Mã xác thực OTP
+          </p>
+          <p className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Nhập 6 chữ số đã được gửi đến email của bạn.
+          </p>
+        </div>
+
         <div className="flex justify-center gap-2">
           {Array.from({ length: 6 }).map((_, index) => (
             <input
@@ -150,25 +145,28 @@ export function RegisterStep2({
               value={formData.otp[index] || ""}
               onChange={(e) => handleOtpChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="w-9 h-11 text-center text-lg font-semibold border border-slate-100 dark:border-slate-800 rounded-xl focus:border-[#F27124] dark:focus:border-orange-500 focus:ring-4 focus:ring-orange-100 dark:focus:ring-orange-900/30 outline-none transition-all bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm dark:shadow-none"
+              disabled={isLoading}
+              className="h-11 w-10 rounded-2xl border border-slate-100 bg-white text-center text-base font-black text-zinc-950 shadow-sm outline-none transition-all focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 disabled:opacity-60 dark:border-white/10 dark:bg-zinc-950/70 dark:text-white dark:focus:border-orange-400 dark:focus:ring-orange-400/10"
             />
           ))}
         </div>
       </div>
 
-      <div className="flex gap-3 pt-2">
+      <div className="flex gap-3 pt-1">
         <Button
           type="button"
           variant="outline"
           onClick={onBack}
-          className="h-12 w-12 rounded-2xl border-slate-100 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-90 transition-all bg-white dark:bg-slate-900"
+          disabled={isLoading}
+          className="h-12 w-12 rounded-2xl border-slate-100 bg-white transition-all hover:bg-slate-50 active:scale-95 dark:border-white/10 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
         >
-          <ArrowLeft className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+          <ArrowLeft className="h-4 w-4 text-zinc-600 dark:text-zinc-300" />
         </Button>
+
         <Button
           type="submit"
           disabled={isLoading}
-          className="flex-1 h-12 text-[10px] font-semibold uppercase tracking-widest bg-slate-900 dark:bg-[#F27124] hover:bg-[#F27124] dark:hover:bg-[#d65d1b] text-white rounded-2xl shadow-lg dark:shadow-none active:scale-95 transition-all"
+          className="h-12 flex-1 rounded-2xl bg-zinc-950 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-lg transition-all hover:bg-orange-500 active:scale-95 disabled:opacity-70 dark:bg-orange-500 dark:hover:bg-orange-600 dark:shadow-none"
         >
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -178,5 +176,61 @@ export function RegisterStep2({
         </Button>
       </div>
     </form>
+  );
+}
+
+interface FloatingInputProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  icon?: React.ReactNode;
+  type?: string;
+  disabled?: boolean;
+  required?: boolean;
+  uppercase?: boolean;
+  compact?: boolean;
+}
+
+function FloatingInput({
+  label,
+  value,
+  onChange,
+  icon,
+  type = "text",
+  disabled,
+  required,
+  uppercase,
+  compact,
+}: FloatingInputProps) {
+  return (
+    <div className="relative group">
+      <Input
+        type={type}
+        placeholder=" "
+        value={value}
+        onChange={(e) =>
+          onChange(uppercase ? e.target.value.toUpperCase() : e.target.value)
+        }
+        disabled={disabled}
+        required={required}
+        className={`peer h-12 rounded-2xl border-slate-100 bg-slate-50 pt-4 text-xs font-semibold text-zinc-950 transition-all focus:bg-white focus:ring-4 focus:ring-orange-500/10 disabled:opacity-60 dark:border-white/10 dark:bg-white/[0.04] dark:text-white dark:focus:bg-white/[0.06] ${
+          icon ? "pl-9" : "pl-3"
+        } ${uppercase ? "uppercase" : ""}`}
+      />
+
+      <Label
+        className={`pointer-events-none absolute top-3.5 text-[9px] font-black uppercase tracking-widest text-zinc-400 transition-all duration-300 peer-focus:-translate-y-2.5 peer-focus:text-orange-500 peer-[:not(:placeholder-shown)]:-translate-y-2.5 dark:text-zinc-500 dark:peer-focus:text-orange-400 ${
+          icon ? "left-9" : "left-3"
+        } ${compact ? "tracking-[0.14em]" : ""}`}
+      >
+        {label}
+      </Label>
+
+      {icon && (
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 transition-colors group-focus-within:text-orange-500 dark:text-zinc-500 dark:group-focus-within:text-orange-400">
+          {icon}
+        </div>
+      )}
+    </div>
   );
 }

@@ -42,7 +42,7 @@ export function Footer() {
             </h4>
             <ul className="space-y-4">
               <FooterItem label="Tính năng chính" href="/#features" />
-              <FooterItem label="Bảng điều khiển" href="/dashboard" />
+              <FooterItem label="Dashboard" href="/dashboard" />
               <FooterItem label="Quy trình vận hành" href="/workflow" />
             </ul>
           </div>

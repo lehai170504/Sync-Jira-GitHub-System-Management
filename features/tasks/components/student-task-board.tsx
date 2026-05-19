@@ -12,7 +12,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { KanbanSquare, LayoutDashboard, Loader2, RefreshCw, Plus, HelpCircle } from "lucide-react";
+import { KanbanSquare, LayoutDashboard, RefreshCw, Plus, HelpCircle, Loader2 } from "lucide-react";
+import { KanbanSkeleton } from "@/components/ui/skeletons";
 import { toast } from "sonner";
 
 import { statusColumns } from "@/features/tasks/utils/mock-data";
@@ -999,9 +1000,8 @@ export function TaskBoard() {
                     className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-2"
                 >
                     {isTasksLoading ? (
-                        <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Đang tải tasks...
+                        <div className="py-4">
+                            <KanbanSkeleton columns={4} cardsPerColumn={3} />
                         </div>
                     ) : isTasksError ? (
                         <Alert className="bg-red-50 border-red-200 text-red-900 dark:bg-red-950/40 dark:border-red-900/60 dark:text-red-100">

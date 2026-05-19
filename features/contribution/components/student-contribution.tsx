@@ -6,6 +6,7 @@ import { UserRole } from "@/components/layouts/sidebar-config";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Layers } from "lucide-react";
+import { ChartSkeleton } from "@/components/ui/skeletons";
 import { toast } from "sonner";
 import { ContributionPie } from "@/features/contribution/components/contribution-pie";
 import { ContributionSummary } from "@/features/contribution/components/contribution-summary";
@@ -152,12 +153,7 @@ export function LeaderContribution() {
           </div>
         </div>
         <Separator />
-        <Alert className="bg-slate-50 border-slate-200 text-slate-800 dark:bg-slate-900/60 dark:border-slate-800 dark:text-slate-100">
-          <AlertTitle>Đang tải</AlertTitle>
-          <AlertDescription>
-            Vui lòng chờ trong giây lát.
-          </AlertDescription>
-        </Alert>
+        <ChartSkeleton />
       </div>
     );
   }

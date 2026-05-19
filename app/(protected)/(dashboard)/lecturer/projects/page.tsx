@@ -5,13 +5,13 @@ import { useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import {
   Search,
-  Loader2,
   FolderGit2,
   GitBranch,
   ShieldAlert,
   LayoutGrid,
   FilterX,
 } from "lucide-react";
+import { CardSkeleton, PageError } from "@/components/ui/skeletons";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -58,11 +58,8 @@ export default function LecturerProjectManagementPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[80vh] bg-transparent font-sans">
-        <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
-        <p className="mt-4 text-slate-500 dark:text-slate-400 font-medium text-sm animate-pulse">
-          Đang tải dữ liệu đồ án...
-        </p>
+      <div className="space-y-8 animate-in fade-in duration-500 pb-20 px-4 md:px-8 max-w-400 mx-auto">
+        <CardSkeleton count={6} cols={3} lines={3} withAvatar />
       </div>
     );
   }

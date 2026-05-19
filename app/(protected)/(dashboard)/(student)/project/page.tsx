@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { useMyProject } from "@/features/projects/hooks/use-my-project";
 import {
-  Loader2,
   Github,
   Trello,
   Crown,
@@ -19,7 +18,9 @@ import {
   GitBranch,
   Check,
   FileDown,
+  Loader2,
 } from "lucide-react";
+import { CardSkeleton, PageError } from "@/components/ui/skeletons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -172,13 +173,15 @@ export default function ProjectDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-slate-900 dark:text-slate-100">
-          <Loader2 className="h-10 w-10 animate-spin text-[#F27124]" />
-          <p className="text-sm font-medium text-gray-500 dark:text-slate-400 animate-pulse">
-            Đang tải không gian làm việc...
-          </p>
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Project hero skeleton */}
+        <div className="rounded-[28px] border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 p-8 space-y-4 animate-pulse">
+          <div className="h-5 w-40 bg-slate-200 dark:bg-slate-800 rounded-full" />
+          <div className="h-8 w-72 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div className="h-4 w-96 bg-slate-200 dark:bg-slate-800 rounded" />
         </div>
+        {/* Project detail cards */}
+        <CardSkeleton count={3} cols={3} lines={3} withAvatar />
       </div>
     );
   }

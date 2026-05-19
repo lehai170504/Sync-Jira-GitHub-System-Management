@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
-import { Search, Loader2, AlertCircle } from "lucide-react";
+import { Search, AlertCircle } from "lucide-react";
+import { TableSkeleton } from "@/components/ui/skeletons";
 
 import { Input } from "@/components/ui/input";
 
@@ -80,11 +81,12 @@ export default function ClassManagementPage() {
   // --- LOADING STATE ---
   if (isDetailsLoading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center flex-col gap-4 text-slate-400 dark:text-slate-500 font-sans transition-colors">
-        <Loader2 className="h-10 w-10 animate-spin text-blue-500 dark:text-blue-400" />
-        <p className="text-sm font-medium animate-pulse">
-          Đang tải dữ liệu lớp học...
-        </p>
+      <div className="space-y-6 px-4 md:px-8 py-6">
+        <div className="space-y-2">
+          <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div className="h-8 w-64 bg-slate-200 dark:bg-slate-800 rounded" />
+        </div>
+        <TableSkeleton rows={8} cols={5} />
       </div>
     );
   }
@@ -148,12 +150,7 @@ export default function ClassManagementPage() {
         {/* DANH SÁCH SINH VIÊN (Bỏ Tabs) */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm min-h-125 overflow-hidden transition-colors p-4 md:p-6">
           {isStudentsLoading ? (
-            <div className="flex flex-col items-center justify-center h-64 gap-4">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium animate-pulse">
-                Đang tải danh sách...
-              </p>
-            </div>
+            <TableSkeleton rows={6} cols={5} />
           ) : (
             <StudentList
               classId={classId}
